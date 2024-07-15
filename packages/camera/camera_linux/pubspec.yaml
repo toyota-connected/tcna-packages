@@ -1,0 +1,35 @@
+name: camera_linux
+description: A Flutter plugin for getting information about and controlling the camera on Linux.
+repository: https://github.com/toyota-connected/tcna-packages/tree/main/tcna-packages/camera/camera_linux
+issue_tracker: https://github.com/toyota-connected/tcna-packages/issues?q=is%3Aissue+is%3Aopen+label%3A%22p%3A+camera%22
+version: 0.1.0
+
+environment:
+  sdk: ^3.2.0
+  flutter: ">=3.16.0"
+
+flutter:
+  plugin:
+    implements: camera
+    platforms:
+      linux:
+        pluginClass: CameraLinux
+        dartPluginClass: CameraLinux
+
+dependencies:
+  camera_platform_interface: ^2.6.0
+  cross_file: ^0.3.1
+  flutter:
+    sdk: flutter
+  stream_transform: ^2.0.0
+
+dev_dependencies:
+  async: ^2.5.0
+  build_runner: ^2.4.9
+  flutter_test:
+    sdk: flutter
+  mockito: 5.4.4
+  pigeon: ^20.0.0
+
+topics:
+  - camera
