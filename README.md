@@ -1,4 +1,4 @@
-# Toyota Connected North America (TCNA) Flutter Packages
+# Toyota Connected North America Flutter Packages
 
 This repo is a companion repo to the main [flutter repo](
 https://github.com/flutter/flutter). It contains the source code for TCNA that support first-party 
