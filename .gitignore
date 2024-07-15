@@ -58,4 +58,6 @@ gradlew.bat
 .classpath
 .settings
 
-.desktop-homescreen*
+packages/camera/camera_linux/example/.desktop-homescreen*
+packages/video_player/video_player_linux/example/.desktop-homescreen*
+packages/webview/webview_flutter_linux/example/.desktop-homescreen*
