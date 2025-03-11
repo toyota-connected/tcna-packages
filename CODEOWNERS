@@ -1,4 +1,4 @@
-# Below is a list of Flutter team members who are suggested reviewers
+# Below is a list of team members who are suggested reviewers
 # for contributions to packages in this repository.
 #
 # These names are just suggestions. It is fine to have your changes
@@ -7,3 +7,4 @@
 packages/camera/**                                   @jwinarske
 packages/video_player/**                             @jwinarske
 packages/webview/**                                  @jwinarske
+packages/filament_scene/**                           @jwinarske @kerberjg
