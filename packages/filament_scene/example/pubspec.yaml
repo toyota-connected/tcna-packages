@@ -1,0 +1,35 @@
+name: my_fox_example
+description: Demonstrates how to use the playx 3d Scene plugin to show 3d model.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_colorpicker:
+    path: flutter_colorpicker-1.1.0
+
+  filament_scene:
+    path: ../
+  
+  uuid: ^3.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.3
+  pigeon: ^22.6.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - assets/envs/
+    - assets/envs/venetian_crossroads_2k/
+    - assets/models/
+    - assets/models/textures/
+    - assets/materials/
+    - assets/materials/texture/
+
