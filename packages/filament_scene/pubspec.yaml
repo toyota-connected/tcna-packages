@@ -1,0 +1,30 @@
+name: filament_scene
+description: Game engine for Flutter, based on Google's Filament 3D rendering engine
+repository: https://github.com/toyota-connected/tcna-packages/tree/main/tcna-packages/fila,ment_scene
+issue_tracker: https://github.com/toyota-connected/tcna-packages/issues?q=is%3Aissue+is%3Aopen+label%3A%22p%3A+filament_scene%22
+version: 0.1.0
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+  flutter: ">=3.27.1 <4.0.0"
+  
+dependencies:
+  flutter:
+    sdk: flutter
+  plugin_platform_interface: ^2.1.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  pigeon: ^22.6.0
+
+flutter:
+  plugin:
+    platforms:
+      linux:
+        package: com.toyotaconnected.filament_scene
+        pluginClass: FilamentViewPlugin
+
+
+
