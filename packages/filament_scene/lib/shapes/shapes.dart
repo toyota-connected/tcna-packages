@@ -1,7 +1,9 @@
 library shapes;
 
+import 'package:filament_scene/ecs/entity.dart';
 import 'package:filament_scene/scene/geometry/geometry.dart';
 import 'package:filament_scene/material/material.dart';
+import 'package:filament_scene/utils/guid.dart';
 
 part 'cube.dart';
 part 'plane.dart';
@@ -13,7 +15,7 @@ part 'sphere.dart';
 /// [Cube]
 /// [Plane]
 /// [Sphere]
-class Shape {
+class Shape extends Entity {
   /// center position of the shape in the world space.
   Vector3? centerPosition;
 
@@ -32,12 +34,6 @@ class Shape {
   /// Do we have a collidable for this object (expecting to collide)
   Collidable? collidable;
 
-  /// used for communication back and forth from dart/native
-  String? name;
-
-  /// used for communication back and forth from dart/native
-  String? global_guid;
-
   /// When creating geometry if its inside and out, or only
   /// outward facing
   bool doubleSided;
@@ -52,40 +48,35 @@ class Shape {
   bool castShadows;
 
   Shape({
+    required super.id,
+    super.name,
     this.centerPosition,
     this.normal,
     this.material,
     this.scale,
     this.rotation,
-    this.collidable, 
-    this.global_guid,
-    this.name,
+    this.collidable,
     this.doubleSided = false,
     this.cullingEnabled = true,
     this.castShadows = false,
     this.receiveShadows = false,
   });
 
+  @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'name': name,
-    'global_guid' : global_guid,
+    ...super.toJson(),
     'centerPosition': centerPosition?.toJson(),
     'normal': normal?.toJson(),
-    'material': material?.toJson(),
     'scale': scale?.toJson(),
     'rotation': rotation?.toJson(),
     'collidable': collidable?.toJson(),
+    'material': material?.toJson(),
     'type': 0,
     'doubleSided': doubleSided,
     'cullingEnabled': cullingEnabled,
     'receiveShadows': receiveShadows,
     'castShadows': castShadows,
   };
-
-  @override
-  String toString() {
-    return 'centerPosition: $centerPosition normal: $normal, material: $material)';
-  }
 
   @override
   bool operator ==(final Object other) {

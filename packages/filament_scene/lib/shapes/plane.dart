@@ -10,9 +10,9 @@ class Plane extends Shape {
   Vector3 size;
 
   Plane({
+    required super.id,
     required this.size,
     required super.centerPosition,
-    super.global_guid,
     super.name,
     super.scale,
     super.normal,
@@ -27,26 +27,10 @@ class Plane extends Shape {
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'name': name,
-    'global_guid' : global_guid,
-    'centerPosition': centerPosition?.toJson(),
-    'scale': scale?.toJson(),
-    'normal': normal?.toJson(),
+    ...super.toJson(),
     'size': size.toJson(),
-    'rotation': rotation?.toJson(),
-    'collidable': collidable?.toJson(),
-    'material': material?.toJson(),
     'shapeType': 1,
-    'doubleSided': doubleSided,
-    'cullingEnabled': cullingEnabled,
-    'receiveShadows': receiveShadows,
-    'castShadows': castShadows,
   };
-
-  @override
-  String toString() {
-    return 'Plane(size: $size, centerPosition: $centerPosition)';
-  }
 
   @override
   bool operator ==(final Object other) {

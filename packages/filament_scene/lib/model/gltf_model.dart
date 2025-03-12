@@ -38,7 +38,7 @@ class GltfModel extends Model {
     super.animation,
     required super.castShadows, required  super.receiveShadows,
     super.name,
-    super.guid,
+    required super.id,
   }) : super(assetPath: path) {
     assert(path.isNotEmpty);
     assert(
@@ -50,8 +50,8 @@ class GltfModel extends Model {
 
   /// creates gltf model based on glb file url .
   /// currently supporting only .zip file format.
-  GltfModel.url(
-    String url, {
+  GltfModel.url({
+    required super.url,
     this.prefix = "",
     this.postfix = "",
     super.keepInMemory,
@@ -60,37 +60,30 @@ class GltfModel extends Model {
     super.centerPosition,
     super.rotation,
     super.animation,
-    required bool receiveShadows, required bool castShadows,
+    required super.receiveShadows,
+    required super.castShadows,
     super.name,
-    super.guid,
-  }) : super(url: url
-  , receiveShadows: receiveShadows
-  , castShadows: castShadows);
+    required super.id,
+  }) : super();
 
   @override
   Map<String, dynamic> toJson() => {
-        'assetPath': assetPath,
-        'url': url,
-        'should_keep_asset_in_memory': keepInMemory,
+    ...super.toJson(),
+    'assetPath': assetPath,
+    'url': url,
+    'should_keep_asset_in_memory': keepInMemory,
     'is_primary_to_instance_from': isInstancePrimary,
-        'pathPrefix': prefix,
-        'pathPostfix': postfix,
-        'collidable': collidable?.toJson(),
-        'scale': scale?.toJson(),
-        'rotation': rotation?.toJson(),
-        'centerPosition': centerPosition?.toJson(),
-        'animation': animation?.toJson(),
-                'castShadows': castShadows,
-                'receiveShadows': receiveShadows,
-        'isGlb': false,
-        'name': name,
-        'global_guid' : guid,
-      };
-
-  @override
-  String toString() {
-    return 'GltfModel(assetPath: $assetPath, url: $url, prefix: $prefix, postfix: $postfix, scale: $scale, centerPosition: $centerPosition, animation: $animation)';
-  }
+    'pathPrefix': prefix,
+    'pathPostfix': postfix,
+    'collidable': collidable?.toJson(),
+    'scale': scale?.toJson(),
+    'rotation': rotation?.toJson(),
+    'centerPosition': centerPosition?.toJson(),
+    'animation': animation?.toJson(),
+            'castShadows': castShadows,
+            'receiveShadows': receiveShadows,
+    'isGlb': false,
+  };
 
   @override
   bool operator ==(Object other) {
