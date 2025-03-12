@@ -1,6 +1,6 @@
 import 'package:my_fox_example/shape_and_object_creators.dart';
 import 'package:filament_scene/filament_scene.dart';
-import 'package:uuid/uuid.dart';
+
 
 const String sequoiaAsset = "assets/models/sequoia_ngp.glb";
 const String garageAsset = "assets/models/garagescene.glb";
@@ -34,7 +34,7 @@ List<Model> getBaseModels() {
     receiveShadows: true,
     castShadows: true,
     name: sequoiaAsset,
-    guid: const Uuid().v4(),
+    id: generateGuid(),
     keepInMemory: true,
     isInstancePrimary: true,
   ));
@@ -49,7 +49,7 @@ List<Model> getBaseModels() {
     animation: null,
     receiveShadows: true,
     castShadows: true,
-    guid: const Uuid().v4(),
+    id: generateGuid(),
     keepInMemory: true,
     isInstancePrimary: true,
   ));
@@ -65,7 +65,7 @@ List<Model> getBaseModels() {
     receiveShadows: false,
     castShadows: false,
     name: radarConeAsset,
-    guid: const Uuid().v4(),
+    id: generateGuid(),
     keepInMemory: true,
     isInstancePrimary: true,
   ));
@@ -81,7 +81,7 @@ List<Model> getBaseModels() {
     receiveShadows: true,
     castShadows: true,
     name: radarSegmentAsset,
-    guid: const Uuid().v4(),
+    id: generateGuid(),
     keepInMemory: true,
     isInstancePrimary: true,
   ));
@@ -97,7 +97,7 @@ List<Model> getBaseModels() {
       receiveShadows: true,
       castShadows: false,
       name: checkerboardFloor,
-      guid: const Uuid().v4(),
+      id: generateGuid(),
       keepInMemory: true,
       isInstancePrimary: true,
     ));

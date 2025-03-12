@@ -18,7 +18,7 @@ class GlbModel extends Model {
     required super.castShadows,
     required super.receiveShadows,
     super.name,
-    super.guid
+    required super.id
   }) : 
     assert(path.isNotEmpty, "path should not be empty"),
     assert(path.contains('.glb'), "path should be a glb file path"),
@@ -31,16 +31,21 @@ class GlbModel extends Model {
   ;
 
   /// creates glb model based on glb file url.
-  GlbModel.url(String url,
-      {super.scale, super.centerPosition
-        , super.keepInMemory
-        , super.isInstancePrimary
-      , super.animation, required bool receiveShadows, required bool castShadows})
-      : super(url: url, receiveShadows: receiveShadows
-                        , castShadows: castShadows);
+  GlbModel.url({
+    required super.url,
+    required super.id,
+    super.scale,
+    super.centerPosition,
+    super.keepInMemory,
+    super.isInstancePrimary,
+    super.animation, 
+    required super.receiveShadows, 
+    required super.castShadows,
+  }) : super();
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
+    ...super.toJson(),
     'assetPath': assetPath,
     'url': url,
     // TODO(kerberjg): update fields in Filament C++ API
@@ -54,14 +59,7 @@ class GlbModel extends Model {
     'castShadows': castShadows,
     'receiveShadows': receiveShadows,
     'isGlb': true,
-    'name': name,
-    'global_guid' : guid,
   };
-
-  @override
-  String toString() {
-    return 'GlbModel(assetPath: $assetPath, url: $url, scale: $scale, centerPosition: $centerPosition, animation: $animation)';
-  }
 
   @override
   bool operator ==(final  Object other) {

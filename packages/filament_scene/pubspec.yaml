@@ -12,6 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.1.8
+  safe_int_id: ^1.1.1
 
 dev_dependencies:
   flutter_test:

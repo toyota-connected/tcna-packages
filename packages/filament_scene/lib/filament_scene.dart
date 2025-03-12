@@ -9,3 +9,5 @@ export 'material/material.dart';
 export 'scene/skybox/skybox.dart';
 export 'scene/scene.dart';
 export 'shapes/shapes.dart';
+export 'utils/guid.dart';
+export 'ecs/entity.dart';
