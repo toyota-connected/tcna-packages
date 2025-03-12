@@ -1,10 +1,11 @@
+import 'package:filament_scene/utils/guid.dart';
 import 'package:flutter/material.dart' hide Animation;
 import 'package:my_fox_example/assets.dart';
 import 'package:my_fox_example/scenes/playground_scene.dart';
 import 'package:my_fox_example/scenes/radar_scene.dart';
 import 'package:my_fox_example/scenes/settings_scene.dart';
 import 'package:filament_scene/filament_scene.dart';
-import 'package:uuid/uuid.dart';
+
 import 'material_helpers.dart';
 
 
@@ -19,37 +20,39 @@ GlbModel poGetModel(
     Animation? animationInfo,
     bool bReceiveShadows,
     bool bCastShadows,
-    String overrideGUID,
+    EntityGUID? id,
     bool bKeepInMemory,
     bool bWhenInstanceableIsPrimary) {
   return GlbModel.asset(szAsset,
-      keepInMemory: bKeepInMemory,
-      isInstancePrimary: bWhenInstanceableIsPrimary,
-      animation: animationInfo,
-      collidable: collidable,
-      centerPosition: position,
-      scale: scale,
-      rotation: rotation,
-      name: szAsset,
-      receiveShadows: bReceiveShadows,
-      castShadows: bCastShadows,
-      // ignore: prefer_const_constructors
-      guid: overrideGUID);
+    keepInMemory: bKeepInMemory,
+    isInstancePrimary: bWhenInstanceableIsPrimary,
+    animation: animationInfo,
+    collidable: collidable,
+    centerPosition: position,
+    scale: scale,
+    rotation: rotation,
+    name: szAsset,
+    receiveShadows: bReceiveShadows,
+    castShadows: bCastShadows,
+    id: id ?? generateGuid()
+  );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // TODO(kerberjg): investigate and remove
 @Deprecated("Will be removed")
-List<String> thingsWeCanChangeParamsOn = [];
+List<EntityGUID> thingsWeCanChangeParamsOn = [];
 
 // TODO(kerberjg): refactor as `Cube.default`
 @Deprecated("Will be removed")
-Shape poCreateCube(Vector3 pos, Vector3 scale, Vector3 sizeExtents, Color? colorOveride, [ String? guid ]) {
-  String uniqueGuid = guid ?? const Uuid().v4();
+Shape poCreateCube(Vector3 pos, Vector3 scale, Vector3 sizeExtents, Color? colorOveride, [ EntityGUID? id ]) {
+  id ??= generateGuid();
+
   // Just to show off changing material params during runtime.
-  thingsWeCanChangeParamsOn.add(uniqueGuid);
+  thingsWeCanChangeParamsOn.add(id);
 
   return Cube(
+      id: id,
       size: sizeExtents,
       centerPosition: pos,
       scale: scale,
@@ -57,8 +60,6 @@ Shape poCreateCube(Vector3 pos, Vector3 scale, Vector3 sizeExtents, Color? color
       receiveShadows: true,
       material: poGetLitMaterialWithRandomValues(),
       collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
-      // ignore: prefer_const_constructors
-      global_guid: uniqueGuid
       //material: colorOveride != null
       //    ? poGetLitMaterial(colorOveride)
       //    : poGetLitMaterialWithRandomValues(),
@@ -69,7 +70,7 @@ Shape poCreateCube(Vector3 pos, Vector3 scale, Vector3 sizeExtents, Color? color
 // TODO(kerberjg): refactor as `Sphere.default`
 @Deprecated("Will be removed")
 Shape poCreateSphere(Vector3 pos, Vector3 scale, Vector3 sizeExtents,
-    int stacks, int slices, Color? colorOveride, [ String? guid ]) {
+    int stacks, int slices, Color? colorOveride, [ EntityGUID? id ]) {
   return Sphere(
     centerPosition: pos,
     material: poGetTexturedMaterial(),
@@ -82,15 +83,16 @@ Shape poCreateSphere(Vector3 pos, Vector3 scale, Vector3 sizeExtents,
     receiveShadows: true,
     scale: scale,
     size: sizeExtents,
-    global_guid: guid
+    id: id ?? generateGuid(),
   );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // TODO(kerberjg): refactor as `Plane.default`
 @Deprecated("Will be removed")
-Shape poCreatePlane(Vector3 pos, Vector3 scale, Vector3 sizeExtents) {
+Shape poCreatePlane(Vector3 pos, Vector3 scale, Vector3 sizeExtents, [ EntityGUID? id ]) {
   return Plane(
+      id: id ?? generateGuid(),
       doubleSided: true,
       size: sizeExtents,
       scale: scale,
@@ -149,7 +151,7 @@ List<Shape> poGetScenesShapes() {
 // TODO(kerberjg): refactor as an Entity
 @Deprecated("Will be removed")
 class MovingDemoLight {
-  String guid;
+  EntityGUID id;
   Vector3 origin;
   Vector3 direction;
 
@@ -158,7 +160,7 @@ class MovingDemoLight {
   double oppositeX = 0, oppositeZ = 0;
   double t = 0;
 
-  MovingDemoLight(this.guid, this.origin,this.direction) {
+  MovingDemoLight(this.id, this.origin,this.direction) {
     startX = origin.x;
     startZ = origin.z;
 
@@ -169,13 +171,13 @@ class MovingDemoLight {
 
   @override
   String toString() {
-    return 'Light(guid: $guid, origin: $origin, direction: $direction)';
+    return 'Light(id: $id, origin: $origin, direction: $direction)';
   }
 }
 List<MovingDemoLight> lightsWeCanChangeParamsOn = [];
 
 // NOTE: this is a good example of how to keep track of entities (as 'consts') so they can be referenced later
-final String centerPointLightGUID = const Uuid().v4();
+final EntityGUID centerPointLightGUID = generateGuid();
 
 // TODO(kerberjg): this should be initialized as components on scene entities
 @Deprecated("Will be removed")
@@ -191,13 +193,13 @@ List<Light> poGetSceneLightsList() {
   //LightType lType = LightType.spot;
   LightType lType = LightType.point;
 
-  String guid = const Uuid().v4();
+  EntityGUID id = generateGuid();
 
   lightsWeCanChangeParamsOn
-      .add(MovingDemoLight(guid, Position(-15.0, 5.0, -15.0), Direction(0.0, yDirection, 0.0)));
+      .add(MovingDemoLight(id, Position(-15.0, 5.0, -15.0), Direction(0.0, yDirection, 0.0)));
 
   itemsToReturn.add(Light(
-      global_guid: guid,
+      id: id,
       type: lType,
       colorTemperature: 36500,
       color: Colors.red,
@@ -211,13 +213,13 @@ List<Light> poGetSceneLightsList() {
       // should be a unit vector
       direction: Vector3.only(x: 0, y: yDirection, z: 0)));
 
-  guid = const Uuid().v4();
+  id = generateGuid();
 
   lightsWeCanChangeParamsOn
-      .add(MovingDemoLight(guid, Position(15.0, 5.0, 15.0), Direction(0.0, yDirection, 0.0)));
+      .add(MovingDemoLight(id, Position(15.0, 5.0, 15.0), Direction(0.0, yDirection, 0.0)));
 
   itemsToReturn.add(Light(
-      global_guid: guid,
+      id: id,
       type: lType,
       colorTemperature: 36500,
       color: Colors.blue,
@@ -231,13 +233,13 @@ List<Light> poGetSceneLightsList() {
       // should be a unit vector
       direction: Vector3.only(x: 0, y: yDirection, z: 0)));
 
-  guid = const Uuid().v4();
+  id = generateGuid();
 
   lightsWeCanChangeParamsOn
-      .add(MovingDemoLight(guid, Position(-15.0, 5.0, 15.0), Direction(0.0, yDirection, 0.0)));
+      .add(MovingDemoLight(id, Position(-15.0, 5.0, 15.0), Direction(0.0, yDirection, 0.0)));
 
   itemsToReturn.add(Light(
-      global_guid: guid,
+      id: id,
       type: lType,
       colorTemperature: 36500,
       color: Colors.green,
@@ -251,13 +253,13 @@ List<Light> poGetSceneLightsList() {
       // should be a unit vector
       direction: Vector3.only(x: 0, y: yDirection, z: 0)));
 
-  guid = const Uuid().v4();
+  id = generateGuid();
 
   lightsWeCanChangeParamsOn
-      .add(MovingDemoLight(guid, Position(15.0, 5.0, -15.0), Direction(0.0, yDirection, 0.0)));
+      .add(MovingDemoLight(id, Position(15.0, 5.0, -15.0), Direction(0.0, yDirection, 0.0)));
 
   itemsToReturn.add(Light(
-      global_guid: guid,
+      id: id,
       type: lType,
       colorTemperature: 36500,
       color: Colors.orange,
@@ -278,9 +280,9 @@ List<Light> poGetSceneLightsList() {
     );
 
   // settings scene
-  guid = const Uuid().v4();
+  id = generateGuid();
   itemsToReturn.add(Light(
-    global_guid: SettingsSceneView.objectGuids['l_light_B1']!,
+    id: SettingsSceneView.objectGuids['l_light_B1']!,
     type: LightType.point,
     color: Colors.red,
     intensity: 100000000 * 0.05,
@@ -290,9 +292,9 @@ List<Light> poGetSceneLightsList() {
     position: SettingsSceneView.carOrigin + taillightOffset,
   ));
 
-  guid = const Uuid().v4();
+  id = generateGuid();
   itemsToReturn.add(Light(
-    global_guid: SettingsSceneView.objectGuids['l_light_B2']!,
+    id: SettingsSceneView.objectGuids['l_light_B2']!,
     type: LightType.point,
     color: Colors.red,
     intensity: 100000000 * 0.05,
@@ -308,9 +310,9 @@ List<Light> poGetSceneLightsList() {
       z: 0.85,
     );
 
-  guid = const Uuid().v4();
+  id = generateGuid();
   itemsToReturn.add(Light(
-    global_guid: SettingsSceneView.objectGuids['l_light_F1']!,
+    id: SettingsSceneView.objectGuids['l_light_F1']!,
     type: LightType.point,
     color: Colors.yellow,
     intensity: 100000000 * 0.05,
@@ -321,9 +323,9 @@ List<Light> poGetSceneLightsList() {
   ));
 
 
-  guid = const Uuid().v4();
+  id = generateGuid();
   itemsToReturn.add(Light(
-    global_guid: SettingsSceneView.objectGuids['l_light_F2']!,
+    id: SettingsSceneView.objectGuids['l_light_F2']!,
     type: LightType.point,
     color: Colors.yellow,
     intensity: 100000000 * 0.05,
@@ -334,9 +336,9 @@ List<Light> poGetSceneLightsList() {
   ));
 
   // tunrning lights
-  guid = const Uuid().v4();
+  id = generateGuid();
   itemsToReturn.add(Light(
-    global_guid: SettingsSceneView.objectGuids['l_light_tB1']!,
+    id: SettingsSceneView.objectGuids['l_light_tB1']!,
     type: LightType.point,
     color: Colors.orange,
     intensity: 100000000 * 0.05,
@@ -346,9 +348,9 @@ List<Light> poGetSceneLightsList() {
     position: SettingsSceneView.carOrigin + taillightOffset,
   ));
 
-  guid = const Uuid().v4();
+  id = generateGuid();
   itemsToReturn.add(Light(
-    global_guid: SettingsSceneView.objectGuids['l_light_tB2']!,
+    id: SettingsSceneView.objectGuids['l_light_tB2']!,
     type: LightType.point,
     color: Colors.orange,
     intensity: 100000000 * 0.05,
@@ -358,9 +360,9 @@ List<Light> poGetSceneLightsList() {
     position: SettingsSceneView.carOrigin + taillightOffset + Vector3.only(z: taillightOffset.z * -2),
   ));
 
-  guid = const Uuid().v4();
+  id = generateGuid();
   itemsToReturn.add(Light(
-    global_guid: SettingsSceneView.objectGuids['l_light_tF1']!,
+    id: SettingsSceneView.objectGuids['l_light_tF1']!,
     type: LightType.point,
     color: Colors.orange,
     intensity: 100000000 * 0.05,
@@ -370,9 +372,9 @@ List<Light> poGetSceneLightsList() {
     position: SettingsSceneView.carOrigin + frontlightOffset,
   ));
 
-  guid = const Uuid().v4();
+  id = generateGuid();
   itemsToReturn.add(Light(
-    global_guid: SettingsSceneView.objectGuids['l_light_tF2']!,
+    id: SettingsSceneView.objectGuids['l_light_tF2']!,
     type: LightType.point,
     color: Colors.orange,
     intensity: 100000000 * 0.05,
@@ -440,7 +442,7 @@ DefaultIndirectLight poGetDefaultIndirectLight() {
 // TODO(kerberjg): refactor as `Light.default`
 Light poGetDefaultPointLight(Color directLightColor, double intensity) {
   return Light(
-      global_guid: centerPointLightGUID,
+      id: centerPointLightGUID,
       type: LightType.point,
       // colorTemperature: 36500,
       color: directLightColor,

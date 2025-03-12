@@ -12,8 +12,6 @@ dependencies:
 
   filament_scene:
     path: ../
-  
-  uuid: ^3.0.6
 
 dev_dependencies:
   flutter_test:
