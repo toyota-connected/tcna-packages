@@ -8,9 +8,9 @@ class Cube extends Shape {
   final Vector3 _size;
 
   Cube({
+    required super.id,
     required this.size,
     required super.centerPosition,
-    super.global_guid,
     super.name,
     super.scale,
     super.rotation,
@@ -26,25 +26,10 @@ class Cube extends Shape {
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'name': name,
-    'global_guid' : global_guid,
-    'centerPosition': centerPosition?.toJson(),
+    ...super.toJson(),
     'size': _size.toJson(),
-    'material': material?.toJson(),
-    'scale': scale?.toJson(),
-    'collidable': collidable?.toJson(),
     'shapeType': 2,
-    'rotation': rotation?.toJson(),
-    'doubleSided': doubleSided,
-    'cullingEnabled': cullingEnabled,
-    'receiveShadows': receiveShadows,
-    'castShadows': castShadows,
   };
-
-  @override
-  String toString() {
-    return '(size: $size, centerPosition: $centerPosition)';
-  }
 
   @override
   bool operator ==(final Object other) {

@@ -11,9 +11,8 @@ import 'package:filament_scene/generated/messages.g.dart';
 import 'package:my_fox_example/scenes/scene_view.dart';
 import 'package:my_fox_example/shape_and_object_creators.dart';
 import 'package:filament_scene/filament_scene.dart';
-import 'package:uuid/uuid.dart';
 
-const Uuid uuid = Uuid();
+
 final Random random = Random();
 
 class SettingsSceneView extends StatefulSceneView {
@@ -30,44 +29,44 @@ class SettingsSceneView extends StatefulSceneView {
 
   static final Vector3 carOrigin = Vector3.only(x: 72, y: 0, z: 68);
 
-  static final Map<String, String> objectGuids = {
-    'car': uuid.v4(),
-    'floor1': uuid.v4(),
-    'floor2': uuid.v4(),
-    'floor3': uuid.v4(),
-    'floor4': uuid.v4(),
-    'floor5': uuid.v4(),
-    'floor6': uuid.v4(),
-    'floor7': uuid.v4(),
-    'floor8': uuid.v4(),
-    'floor9': uuid.v4(),
-    'wall1': uuid.v4(),
-    'wall2': uuid.v4(),
-    'wall3': uuid.v4(),
-    'wall4': uuid.v4(),
+  static final Map<String, EntityGUID> objectGuids = {
+    'car': generateGuid(),
+    'floor1': generateGuid(),
+    'floor2': generateGuid(),
+    'floor3': generateGuid(),
+    'floor4': generateGuid(),
+    'floor5': generateGuid(),
+    'floor6': generateGuid(),
+    'floor7': generateGuid(),
+    'floor8': generateGuid(),
+    'floor9': generateGuid(),
+    'wall1': generateGuid(),
+    'wall2': generateGuid(),
+    'wall3': generateGuid(),
+    'wall4': generateGuid(),
 
-    'cube': uuid.v4(),
+    'cube': generateGuid(),
 
-    'wiper1': uuid.v4(),
-    'wiper2': uuid.v4(),
-    's_wheel_F1': uuid.v4(),
-    's_wheel_F2': uuid.v4(),
-    's_wheel_B1': uuid.v4(),
-    's_wheel_B2': uuid.v4(),
-    'light1': uuid.v4(),
-    'light2': uuid.v4(),
-    'l_light_B1': uuid.v4(),
-    'l_light_B2': uuid.v4(),
-    'l_light_F1': uuid.v4(),
-    'l_light_F2': uuid.v4(),
+    'wiper1': generateGuid(),
+    'wiper2': generateGuid(),
+    's_wheel_F1': generateGuid(),
+    's_wheel_F2': generateGuid(),
+    's_wheel_B1': generateGuid(),
+    's_wheel_B2': generateGuid(),
+    'light1': generateGuid(),
+    'light2': generateGuid(),
+    'l_light_B1': generateGuid(),
+    'l_light_B2': generateGuid(),
+    'l_light_F1': generateGuid(),
+    'l_light_F2': generateGuid(),
     //turning lights, front and back
-    'l_light_tB1': uuid.v4(),
-    'l_light_tB2': uuid.v4(),
-    'l_light_tF1': uuid.v4(),
-    'l_light_tF2': uuid.v4(),
+    'l_light_tB1': generateGuid(),
+    'l_light_tB2': generateGuid(),
+    'l_light_tF1': generateGuid(),
+    'l_light_tF2': generateGuid(),
 
-    'bg_shape_0': uuid.v4(),
-    'bg_shape_1': uuid.v4(),
+    'bg_shape_0': generateGuid(),
+    'bg_shape_1': generateGuid(),
   };
 
   static List<Model> getSceneModels() {
@@ -84,7 +83,7 @@ class SettingsSceneView extends StatefulSceneView {
       receiveShadows: true,
       castShadows: true,
       name: sequoiaAsset,
-      guid: objectGuids['car']!,
+      id: objectGuids['car']!,
       keepInMemory: true,
       isInstancePrimary: false,
     ));
@@ -102,7 +101,7 @@ class SettingsSceneView extends StatefulSceneView {
       receiveShadows: false,
       castShadows: false,
       name: radarConeAsset,
-      guid: objectGuids['light1']!,
+      id: objectGuids['light1']!,
       keepInMemory: true,
       isInstancePrimary: false,
     ));
@@ -119,7 +118,7 @@ class SettingsSceneView extends StatefulSceneView {
       receiveShadows: false,
       castShadows: false,
       name: radarConeAsset,
-      guid: objectGuids['light2']!,
+      id: objectGuids['light2']!,
       keepInMemory: true,
       isInstancePrimary: false,
     ));
@@ -135,7 +134,7 @@ class SettingsSceneView extends StatefulSceneView {
       receiveShadows: true,
       castShadows: false,
       name: "${checkerboardFloor}_1",
-      guid: objectGuids['floor1']!,
+      id: objectGuids['floor1']!,
       keepInMemory: true,
       isInstancePrimary: false,
     ));
@@ -149,7 +148,7 @@ class SettingsSceneView extends StatefulSceneView {
       receiveShadows: true,
       castShadows: false,
       name: "${checkerboardFloor}_2",
-      guid: objectGuids['floor2']!,
+      id: objectGuids['floor2']!,
       keepInMemory: true,
       isInstancePrimary: false,
     ));
@@ -163,7 +162,7 @@ class SettingsSceneView extends StatefulSceneView {
       receiveShadows: true,
       castShadows: false,
       name: "${checkerboardFloor}_3",
-      guid: objectGuids['floor3']!,
+      id: objectGuids['floor3']!,
       keepInMemory: true,
       isInstancePrimary: false,
     ));
@@ -177,7 +176,7 @@ class SettingsSceneView extends StatefulSceneView {
       receiveShadows: true,
       castShadows: false,
       name: "${checkerboardFloor}_4",
-      guid: objectGuids['floor4']!,
+      id: objectGuids['floor4']!,
       keepInMemory: true,
       isInstancePrimary: false,
     ));
@@ -191,7 +190,7 @@ class SettingsSceneView extends StatefulSceneView {
       receiveShadows: true,
       castShadows: false,
       name: "${checkerboardFloor}_5",
-      guid: objectGuids['floor5']!,
+      id: objectGuids['floor5']!,
       keepInMemory: true,
       isInstancePrimary: false,
     ));
@@ -205,7 +204,7 @@ class SettingsSceneView extends StatefulSceneView {
       receiveShadows: true,
       castShadows: false,
       name: "${checkerboardFloor}_6",
-      guid: objectGuids['floor6']!,
+      id: objectGuids['floor6']!,
       keepInMemory: true,
       isInstancePrimary: false,
     ));
@@ -219,7 +218,7 @@ class SettingsSceneView extends StatefulSceneView {
       receiveShadows: true,
       castShadows: false,
       name: "${checkerboardFloor}_7",
-      guid: objectGuids['floor7']!,
+      id: objectGuids['floor7']!,
       keepInMemory: true,
       isInstancePrimary: false,
     ));
@@ -233,7 +232,7 @@ class SettingsSceneView extends StatefulSceneView {
       receiveShadows: true,
       castShadows: false,
       name: "${checkerboardFloor}_8",
-      guid: objectGuids['floor8']!,
+      id: objectGuids['floor8']!,
       keepInMemory: true,
       isInstancePrimary: false,
     ));
@@ -247,7 +246,7 @@ class SettingsSceneView extends StatefulSceneView {
       receiveShadows: true,
       castShadows: false,
       name: "${checkerboardFloor}_9",
-      guid: objectGuids['floor9']!,
+      id: objectGuids['floor9']!,
       keepInMemory: false,
       isInstancePrimary: false,
     ));
@@ -263,7 +262,7 @@ class SettingsSceneView extends StatefulSceneView {
       receiveShadows: true,
       castShadows: true,
       name: bounceBall,
-      guid: objectGuids['bg_shape_0']!,
+      id: objectGuids['bg_shape_0']!,
       keepInMemory: true,
       isInstancePrimary: false,
     ));
@@ -278,7 +277,7 @@ class SettingsSceneView extends StatefulSceneView {
       receiveShadows: true,
       castShadows: true,
       name: donut,
-      guid: objectGuids['bg_shape_1']!,
+      id: objectGuids['bg_shape_1']!,
       keepInMemory: true,
       isInstancePrimary: false,
     ));
@@ -677,18 +676,18 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     if(eventName != "touchObject") return;
 
     final CollisionEvent event = eventData as CollisionEvent;
-    final String guid = event.results[0].guid;
+    final EntityGUID id = event.results[0].id;
 
-    print('Touched object with guid: ${guid}');
+    print('Touched object with id: ${id}');
 
     // If touched any of the wheels...
     if(
-      guid == SettingsSceneView.objectGuids['s_wheel_F1'] ||
-      guid == SettingsSceneView.objectGuids['s_wheel_F2'] ||
-      guid == SettingsSceneView.objectGuids['s_wheel_B1'] ||
-      guid == SettingsSceneView.objectGuids['s_wheel_B2']
+      id == SettingsSceneView.objectGuids['s_wheel_F1'] ||
+      id == SettingsSceneView.objectGuids['s_wheel_F2'] ||
+      id == SettingsSceneView.objectGuids['s_wheel_B1'] ||
+      id == SettingsSceneView.objectGuids['s_wheel_B2']
     ) {
-      final String name = SettingsSceneView.objectGuids.entries.firstWhere((entry) => entry.value == guid).key;
+      final String name = SettingsSceneView.objectGuids.entries.firstWhere((entry) => entry.value == id).key;
       print('Touched wheel ${name}');
 
       // Change camera position to wheel

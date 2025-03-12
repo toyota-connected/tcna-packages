@@ -1,5 +1,6 @@
 library model;
 
+import 'package:filament_scene/ecs/entity.dart';
 import 'package:filament_scene/scene/geometry/geometry.dart';
 
 part 'animation.dart';
@@ -12,7 +13,7 @@ part 'gltf_model.dart';
 ///
 /// [GlbModel] :
 /// [GltfModel] :
-abstract class Model {
+abstract class Model extends Entity {
   /// Model asset path to load the model from assets.
   String? assetPath;
 
@@ -27,12 +28,6 @@ abstract class Model {
 
   /// Model url to load the model from url.
   String? url;
-
-  /// used for communication back and forth from dart/native
-  String? name;
-
-  /// used for communication back and forth from dart/native
-  String? guid;
 
   /// Scale Factor of the model.
   /// Should be greater than 0.
@@ -61,6 +56,8 @@ abstract class Model {
   bool castShadows;
 
   Model({
+    required super.id,
+    super.name,
     this.assetPath,
     this.keepInMemory,
     this.isInstancePrimary,
@@ -70,26 +67,9 @@ abstract class Model {
     this.collidable,
     this.centerPosition,
     this.animation,
-    this.guid,
     required this.castShadows,
     required this.receiveShadows,
-    this.name,
   });
-
-  Map<String, dynamic> toJson() {
-    if (this is GlbModel) {
-      return (this as GlbModel).toJson();
-    } else if (this is GltfModel) {
-      return (this as GltfModel).toJson();
-    } else {
-      return {};
-    }
-  }
-
-  @override
-  String toString() {
-    return 'Model(assetPath: $assetPath, url: $url, scale: $scale, centerPosition: $centerPosition, animation: $animation)';
-  }
 
   @override
   bool operator ==(Object other) {

@@ -93,7 +93,7 @@ void crissCross(double deltaTime, double speed, FilamentViewApi filamentView) {
 
     // Apply the new transform
     filamentView.changeLightTransformByGUID(
-      light.guid,
+      light.id,
       light.origin.x,
       light.origin.y,
       light.origin.z,

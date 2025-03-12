@@ -8,7 +8,8 @@ import 'package:filament_scene/generated/messages.g.dart';
 import 'package:my_fox_example/scenes/scene_view.dart';
 import 'package:my_fox_example/shape_and_object_creators.dart';
 import 'package:filament_scene/filament_scene.dart';
-import 'package:uuid/uuid.dart';
+import 'package:filament_scene/utils/guid.dart';
+
 
 class PlaygroundSceneView extends StatefulSceneView {
 
@@ -23,12 +24,12 @@ class PlaygroundSceneView extends StatefulSceneView {
   @override
   _PlaygroundSceneViewState createState() => _PlaygroundSceneViewState();
 
-  static const Map<String, Uuid> objectGuids = {
+  static Map<String, EntityGUID> objectGuids = {
     // Models
-    'car': Uuid(),
-    'garage': Uuid(),
-    'fox1': Uuid(),
-    'fox2': Uuid(),
+    'car': generateGuid(),
+    'garage': generateGuid(),
+    'fox1': generateGuid(),
+    'fox2': generateGuid(),
     // Shapes
 
     // Lights
@@ -50,7 +51,7 @@ class PlaygroundSceneView extends StatefulSceneView {
       // null,
       // true,
       // true,
-      // const Uuid().v4(),
+      // generateGuid(),
       // true,
       // false));
     models.add(GlbModel.asset(
@@ -63,7 +64,7 @@ class PlaygroundSceneView extends StatefulSceneView {
       receiveShadows: true,
       castShadows: true,
       name: sequoiaAsset,
-      guid: objectGuids['car']!.v4(),
+      id: objectGuids['car']!,
       keepInMemory: true,
       isInstancePrimary: false,
     ));
@@ -76,7 +77,7 @@ class PlaygroundSceneView extends StatefulSceneView {
       rotation: Vector4(w: 1),
       castShadows: false,
       receiveShadows: true,
-      guid: objectGuids['garage']!.v4(),
+      id: objectGuids['garage']!,
     ));
 
     // Foxes
@@ -89,7 +90,7 @@ class PlaygroundSceneView extends StatefulSceneView {
       animation: Animation.byIndex(0, autoPlay: true),
       receiveShadows: true,
       castShadows: true,
-      guid: objectGuids['fox1']!.v4(),
+      id: objectGuids['fox1']!,
       keepInMemory: true,
       isInstancePrimary: false,
     ));
@@ -103,7 +104,7 @@ class PlaygroundSceneView extends StatefulSceneView {
       animation: Animation.byIndex(1, autoPlay: true, notifyOfAnimationEvents: true),
       receiveShadows: true,
       castShadows: true,
-      guid: objectGuids['fox2']!.v4(),
+      id: objectGuids['fox2']!,
       keepInMemory: true,
       isInstancePrimary: false,
     ));
