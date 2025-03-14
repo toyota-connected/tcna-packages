@@ -31,7 +31,6 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
-flutter_colorpicker-1.1.0/
 
 # Symbolication related
 app.*.symbols
