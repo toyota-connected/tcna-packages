@@ -8,8 +8,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_colorpicker:
-    path: flutter_colorpicker-1.1.0
+  flutter_colorpicker: 1.1.0
 
   filament_scene:
     path: ../
