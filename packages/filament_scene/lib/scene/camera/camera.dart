@@ -1,7 +1,9 @@
 library camera;
 
 import 'dart:core';
-import 'package:filament_scene/scene/geometry/geometry.dart';
+
+import 'package:filament_scene/math/vectors.dart';
+import 'package:filament_scene/utils/serialization.dart';
 
 part 'exposure.dart';
 part 'projection.dart';

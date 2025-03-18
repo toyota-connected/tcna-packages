@@ -16,6 +16,8 @@
 
 import 'package:pigeon/pigeon.dart';
 
+// TODO(kerberjg): Use Float32List instead of separate doubles for vectors and quaternions
+
 @ConfigurePigeon(PigeonOptions(
   dartOut: 'generated/src/dart/messages.g.dart',
   dartTestOut: 'generated/src/dart/test/test_api.g.dart',

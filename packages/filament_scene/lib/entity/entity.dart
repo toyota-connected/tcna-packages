@@ -1,5 +1,7 @@
 
+import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/utils/guid.dart';
+import 'package:filament_scene/utils/serialization.dart';
 import 'package:flutter/foundation.dart';
 
 class Entity {
@@ -35,4 +37,34 @@ class Entity {
 
   @override
   int get hashCode => id.hashCode;
+}
+
+class TransformEntity extends Entity {
+  /// Coordinate of center point position of the rendered model.
+  final Position centerPosition;
+
+  /// Scale Factor of the model.
+  /// Should be greater than 0.
+  /// Defaults to 1.
+  final Scale scale;
+
+  /// Quaternion rotation for the shape
+  /// Defaults to `Quaternion.identity()` or [0, 0, 0, 1]
+  final Quaternion rotation;
+
+  TransformEntity({
+    required super.id,
+    super.name,
+    required this.centerPosition,
+    required this.scale,
+    required this.rotation,
+  }) : super();
+
+  @override @mustCallSuper
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    ...super.toJson(),
+    'centerPosition': centerPosition.toJson(),
+    'scale': scale.toJson(),
+    'rotation': rotation.toJson(),
+  };
 }

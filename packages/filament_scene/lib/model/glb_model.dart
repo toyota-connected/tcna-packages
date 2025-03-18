@@ -8,13 +8,13 @@ class GlbModel extends Model {
   /// creates glb model based on glb file asset path.
   GlbModel.asset(
     final String path, {
-    super.scale,
+    required super.scale,
     super.keepInMemory,
     super.isInstancePrimary, 
     super.collidable,
-    super.centerPosition,
+    required super.centerPosition,
     super.animation,
-    super.rotation,
+    required super.rotation,
     required super.castShadows,
     required super.receiveShadows,
     super.name,
@@ -34,8 +34,9 @@ class GlbModel extends Model {
   GlbModel.url({
     required super.url,
     required super.id,
-    super.scale,
-    super.centerPosition,
+    required super.scale,
+    required super.centerPosition,
+    required super.rotation,
     super.keepInMemory,
     super.isInstancePrimary,
     super.animation, 

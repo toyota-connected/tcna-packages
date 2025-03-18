@@ -1,9 +1,11 @@
 library shapes;
 
-import 'package:filament_scene/ecs/entity.dart';
-import 'package:filament_scene/scene/geometry/geometry.dart';
+import 'package:filament_scene/components/collidable.dart';
+import 'package:filament_scene/entity/entity.dart';
 import 'package:filament_scene/material/material.dart';
 import 'package:filament_scene/utils/guid.dart';
+import 'package:filament_scene/utils/serialization.dart';
+import 'package:vector_math/vector_math.dart';
 
 part 'cube.dart';
 part 'plane.dart';
@@ -15,21 +17,12 @@ part 'sphere.dart';
 /// [Cube]
 /// [Plane]
 /// [Sphere]
-class Shape extends Entity {
-  /// center position of the shape in the world space.
-  Vector3? centerPosition;
-
-  /// Scale of the shape
-  Vector3? scale;
-
+class Shape extends TransformEntity {
   /// direction of the shape rotation in the world space
   Vector3? normal;
 
   /// material to be used for the shape.
   Material? material;
-
-  /// Quaternion rotation for the shape
-  Vector4? rotation;
 
   /// Do we have a collidable for this object (expecting to collide)
   Collidable? collidable;
@@ -50,11 +43,11 @@ class Shape extends Entity {
   Shape({
     required super.id,
     super.name,
-    this.centerPosition,
+    required super.centerPosition,
     this.normal,
     this.material,
-    this.scale,
-    this.rotation,
+    required super.scale,
+    required super.rotation,
     this.collidable,
     this.doubleSided = false,
     this.cullingEnabled = true,
@@ -65,10 +58,7 @@ class Shape extends Entity {
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
     ...super.toJson(),
-    'centerPosition': centerPosition?.toJson(),
     'normal': normal?.toJson(),
-    'scale': scale?.toJson(),
-    'rotation': rotation?.toJson(),
     'collidable': collidable?.toJson(),
     'material': material?.toJson(),
     'type': 0,
