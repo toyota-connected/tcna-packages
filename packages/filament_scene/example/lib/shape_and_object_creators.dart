@@ -1,3 +1,6 @@
+import 'package:filament_scene/components/collidable.dart';
+import 'package:filament_scene/math/vectors.dart';
+import 'package:filament_scene/shapes/shapes.dart';
 import 'package:filament_scene/utils/guid.dart';
 import 'package:flutter/material.dart' hide Animation;
 import 'package:my_fox_example/assets.dart';
@@ -15,7 +18,7 @@ GlbModel poGetModel(
     String szAsset,
     Vector3 position,
     Vector3 scale,
-    Vector4 rotation,
+    Quaternion rotation,
     Collidable? collidable,
     Animation? animationInfo,
     bool bReceiveShadows,
@@ -55,6 +58,7 @@ Shape poCreateCube(Vector3 pos, Vector3 scale, Vector3 sizeExtents, Color? color
       id: id,
       size: sizeExtents,
       centerPosition: pos,
+      rotation: Quaternion.identity(),
       scale: scale,
       castShadows: true,
       receiveShadows: true,
@@ -73,6 +77,7 @@ Shape poCreateSphere(Vector3 pos, Vector3 scale, Vector3 sizeExtents,
     int stacks, int slices, Color? colorOveride, [ EntityGUID? id ]) {
   return Sphere(
     centerPosition: pos,
+    rotation: Quaternion.identity(),
     material: poGetTexturedMaterial(),
     //material: poGetLitMaterial(null),
     stacks: stacks,
@@ -102,9 +107,9 @@ Shape poCreatePlane(Vector3 pos, Vector3 scale, Vector3 sizeExtents, [ EntityGUI
       collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
 
       // facing UP
-      rotation: Vector4(x: 0, y: .7071, z: .7071, w: 0),
+      rotation: Quaternion(0, .7071, .7071, 0),
       // identity
-      // rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
+      // rotation: Quaterion.identity(),
       material: poGetTexturedMaterial());
   //material: poGetLitMaterialWithRandomValues());
 }
@@ -118,9 +123,9 @@ List<Shape> poCreateLineGrid() {
     for (int j = 0; j < 1; j++) {
       for (double k = -countExtents; k <= countExtents; k += 2) {
         itemsToReturn.add(poCreateCube(
-          Vector3.only(x: i, y: 0, z: k),
-          Vector3.only(x: 1, y: 1, z: 1),
-          Vector3.only(x: 1, y: 1, z: 1),
+          Vector3(i, 0, k),
+          Vector3(1, 1, 1),
+          Vector3(1, 1, 1),
           null
         ));
       }
@@ -209,9 +214,9 @@ List<Light> poGetSceneLightsList() {
       spotLightConeInner: spotLightConeInnter,
       spotLightConeOuter: spotLightConeOuter,
       falloffRadius: fallOffRadius,
-      position: Vector3.only(x: -15, y: 5, z: -15),
+      position: Vector3(-15, 5, -15),
       // should be a unit vector
-      direction: Vector3.only(x: 0, y: yDirection, z: 0)));
+      direction: Vector3(0, yDirection, 0)));
 
   id = generateGuid();
 
@@ -229,9 +234,9 @@ List<Light> poGetSceneLightsList() {
       spotLightConeInner: spotLightConeInnter,
       spotLightConeOuter: spotLightConeOuter,
       falloffRadius: fallOffRadius,
-      position: Vector3.only(x: 15, y: 5, z: 15),
+      position: Vector3(15, 5, 15),
       // should be a unit vector
-      direction: Vector3.only(x: 0, y: yDirection, z: 0)));
+      direction: Vector3(0, yDirection, 0)));
 
   id = generateGuid();
 
@@ -249,9 +254,9 @@ List<Light> poGetSceneLightsList() {
       spotLightConeInner: spotLightConeInnter,
       spotLightConeOuter: spotLightConeOuter,
       falloffRadius: fallOffRadius,
-      position: Vector3.only(x: -15, y: 5, z: 15),
+      position: Vector3(-15, 5, 15),
       // should be a unit vector
-      direction: Vector3.only(x: 0, y: yDirection, z: 0)));
+      direction: Vector3(0, yDirection, 0)));
 
   id = generateGuid();
 
@@ -269,14 +274,14 @@ List<Light> poGetSceneLightsList() {
       spotLightConeInner: spotLightConeInnter,
       spotLightConeOuter: spotLightConeOuter,
       falloffRadius: fallOffRadius,
-      position: Vector3.only(x: 15, y: 5, z: -15),
+      position: Vector3(15, 5, -15),
       // should be a unit vector
-      direction: Vector3.only(x: 0, y: yDirection, z: 0)));
+      direction: Vector3(0, yDirection, 0)));
 
-  Vector3 taillightOffset = Vector3.only(
-      x: 2.5,
-      y: 1.2,
-      z: 0.85,
+  Vector3 taillightOffset = Vector3(
+      2.5,
+      1.2,
+      0.85,
     );
 
   // settings scene
@@ -301,13 +306,13 @@ List<Light> poGetSceneLightsList() {
     falloffRadius: 2,
     castShadows: false,
     castLight: true,
-    position: SettingsSceneView.carOrigin + taillightOffset + Vector3.only(z: taillightOffset.z * -2),
+    position: SettingsSceneView.carOrigin + taillightOffset + Vector3(0, 0, taillightOffset.z * -2),
   ));
 
-  Vector3 frontlightOffset = Vector3.only(
-      x: -2.5,
-      y: 1,
-      z: 0.85,
+  Vector3 frontlightOffset = Vector3(
+      -2.5,
+      1,
+      0.85,
     );
 
   id = generateGuid();
@@ -332,7 +337,7 @@ List<Light> poGetSceneLightsList() {
     falloffRadius: 2,
     castShadows: false,
     castLight: true,
-    position: SettingsSceneView.carOrigin + frontlightOffset + Vector3.only(z: frontlightOffset.z * -2),
+    position: SettingsSceneView.carOrigin + frontlightOffset + Vector3(0, 0, frontlightOffset.z * -2),
   ));
 
   // tunrning lights
@@ -357,7 +362,7 @@ List<Light> poGetSceneLightsList() {
     falloffRadius: 2,
     castShadows: false,
     castLight: true,
-    position: SettingsSceneView.carOrigin + taillightOffset + Vector3.only(z: taillightOffset.z * -2),
+    position: SettingsSceneView.carOrigin + taillightOffset + Vector3(0, 0, taillightOffset.z * -2),
   ));
 
   id = generateGuid();
@@ -381,7 +386,7 @@ List<Light> poGetSceneLightsList() {
     falloffRadius: 2,
     castShadows: false,
     castLight: true,
-    position: SettingsSceneView.carOrigin + frontlightOffset + Vector3.only(z: frontlightOffset.z * -2),
+    position: SettingsSceneView.carOrigin + frontlightOffset + Vector3(0, 0, frontlightOffset.z * -2),
   ));
 
 
@@ -452,6 +457,6 @@ Light poGetDefaultPointLight(Color directLightColor, double intensity) {
       spotLightConeInner: 1,
       spotLightConeOuter: 10,
       falloffRadius: 300.1, // what base is this in? meters?
-      position: Vector3.only(x: 0, y: 5, z: 1),
-      direction: Vector3.only(x: 0, y: 1, z: 0));
+      position: Vector3(0, 5, 1),
+      direction: Vector3(0, 1, 0));
 }

@@ -1,7 +1,9 @@
 library model;
 
-import 'package:filament_scene/ecs/entity.dart';
-import 'package:filament_scene/scene/geometry/geometry.dart';
+import 'package:filament_scene/components/collidable.dart';
+import 'package:filament_scene/entity/entity.dart';
+import 'package:filament_scene/utils/serialization.dart';
+import 'package:vector_math/vector_math.dart';
 
 part 'animation.dart';
 part 'glb_model.dart';
@@ -13,7 +15,7 @@ part 'gltf_model.dart';
 ///
 /// [GlbModel] :
 /// [GltfModel] :
-abstract class Model extends Entity {
+abstract class Model extends TransformEntity {
   /// Model asset path to load the model from assets.
   String? assetPath;
 
@@ -29,25 +31,12 @@ abstract class Model extends Entity {
   /// Model url to load the model from url.
   String? url;
 
-  /// Scale Factor of the model.
-  /// Should be greater than 0.
-  /// Defaults to 1.
-  Vector3? scale;
-
   /// Do we have a collidable for this object (expecting to collide)
   /// For now this will create a box using the extents value
   Collidable? collidable;
 
-  /// Coordinate of center point position of the rendered model.
-  ///
-  /// Defaults to ( x:0,y: 0,z: -4)
-  Vector3? centerPosition;
-
   /// Controls what animation should be played by the rendered model.
   Animation? animation;
-
-  /// Quaternion rotation for the shape
-  Vector4? rotation;
 
   /// Variables for filament renderer upon shape creation
   bool receiveShadows;
@@ -62,10 +51,10 @@ abstract class Model extends Entity {
     this.keepInMemory,
     this.isInstancePrimary,
     this.url,
-    this.scale,
-    this.rotation,
+    required super.scale,
+    required super.rotation,
     this.collidable,
-    this.centerPosition,
+    required super.centerPosition,
     this.animation,
     required this.castShadows,
     required this.receiveShadows,

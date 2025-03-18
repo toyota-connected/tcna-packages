@@ -1,7 +1,7 @@
 library skybox;
 
 import 'dart:ui';
-import 'package:filament_scene/utils/colors_ext.dart';
+import 'package:filament_scene/utils/serialization.dart';
 
 part 'colored_skybox.dart';
 part 'hdr_skybox.dart';

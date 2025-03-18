@@ -1,4 +1,6 @@
 
+import 'package:filament_scene/math/vectors.dart';
+import 'package:filament_scene/shapes/shapes.dart';
 import 'package:flutter/material.dart';
 import 'package:my_fox_example/assets.dart';
 import 'package:filament_scene/generated/messages.g.dart';
@@ -35,9 +37,9 @@ class RadarSceneView extends StatefulSceneView {
       for (int i = 0; i < 10; i++) {
     models.add(poGetModel(
         sequoiaAsset,
-        Vector3.only(x: -40, y: 0, z: i * 5 - 25),
-        Vector3.only(x: 1, y: 1, z: 1),
-        Vector4(x: 0, y: 0, z: 0, w: 1),
+        Vector3(-40, 0, i * 5 - 25),
+        Vector3(1, 1, 1),
+        Quaternion.identity(),
         null,
         null,
         true,
@@ -49,9 +51,9 @@ class RadarSceneView extends StatefulSceneView {
 
   models.add(poGetModel(
       roadAsset,
-      Vector3.only(x: -40, y: 0, z: 0),
-      Vector3.only(x: .4, y: .1, z: .2),
-      Vector4(x: 0, y: 0, z: 0, w: 1),
+      Vector3(-40, 0, 0),
+      Vector3(.4, .1, .2),
+      Quaternion.identity(),
       null,
       null,
       true,
@@ -65,9 +67,9 @@ class RadarSceneView extends StatefulSceneView {
 
   models.add(poGetModel(
       radarConeAsset,
-      Vector3.only(x: -42.1, y: 1, z: 0),
-      Vector3.only(x: 4, y: 1, z: 3),
-      Vector4(x: 0, y: 0, z: 0, w: 1),
+      Vector3(-42.1, 1, 0),
+      Vector3(4, 1, 3),
+      Quaternion.identity(),
       null,
       null,
       false,
@@ -79,9 +81,9 @@ class RadarSceneView extends StatefulSceneView {
   // primary radar segment
   // models.add(poGetModel(
   //     radarSegmentAsset,
-  //     Vector3.only(x: 0, y: 0, z: 0),
-  //     Vector3.only(x: 1, y: 1, z: 1),
-  //     Vector4(x: 0.0, y: 0, z: 0, w: 1),
+  //     Vector3(0, 0, 0),
+  //     Vector3(1, 1, 1),
+  //     Quaternion(0.0, 0, 0, 1),
   //     null,
   //     null,
   //     true,
@@ -95,9 +97,9 @@ class RadarSceneView extends StatefulSceneView {
 
     models.add(poGetModel(
         radarSegmentAsset,
-        Vector3.only(x: -42.2, y: 0, z: 0),
-        Vector3.only(x: 0, y: 0, z: 0),
-        Vector4(x: 0.7071, y: 0, z: 0.7071, w: 0),
+        Vector3(-42.2, 0, 0),
+        Vector3(0, 0, 0),
+        Quaternion(0.7071, 0, 0.7071, 0),
         null,
         null,
         true,
