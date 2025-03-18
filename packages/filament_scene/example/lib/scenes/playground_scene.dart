@@ -1,4 +1,7 @@
 
+import 'package:filament_scene/components/collidable.dart';
+import 'package:filament_scene/math/vectors.dart';
+import 'package:filament_scene/shapes/shapes.dart';
 import 'package:flutter/material.dart' hide Animation;
 import 'package:my_fox_example/assets.dart';
 import 'package:my_fox_example/demo_widgets.dart';
@@ -44,9 +47,9 @@ class PlaygroundSceneView extends StatefulSceneView {
     // Car
       // itemsToReturn.add(poGetModel(
       // sequoiaAsset,
-      // Vector3.only(x: 0, y: 0, z: 0),
-      // Vector3.only(x: 1, y: 1, z: 1),
-      // Vector4(x: 0, y: 0, z: 0, w: 1),
+      // Vector3(0, 0, 0),
+      // Vector3(1, 1, 1),
+      // Quaternion.identity(),
       // Collidable(isStatic: false, shouldMatchAttachedObject: true),
       // null,
       // true,
@@ -56,9 +59,9 @@ class PlaygroundSceneView extends StatefulSceneView {
       // false));
     models.add(GlbModel.asset(
       sequoiaAsset,
-      centerPosition: Vector3.only(x: 0, y: 0, z: 0),
-      scale: Vector3.only(x: 1, y: 1, z: 1),
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
+      centerPosition: Vector3(0, 0, 0),
+      scale: Vector3(1, 1, 1),
+      rotation: Quaternion.identity(),
       collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
       animation: null,
       receiveShadows: true,
@@ -74,7 +77,7 @@ class PlaygroundSceneView extends StatefulSceneView {
       garageAsset,
       centerPosition: Vector3(0, 0, -16),
       scale: Vector3.all(1),
-      rotation: Vector4(w: 1),
+      rotation: Quaternion.identity(),
       castShadows: false,
       receiveShadows: true,
       id: objectGuids['garage']!,
@@ -83,9 +86,9 @@ class PlaygroundSceneView extends StatefulSceneView {
     // Foxes
     models.add(GlbModel.asset(
       foxAsset,
-      centerPosition: Vector3.only(x: 1, y: 0, z: 4),
-      scale: Vector3.only(x: 0.04, y: 0.04, z: 0.04),
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
+      centerPosition: Vector3(1, 0, 4),
+      scale: Vector3(0.04, 0.04, 0.04),
+      rotation: Quaternion.identity(),
       collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
       animation: Animation.byIndex(0, autoPlay: true),
       receiveShadows: true,
@@ -97,9 +100,9 @@ class PlaygroundSceneView extends StatefulSceneView {
 
     models.add(GlbModel.asset(
       foxAsset,
-      centerPosition: Vector3.only(x: -1, y: 0, z: 4),
-      scale: Vector3.only(x: 0.04, y: 0.04, z: 0.04),
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
+      centerPosition: Vector3(-1, 0, 4),
+      scale: Vector3(0.04, 0.04, 0.04),
+      rotation: Quaternion.identity(),
       collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
       animation: Animation.byIndex(1, autoPlay: true, notifyOfAnimationEvents: true),
       receiveShadows: true,
@@ -116,51 +119,51 @@ class PlaygroundSceneView extends StatefulSceneView {
     final List<Shape> shapes = [];
 
     shapes.add(poCreateCube(
-      Vector3.only(x: 3, y: 1, z: 3),
-      Vector3.only(x: 2, y: 2, z: 2),
-      Vector3.only(x: 2, y: 2, z: 2),
+      Vector3(3, 1, 3),
+      Vector3(2, 2, 2),
+      Vector3(2, 2, 2),
       null,
     ));
 
     shapes.add(poCreateCube(
-      Vector3.only(x: 0, y: 1, z: 3),
-      Vector3.only(x: .1, y: 1, z: .1),
-      Vector3.only(x: 1, y: 1, z: 1), 
+      Vector3(0, 1, 3),
+      Vector3(.1, 1, .1),
+      Vector3(1, 1, 1), 
       null,
     ));
 
     shapes.add(poCreateCube(
-      Vector3.only(x: -3, y: 1, z: 3),
-      Vector3.only(x: .5, y: .5, z: .5),
-      Vector3.only(x: 1, y: 1, z: 1),
+      Vector3(-3, 1, 3),
+      Vector3(.5, .5, .5),
+      Vector3(1, 1, 1),
       null,
     ));
 
     shapes.add(poCreateSphere(
-      Vector3.only(x: 3, y: 1, z: -3),
-      Vector3.only(x: 1, y: 1, z: 1),
-      Vector3.only(x: 1, y: 1, z: 1),
+      Vector3(3, 1, -3),
+      Vector3(1, 1, 1),
+      Vector3(1, 1, 1),
       11, 5, null,
     ));
 
     shapes.add(poCreateSphere(
-      Vector3.only(x: 0, y: 1, z: -3),
-      Vector3.only(x: 1, y: 1, z: 1),
-      Vector3.only(x: 1, y: 1, z: 1),
+      Vector3(0, 1, -3),
+      Vector3(1, 1, 1),
+      Vector3(1, 1, 1),
       20, 20, null,
     ));
 
     shapes.add(poCreateSphere(
-      Vector3.only(x: -3, y: 1, z: -3),
-      Vector3.only(x: 1, y: .5, z: 1),
-      Vector3.only(x: 1, y: 1, z: 1),
+      Vector3(-3, 1, -3),
+      Vector3(1, .5, 1),
+      Vector3(1, 1, 1),
       20, 20, null,
     ));
 
     shapes.add(poCreatePlane(
-      Vector3.only(x: -5, y: 1, z: 0),
-      Vector3.only(x: 1, y: 1, z: 1),
-      Vector3.only(x: 2, y: 1, z: 2),
+      Vector3(-5, 1, 0),
+      Vector3(1, 1, 1),
+      Vector3(2, 1, 2),
     ));
 
     return shapes;

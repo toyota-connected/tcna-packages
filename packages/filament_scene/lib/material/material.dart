@@ -1,8 +1,8 @@
 library material;
 
 import 'dart:ui';
+import 'package:filament_scene/utils/serialization.dart';
 import 'package:flutter/foundation.dart';
-import 'package:filament_scene/utils/colors_ext.dart';
 
 part 'texture/texture.dart';
 part 'texture/texture_sampler.dart';

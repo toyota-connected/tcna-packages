@@ -1,9 +1,9 @@
 library light;
 
 import 'dart:ui';
-import 'package:filament_scene/ecs/entity.dart';
-import 'package:filament_scene/scene/geometry/geometry.dart';
-import 'package:filament_scene/utils/colors_ext.dart';
+import 'package:filament_scene/entity/entity.dart';
+import 'package:filament_scene/utils/serialization.dart';
+import 'package:vector_math/vector_math.dart';
 
 /// Type of the direct that will be used in the scene.
 enum LightType {

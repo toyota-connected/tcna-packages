@@ -1,4 +1,3 @@
-part of 'geometry.dart';
 
 class Collidable {
   bool isStatic;

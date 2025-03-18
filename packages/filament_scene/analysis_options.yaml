@@ -20,6 +20,7 @@ analyzer:
     non_constant_identifier_names: ignore
     avoid_returning_this: ignore
     sort_pub_dependencies: ignore
+    combinators_ordering: ignore
 
 linter:
   # The lint rules applied to this project can be customized in the
