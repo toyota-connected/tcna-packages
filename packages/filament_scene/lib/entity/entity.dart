@@ -1,8 +1,10 @@
 
 import 'package:filament_scene/math/vectors.dart';
-import 'package:filament_scene/utils/guid.dart';
+import 'package:filament_scene/scene/scene.dart';
 import 'package:filament_scene/utils/serialization.dart';
 import 'package:flutter/foundation.dart';
+
+typedef EntityGUID = int;
 
 class Entity {
   final EntityGUID id;
