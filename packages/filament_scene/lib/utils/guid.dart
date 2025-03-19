@@ -1,26 +1,18 @@
-import 'dart:math';
-
-import 'package:safe_int_id/safe_int_id.dart';
-
-typedef EntityGUID = int;
+import 'package:filament_scene/entity/entity.dart' show EntityGUID;
 
 /*
  *  GUID generator
  */
 
-final SafeIntId _generator = SafeIntId(
-  firstYear: DateTime.now().year,
-  random: Random.secure(),
-  randomValues: 2048, // with this it's guaranteed to not crash for 138 years!
-);
+int _counter = 0;
+const int _preamble = 0; // even number for Dart (C++ has odd)
+const int _increment = 2;
 
-
-bool _firstTime = true;
-
+/// Generates a new GUID.
 EntityGUID generateGuid() {
-  if (_firstTime) {
-    print("Generator first year: ${_generator.firstYear}, last safe year: ${_generator.lastSafeYear}");
-    _firstTime = false;
-  }
-  return _generator.getId();
+  final int id = ++_counter * _increment + _preamble;
+
+  // print("[generateGuid-dart] generated ID: $id");
+
+  return id;
 }
