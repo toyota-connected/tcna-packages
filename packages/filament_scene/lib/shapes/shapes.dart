@@ -43,6 +43,7 @@ class Shape extends TransformEntity {
   Shape({
     required super.id,
     super.name,
+    super.parentId,
     required super.position,
     this.normal,
     this.material,
