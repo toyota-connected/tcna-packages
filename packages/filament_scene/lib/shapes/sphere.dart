@@ -13,7 +13,7 @@ class Sphere extends Shape {
 
   Sphere({
     required super.id,
-    required super.centerPosition,
+    required super.position,
     this.stacks,
     this.slices,
     super.name,

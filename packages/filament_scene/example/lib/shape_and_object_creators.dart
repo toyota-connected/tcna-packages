@@ -31,7 +31,7 @@ GlbModel poGetModel(
     isInstancePrimary: bWhenInstanceableIsPrimary,
     animation: animationInfo,
     collidable: collidable,
-    centerPosition: position,
+    position: position,
     scale: scale,
     rotation: rotation,
     name: szAsset,
@@ -57,7 +57,7 @@ Shape poCreateCube(Vector3 pos, Vector3 scale, Vector3 sizeExtents, Color? color
   return Cube(
       id: id,
       size: sizeExtents,
-      centerPosition: pos,
+      position: pos,
       rotation: Quaternion.identity(),
       scale: scale,
       castShadows: true,
@@ -76,7 +76,7 @@ Shape poCreateCube(Vector3 pos, Vector3 scale, Vector3 sizeExtents, Color? color
 Shape poCreateSphere(Vector3 pos, Vector3 scale, Vector3 sizeExtents,
     int stacks, int slices, Color? colorOveride, [ EntityGUID? id ]) {
   return Sphere(
-    centerPosition: pos,
+    position: pos,
     rotation: Quaternion.identity(),
     material: poGetTexturedMaterial(),
     //material: poGetLitMaterial(null),
@@ -103,7 +103,7 @@ Shape poCreatePlane(Vector3 pos, Vector3 scale, Vector3 sizeExtents, [ EntityGUI
       scale: scale,
       castShadows: true,
       receiveShadows: true,
-      centerPosition: pos,
+      position: pos,
       collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
 
       // facing UP

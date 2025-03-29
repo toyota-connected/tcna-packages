@@ -54,7 +54,7 @@ abstract class Model extends TransformEntity {
     required super.scale,
     required super.rotation,
     this.collidable,
-    required super.centerPosition,
+    required super.position,
     this.animation,
     required this.castShadows,
     required this.receiveShadows,
@@ -68,7 +68,7 @@ abstract class Model extends TransformEntity {
         other.assetPath == assetPath &&
         other.url == url &&
         other.scale == scale &&
-        other.centerPosition == centerPosition &&
+        other.position == position &&
         other.animation == animation;
   }
 
@@ -77,7 +77,7 @@ abstract class Model extends TransformEntity {
     return assetPath.hashCode ^
         url.hashCode ^
         scale.hashCode ^
-        centerPosition.hashCode ^
+        position.hashCode ^
         animation.hashCode;
   }
 }

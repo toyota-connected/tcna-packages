@@ -43,7 +43,7 @@ class Entity {
 
 class TransformEntity extends Entity {
   /// Coordinate of center point position of the rendered model.
-  final Position centerPosition;
+  final Position position;
 
   /// Scale Factor of the model.
   /// Should be greater than 0.
@@ -57,7 +57,7 @@ class TransformEntity extends Entity {
   TransformEntity({
     required super.id,
     super.name,
-    required this.centerPosition,
+    required this.position,
     required this.scale,
     required this.rotation,
   }) : super();
@@ -65,7 +65,7 @@ class TransformEntity extends Entity {
   @override @mustCallSuper
   Map<String, dynamic> toJson() => <String, dynamic>{
     ...super.toJson(),
-    'centerPosition': centerPosition.toJson(),
+    'position': position.toJson(),
     'scale': scale.toJson(),
     'rotation': rotation.toJson(),
   };

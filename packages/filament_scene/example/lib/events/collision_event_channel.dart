@@ -1,7 +1,8 @@
+import 'package:filament_scene/entity/entity.dart';
+import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/utils/guid.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:vector_math/vector_math_64.dart';
 import 'dart:io';
 import 'dart:math' as math;
 import '../shape_and_object_creators.dart';
