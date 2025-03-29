@@ -79,7 +79,7 @@ class SettingsSceneView extends StatefulSceneView {
 
     models.add(GlbModel.asset(
       sequoiaAsset,
-      centerPosition: carOrigin,
+      position: carOrigin,
       scale: Vector3.all(1),
       rotation: Quaternion(0, 0, 0, 1),
       collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
@@ -97,7 +97,7 @@ class SettingsSceneView extends StatefulSceneView {
     // use 'radar_cone' asset for lights
     models.add(GlbModel.asset(
       radarConeAsset,
-      centerPosition: carOrigin + lightOffset - Vector3(0, 0, lightOffset.z * 2),
+      position: carOrigin + lightOffset - Vector3(0, 0, lightOffset.z * 2),
       scale: lightSize,
       rotation: Quaternion(0, 0, 0, 1),
       collidable: null,
@@ -113,8 +113,8 @@ class SettingsSceneView extends StatefulSceneView {
 
     models.add(GlbModel.asset(
       radarConeAsset,
-      // centerPosition: Vector3(lightOffset.z * 10),
-      centerPosition: carOrigin + lightOffset - Vector3(0, 0, lightOffset.z * 0),
+      // position: Vector3(lightOffset.z * 10),
+      position: carOrigin + lightOffset - Vector3(0, 0, lightOffset.z * 0),
       scale: lightSize,
       rotation: Quaternion(0, 0, 0, 1),
       collidable: null,
@@ -130,7 +130,7 @@ class SettingsSceneView extends StatefulSceneView {
     // 16x16 floor, 3x3 tiles
     models.add(GlbModel.asset(
       checkerboardFloor,
-      centerPosition: carOrigin + Vector3(0, 0.1, 0),
+      position: carOrigin + Vector3(0, 0.1, 0),
       scale: Vector3.all(1),
       rotation: Quaternion(0, 0, 0, 1),
       collidable: null,
@@ -144,7 +144,7 @@ class SettingsSceneView extends StatefulSceneView {
     ));
     models.add(GlbModel.asset(
       checkerboardFloor,
-      centerPosition: carOrigin + Vector3(-16, 0.1, 16),
+      position: carOrigin + Vector3(-16, 0.1, 16),
       scale: Vector3.all(1),
       rotation: Quaternion(0, 0, 0, 1),
       collidable: null,
@@ -158,7 +158,7 @@ class SettingsSceneView extends StatefulSceneView {
     ));
     models.add(GlbModel.asset(
       checkerboardFloor,
-      centerPosition: carOrigin + Vector3(-16, 0.1, 0),
+      position: carOrigin + Vector3(-16, 0.1, 0),
       scale: Vector3.all(1),
       rotation: Quaternion(0, 0, 0, 1),
       collidable: null,
@@ -172,7 +172,7 @@ class SettingsSceneView extends StatefulSceneView {
     ));
     models.add(GlbModel.asset(
       checkerboardFloor,
-      centerPosition: carOrigin + Vector3(-16, 0.1, -16),
+      position: carOrigin + Vector3(-16, 0.1, -16),
       scale: Vector3.all(1),
       rotation: Quaternion(0, 0, 0, 1),
       collidable: null,
@@ -186,7 +186,7 @@ class SettingsSceneView extends StatefulSceneView {
     ));
     models.add(GlbModel.asset(
       checkerboardFloor,
-      centerPosition: carOrigin + Vector3(0, 0.1, -16),
+      position: carOrigin + Vector3(0, 0.1, -16),
       scale: Vector3.all(1),
       rotation: Quaternion(0, 0, 0, 1),
       collidable: null,
@@ -200,7 +200,7 @@ class SettingsSceneView extends StatefulSceneView {
     ));
     models.add(GlbModel.asset(
       checkerboardFloor,
-      centerPosition: carOrigin + Vector3(16, 0.1, -16),
+      position: carOrigin + Vector3(16, 0.1, -16),
       scale: Vector3.all(1),
       rotation: Quaternion(0, 0, 0, 1),
       collidable: null,
@@ -214,7 +214,7 @@ class SettingsSceneView extends StatefulSceneView {
     ));
     models.add(GlbModel.asset(
       checkerboardFloor,
-      centerPosition: carOrigin + Vector3(16, 0.1, 0),
+      position: carOrigin + Vector3(16, 0.1, 0),
       scale: Vector3.all(1),
       rotation: Quaternion(0, 0, 0, 1),
       collidable: null,
@@ -228,7 +228,7 @@ class SettingsSceneView extends StatefulSceneView {
     ));
     models.add(GlbModel.asset(
       checkerboardFloor,
-      centerPosition: carOrigin + Vector3(16, 0.1, 16),
+      position: carOrigin + Vector3(16, 0.1, 16),
       scale: Vector3.all(1),
       rotation: Quaternion(0, 0, 0, 1),
       collidable: null,
@@ -242,7 +242,7 @@ class SettingsSceneView extends StatefulSceneView {
     ));
     models.add(GlbModel.asset(
       checkerboardFloor,
-      centerPosition: carOrigin + Vector3(0, 0.1, 16),
+      position: carOrigin + Vector3(0, 0.1, 16),
       scale: Vector3.all(1),
       rotation: Quaternion(0, 0, 0, 1),
       collidable: null,
@@ -258,7 +258,7 @@ class SettingsSceneView extends StatefulSceneView {
     // Bounce ball
     models.add(GlbModel.asset(
       bounceBall,
-      centerPosition: carOrigin + Vector3(12, 3, 12),
+      position: carOrigin + Vector3(12, 3, 12),
       scale: Vector3.all(0.75),
       // rotation: Quaternion.fromEulerAngles(0, 90, 0),
       rotation: Quaternion.identity()..setEulerDegrees(0, 90, 0),
@@ -274,7 +274,7 @@ class SettingsSceneView extends StatefulSceneView {
     // Donut
     models.add(GlbModel.asset(
       donut,
-      centerPosition: carOrigin + Vector3(12, 3, -12),
+      position: carOrigin + Vector3(12, 3, -12),
       scale: Vector3.all(0.005),
       rotation: Quaternion.identity()..setEulerDegrees(0, 90, 0),
       collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),

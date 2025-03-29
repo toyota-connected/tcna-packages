@@ -12,7 +12,7 @@ class Plane extends Shape {
   Plane({
     required super.id,
     required this.size,
-    required super.centerPosition,
+    required super.position,
     super.name,
     required super.scale,
     super.normal,

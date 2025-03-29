@@ -59,7 +59,7 @@ class PlaygroundSceneView extends StatefulSceneView {
       // false));
     models.add(GlbModel.asset(
       sequoiaAsset,
-      centerPosition: Vector3(0, 0, 0),
+      position: Vector3(0, 0, 0),
       scale: Vector3(1, 1, 1),
       rotation: Quaternion.identity(),
       collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
@@ -75,7 +75,7 @@ class PlaygroundSceneView extends StatefulSceneView {
     // Garage
     models.add(GlbModel.asset(
       garageAsset,
-      centerPosition: Vector3(0, 0, -16),
+      position: Vector3(0, 0, -16),
       scale: Vector3.all(1),
       rotation: Quaternion.identity(),
       castShadows: false,
@@ -86,7 +86,7 @@ class PlaygroundSceneView extends StatefulSceneView {
     // Foxes
     models.add(GlbModel.asset(
       foxAsset,
-      centerPosition: Vector3(1, 0, 4),
+      position: Vector3(1, 0, 4),
       scale: Vector3(0.04, 0.04, 0.04),
       rotation: Quaternion.identity(),
       collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
@@ -100,7 +100,7 @@ class PlaygroundSceneView extends StatefulSceneView {
 
     models.add(GlbModel.asset(
       foxAsset,
-      centerPosition: Vector3(-1, 0, 4),
+      position: Vector3(-1, 0, 4),
       scale: Vector3(0.04, 0.04, 0.04),
       rotation: Quaternion.identity(),
       collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),

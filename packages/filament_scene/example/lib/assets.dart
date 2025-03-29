@@ -27,7 +27,7 @@ List<Model> getBaseModels() {
   // Car
   models.add(GlbModel.asset(
     sequoiaAsset,
-    centerPosition: Vector3(0, 0, 0),
+    position: Vector3(0, 0, 0),
     scale: Vector3(1, 1, 1),
     rotation: Quaternion(0, 0, 0, 1),
     collidable: null,
@@ -43,7 +43,7 @@ List<Model> getBaseModels() {
   // Fox
   models.add(GlbModel.asset(
     foxAsset,
-    centerPosition: Vector3(0, 0, 0),
+    position: Vector3(0, 0, 0),
     scale: Vector3(1, 1, 1),
     rotation: Quaternion(0, 0, 0, 1),
     collidable: null,
@@ -58,7 +58,7 @@ List<Model> getBaseModels() {
   // Radar cone
   models.add(GlbModel.asset(
     radarConeAsset,
-    centerPosition: Vector3(0, 0, 0),
+    position: Vector3(0, 0, 0),
     scale: Vector3(1, 1, 1),
     rotation: Quaternion(0, 0, 0, 1),
     collidable: null,
@@ -74,7 +74,7 @@ List<Model> getBaseModels() {
   // Radar segment
   models.add(GlbModel.asset(
     radarSegmentAsset,
-    centerPosition: Vector3(0, 0, 0),
+    position: Vector3(0, 0, 0),
     scale: Vector3(1, 1, 1),
     rotation: Quaternion(0, 0, 0, 1),
     collidable: null,
@@ -90,7 +90,7 @@ List<Model> getBaseModels() {
   // Floor
   models.add(GlbModel.asset(
       checkerboardFloor,
-      centerPosition: Vector3(0, -0.1, 0),
+      position: Vector3(0, -0.1, 0),
       scale: Vector3.all(1),
       rotation: Quaternion(0, 0, 0, 1),
       collidable: null,

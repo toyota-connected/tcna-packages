@@ -43,11 +43,12 @@ class Shape extends TransformEntity {
   Shape({
     required super.id,
     super.name,
-    required super.centerPosition,
+    required super.position,
     this.normal,
     this.material,
     required super.scale,
     required super.rotation,
+    super.children,
     this.collidable,
     this.doubleSided = false,
     this.cullingEnabled = true,
@@ -74,14 +75,14 @@ class Shape extends TransformEntity {
 
     return
       other is Shape &&
-      other.centerPosition == centerPosition &&
+      other.position == position &&
       other.normal == normal &&
       other.material == material;
   }
 
   @override
   int get hashCode =>
-      centerPosition.hashCode ^
+      position.hashCode ^
       normal.hashCode ^
       material.hashCode;
 }

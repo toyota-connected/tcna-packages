@@ -12,7 +12,7 @@ class GlbModel extends Model {
     super.keepInMemory,
     super.isInstancePrimary, 
     super.collidable,
-    required super.centerPosition,
+    required super.position,
     super.animation,
     required super.rotation,
     required super.castShadows,
@@ -35,7 +35,7 @@ class GlbModel extends Model {
     required super.url,
     required super.id,
     required super.scale,
-    required super.centerPosition,
+    required super.position,
     required super.rotation,
     super.keepInMemory,
     super.isInstancePrimary,
@@ -55,7 +55,7 @@ class GlbModel extends Model {
     'scale': scale?.toJson(),
     'collidable': collidable?.toJson(),
     'rotation': rotation?.toJson(),
-    'centerPosition': centerPosition?.toJson(),
+    'position': position?.toJson(),
     'animation': animation?.toJson(),
     'castShadows': castShadows,
     'receiveShadows': receiveShadows,
@@ -71,7 +71,7 @@ class GlbModel extends Model {
       other.assetPath == assetPath &&
       other.url == url &&
       other.scale == scale &&
-      other.centerPosition == centerPosition &&
+      other.position == position &&
       other.animation == animation;
   }
 
@@ -81,7 +81,7 @@ class GlbModel extends Model {
       assetPath.hashCode ^
       url.hashCode ^
       scale.hashCode ^
-      centerPosition.hashCode ^
+      position.hashCode ^
       animation.hashCode;
   }
 }

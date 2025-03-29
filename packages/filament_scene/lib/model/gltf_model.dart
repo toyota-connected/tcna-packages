@@ -32,7 +32,7 @@ class GltfModel extends Model {
     super.keepInMemory,
     super.isInstancePrimary,
     required super.scale,
-    required super.centerPosition,
+    required super.position,
     super.collidable,
     required super.rotation,
     super.animation,
@@ -57,7 +57,7 @@ class GltfModel extends Model {
     super.keepInMemory,
         super.isInstancePrimary,
     required super.scale,
-    required super.centerPosition,
+    required super.position,
     required super.rotation,
     super.animation,
     required super.receiveShadows,
@@ -78,7 +78,7 @@ class GltfModel extends Model {
     'collidable': collidable?.toJson(),
     'scale': scale?.toJson(),
     'rotation': rotation?.toJson(),
-    'centerPosition': centerPosition?.toJson(),
+    'position': position?.toJson(),
     'animation': animation?.toJson(),
             'castShadows': castShadows,
             'receiveShadows': receiveShadows,
@@ -95,7 +95,7 @@ class GltfModel extends Model {
         other.prefix == prefix &&
         other.postfix == postfix &&
         other.scale == scale &&
-        other.centerPosition == centerPosition &&
+        other.position == position &&
         other.animation == animation;
   }
 
@@ -106,7 +106,7 @@ class GltfModel extends Model {
         prefix.hashCode ^
         postfix.hashCode ^
         scale.hashCode ^
-        centerPosition.hashCode ^
+        position.hashCode ^
         animation.hashCode;
   }
 }

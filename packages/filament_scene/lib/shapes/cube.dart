@@ -10,10 +10,11 @@ class Cube extends Shape {
   Cube({
     required super.id,
     required this.size,
-    required super.centerPosition,
+    required super.position,
     super.name,
     required super.scale,
     required super.rotation,
+    super.children,
     super.material,
     super.collidable,
     super.doubleSided,
