@@ -307,6 +307,73 @@ class SettingsSceneView extends StatefulSceneView {
   static List<Shape> getSceneShapes() {
     final List<Shape> shapes = [];
 
+    /// tree of nested cubes above the car
+    final tree_uuids = {
+      (generateGuid()): "tree_root",
+      (generateGuid()): "tree_layer_1",
+      (generateGuid()): "tree_layer_2",
+      (generateGuid()): "tree_layer_3",
+      (generateGuid()): "tree_layer_4",
+    };
+
+    print("tree_uuids: $tree_uuids");
+
+    shapes.add(
+      Cube(
+        id: tree_uuids.keys.elementAt(0),
+        name: tree_uuids.values.elementAt(0),
+        position: carOrigin + Vector3(0, 2, 0),
+        scale: Vector3(2, 0.25, 2),
+        rotation: Quaternion.identity(),
+        size: Vector3.all(1),
+        material: poGetLitMaterial(Colors.green),
+        children: [
+          Cube(
+            id: tree_uuids.keys.elementAt(1),
+            name: tree_uuids.values.elementAt(1),
+            position: Vector3(0, 2, 0), // relative to parent
+            scale: Vector3(0.75, 1, 0.75),
+            rotation: Quaternion.identity(),
+            size: Vector3.all(1),
+            material: poGetLitMaterial(Colors.green),
+            children: [
+              Cube(
+                id: tree_uuids.keys.elementAt(2),
+                name: tree_uuids.values.elementAt(2),
+                position: Vector3(0, 2, 0), // relative to parent
+                scale: Vector3(0.75, 1, 0.75),
+                rotation: Quaternion.identity(),
+                size: Vector3.all(1),
+                material: poGetLitMaterial(Colors.green),
+                children: [
+                  Cube(
+                    id: tree_uuids.keys.elementAt(3),
+                    name: tree_uuids.values.elementAt(3),
+                    position: Vector3(0, 2, 0), // relative to parent
+                    scale: Vector3(0.75, 1, 0.75),
+                    rotation: Quaternion.identity(),
+                    size: Vector3.all(1),
+                    material: poGetLitMaterial(Colors.green),
+                    children: [
+                      Cube(
+                        id: tree_uuids.keys.elementAt(4),
+                        name: tree_uuids.values.elementAt(4),
+                        position: Vector3(0, 2, 0), // relative to parent
+                        scale: Vector3(0.25, 0.25, 0.25),
+                        rotation: Quaternion.identity(),
+                        size: Vector3.all(1),
+                        material: poGetLitMaterial(Colors.yellow),
+                      ),
+                    ]
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ]
+      ),
+    );
+
     // shapes.add(poCreateCube(
     //   Vector3(72, 4, 68),
     //   Vector3(2, 2, 2),

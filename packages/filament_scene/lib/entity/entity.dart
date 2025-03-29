@@ -1,4 +1,5 @@
 
+import 'package:collection/collection.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/scene/scene.dart';
 import 'package:filament_scene/utils/serialization.dart';
@@ -10,17 +11,79 @@ class Entity {
   final EntityGUID id;
   final String? name;
 
+  late final Scene scene;
+
+  EntityGUID? _parentId;
+  Entity? get parent => scene.getEntity(_parentId!);
+
+  Iterable<EntityGUID> _children = <EntityGUID>[];
+  Iterable<Entity> get children => _children.map((final id) => scene.getEntity(id)!);
+  /// List of children to be passed from the constructor. Only using at scene initialization.
+  Iterable<Entity> tmpChildren = <Entity>[];
+
   Entity({
     required this.id,
     this.name,
-  });
+    final EntityGUID? parentId,
+    final Iterable<Entity> children = const <Entity>[],
+  }) 
+  // ;
+  :
+    _parentId = parentId,
+    tmpChildren = children {
+    // Make sure that direct children don't directly define a parentId
+    assert(
+      children.every((final child) => child._parentId == null),
+      'Direct children should not have a parentId set. When adding children, leave the parentId null.',
+    );
+  }
 
 
+  // TODO: set parent
+
+  // TODO: add/remove child
+
+  /// Returns a child entity with a given [name]
+  Entity? getChildByName(final String name) => children.firstWhereOrNull((final child) => child.name == name);
+
+
+
+
+  /*
+   *  Serialization
+   */
   @mustCallSuper
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  JsonObject toJson() => <String, dynamic>{
     'guid': id,
     'name': name,
+    'children': tmpChildren.map<JsonObject>((final child) => child.toJson()).toList(),
   };
+
+  @nonVirtual
+  /// Flattens its children tree into a single list of entities.
+  List<JsonObject> toFlatJson({final bool isParent = true}) {
+    final List<JsonObject> flattenedChildren = <JsonObject>[];
+
+    for (final Entity child in tmpChildren) {
+      final children = child.toFlatJson(isParent: false);
+      for(final JsonObject child in children) {
+        child['parentId'] ??= id; // if already set, it's a grandchild
+
+        child.remove('children');
+        flattenedChildren.add(child);
+      }
+    }
+
+    final JsonObject thisJson = toJson();
+    if(isParent) thisJson['children'] = null;
+
+    final data = <JsonObject>[
+      thisJson,
+      ...flattenedChildren,
+    ];
+
+    return data;
+  }
 
   @override @nonVirtual
   /// Returns a string representation of this object, including all of its fields (based on the [toJson] method).
@@ -57,9 +120,11 @@ class TransformEntity extends Entity {
   TransformEntity({
     required super.id,
     super.name,
+    super.parentId,
     required this.position,
     required this.scale,
     required this.rotation,
+    super.children,
   }) : super();
 
   @override @mustCallSuper

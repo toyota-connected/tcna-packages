@@ -17,6 +17,7 @@ class Sphere extends Shape {
     this.stacks,
     this.slices,
     super.name,
+    super.parentId,
     super.normal,
     super.material,
     required super.scale,
