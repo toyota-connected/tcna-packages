@@ -420,6 +420,7 @@ class SettingsSceneView extends StatefulSceneView {
       wiperSize,
       wiperSize,
       null,
+      'wiper1',
       objectGuids['wiper1']!,
     ));
 
@@ -428,6 +429,7 @@ class SettingsSceneView extends StatefulSceneView {
       wiperSize,
       wiperSize,
       null,
+      'wiper2',
       objectGuids['wiper2']!,
     ));
 
@@ -439,6 +441,7 @@ class SettingsSceneView extends StatefulSceneView {
         wheelSize,
         wheelSegments, wheelSegments,
         null,
+        entry.key,
         objectGuids[entry.key]!,
       ));
     }
@@ -708,20 +711,20 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
 
     // Bounce and rotate donut
     {
-      final ballGuid = SettingsSceneView.objectGuids['bg_shape_1']!;
+      final donutGuid = SettingsSceneView.objectGuids['bg_shape_1']!;
       final double bounce = sin(_timer * 2) * 1;
 
       final Vector3 pos = SettingsSceneView.carOrigin + Vector3(-10, 2 + bounce, 10);
       final Quaternion rot = Quaternion.identity()..setEulerDegrees(30 * bounce, _timer * 90, 0);
 
       filament.changeTranslationByGUID(
-        ballGuid,
+        donutGuid,
         pos.x,
         pos.y,
         pos.z,
       );
       filament.changeRotationByGUID(
-        SettingsSceneView.objectGuids['bg_shape_1']!,
+        donutGuid,
         rot.x,
         rot.y,
         rot.z,
