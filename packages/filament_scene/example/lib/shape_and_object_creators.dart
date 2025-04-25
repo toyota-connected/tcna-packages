@@ -48,7 +48,7 @@ List<EntityGUID> thingsWeCanChangeParamsOn = [];
 
 // TODO(kerberjg): refactor as `Cube.default`
 @Deprecated("Will be removed")
-Shape poCreateCube(Vector3 pos, Vector3 scale, Vector3 sizeExtents, Color? colorOveride, [ EntityGUID? id ]) {
+Shape poCreateCube(Vector3 pos, Vector3 scale, Vector3 sizeExtents, Color? colorOveride, String name, [ EntityGUID? id ]) {
   id ??= generateGuid();
 
   // Just to show off changing material params during runtime.
@@ -56,6 +56,7 @@ Shape poCreateCube(Vector3 pos, Vector3 scale, Vector3 sizeExtents, Color? color
 
   return Cube(
       id: id,
+      name: name,
       size: sizeExtents,
       position: pos,
       rotation: Quaternion.identity(),
@@ -74,7 +75,7 @@ Shape poCreateCube(Vector3 pos, Vector3 scale, Vector3 sizeExtents, Color? color
 // TODO(kerberjg): refactor as `Sphere.default`
 @Deprecated("Will be removed")
 Shape poCreateSphere(Vector3 pos, Vector3 scale, Vector3 sizeExtents,
-    int stacks, int slices, Color? colorOveride, [ EntityGUID? id ]) {
+    int stacks, int slices, Color? colorOveride, String name, [ EntityGUID? id ]) {
   return Sphere(
     position: pos,
     rotation: Quaternion.identity(),
@@ -89,15 +90,17 @@ Shape poCreateSphere(Vector3 pos, Vector3 scale, Vector3 sizeExtents,
     scale: scale,
     size: sizeExtents,
     id: id ?? generateGuid(),
+    name: name,
   );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // TODO(kerberjg): refactor as `Plane.default`
 @Deprecated("Will be removed")
-Shape poCreatePlane(Vector3 pos, Vector3 scale, Vector3 sizeExtents, [ EntityGUID? id ]) {
+Shape poCreatePlane(Vector3 pos, Vector3 scale, Vector3 sizeExtents, String name, [ EntityGUID? id ]) {
   return Plane(
       id: id ?? generateGuid(),
+      name: name,
       doubleSided: true,
       size: sizeExtents,
       scale: scale,
@@ -126,7 +129,8 @@ List<Shape> poCreateLineGrid() {
           Vector3(i, 0, k),
           Vector3(1, 1, 1),
           Vector3(1, 1, 1),
-          null
+          null,
+          'lineGrid???_subcube$k'
         ));
       }
     }

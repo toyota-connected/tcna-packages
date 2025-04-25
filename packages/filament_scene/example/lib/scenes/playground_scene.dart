@@ -123,6 +123,7 @@ class PlaygroundSceneView extends StatefulSceneView {
       Vector3(2, 2, 2),
       Vector3(2, 2, 2),
       null,
+      'cube1',
     ));
 
     shapes.add(poCreateCube(
@@ -130,6 +131,7 @@ class PlaygroundSceneView extends StatefulSceneView {
       Vector3(.1, 1, .1),
       Vector3(1, 1, 1), 
       null,
+      'cube2',
     ));
 
     shapes.add(poCreateCube(
@@ -137,6 +139,7 @@ class PlaygroundSceneView extends StatefulSceneView {
       Vector3(.5, .5, .5),
       Vector3(1, 1, 1),
       null,
+      'cube3',
     ));
 
     shapes.add(poCreateSphere(
@@ -144,6 +147,7 @@ class PlaygroundSceneView extends StatefulSceneView {
       Vector3(1, 1, 1),
       Vector3(1, 1, 1),
       11, 5, null,
+      'sphere1',
     ));
 
     shapes.add(poCreateSphere(
@@ -151,6 +155,7 @@ class PlaygroundSceneView extends StatefulSceneView {
       Vector3(1, 1, 1),
       Vector3(1, 1, 1),
       20, 20, null,
+      'sphere2',
     ));
 
     shapes.add(poCreateSphere(
@@ -158,12 +163,14 @@ class PlaygroundSceneView extends StatefulSceneView {
       Vector3(1, .5, 1),
       Vector3(1, 1, 1),
       20, 20, null,
+      'sphere3',
     ));
 
     shapes.add(poCreatePlane(
       Vector3(-5, 1, 0),
       Vector3(1, 1, 1),
       Vector3(2, 1, 2),
+      'smolPlane',
     ));
 
     return shapes;
