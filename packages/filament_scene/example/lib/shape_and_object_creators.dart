@@ -4,6 +4,7 @@ import 'package:filament_scene/shapes/shapes.dart';
 import 'package:filament_scene/utils/guid.dart';
 import 'package:flutter/material.dart' hide Animation;
 import 'package:my_fox_example/assets.dart';
+import 'package:my_fox_example/scenes/planetarium_scene.dart';
 import 'package:my_fox_example/scenes/playground_scene.dart';
 import 'package:my_fox_example/scenes/radar_scene.dart';
 import 'package:my_fox_example/scenes/settings_scene.dart';
@@ -150,6 +151,12 @@ List<Shape> poGetScenesShapes() {
   itemsToReturn.addAll(PlaygroundSceneView.getSceneShapes());
   itemsToReturn.addAll(RadarSceneView.getSceneShapes());
   itemsToReturn.addAll(SettingsSceneView.getSceneShapes());
+  try {
+    itemsToReturn.addAll(PlanetariumSceneView.getSceneShapes());
+  } catch (e, st) {
+    // TODO(kerberjg): remove this try/catch
+    print("PlanetariumSceneView.getSceneShapes() failed: $e\n$st");
+  }
 
   // TODO: add other scenes if needed
 

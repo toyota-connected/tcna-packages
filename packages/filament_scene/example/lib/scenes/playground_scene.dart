@@ -45,18 +45,6 @@ class PlaygroundSceneView extends StatefulSceneView {
     // TODO: use only GlbModel.asset instead of poCreateModel
 
     // Car
-      // itemsToReturn.add(poGetModel(
-      // sequoiaAsset,
-      // Vector3(0, 0, 0),
-      // Vector3(1, 1, 1),
-      // Quaternion.identity(),
-      // Collidable(isStatic: false, shouldMatchAttachedObject: true),
-      // null,
-      // true,
-      // true,
-      // generateGuid(),
-      // true,
-      // false));
     models.add(GlbModel.asset(
       sequoiaAsset,
       position: Vector3(0, 0, 0),
