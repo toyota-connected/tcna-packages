@@ -1,6 +1,7 @@
 import 'package:filament_scene/math/vectors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:my_fox_example/scenes/planetarium_scene.dart';
 import 'package:my_fox_example/scenes/playground_scene.dart';
 import 'package:my_fox_example/scenes/radar_scene.dart';
 import 'package:my_fox_example/scenes/scene_view.dart';
@@ -91,6 +92,12 @@ class _MyAppState extends State<MyApp> {
         readinessController: _nativeReadiness,
       ),
       2 => SettingsSceneView(
+        filament: filamentViewApi,
+        frameController: _frameEventChannel, 
+        collisionController: _collisionEventChannel,
+        readinessController: _nativeReadiness,
+      ),
+      3 => PlanetariumSceneView(
         filament: filamentViewApi,
         frameController: _frameEventChannel, 
         collisionController: _collisionEventChannel,
@@ -191,6 +198,10 @@ class _MyAppState extends State<MyApp> {
                   MenuItemButton(
                     child: const Text('Settings'),
                     onPressed: () => setState(() =>_setScene(2)),
+                  ),
+                  MenuItemButton(
+                    child: const Text('Planetarium'),
+                    onPressed: () => setState(() =>_setScene(3)),
                   ),
                 ],
               ),
