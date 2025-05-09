@@ -51,6 +51,9 @@ extension QuaterionWithDegrees on Quaternion {
 
   @override
   String toString() => 'Vector3Data(x: $x, y: $y, z: $z)';
+
+  /// Convert to a [Vector3] object.
+  Vector3 toVector3() => Vector3(x, y, z);
 }
 
 /// A data class for Quaternion

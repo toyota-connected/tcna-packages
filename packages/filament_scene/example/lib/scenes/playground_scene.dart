@@ -46,7 +46,7 @@ class PlaygroundSceneView extends StatefulSceneView {
 
     // Car
     models.add(GlbModel.asset(
-      sequoiaAsset,
+      assetPath: sequoiaAsset,
       position: Vector3(0, 0, 0),
       scale: Vector3(1, 1, 1),
       rotation: Quaternion.identity(),
@@ -56,13 +56,12 @@ class PlaygroundSceneView extends StatefulSceneView {
       castShadows: true,
       name: sequoiaAsset,
       id: objectGuids['car']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
+      instancingMode: ModelInstancingType.instanced,
     ));
 
     // Garage
     models.add(GlbModel.asset(
-      garageAsset,
+      assetPath: garageAsset,
       position: Vector3(0, 0, -16),
       scale: Vector3.all(1),
       rotation: Quaternion.identity(),
@@ -73,7 +72,7 @@ class PlaygroundSceneView extends StatefulSceneView {
 
     // Foxes
     models.add(GlbModel.asset(
-      foxAsset,
+      assetPath: foxAsset,
       position: Vector3(1, 0, 4),
       scale: Vector3(0.04, 0.04, 0.04),
       rotation: Quaternion.identity(),
@@ -82,12 +81,11 @@ class PlaygroundSceneView extends StatefulSceneView {
       receiveShadows: true,
       castShadows: true,
       id: objectGuids['fox1']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
+      instancingMode: ModelInstancingType.instanced,
     ));
 
     models.add(GlbModel.asset(
-      foxAsset,
+      assetPath: foxAsset,
       position: Vector3(-1, 0, 4),
       scale: Vector3(0.04, 0.04, 0.04),
       rotation: Quaternion.identity(),
@@ -96,8 +94,7 @@ class PlaygroundSceneView extends StatefulSceneView {
       receiveShadows: true,
       castShadows: true,
       id: objectGuids['fox2']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
+      instancingMode: ModelInstancingType.instanced,
     ));
 
     return models;

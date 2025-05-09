@@ -16,7 +16,7 @@ import 'material_helpers.dart';
 // TODO(kerberjg): redudant, remove
 @Deprecated("Use GlbModel.asset instead")
 GlbModel poGetModel(
-    String szAsset,
+    String assetPath,
     Vector3 position,
     Vector3 scale,
     Quaternion rotation,
@@ -25,22 +25,20 @@ GlbModel poGetModel(
     bool bReceiveShadows,
     bool bCastShadows,
     EntityGUID? id,
-    bool bKeepInMemory,
-    bool bWhenInstanceableIsPrimary) {
-  return GlbModel.asset(szAsset,
-    keepInMemory: bKeepInMemory,
-    isInstancePrimary: bWhenInstanceableIsPrimary,
+    ModelInstancingType instancingMode,
+  ) => GlbModel.asset(
+    assetPath: assetPath,
+    instancingMode: instancingMode,
     animation: animationInfo,
     collidable: collidable,
     position: position,
     scale: scale,
     rotation: rotation,
-    name: szAsset,
+    name: assetPath,
     receiveShadows: bReceiveShadows,
     castShadows: bCastShadows,
     id: id ?? generateGuid()
   );
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 // TODO(kerberjg): investigate and remove

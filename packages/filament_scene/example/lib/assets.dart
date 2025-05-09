@@ -26,7 +26,7 @@ List<Model> getBaseModels() {
 
   // Car
   models.add(GlbModel.asset(
-    sequoiaAsset,
+    assetPath: sequoiaAsset,
     position: Vector3(0, 0, 0),
     scale: Vector3(1, 1, 1),
     rotation: Quaternion(0, 0, 0, 1),
@@ -36,13 +36,12 @@ List<Model> getBaseModels() {
     castShadows: true,
     name: sequoiaAsset,
     id: generateGuid(),
-    keepInMemory: true,
-    isInstancePrimary: true,
+    instancingMode: ModelInstancingType.primaryInstanceable,
   ));
 
   // Fox
   models.add(GlbModel.asset(
-    foxAsset,
+    assetPath: foxAsset,
     position: Vector3(0, 0, 0),
     scale: Vector3(1, 1, 1),
     rotation: Quaternion(0, 0, 0, 1),
@@ -51,13 +50,12 @@ List<Model> getBaseModels() {
     receiveShadows: true,
     castShadows: true,
     id: generateGuid(),
-    keepInMemory: true,
-    isInstancePrimary: true,
+    instancingMode: ModelInstancingType.primaryInstanceable,
   ));
 
   // Radar cone
   models.add(GlbModel.asset(
-    radarConeAsset,
+    assetPath: radarConeAsset,
     position: Vector3(0, 0, 0),
     scale: Vector3(1, 1, 1),
     rotation: Quaternion(0, 0, 0, 1),
@@ -67,13 +65,12 @@ List<Model> getBaseModels() {
     castShadows: false,
     name: radarConeAsset,
     id: generateGuid(),
-    keepInMemory: true,
-    isInstancePrimary: true,
+    instancingMode: ModelInstancingType.primaryInstanceable,
   ));
 
   // Radar segment
   models.add(GlbModel.asset(
-    radarSegmentAsset,
+    assetPath: radarSegmentAsset,
     position: Vector3(0, 0, 0),
     scale: Vector3(1, 1, 1),
     rotation: Quaternion(0, 0, 0, 1),
@@ -83,13 +80,12 @@ List<Model> getBaseModels() {
     castShadows: true,
     name: radarSegmentAsset,
     id: generateGuid(),
-    keepInMemory: true,
-    isInstancePrimary: true,
+    instancingMode: ModelInstancingType.primaryInstanceable,
   ));
 
   // Floor
   models.add(GlbModel.asset(
-      checkerboardFloor,
+      assetPath: checkerboardFloor,
       position: Vector3(0, -0.1, 0),
       scale: Vector3.all(1),
       rotation: Quaternion(0, 0, 0, 1),
@@ -99,8 +95,7 @@ List<Model> getBaseModels() {
       castShadows: false,
       name: checkerboardFloor,
       id: generateGuid(),
-      keepInMemory: true,
-      isInstancePrimary: true,
+    instancingMode: ModelInstancingType.primaryInstanceable,
     ));
 
   return models;
