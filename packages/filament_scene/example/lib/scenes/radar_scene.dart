@@ -45,8 +45,7 @@ class RadarSceneView extends StatefulSceneView {
         true,
         true,
         generateGuid(),
-        true,
-        false));
+        ModelInstancingType.instanced,));
   }
 
   models.add(poGetModel(
@@ -59,8 +58,7 @@ class RadarSceneView extends StatefulSceneView {
       true,
       false,
       generateGuid(),
-      false,
-      false));
+      ModelInstancingType.none));
 
   EntityGUID id = generateGuid();
   _radarConePieceGUID.add(id);
@@ -75,8 +73,7 @@ class RadarSceneView extends StatefulSceneView {
       false,
       false,
       id,
-      false,
-      false));
+      ModelInstancingType.none));
 
   // primary radar segment
   // models.add(poGetModel(
@@ -105,8 +102,7 @@ class RadarSceneView extends StatefulSceneView {
         true,
         true,
         idForSegment,
-        true,
-        false));
+        ModelInstancingType.instanced));
 
     _radarSegmentPieceGUID.add(idForSegment);
   }

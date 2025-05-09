@@ -78,7 +78,7 @@ class SettingsSceneView extends StatefulSceneView {
 
 
     models.add(GlbModel.asset(
-      sequoiaAsset,
+      assetPath: sequoiaAsset,
       position: carOrigin,
       scale: Vector3.all(1),
       rotation: Quaternion(0, 0, 0, 1),
@@ -88,15 +88,14 @@ class SettingsSceneView extends StatefulSceneView {
       castShadows: true,
       name: sequoiaAsset,
       id: objectGuids['car']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
+      instancingMode: ModelInstancingType.instanced,
     ));
 
     final Vector3 lightOffset = Vector3(-2.5, 1, -0.9);
 
     // use 'radar_cone' asset for lights
     models.add(GlbModel.asset(
-      radarConeAsset,
+      assetPath: radarConeAsset,
       position: carOrigin + lightOffset - Vector3(0, 0, lightOffset.z * 2),
       scale: lightSize,
       rotation: Quaternion(0, 0, 0, 1),
@@ -106,13 +105,12 @@ class SettingsSceneView extends StatefulSceneView {
       castShadows: false,
       name: radarConeAsset,
       id: objectGuids['light1']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
+      instancingMode: ModelInstancingType.instanced,
     ));
 
 
     models.add(GlbModel.asset(
-      radarConeAsset,
+      assetPath: radarConeAsset,
       // position: Vector3(lightOffset.z * 10),
       position: carOrigin + lightOffset - Vector3(0, 0, lightOffset.z * 0),
       scale: lightSize,
@@ -123,141 +121,42 @@ class SettingsSceneView extends StatefulSceneView {
       castShadows: false,
       name: radarConeAsset,
       id: objectGuids['light2']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
+      instancingMode: ModelInstancingType.instanced,
     ));
 
     // 16x16 floor, 3x3 tiles
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      position: carOrigin + Vector3(0, 0.1, 0),
-      scale: Vector3.all(1),
-      rotation: Quaternion(0, 0, 0, 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_1",
-      id: objectGuids['floor1']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
-    ));
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      position: carOrigin + Vector3(-16, 0.1, 16),
-      scale: Vector3.all(1),
-      rotation: Quaternion(0, 0, 0, 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_2",
-      id: objectGuids['floor2']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
-    ));
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      position: carOrigin + Vector3(-16, 0.1, 0),
-      scale: Vector3.all(1),
-      rotation: Quaternion(0, 0, 0, 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_3",
-      id: objectGuids['floor3']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
-    ));
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      position: carOrigin + Vector3(-16, 0.1, -16),
-      scale: Vector3.all(1),
-      rotation: Quaternion(0, 0, 0, 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_4",
-      id: objectGuids['floor4']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
-    ));
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      position: carOrigin + Vector3(0, 0.1, -16),
-      scale: Vector3.all(1),
-      rotation: Quaternion(0, 0, 0, 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_5",
-      id: objectGuids['floor5']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
-    ));
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      position: carOrigin + Vector3(16, 0.1, -16),
-      scale: Vector3.all(1),
-      rotation: Quaternion(0, 0, 0, 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_6",
-      id: objectGuids['floor6']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
-    ));
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      position: carOrigin + Vector3(16, 0.1, 0),
-      scale: Vector3.all(1),
-      rotation: Quaternion(0, 0, 0, 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_7",
-      id: objectGuids['floor7']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
-    ));
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      position: carOrigin + Vector3(16, 0.1, 16),
-      scale: Vector3.all(1),
-      rotation: Quaternion(0, 0, 0, 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_8",
-      id: objectGuids['floor8']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
-    ));
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      position: carOrigin + Vector3(0, 0.1, 16),
-      scale: Vector3.all(1),
-      rotation: Quaternion(0, 0, 0, 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_9",
-      id: objectGuids['floor9']!,
-      keepInMemory: false,
-      isInstancePrimary: false,
-    ));
+    const List<Vector3Data> floorPositions = [
+      Vector3Data(x: 0, y: 0, z: 0),
+      Vector3Data(x: -16, y: 0, z: 16),
+      Vector3Data(x: -16, y: 0, z: 0),
+      Vector3Data(x: -16, y: 0, z: -16),
+      Vector3Data(x: 0, y: 0, z: -16),
+      Vector3Data(x: 16, y: 0, z: -16),
+      Vector3Data(x: 16, y: 0, z: 0),
+      Vector3Data(x: 16, y: 0, z: 16),
+      Vector3Data(x: 0, y: 0, z: 16),
+    ];
+
+    for(int i = 0; i < floorPositions.length; i++) {
+      final Vector3Data pos = floorPositions[i];
+      models.add(GlbModel.asset(
+        assetPath: checkerboardFloor,
+        position: carOrigin + pos.toVector3(),
+        scale: Vector3.all(1),
+        rotation: Quaternion(0, 0, 0, 1),
+        collidable: null,
+        animation: null,
+        receiveShadows: true,
+        castShadows: false,
+        name: "${checkerboardFloor}_${i + 1}",
+        id: objectGuids['floor${i + 1}']!,
+        instancingMode: ModelInstancingType.instanced,
+      ));
+    }
 
     // Bounce ball
     models.add(GlbModel.asset(
-      bounceBall,
+      assetPath: bounceBall,
       position: carOrigin + Vector3(12, 3, 12),
       scale: Vector3.all(0.75),
       // rotation: Quaternion.fromEulerAngles(0, 90, 0),
@@ -268,12 +167,11 @@ class SettingsSceneView extends StatefulSceneView {
       castShadows: true,
       name: bounceBall,
       id: objectGuids['bg_shape_0']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
+      instancingMode: ModelInstancingType.none,
     ));
     // Donut
     models.add(GlbModel.asset(
-      donut,
+      assetPath: donut,
       position: carOrigin + Vector3(12, 3, -12),
       scale: Vector3.all(0.005),
       rotation: Quaternion.identity()..setEulerDegrees(0, 90, 0),
@@ -283,8 +181,7 @@ class SettingsSceneView extends StatefulSceneView {
       castShadows: true,
       name: donut,
       id: objectGuids['bg_shape_1']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
+      instancingMode: ModelInstancingType.none,
     ));
 
     return models;
