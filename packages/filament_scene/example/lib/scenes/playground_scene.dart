@@ -48,9 +48,9 @@ class PlaygroundSceneView extends StatefulSceneView {
     models.add(GlbModel.asset(
       assetPath: sequoiaAsset,
       position: Vector3(0, 0, 0),
-      scale: Vector3(1, 1, 1),
+      scale: Vector3.all(1),
       rotation: Quaternion.identity(),
-      collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
+      // collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
       animation: null,
       receiveShadows: true,
       castShadows: true,
@@ -68,6 +68,7 @@ class PlaygroundSceneView extends StatefulSceneView {
       castShadows: false,
       receiveShadows: true,
       id: objectGuids['garage']!,
+      name: "garageEnvironment"
     ));
 
     // Foxes
@@ -137,7 +138,7 @@ class PlaygroundSceneView extends StatefulSceneView {
 
     shapes.add(poCreateSphere(
       Vector3(0, 1, -3),
-      Vector3(1, 1, 1),
+      Vector3(2, 2, 2),
       Vector3(1, 1, 1),
       20, 20, null,
       'sphere2',
