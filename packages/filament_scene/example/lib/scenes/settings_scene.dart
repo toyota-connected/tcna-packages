@@ -82,7 +82,7 @@ class SettingsSceneView extends StatefulSceneView {
       position: carOrigin,
       scale: Vector3.all(1),
       rotation: Quaternion(0, 0, 0, 1),
-      collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
+      collidable: null,
       animation: null,
       receiveShadows: true,
       castShadows: true,
@@ -386,7 +386,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     widget.filament.changeCameraFlightStartPosition(64, 3, 64);
 
     // fog
-    widget.filament.setFogOptions(true);
+    widget.filament.setFogOptions(false);
   }
 
   void _onObjectTouch(CollisionEvent event) {
