@@ -192,7 +192,7 @@ class SettingsSceneView extends StatefulSceneView {
 
   static final Vector3 wheelOffset = Vector3(1.75, 0.425, 0.85);
   static final double wheelBackOffset = 0.4;
-  static final Vector3 wheelSize = Vector3(0.5, 0.5, 0.2);
+  static final Vector3 wheelSize = Vector3(1, 1, 0.4);
   static final int wheelSegments = 8;
   static final Map<String, Vector3> wheelPositions = {
     's_wheel_F1': carOrigin + Vector3(-wheelOffset.x,                   wheelOffset.y, wheelOffset.z),
