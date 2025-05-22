@@ -40,6 +40,7 @@ class Entity {
 
 
   // TODO: set parent
+  EntityGUID? get parentId => _parentId;
 
   // TODO: add/remove child
 
@@ -57,6 +58,7 @@ class Entity {
     'guid': id,
     'name': name,
     'children': tmpChildren.map<JsonObject>((final child) => child.toJson()).toList(),
+    'parentId': _parentId,
   };
 
   @nonVirtual
