@@ -296,7 +296,7 @@ List<Light> poGetSceneLightsList() {
   // settings scene
   id = generateGuid();
   itemsToReturn.add(Light(
-    id: SettingsSceneView.objectGuids['l_light_B1']!,
+    id: SettingsSceneView.objectGuids['l_light_BL']!,
     type: LightType.point,
     color: Colors.red,
     intensity: 100000000 * 0.05,
@@ -308,7 +308,7 @@ List<Light> poGetSceneLightsList() {
 
   id = generateGuid();
   itemsToReturn.add(Light(
-    id: SettingsSceneView.objectGuids['l_light_B2']!,
+    id: SettingsSceneView.objectGuids['l_light_BR']!,
     type: LightType.point,
     color: Colors.red,
     intensity: 100000000 * 0.05,
@@ -326,7 +326,7 @@ List<Light> poGetSceneLightsList() {
 
   id = generateGuid();
   itemsToReturn.add(Light(
-    id: SettingsSceneView.objectGuids['l_light_F1']!,
+    id: SettingsSceneView.objectGuids['l_light_FL']!,
     type: LightType.point,
     color: Colors.yellow,
     intensity: 100000000 * 0.05,
@@ -339,7 +339,7 @@ List<Light> poGetSceneLightsList() {
 
   id = generateGuid();
   itemsToReturn.add(Light(
-    id: SettingsSceneView.objectGuids['l_light_F2']!,
+    id: SettingsSceneView.objectGuids['l_light_FR']!,
     type: LightType.point,
     color: Colors.yellow,
     intensity: 100000000 * 0.05,
@@ -352,7 +352,7 @@ List<Light> poGetSceneLightsList() {
   // tunrning lights
   id = generateGuid();
   itemsToReturn.add(Light(
-    id: SettingsSceneView.objectGuids['l_light_tB1']!,
+    id: SettingsSceneView.objectGuids['l_light_tBL']!,
     type: LightType.point,
     color: Colors.orange,
     intensity: 100000000 * 0.05,
@@ -364,7 +364,7 @@ List<Light> poGetSceneLightsList() {
 
   id = generateGuid();
   itemsToReturn.add(Light(
-    id: SettingsSceneView.objectGuids['l_light_tB2']!,
+    id: SettingsSceneView.objectGuids['l_light_tBR']!,
     type: LightType.point,
     color: Colors.orange,
     intensity: 100000000 * 0.05,
@@ -376,7 +376,7 @@ List<Light> poGetSceneLightsList() {
 
   id = generateGuid();
   itemsToReturn.add(Light(
-    id: SettingsSceneView.objectGuids['l_light_tF1']!,
+    id: SettingsSceneView.objectGuids['l_light_tFL']!,
     type: LightType.point,
     color: Colors.orange,
     intensity: 100000000 * 0.05,
@@ -388,7 +388,7 @@ List<Light> poGetSceneLightsList() {
 
   id = generateGuid();
   itemsToReturn.add(Light(
-    id: SettingsSceneView.objectGuids['l_light_tF2']!,
+    id: SettingsSceneView.objectGuids['l_light_tFR']!,
     type: LightType.point,
     color: Colors.orange,
     intensity: 100000000 * 0.05,
