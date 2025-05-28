@@ -219,18 +219,34 @@ class SettingsSceneView extends StatefulSceneView {
       (generateGuid()): "tree_layer_4",
     };
 
+    /*
+     *  Entity parenting example
+     */ 
     print("tree_uuids: $tree_uuids");
-
     shapes.add(
       Cube(
         id: tree_uuids.keys.elementAt(0),
         name: tree_uuids.values.elementAt(0),
-        position: carOrigin + Vector3(0, 2, 0),
+        // TODO: this doesn't work because the model instantiation is so deferred that it doesn't exist on create time
+        // parentId: objectGuids['car']!,
+        // position: Vector3(15, 0.25, 10),
+        position: carOrigin + Vector3(15, 0.5, 10),
         scale: Vector3(2, 0.25, 2),
         rotation: Quaternion.identity(),
         size: Vector3.all(1),
         material: poGetLitMaterial(Colors.green),
         children: [
+          // tree trunk
+          Cube(
+            id: generateGuid(),
+            name: "tree_trunk",
+            position: Vector3(0, 2, 0), // relative to parent
+            scale: Vector3(0.1, 8, 0.1),
+            rotation: Quaternion.identity(),
+            size: Vector3.all(1),
+            material: poGetLitMaterial(Colors.brown),
+          ),
+          // tree layers
           Cube(
             id: tree_uuids.keys.elementAt(1),
             name: tree_uuids.values.elementAt(1),
