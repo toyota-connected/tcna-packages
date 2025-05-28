@@ -3,7 +3,8 @@ import 'package:my_fox_example/shape_and_object_creators.dart';
 import 'package:filament_scene/filament_scene.dart';
 
 
-const String sequoiaAsset = "assets/models/sequoia_notes.glb";
+const String sequoiaWithWheelsAsset = "assets/models/sequoia_notes.glb";
+const String sequoiaAsset = "assets/models/sequoia_ngp.glb";
 const String garageAsset = "assets/models/garagescene.glb";
 
 const String checkerboardFloor = "assets/models/cb_floor.glb";

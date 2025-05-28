@@ -32,6 +32,30 @@ class SettingsSceneView extends StatefulSceneView {
   _SettingsSceneViewState createState() => _SettingsSceneViewState();
 
   static final Vector3 carOrigin = Vector3(72, 0, 68);
+  static final Vector3 wiperSize = Vector3(0.05, 0.75, 0.05);
+  static final Vector3 lightSize = Vector3(0.2, 0.2, 0.2);
+
+  static final Vector3 wheelOffset = Vector3(1.75, 0.425, 0.85);
+  static final double wheelBackOffset = 0.4;
+  static final Map<String, Vector3> wheelPositions = {
+    'wheel_FL': carOrigin + Vector3(-wheelOffset.x,                   wheelOffset.y, wheelOffset.z),
+    'wheel_FR': carOrigin + Vector3(-wheelOffset.x,                   wheelOffset.y, -wheelOffset.z),
+    'wheel_BL': carOrigin + Vector3(wheelOffset.x - wheelBackOffset,  wheelOffset.y, wheelOffset.z),
+    'wheel_BR': carOrigin + Vector3(wheelOffset.x - wheelBackOffset,  wheelOffset.y, -wheelOffset.z),
+  };
+
+  static const double wheelCameraDistanceZ = 1;
+  static const double wheelCameraDistanceY = 0;
+  static final Map<String, Vector3> wheelCameraPositions = SettingsSceneView.wheelPositions.map((key, value) => MapEntry(
+    key,
+    value
+      + Vector3(0, wheelCameraDistanceY, 0)
+      + (
+        value.z > SettingsSceneView.carOrigin.z
+          ? Vector3(0, 0,  wheelCameraDistanceZ)
+          : Vector3(0, 0, -wheelCameraDistanceZ)
+        )
+  ));
 
   static final Map<String, EntityGUID> objectGuids = {
     'car': generateGuid(),
@@ -53,21 +77,17 @@ class SettingsSceneView extends StatefulSceneView {
 
     'wiper1': generateGuid(),
     'wiper2': generateGuid(),
-    's_wheel_F1': generateGuid(),
-    's_wheel_F2': generateGuid(),
-    's_wheel_B1': generateGuid(),
-    's_wheel_B2': generateGuid(),
     'light1': generateGuid(),
     'light2': generateGuid(),
-    'l_light_B1': generateGuid(),
-    'l_light_B2': generateGuid(),
-    'l_light_F1': generateGuid(),
-    'l_light_F2': generateGuid(),
+    'l_light_BL': generateGuid(),
+    'l_light_BR': generateGuid(),
+    'l_light_FL': generateGuid(),
+    'l_light_FR': generateGuid(),
     //turning lights, front and back
-    'l_light_tB1': generateGuid(),
-    'l_light_tB2': generateGuid(),
-    'l_light_tF1': generateGuid(),
-    'l_light_tF2': generateGuid(),
+    'l_light_tBL': generateGuid(),
+    'l_light_tBR': generateGuid(),
+    'l_light_tFL': generateGuid(),
+    'l_light_tFR': generateGuid(),
 
     'bg_shape_0': generateGuid(),
     'bg_shape_1': generateGuid(),
@@ -78,7 +98,7 @@ class SettingsSceneView extends StatefulSceneView {
 
 
     models.add(GlbModel.asset(
-      assetPath: sequoiaAsset,
+      assetPath: sequoiaWithWheelsAsset,
       position: carOrigin,
       scale: Vector3.all(1),
       rotation: Quaternion(0, 0, 0, 1),
@@ -186,20 +206,6 @@ class SettingsSceneView extends StatefulSceneView {
 
     return models;
   }
-
-  static final Vector3 wiperSize = Vector3(0.05, 0.75, 0.05);
-  static final Vector3 lightSize = Vector3(0.2, 0.2, 0.2);
-
-  static final Vector3 wheelOffset = Vector3(1.75, 0.425, 0.85);
-  static final double wheelBackOffset = 0.4;
-  static final Vector3 wheelSize = Vector3(1, 1, 0.4);
-  static final int wheelSegments = 8;
-  static final Map<String, Vector3> wheelPositions = {
-    's_wheel_F1': carOrigin + Vector3(-wheelOffset.x,                   wheelOffset.y, wheelOffset.z),
-    's_wheel_F2': carOrigin + Vector3(-wheelOffset.x,                   wheelOffset.y, -wheelOffset.z),
-    's_wheel_B1': carOrigin + Vector3(wheelOffset.x - wheelBackOffset,  wheelOffset.y, wheelOffset.z),
-    's_wheel_B2': carOrigin + Vector3(wheelOffset.x - wheelBackOffset,  wheelOffset.y, -wheelOffset.z),
-  };
 
   static List<Shape> getSceneShapes() {
     final List<Shape> shapes = [];
@@ -330,19 +336,6 @@ class SettingsSceneView extends StatefulSceneView {
       objectGuids['wiper2']!,
     ));
 
-    // Use spheres as wheels
-    for(final entry in wheelPositions.entries) {
-      shapes.add(poCreateSphere(
-        entry.value,
-        wheelSize,
-        wheelSize,
-        wheelSegments, wheelSegments,
-        null,
-        entry.key,
-        objectGuids[entry.key]!,
-      ));
-    }
-
     return shapes;
   }
 
@@ -359,6 +352,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
    */
   @override
   void onCreate() {
+    print("SettingsSceneView created!");
     _resetCamera();
 
     _animationController = BottomSheet.createAnimationController(
@@ -367,10 +361,6 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
 
     // Set up listeners for wheel clicks
     widget.collisionController.addListener(_onObjectTouch);
-    // Set tire meshes to invisible
-    for(String name in SettingsSceneView.wheelPositions.keys) {
-      widget.filament.turnOffVisualForEntity(SettingsSceneView.objectGuids[name]!);
-    }
   }
 
   void _resetCamera({ bool autoOrbit = false}) {
@@ -484,49 +474,49 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     // show/hide lights
     if(_showLights.value) {
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_B1']!,
+        SettingsSceneView.objectGuids['l_light_BL']!,
         Colors.red.toHex(),
         (5000000 * _lightIntensity.value).round(),
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_B2']!,
+        SettingsSceneView.objectGuids['l_light_BR']!,
         Colors.red.toHex(),
         (5000000 * _lightIntensity.value).round(),
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_F1']!,
+        SettingsSceneView.objectGuids['l_light_FL']!,
         Colors.yellow.toHex(),
         (5000000 * _lightIntensity.value).round()
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_F2']!,
+        SettingsSceneView.objectGuids['l_light_FR']!,
         Colors.yellow.toHex(),
         (5000000 * _lightIntensity.value).round()
       );
     } else {
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_B1']!,
+        SettingsSceneView.objectGuids['l_light_BL']!,
         Colors.black.toHex(),
         0,
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_B2']!,
+        SettingsSceneView.objectGuids['l_light_BR']!,
         Colors.black.toHex(),
         0,
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_F1']!,
+        SettingsSceneView.objectGuids['l_light_FL']!,
         Colors.black.toHex(),
         0,
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_F2']!,
+        SettingsSceneView.objectGuids['l_light_FR']!,
         Colors.black.toHex(),
         0,
       );
@@ -535,49 +525,49 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     // blink turning lights
     if((_timer * 2).floor() % 2 == 1 && _activateTurningLights.value == true) {
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tB1']!,
+        SettingsSceneView.objectGuids['l_light_tBL']!,
         Colors.orange.toHex(),
         (5000000 * _lightIntensity.value).round(),
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tB2']!,
+        SettingsSceneView.objectGuids['l_light_tBR']!,
         Colors.orange.toHex(),
         (5000000 * _lightIntensity.value).round(),
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tF1']!,
+        SettingsSceneView.objectGuids['l_light_tFL']!,
         Colors.orange.toHex(),
         (5000000 * _lightIntensity.value).round(),
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tF2']!,
+        SettingsSceneView.objectGuids['l_light_tFR']!,
         Colors.orange.toHex(),
         (5000000 * _lightIntensity.value).round(),
       );
     } else {
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tB1']!,
+        SettingsSceneView.objectGuids['l_light_tBL']!,
         Colors.black.toHex(),
         0,
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tB2']!,
+        SettingsSceneView.objectGuids['l_light_tBR']!,
         Colors.black.toHex(),
         0,
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tF1']!,
+        SettingsSceneView.objectGuids['l_light_tFL']!,
         Colors.black.toHex(),
         0,
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tF2']!,
+        SettingsSceneView.objectGuids['l_light_tFR']!,
         Colors.black.toHex(),
         0,
       );
@@ -630,36 +620,22 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     }
   }
 
-  static const double _wheelCameraDistanceZ = 1;
-  static const double _wheelCameraDistanceY = 0;
-  static final Map<String, Vector3> _wheelCameraPositions = SettingsSceneView.wheelPositions.map((key, value) => MapEntry(
-    key,
-    value
-      + Vector3(0, _wheelCameraDistanceY, 0)
-      + (
-        value.z > 0
-          ? Vector3(0, 0,  _wheelCameraDistanceZ)
-          : Vector3(0, 0, -_wheelCameraDistanceZ)
-        )
-  ));
-
   @override
   void onTriggerEvent(final String eventName, [ final dynamic? eventData ]) {
     if(eventName != "touchObject") return;
 
     final CollisionEvent event = eventData as CollisionEvent;
-    final EntityGUID id = event.results[0].id;
+    final String name = event.results[0].name;
 
-    print('Touched object with id: ${id}');
+    print('Touched object with name: ${name}');
 
     // If touched any of the wheels...
     if(
-      id == SettingsSceneView.objectGuids['s_wheel_F1'] ||
-      id == SettingsSceneView.objectGuids['s_wheel_F2'] ||
-      id == SettingsSceneView.objectGuids['s_wheel_B1'] ||
-      id == SettingsSceneView.objectGuids['s_wheel_B2']
+      name == 'wheel_FL' ||
+      name == 'wheel_FR' ||
+      name == 'wheel_BL' ||
+      name == 'wheel_BR'
     ) {
-      final String name = SettingsSceneView.objectGuids.entries.firstWhere((entry) => entry.value == id).key;
       print('Touched wheel ${name}');
 
       // Change camera position to wheel
@@ -675,7 +651,9 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
 
   void _cameraFocusOnTire(String name) {
     final Vector3 cameraLookAt = SettingsSceneView.wheelPositions[name]!;
-    final Vector3 cameraLookFrom = _wheelCameraPositions[name]!;
+    final Vector3 cameraLookFrom = SettingsSceneView.wheelCameraPositions[name]!;
+
+    print("Focusing on tire '${name}' at ${cameraLookAt} from ${cameraLookFrom}");
 
 
     widget.filament.changeCameraFlightStartPosition(
@@ -683,12 +661,6 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
       cameraLookFrom.y,
       cameraLookFrom.z,
     );
-
-    // widget.filament.changeCameraOrbitHomePosition(
-    //   cameraLookFrom.x,
-    //   cameraLookFrom.y,
-    //   cameraLookFrom.z,
-    // );
 
     widget.filament.changeCameraTargetPosition(
       cameraLookAt.x,
@@ -698,7 +670,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
 
 
     // If last character is 1, it's left - set camera angle
-    if(name.endsWith('1')) {  
+    if(name.endsWith('L')) {  
       widget.filament.setCameraRotation(pi * 0.5);
     } else {
       widget.filament.setCameraRotation(pi * -0.5);
@@ -732,6 +704,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
   @override
   Widget build(BuildContext context) {
     _screenHeight = MediaQuery.of(context).size.height;
+    print("rebuild!");
 
     // If settings hidden, show large invisible button to show settings
     if(!_showSettings) {
@@ -813,6 +786,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
                       child: IconButton(
                         icon: const Icon(Icons.arrow_back),
                         onPressed: () {
+                          print("reset from pressed");
                           _resetCamera();
                           _menuSelected.value = 0;
                         },
@@ -1181,17 +1155,17 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
   );
 
   final Map<String, ValueNotifier<double>> _tirePressures = {
-    's_wheel_F1': ValueNotifier<double>(0.5),
-    's_wheel_F2': ValueNotifier<double>(0.5),
-    's_wheel_B1': ValueNotifier<double>(0.5),
-    's_wheel_B2': ValueNotifier<double>(0.5),
+    'wheel_FL': ValueNotifier<double>(0.5),
+    'wheel_FR': ValueNotifier<double>(0.5),
+    'wheel_BL': ValueNotifier<double>(0.5),
+    'wheel_BR': ValueNotifier<double>(0.5),
   };
 
   static const Map<String, String> _tireNames = {
-    's_wheel_F1': 'Front-left',
-    's_wheel_F2': 'Front-right',
-    's_wheel_B1': 'Back-left',
-    's_wheel_B2': 'Back-right',
+    'wheel_FL': 'Front-left',
+    'wheel_FR': 'Front-right',
+    'wheel_BL': 'Back-left',
+    'wheel_BR': 'Back-right',
   };
 
   Widget _buildTireSettings(BuildContext context) => Column(

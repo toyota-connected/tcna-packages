@@ -50,7 +50,7 @@ class PlaygroundSceneView extends StatefulSceneView {
       position: Vector3(0, 0, 0),
       scale: Vector3.all(1),
       rotation: Quaternion.identity(),
-      // collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
+      collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
       animation: null,
       receiveShadows: true,
       castShadows: true,
