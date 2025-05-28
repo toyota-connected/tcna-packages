@@ -12,6 +12,7 @@ class Cube extends Shape {
     required this.size,
     required super.position,
     super.name,
+    super.parentId,
     required super.scale,
     required super.rotation,
     super.children,
