@@ -1485,16 +1485,15 @@ class CefNavigationDelegate extends PlatformNavigationDelegate {
         uri: Uri.parse(url),
         headers: headers,
       ));
-    } else if (returnValue is Future<NavigationDecision>) {
-      returnValue.then((NavigationDecision shouldLoadUrl) {
-        if (shouldLoadUrl == NavigationDecision.navigate) {
-          onLoadRequest(LoadRequestParams(
-            uri: Uri.parse(url),
-            headers: headers,
-          ));
-        }
-      });
-    }
+    } else    returnValue.then((NavigationDecision shouldLoadUrl) {
+      if (shouldLoadUrl == NavigationDecision.navigate) {
+        onLoadRequest(LoadRequestParams(
+          uri: Uri.parse(url),
+          headers: headers,
+        ));
+      }
+    });
+  
   }
 
   /// Invoked when loading the url after a navigation request is approved.
