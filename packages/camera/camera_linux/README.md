@@ -19,25 +19,21 @@ Once you do, you can use the [`camera`][camera] APIs as you normally would.
 
 ### Device orientation
 
-Device orientation detection
-is not yet implemented.
+Device orientation detection is not yet implemented.
 
 ### Pause and Resume video recording
 
-Pausing and resuming the video recording
-is not yet supported.
+Pausing and resuming the video recording is not yet supported.
 
 ### Exposure mode, point and offset
 
-Support for explosure mode and offset
-is not yet implemented.
+Support for exposure mode and offset is not yet implemented.
 
 Exposure points are not supported yet.
 
 ### Focus mode and point
 
-Support for explosure mode and offset
-is not yet implemented.
+Support for focus mode and point is not yet implemented.
 
 ### Flash mode
 

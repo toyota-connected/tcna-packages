@@ -3,9 +3,8 @@
 <!-- [![pub package](https://img.shields.io/pub/v/filament_scene.svg?color=1284C5)](https://pub.dev/packages/filament_scene) -->
 <a href="https://github.com/toyota-connected/tcna-packages/blob/main/packages/filament_scene/LICENSE"><img src="https://img.shields.io/badge/license-MIT-purple.svg" alt="License: MIT"></a>
 
-
 Game engine for Flutter, based on Google's [Filament](https://github.com/google/filament) 3D rendering engine.
-It includes the scripting interface that is interacts directly with [`ivi-homescreen-plugins/filament_view`](https://github.com/toyota-connected/ivi-homescreen-plugins/tree/v2.0/plugins/filament_view).
+It includes the scripting interface that interacts directly with [`ivi-homescreen-plugins/filament_view`](https://github.com/toyota-connected/ivi-homescreen-plugins/tree/v2.0/plugins/filament_view).
 
 ## Design & Purpose
 
@@ -20,7 +19,7 @@ Its engine core is implemented in C++ (see [`ivi-homescreen-plugins/filament_vie
 ## Features
 
 - Developer tooling
- - Flutter UI integration
+  - Flutter UI integration
 - Models
   - Loading GLTF/GLB files
   - Model instancing
@@ -55,7 +54,7 @@ Its engine core is implemented in C++ (see [`ivi-homescreen-plugins/filament_vie
   - Shadows
   - Lighting
     - Dynamic
-      - Point/Spot/FocusedSpot/Directional/Sun
+      - Point/Spot/FocusedSpot/Directional/Sun 
     - Indirect (scene-wide)
       - Color (spherical harmonics)
       - HDR
@@ -67,22 +66,17 @@ Its engine core is implemented in C++ (see [`ivi-homescreen-plugins/filament_vie
 - Texture compression
   - Compile-time tooling
 
-
 ## Installation
 
-Coming soon!
-
-
+*Documentation in progress. Package will be available on pub.dev soon.*
 
 ## Usage
 
-You can integrate `filament_engine` in your Flutter app as a simple widget!
+You can integrate `filament_scene` in your Flutter app as a simple widget!
 
-More details coming soon!
+*Detailed usage instructions coming soon.*
 
-
-
-## Docs && References
+## Docs & References
 
 - [Manual](#) coming soon!
 - [API Reference](#) coming soon!
@@ -90,8 +84,8 @@ More details coming soon!
 
 ### Further reading
 
-- [Filament](https://google.github.io/filament/Filament.html), an in-depth explanation of real-time physically based rendering, the graphics capabilities and implementation of Filament. This document explains the math and reasoning behind most of our decisions. This document is a good introduction to PBR for graphics programmers.
-- [Materials](https://google.github.io/filament/Materials.html), the full reference documentation for our material system. This document explains our different material models, how to use the material compiler  `matc` and how to write custom materials.
-- [Material Properties](https://google.github.io/filament/Material%20Properties.pdf), a reference sheet for the standard material model..
-- [Filament sample Android apps](https://github.com/google/filament/tree/main/android/samples),This directory contains several sample Android applications that demonstrate how to use the Filament APIs:
-- [Getting Started with Filament on Android](https://medium.com/@philiprideout/getting-started-with-filament-on-android-d10b16f0ec67) : by   Philip Rideout
+- [Filament](https://google.github.io/filament/Filament.html) - An in-depth explanation of real-time physically based rendering, the graphics capabilities and implementation of Filament
+- [Materials](https://google.github.io/filament/Materials.html) - Full reference documentation for our material system
+- [Material Properties](https://google.github.io/filament/Material%20Properties.pdf) - A reference sheet for the standard material model
+- [Filament sample Android apps](https://github.com/google/filament/tree/main/android/samples) - Sample Android applications demonstrating Filament APIs
+- [Getting Started with Filament on Android](https://medium.com/@philiprideout/getting-started-with-filament-on-android-d10b16f0ec67) by Philip Rideout

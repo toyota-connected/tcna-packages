@@ -1,0 +1,32 @@
+name: spell-check
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/spell-check.yaml"
+      - "lib/**"
+      - "test/**"
+      - "pubspec.yaml"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/spell-check.yaml"
+      - "lib/**"
+      - "test/**"
+      - "pubspec.yaml"
+
+jobs:
+
+  spell-check:
+    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/spell_check.yml@v1
+    with:
+      includes: |
+        **/*.md
+        !brick/**/*.md
+        .*/**/*.md
+      modified_files_only: false
