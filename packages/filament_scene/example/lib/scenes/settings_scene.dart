@@ -421,33 +421,23 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     final double wiperSpeed = _wiperSpeed.value;
     final double wiperAngle = sin(_timer * wiperSpeed) * 0.66;
     final Quaternion wiperRotation = Quaternion.identity()..setEulerRadians(wiperAngle, 0, -0.8);
-    filament.changeRotationByGUID(
+    filament.setEntityTransformRotation(
       SettingsSceneView.objectGuids['wiper1']!,
-      wiperRotation.x,
-      wiperRotation.y,
-      wiperRotation.z,
-      wiperRotation.w,
+      wiperRotation.storage64,
     );
-    filament.changeRotationByGUID(
+    filament.setEntityTransformRotation(
       SettingsSceneView.objectGuids['wiper2']!,
-      wiperRotation.x,
-      wiperRotation.y,
-      wiperRotation.z,
-      wiperRotation.w,
+      wiperRotation.storage64
     );
 
     // show/hide wipers
-    filament.changeScaleByGUID(
+    filament.setEntityTransformScale(
       SettingsSceneView.objectGuids['wiper1']!,
-      SettingsSceneView.wiperSize.x * (_showWipers.value ? 1 : 0),
-      SettingsSceneView.wiperSize.y * (_showWipers.value ? 1 : 0),
-      SettingsSceneView.wiperSize.z * (_showWipers.value ? 1 : 0),
+      (SettingsSceneView.wiperSize * (_showWipers.value ? 1 : 0)).storage64
     );
-    filament.changeScaleByGUID(
+    filament.setEntityTransformScale(
       SettingsSceneView.objectGuids['wiper2']!,
-      SettingsSceneView.wiperSize.x * (_showWipers.value ? 1 : 0),
-      SettingsSceneView.wiperSize.y * (_showWipers.value ? 1 : 0),
-      SettingsSceneView.wiperSize.z * (_showWipers.value ? 1 : 0),
+      (SettingsSceneView.wiperSize * (_showWipers.value ? 1 : 0)).storage64
     );
 
     // Lights
@@ -459,32 +449,22 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
       _showLights.value ? 1 : 0,
     ));
 
-    filament.changeScaleByGUID(
+    filament.setEntityTransformScale(
       SettingsSceneView.objectGuids['light1']!,
-      lightScale.x,
-      lightScale.y,
-      lightScale.z,
+      lightScale.storage64,
     );
-    filament.changeScaleByGUID(
+    filament.setEntityTransformScale(
       SettingsSceneView.objectGuids['light2']!,
-      lightScale.x,
-      lightScale.y,
-      lightScale.z,
+      lightScale.storage64,
     );
-    Quaternion lightRotation = Quaternion.identity()..setEulerRadians(0, _lightAngleX.value, _lightAngleY.value);
-    filament.changeRotationByGUID(
+    Quaternion lightRotation = Quaternion.identity()..setEulerRadians(0, _lightAngleX.value + pi, _lightAngleY.value);
+    filament.setEntityTransformRotation(
       SettingsSceneView.objectGuids['light1']!,
-      lightRotation.x,
-      lightRotation.y,
-      lightRotation.z,
-      lightRotation.w,
+      lightRotation.storage64,
     );
-    filament.changeRotationByGUID(
+    filament.setEntityTransformRotation(
       SettingsSceneView.objectGuids['light2']!,
-      lightRotation.x,
-      lightRotation.y,
-      lightRotation.z,
-      lightRotation.w,
+      lightRotation.storage64,
     );
 
     // show/hide lights
@@ -597,18 +577,13 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
       final Vector3 pos = SettingsSceneView.carOrigin + Vector3(9, 2.5 + bounce, -9);
       final Quaternion rot = Quaternion.identity()..setEulerDegrees(30, _timer * 90, 0);
 
-      filament.changeTranslationByGUID(
+      filament.setEntityTransformPosition(
         ballGuid,
-        pos.x,
-        pos.y,
-        pos.z,
+        pos.storage64,
       );
-      filament.changeRotationByGUID(
+      filament.setEntityTransformRotation(
         SettingsSceneView.objectGuids['bg_shape_0']!,
-        rot.x,
-        rot.y,
-        rot.z,
-        rot.w,
+        rot.storage64,
       );
     }
 
@@ -620,18 +595,13 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
       final Vector3 pos = SettingsSceneView.carOrigin + Vector3(-10, 2 + bounce, 10);
       final Quaternion rot = Quaternion.identity()..setEulerDegrees(30 * bounce, _timer * 90, 0);
 
-      filament.changeTranslationByGUID(
+      filament.setEntityTransformPosition(
         donutGuid,
-        pos.x,
-        pos.y,
-        pos.z,
+        pos.storage64,
       );
-      filament.changeRotationByGUID(
+      filament.setEntityTransformRotation(
         donutGuid,
-        rot.x,
-        rot.y,
-        rot.z,
-        rot.w,
+        rot.storage64,
       );
     }
   }
