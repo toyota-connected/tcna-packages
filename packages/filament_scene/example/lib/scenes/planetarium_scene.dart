@@ -287,9 +287,9 @@ class _PlanetariumSceneViewState extends StatefulSceneViewState {
       final double angle = _timer * speed * 2 * 3.14;
       Quaternion rot = Quaternion.euler(angle, 0, 0);
 
-      widget.filament.changeRotationByGUID(
+      widget.filament.setEntityTransformRotation(
         PlanetariumSceneView.objectGuids["${name}_orbit"]!,
-        rot.x, rot.y, rot.z, rot.w,
+        rot.storage64
       );
     }
   }
