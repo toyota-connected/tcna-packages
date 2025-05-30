@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:core';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -165,8 +167,16 @@ class ModelViewerState extends State<SceneView> {
     _creationParams["models"] =
         widget.models?.map((param) => param.toJson()).toList();
     _creationParams["scene"] = scene;
-    _creationParams["shapes"] =
-        widget.shapes?.map((param) => param.toJson()).toList();
+    // _creationParams["shapes"] =
+    //     widget.shapes?.map((param) => param.toJson()).toList();
+    // use concatenated toFlatJson
+    _creationParams["shapes"] = 
+        widget.shapes?.map((param) => param.toFlatJson()).flattenedToList;
+
+    // pretty print json
+    // JsonEncoder encoder = const JsonEncoder.withIndent('  ');
+    // final json = encoder.convert(_creationParams);
+    // debugPrint(json);
   }
 
   void _onPlatformViewCreated(int id) {

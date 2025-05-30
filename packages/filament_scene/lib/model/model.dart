@@ -1,58 +1,45 @@
 library model;
 
-import 'package:filament_scene/scene/geometry/geometry.dart';
+import 'package:filament_scene/components/collidable.dart';
+import 'package:filament_scene/entity/entity.dart';
+import 'package:filament_scene/utils/serialization.dart';
+import 'package:vector_math/vector_math.dart';
 
 part 'animation.dart';
 part 'glb_model.dart';
-part 'gltf_model.dart';
+
+enum ModelInstancingType {
+  /// Model is not instanced, will be used once
+  none(0),
+  /// Model is instanceable - primary object, will be used as a template for other instances
+  /// It will not be rendered
+  primaryInstanceable(1),
+  /// Model is instanced - rendered as a copy of the primary object
+  instanced(2);
+
+  final int value;
+  const ModelInstancingType(this.value);
+}
   
 /// represents base object of the 3d model to be rendered.
 ///
 /// see also :
 ///
 /// [GlbModel] :
-/// [GltfModel] :
-abstract class Model {
+abstract class Model extends TransformEntity {
   /// Model asset path to load the model from assets.
   String? assetPath;
 
-  /// if this is true, we'll keep it in memory so other objects
-  /// can use that memory and load from it, not incurring a disk load.
-  bool? keepInMemory;
-
-  /// all instances inherit the base transform so you might want a specific
-  /// transform to inherit from.
-  /// By default these DO NOT get added to the renderable scene!
-  bool? isInstancePrimary;
-
-  /// Model url to load the model from url.
-  String? url;
-
-  /// used for communication back and forth from dart/native
-  String? name;
-
-  /// used for communication back and forth from dart/native
-  String? guid;
-
-  /// Scale Factor of the model.
-  /// Should be greater than 0.
-  /// Defaults to 1.
-  Vector3? scale;
+  /// Model instancing mode - whether the model is instanced or not.
+  /// Default is [ModelInstancingType.none].
+  ModelInstancingType instancingMode;
 
   /// Do we have a collidable for this object (expecting to collide)
   /// For now this will create a box using the extents value
   Collidable? collidable;
 
-  /// Coordinate of center point position of the rendered model.
-  ///
-  /// Defaults to ( x:0,y: 0,z: -4)
-  Vector3? centerPosition;
-
   /// Controls what animation should be played by the rendered model.
   Animation? animation;
-
-  /// Quaternion rotation for the shape
-  Vector4? rotation;
 
   /// Variables for filament renderer upon shape creation
   bool receiveShadows;
@@ -61,35 +48,36 @@ abstract class Model {
   bool castShadows;
 
   Model({
+    required super.id,
+    super.name,
     this.assetPath,
-    this.keepInMemory,
-    this.isInstancePrimary,
-    this.url,
-    this.scale,
-    this.rotation,
+    this.instancingMode = ModelInstancingType.none,
+    required super.scale,
+    required super.rotation,
     this.collidable,
-    this.centerPosition,
+    required super.position,
     this.animation,
-    this.guid,
     required this.castShadows,
     required this.receiveShadows,
-    this.name,
-  });
-
-  Map<String, dynamic> toJson() {
-    if (this is GlbModel) {
-      return (this as GlbModel).toJson();
-    } else if (this is GltfModel) {
-      return (this as GltfModel).toJson();
-    } else {
-      return {};
-    }
-  }
+  })  : 
+    assert(assetPath != null && assetPath.isNotEmpty, "path should not be empty"),
+    /// if [ModelInstancingType.primaryInstanceable] is true, it cannot have collidable and animation
+    assert(
+      instancingMode != ModelInstancingType.primaryInstanceable || (collidable == null && animation == null),
+      "Primary model (instance template) cannot have collidable and animation",
+    )
+  ;
 
   @override
-  String toString() {
-    return 'Model(assetPath: $assetPath, url: $url, scale: $scale, centerPosition: $centerPosition, animation: $animation)';
-  }
+  Map<String, dynamic> toJson() => {
+    ...super.toJson(),
+    'assetPath': assetPath,
+    'instancingMode': instancingMode.value,
+    'collidable': collidable?.toJson(),
+    'animation': animation?.toJson(),
+    'castShadows': castShadows,
+    'receiveShadows': receiveShadows,
+  };
 
   @override
   bool operator ==(Object other) {
@@ -97,18 +85,17 @@ abstract class Model {
 
     return other is Model &&
         other.assetPath == assetPath &&
-        other.url == url &&
         other.scale == scale &&
-        other.centerPosition == centerPosition &&
+        other.position == position &&
         other.animation == animation;
   }
 
   @override
   int get hashCode {
-    return assetPath.hashCode ^
-        url.hashCode ^
-        scale.hashCode ^
-        centerPosition.hashCode ^
-        animation.hashCode;
+    return 
+      assetPath.hashCode ^
+      scale.hashCode ^
+      position.hashCode ^
+      animation.hashCode;
   }
 }

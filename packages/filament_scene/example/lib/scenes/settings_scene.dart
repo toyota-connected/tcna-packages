@@ -1,6 +1,10 @@
 
 import 'dart:math';
 
+import 'package:filament_scene/components/collidable.dart';
+import 'package:filament_scene/math/vectors.dart';
+import 'package:filament_scene/shapes/shapes.dart';
+import 'package:filament_scene/utils/serialization.dart';
 import 'package:flutter/material.dart' hide Material;
 import 'package:my_fox_example/assets.dart';
 import 'package:my_fox_example/demo_widgets.dart';
@@ -11,9 +15,8 @@ import 'package:filament_scene/generated/messages.g.dart';
 import 'package:my_fox_example/scenes/scene_view.dart';
 import 'package:my_fox_example/shape_and_object_creators.dart';
 import 'package:filament_scene/filament_scene.dart';
-import 'package:uuid/uuid.dart';
 
-const Uuid uuid = Uuid();
+
 final Random random = Random();
 
 class SettingsSceneView extends StatefulSceneView {
@@ -28,46 +31,66 @@ class SettingsSceneView extends StatefulSceneView {
   @override
   _SettingsSceneViewState createState() => _SettingsSceneViewState();
 
-  static final Vector3 carOrigin = Vector3.only(x: 72, y: 0, z: 68);
+  static final Vector3 carOrigin = Vector3(72, 0, 68);
+  static final Vector3 wiperSize = Vector3(0.05, 0.75, 0.05);
+  static final Vector3 lightSize = Vector3(0.2, 0.2, 0.2);
 
-  static final Map<String, String> objectGuids = {
-    'car': uuid.v4(),
-    'floor1': uuid.v4(),
-    'floor2': uuid.v4(),
-    'floor3': uuid.v4(),
-    'floor4': uuid.v4(),
-    'floor5': uuid.v4(),
-    'floor6': uuid.v4(),
-    'floor7': uuid.v4(),
-    'floor8': uuid.v4(),
-    'floor9': uuid.v4(),
-    'wall1': uuid.v4(),
-    'wall2': uuid.v4(),
-    'wall3': uuid.v4(),
-    'wall4': uuid.v4(),
+  static final Vector3 wheelOffset = Vector3(1.75, 0.425, 0.85);
+  static final double wheelBackOffset = 0.4;
+  static final Map<String, Vector3> wheelPositions = {
+    'wheel_FL': carOrigin + Vector3(-wheelOffset.x,                   wheelOffset.y, wheelOffset.z),
+    'wheel_FR': carOrigin + Vector3(-wheelOffset.x,                   wheelOffset.y, -wheelOffset.z),
+    'wheel_BL': carOrigin + Vector3(wheelOffset.x - wheelBackOffset,  wheelOffset.y, wheelOffset.z),
+    'wheel_BR': carOrigin + Vector3(wheelOffset.x - wheelBackOffset,  wheelOffset.y, -wheelOffset.z),
+  };
 
-    'cube': uuid.v4(),
+  static const double wheelCameraDistanceZ = 1;
+  static const double wheelCameraDistanceY = 0;
+  static final Map<String, Vector3> wheelCameraPositions = SettingsSceneView.wheelPositions.map((key, value) => MapEntry(
+    key,
+    value
+      + Vector3(0, wheelCameraDistanceY, 0)
+      + (
+        value.z > SettingsSceneView.carOrigin.z
+          ? Vector3(0, 0,  wheelCameraDistanceZ)
+          : Vector3(0, 0, -wheelCameraDistanceZ)
+        )
+  ));
 
-    'wiper1': uuid.v4(),
-    'wiper2': uuid.v4(),
-    's_wheel_F1': uuid.v4(),
-    's_wheel_F2': uuid.v4(),
-    's_wheel_B1': uuid.v4(),
-    's_wheel_B2': uuid.v4(),
-    'light1': uuid.v4(),
-    'light2': uuid.v4(),
-    'l_light_B1': uuid.v4(),
-    'l_light_B2': uuid.v4(),
-    'l_light_F1': uuid.v4(),
-    'l_light_F2': uuid.v4(),
+  static final Map<String, EntityGUID> objectGuids = {
+    'car': generateGuid(),
+    'floor1': generateGuid(),
+    'floor2': generateGuid(),
+    'floor3': generateGuid(),
+    'floor4': generateGuid(),
+    'floor5': generateGuid(),
+    'floor6': generateGuid(),
+    'floor7': generateGuid(),
+    'floor8': generateGuid(),
+    'floor9': generateGuid(),
+    'wall1': generateGuid(),
+    'wall2': generateGuid(),
+    'wall3': generateGuid(),
+    'wall4': generateGuid(),
+
+    'cube': generateGuid(),
+
+    'wiper1': generateGuid(),
+    'wiper2': generateGuid(),
+    'light1': generateGuid(),
+    'light2': generateGuid(),
+    'l_light_BL': generateGuid(),
+    'l_light_BR': generateGuid(),
+    'l_light_FL': generateGuid(),
+    'l_light_FR': generateGuid(),
     //turning lights, front and back
-    'l_light_tB1': uuid.v4(),
-    'l_light_tB2': uuid.v4(),
-    'l_light_tF1': uuid.v4(),
-    'l_light_tF2': uuid.v4(),
+    'l_light_tBL': generateGuid(),
+    'l_light_tBR': generateGuid(),
+    'l_light_tFL': generateGuid(),
+    'l_light_tFR': generateGuid(),
 
-    'bg_shape_0': uuid.v4(),
-    'bg_shape_1': uuid.v4(),
+    'bg_shape_0': generateGuid(),
+    'bg_shape_1': generateGuid(),
   };
 
   static List<Model> getSceneModels() {
@@ -75,302 +98,259 @@ class SettingsSceneView extends StatefulSceneView {
 
 
     models.add(GlbModel.asset(
-      sequoiaAsset,
-      centerPosition: carOrigin,
+      assetPath: sequoiaWithWheelsAsset,
+      position: carOrigin,
       scale: Vector3.all(1),
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
-      collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
+      rotation: Quaternion(0, 0, 0, 1),
+      collidable: null,
       animation: null,
       receiveShadows: true,
       castShadows: true,
       name: sequoiaAsset,
-      guid: objectGuids['car']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
+      id: objectGuids['car']!,
+      instancingMode: ModelInstancingType.instanced,
     ));
 
-    final Vector3 lightOffset = Vector3.only(x: -2.5, y: 1, z: -0.9);
+    final Vector3 lightOffset = Vector3(-2.5, 1, -0.9);
 
     // use 'radar_cone' asset for lights
     models.add(GlbModel.asset(
-      radarConeAsset,
-      centerPosition: carOrigin + lightOffset - Vector3.only(z: lightOffset.z * 2),
+      assetPath: radarConeAsset,
+      position: carOrigin + lightOffset - Vector3(0, 0, lightOffset.z * 2),
       scale: lightSize,
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
+      rotation: Quaternion(0, 0, 0, 1),
       collidable: null,
       animation: null,
       receiveShadows: false,
       castShadows: false,
       name: radarConeAsset,
-      guid: objectGuids['light1']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
+      id: objectGuids['light1']!,
+      instancingMode: ModelInstancingType.instanced,
     ));
 
 
     models.add(GlbModel.asset(
-      radarConeAsset,
-      // centerPosition: Vector3.only(z: lightOffset.z * 10),
-      centerPosition: carOrigin + lightOffset - Vector3.only(z: lightOffset.z * 0),
+      assetPath: radarConeAsset,
+      // position: Vector3(lightOffset.z * 10),
+      position: carOrigin + lightOffset - Vector3(0, 0, lightOffset.z * 0),
       scale: lightSize,
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
+      rotation: Quaternion(0, 0, 0, 1),
       collidable: null,
       animation: null,
       receiveShadows: false,
       castShadows: false,
       name: radarConeAsset,
-      guid: objectGuids['light2']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
+      id: objectGuids['light2']!,
+      instancingMode: ModelInstancingType.instanced,
     ));
 
     // 16x16 floor, 3x3 tiles
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      centerPosition: carOrigin + Vector3.only(x: 0, y: 0.1, z: 0),
-      scale: Vector3.all(1),
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_1",
-      guid: objectGuids['floor1']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
-    ));
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      centerPosition: carOrigin + Vector3.only(x: -16, y: 0.1, z: 16),
-      scale: Vector3.all(1),
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_2",
-      guid: objectGuids['floor2']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
-    ));
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      centerPosition: carOrigin + Vector3.only(x: -16, y: 0.1, z: 0),
-      scale: Vector3.all(1),
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_3",
-      guid: objectGuids['floor3']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
-    ));
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      centerPosition: carOrigin + Vector3.only(x: -16, y: 0.1, z: -16),
-      scale: Vector3.all(1),
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_4",
-      guid: objectGuids['floor4']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
-    ));
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      centerPosition: carOrigin + Vector3.only(x: 0, y: 0.1, z: -16),
-      scale: Vector3.all(1),
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_5",
-      guid: objectGuids['floor5']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
-    ));
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      centerPosition: carOrigin + Vector3.only(x: 16, y: 0.1, z: -16),
-      scale: Vector3.all(1),
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_6",
-      guid: objectGuids['floor6']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
-    ));
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      centerPosition: carOrigin + Vector3.only(x: 16, y: 0.1, z: 0),
-      scale: Vector3.all(1),
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_7",
-      guid: objectGuids['floor7']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
-    ));
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      centerPosition: carOrigin + Vector3.only(x: 16, y: 0.1, z: 16),
-      scale: Vector3.all(1),
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_8",
-      guid: objectGuids['floor8']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
-    ));
-    models.add(GlbModel.asset(
-      checkerboardFloor,
-      centerPosition: carOrigin + Vector3.only(x: 0, y: 0.1, z: 16),
-      scale: Vector3.all(1),
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "${checkerboardFloor}_9",
-      guid: objectGuids['floor9']!,
-      keepInMemory: false,
-      isInstancePrimary: false,
-    ));
+    const List<Vector3Data> floorPositions = [
+      Vector3Data(x: 0, y: 0, z: 0),
+      Vector3Data(x: -16, y: 0, z: 16),
+      Vector3Data(x: -16, y: 0, z: 0),
+      Vector3Data(x: -16, y: 0, z: -16),
+      Vector3Data(x: 0, y: 0, z: -16),
+      Vector3Data(x: 16, y: 0, z: -16),
+      Vector3Data(x: 16, y: 0, z: 0),
+      Vector3Data(x: 16, y: 0, z: 16),
+      Vector3Data(x: 0, y: 0, z: 16),
+    ];
+
+    for(int i = 0; i < floorPositions.length; i++) {
+      final Vector3Data pos = floorPositions[i];
+      models.add(GlbModel.asset(
+        assetPath: checkerboardFloor,
+        position: carOrigin + pos.toVector3(),
+        scale: Vector3.all(1),
+        rotation: Quaternion(0, 0, 0, 1),
+        collidable: null,
+        animation: null,
+        receiveShadows: true,
+        castShadows: false,
+        name: "${checkerboardFloor}_${i + 1}",
+        id: objectGuids['floor${i + 1}']!,
+        instancingMode: ModelInstancingType.instanced,
+      ));
+    }
 
     // Bounce ball
     models.add(GlbModel.asset(
-      bounceBall,
-      centerPosition: carOrigin + Vector3.only(x: 12, y: 3, z: 12),
+      assetPath: bounceBall,
+      position: carOrigin + Vector3(12, 3, 12),
       scale: Vector3.all(0.75),
-      rotation: Vector4.fromEulerAngles(0, 90, 0, useDegrees: true),
+      // rotation: Quaternion.fromEulerAngles(0, 90, 0),
+      rotation: Quaternion.identity()..setEulerDegrees(0, 90, 0),
       collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
       animation: null,
       receiveShadows: true,
       castShadows: true,
       name: bounceBall,
-      guid: objectGuids['bg_shape_0']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
+      id: objectGuids['bg_shape_0']!,
+      instancingMode: ModelInstancingType.none,
     ));
     // Donut
     models.add(GlbModel.asset(
-      donut,
-      centerPosition: carOrigin + Vector3.only(x: 12, y: 3, z: -12),
+      assetPath: donut,
+      position: carOrigin + Vector3(12, 3, -12),
       scale: Vector3.all(0.005),
-      rotation: Vector4.fromEulerAngles(0, 90, 0, useDegrees: true),
+      rotation: Quaternion.identity()..setEulerDegrees(0, 90, 0),
       collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
       animation: null,
       receiveShadows: true,
       castShadows: true,
       name: donut,
-      guid: objectGuids['bg_shape_1']!,
-      keepInMemory: true,
-      isInstancePrimary: false,
+      id: objectGuids['bg_shape_1']!,
+      instancingMode: ModelInstancingType.none,
     ));
 
     return models;
   }
 
-  static final Vector3 wiperSize = Vector3.only(x: 0.05, y: 0.75, z: 0.05);
-  static final Vector3 lightSize = Vector3.only(x: 0.2, y: 0.2, z: 0.2);
-
-  static final Vector3 wheelOffset = Vector3.only(x: 1.75, y: 0.425, z: 0.85);
-  static final double wheelBackOffset = 0.4;
-  static final Vector3 wheelSize = Vector3(0.5, 0.5, 0.2);
-  static final int wheelSegments = 8;
-  static final Map<String, Vector3> wheelPositions = {
-    's_wheel_F1': carOrigin + Vector3.only(x: -wheelOffset.x,                   y: wheelOffset.y, z: wheelOffset.z),
-    's_wheel_F2': carOrigin + Vector3.only(x: -wheelOffset.x,                   y: wheelOffset.y, z: -wheelOffset.z),
-    's_wheel_B1': carOrigin + Vector3.only(x: wheelOffset.x - wheelBackOffset,  y: wheelOffset.y, z: wheelOffset.z),
-    's_wheel_B2': carOrigin + Vector3.only(x: wheelOffset.x - wheelBackOffset,  y: wheelOffset.y, z: -wheelOffset.z),
-  };
-
   static List<Shape> getSceneShapes() {
     final List<Shape> shapes = [];
 
+    /// tree of nested cubes above the car
+    final tree_uuids = {
+      (generateGuid()): "tree_root",
+      (generateGuid()): "tree_layer_1",
+      (generateGuid()): "tree_layer_2",
+      (generateGuid()): "tree_layer_3",
+      (generateGuid()): "tree_layer_4",
+    };
+
+    /*
+     *  Entity parenting example
+     */ 
+    print("tree_uuids: $tree_uuids");
+    shapes.add(
+      Cube(
+        id: tree_uuids.keys.elementAt(0),
+        name: tree_uuids.values.elementAt(0),
+        // TODO: this doesn't work because the model instantiation is so deferred that it doesn't exist on create time
+        // parentId: objectGuids['car']!,
+        // position: Vector3(15, 0.25, 10),
+        position: carOrigin + Vector3(15, 0.5, 10),
+        scale: Vector3(2, 0.25, 2),
+        rotation: Quaternion.identity(),
+        size: Vector3.all(1),
+        material: poGetLitMaterial(Colors.green),
+        children: [
+          // tree trunk
+          Cube(
+            id: generateGuid(),
+            name: "tree_trunk",
+            position: Vector3(0, 2, 0), // relative to parent
+            scale: Vector3(0.1, 8, 0.1),
+            rotation: Quaternion.identity(),
+            size: Vector3.all(1),
+            material: poGetLitMaterial(Colors.brown),
+          ),
+          // tree layers
+          Cube(
+            id: tree_uuids.keys.elementAt(1),
+            name: tree_uuids.values.elementAt(1),
+            position: Vector3(0, 2, 0), // relative to parent
+            scale: Vector3(0.75, 1, 0.75),
+            rotation: Quaternion.identity(),
+            size: Vector3.all(1),
+            material: poGetLitMaterial(Colors.green),
+            children: [
+              Cube(
+                id: tree_uuids.keys.elementAt(2),
+                name: tree_uuids.values.elementAt(2),
+                position: Vector3(0, 2, 0), // relative to parent
+                scale: Vector3(0.75, 1, 0.75),
+                rotation: Quaternion.identity(),
+                size: Vector3.all(1),
+                material: poGetLitMaterial(Colors.green),
+                children: [
+                  Cube(
+                    id: tree_uuids.keys.elementAt(3),
+                    name: tree_uuids.values.elementAt(3),
+                    position: Vector3(0, 2, 0), // relative to parent
+                    scale: Vector3(0.75, 1, 0.75),
+                    rotation: Quaternion.identity(),
+                    size: Vector3.all(1),
+                    material: poGetLitMaterial(Colors.green),
+                    children: [
+                      Cube(
+                        id: tree_uuids.keys.elementAt(4),
+                        name: tree_uuids.values.elementAt(4),
+                        position: Vector3(0, 2, 0), // relative to parent
+                        scale: Vector3(0.25, 0.25, 0.25),
+                        rotation: Quaternion.identity(),
+                        size: Vector3.all(1),
+                        material: poGetLitMaterial(Colors.yellow),
+                      ),
+                    ]
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ]
+      ),
+    );
+
     // shapes.add(poCreateCube(
-    //   Vector3.only(x: 72, y: 4, z: 68),
-    //   Vector3.only(x: 2, y: 2, z: 2),
-    //   Vector3.only(x: 2, y: 2, z: 2),
+    //   Vector3(72, 4, 68),
+    //   Vector3(2, 2, 2),
+    //   Vector3(2, 2, 2),
     //   null,
     //   objectGuids['cube']!,
     // ));
 
     // Wall (use cube as wall), floor is 48x48 
     // shapes.add(poCreateCube(
-    //   carOrigin - Vector3.only(x: 0, y: -8 + 0.1, z: 24),
-    //   Vector3.only(x: 48, y: 16, z: 0.1),
-    //   Vector3.only(x: 48, y: 16, z: 0.1),
+    //   carOrigin - Vector3(0, -8 + 0.1, 24),
+    //   Vector3(48, 16, 0.1),
+    //   Vector3(48, 16, 0.1),
     //   null,
     //   objectGuids['wall1']!,
     // ));
     // shapes.add(poCreateCube(
-    //   carOrigin - Vector3.only(x: 0, y: -8 + 0.1, z: -24),
-    //   Vector3.only(x: 48, y: 16, z: 0.1),
-    //   Vector3.only(x: 48, y: 16, z: 0.1),
+    //   carOrigin - Vector3(0, -8 + 0.1, -24),
+    //   Vector3(48, 16, 0.1),
+    //   Vector3(48, 16, 0.1),
     //   null,
     //   objectGuids['wall2']!,
     // ));
     // shapes.add(poCreateCube(
-    //   carOrigin - Vector3.only(x: 24, y: -8 + 0.1, z: 0),
-    //   Vector3.only(x: 0.1, y: 16, z: 48),
-    //   Vector3.only(x: 0.1, y: 16, z: 48),
+    //   carOrigin - Vector3(24, -8 + 0.1, 0),
+    //   Vector3(0.1, 16, 48),
+    //   Vector3(0.1, 16, 48),
     //   null,
     //   objectGuids['wall3']!,
     // ));
     // shapes.add(poCreateCube(
-    //   carOrigin - Vector3.only(x: -24, y: -8 + 0.1, z: -0),
-    //   Vector3.only(x: 0.1, y: 16, z: 48),
-    //   Vector3.only(x: 0.1, y: 16, z: 48),
+    //   carOrigin - Vector3(-24, -8 + 0.1, -0),
+    //   Vector3(0.1, 16, 48),
+    //   Vector3(0.1, 16, 48),
     //   null,
     //   objectGuids['wall4']!,
     // ));
 
     // use cube as wipers
-    Vector3 wiperOffset = Vector3.only(x: -1.3, y: 1.45, z: -0.45);
+    Vector3 wiperOffset = Vector3(-1.3, 1.45, -0.45);
 
     shapes.add(poCreateCube(
-      Vector3.only(x: 72, y: 0, z: 68) + wiperOffset,
+      Vector3(72, 0, 68) + wiperOffset,
       wiperSize,
       wiperSize,
       null,
+      'wiper1',
       objectGuids['wiper1']!,
     ));
 
     shapes.add(poCreateCube(
-      Vector3.only(x: 72, y: 0, z: 68) + wiperOffset - Vector3.only(z: wiperOffset.z * 2),
+      Vector3(72, 0, 68) + wiperOffset - Vector3(0, 0, wiperOffset.z * 2),
       wiperSize,
       wiperSize,
       null,
+      'wiper2',
       objectGuids['wiper2']!,
     ));
-
-    // Use spheres as wheels
-    for(final entry in wheelPositions.entries) {
-      shapes.add(poCreateSphere(
-        entry.value,
-        wheelSize,
-        wheelSize,
-        wheelSegments, wheelSegments,
-        null,
-        objectGuids[entry.key]!,
-      ));
-    }
 
     return shapes;
   }
@@ -388,6 +368,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
    */
   @override
   void onCreate() {
+    print("SettingsSceneView created!");
     _resetCamera();
 
     _animationController = BottomSheet.createAnimationController(
@@ -396,10 +377,6 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
 
     // Set up listeners for wheel clicks
     widget.collisionController.addListener(_onObjectTouch);
-    // Set tire meshes to invisible
-    for(String name in SettingsSceneView.wheelPositions.keys) {
-      widget.filament.turnOffVisualForEntity(SettingsSceneView.objectGuids[name]!);
-    }
   }
 
   void _resetCamera({ bool autoOrbit = false}) {
@@ -415,7 +392,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     widget.filament.changeCameraFlightStartPosition(64, 3, 64);
 
     // fog
-    widget.filament.setFogOptions(true);
+    widget.filament.setFogOptions(false);
   }
 
   void _onObjectTouch(CollisionEvent event) {
@@ -443,7 +420,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     // Wipers
     final double wiperSpeed = _wiperSpeed.value;
     final double wiperAngle = sin(_timer * wiperSpeed) * 0.66;
-    final Vector4 wiperRotation = Vector4.fromEulerAngles(wiperAngle, 0, -0.8);
+    final Quaternion wiperRotation = Quaternion.identity()..setEulerRadians(wiperAngle, 0, -0.8);
     filament.changeRotationByGUID(
       SettingsSceneView.objectGuids['wiper1']!,
       wiperRotation.x,
@@ -474,13 +451,13 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     );
 
     // Lights
-    Vector3 lightScale = SettingsSceneView.lightSize * Vector3(
+    Vector3 lightScale = SettingsSceneView.lightSize.mul(Vector3(
       _lightLength.value,
       1,
       _lightWidth.value,
-    ) * Vector3.all(
+    )).mul(Vector3.all(
       _showLights.value ? 1 : 0,
-    );
+    ));
 
     filament.changeScaleByGUID(
       SettingsSceneView.objectGuids['light1']!,
@@ -494,7 +471,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
       lightScale.y,
       lightScale.z,
     );
-    Vector4 lightRotation = Vector4.fromEulerAngles(0, _lightAngleX.value, _lightAngleY.value);
+    Quaternion lightRotation = Quaternion.identity()..setEulerRadians(0, _lightAngleX.value, _lightAngleY.value);
     filament.changeRotationByGUID(
       SettingsSceneView.objectGuids['light1']!,
       lightRotation.x,
@@ -513,49 +490,49 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     // show/hide lights
     if(_showLights.value) {
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_B1']!,
+        SettingsSceneView.objectGuids['l_light_BL']!,
         Colors.red.toHex(),
         (5000000 * _lightIntensity.value).round(),
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_B2']!,
+        SettingsSceneView.objectGuids['l_light_BR']!,
         Colors.red.toHex(),
         (5000000 * _lightIntensity.value).round(),
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_F1']!,
+        SettingsSceneView.objectGuids['l_light_FL']!,
         Colors.yellow.toHex(),
         (5000000 * _lightIntensity.value).round()
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_F2']!,
+        SettingsSceneView.objectGuids['l_light_FR']!,
         Colors.yellow.toHex(),
         (5000000 * _lightIntensity.value).round()
       );
     } else {
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_B1']!,
+        SettingsSceneView.objectGuids['l_light_BL']!,
         Colors.black.toHex(),
         0,
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_B2']!,
+        SettingsSceneView.objectGuids['l_light_BR']!,
         Colors.black.toHex(),
         0,
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_F1']!,
+        SettingsSceneView.objectGuids['l_light_FL']!,
         Colors.black.toHex(),
         0,
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_F2']!,
+        SettingsSceneView.objectGuids['l_light_FR']!,
         Colors.black.toHex(),
         0,
       );
@@ -564,49 +541,49 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     // blink turning lights
     if((_timer * 2).floor() % 2 == 1 && _activateTurningLights.value == true) {
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tB1']!,
+        SettingsSceneView.objectGuids['l_light_tBL']!,
         Colors.orange.toHex(),
         (5000000 * _lightIntensity.value).round(),
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tB2']!,
+        SettingsSceneView.objectGuids['l_light_tBR']!,
         Colors.orange.toHex(),
         (5000000 * _lightIntensity.value).round(),
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tF1']!,
+        SettingsSceneView.objectGuids['l_light_tFL']!,
         Colors.orange.toHex(),
         (5000000 * _lightIntensity.value).round(),
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tF2']!,
+        SettingsSceneView.objectGuids['l_light_tFR']!,
         Colors.orange.toHex(),
         (5000000 * _lightIntensity.value).round(),
       );
     } else {
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tB1']!,
+        SettingsSceneView.objectGuids['l_light_tBL']!,
         Colors.black.toHex(),
         0,
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tB2']!,
+        SettingsSceneView.objectGuids['l_light_tBR']!,
         Colors.black.toHex(),
         0,
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tF1']!,
+        SettingsSceneView.objectGuids['l_light_tFL']!,
         Colors.black.toHex(),
         0,
       );
 
       filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tF2']!,
+        SettingsSceneView.objectGuids['l_light_tFR']!,
         Colors.black.toHex(),
         0,
       );
@@ -617,8 +594,8 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
       final ballGuid = SettingsSceneView.objectGuids['bg_shape_0']!;
       final double bounce = sin(_timer * 2) * 1;
 
-      final Vector3 pos = SettingsSceneView.carOrigin + Vector3.only(x: 9, y: 2.5 + bounce, z: -9);
-      final Vector4 rot = Vector4.fromEulerAngles(30, _timer * 90, 0, useDegrees: true);
+      final Vector3 pos = SettingsSceneView.carOrigin + Vector3(9, 2.5 + bounce, -9);
+      final Quaternion rot = Quaternion.identity()..setEulerDegrees(30, _timer * 90, 0);
 
       filament.changeTranslationByGUID(
         ballGuid,
@@ -637,20 +614,20 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
 
     // Bounce and rotate donut
     {
-      final ballGuid = SettingsSceneView.objectGuids['bg_shape_1']!;
+      final donutGuid = SettingsSceneView.objectGuids['bg_shape_1']!;
       final double bounce = sin(_timer * 2) * 1;
 
-      final Vector3 pos = SettingsSceneView.carOrigin + Vector3.only(x: -10, y: 2 + bounce, z: 10);
-      final Vector4 rot = Vector4.fromEulerAngles(30 * bounce, _timer * 90, 0, useDegrees: true);
+      final Vector3 pos = SettingsSceneView.carOrigin + Vector3(-10, 2 + bounce, 10);
+      final Quaternion rot = Quaternion.identity()..setEulerDegrees(30 * bounce, _timer * 90, 0);
 
       filament.changeTranslationByGUID(
-        ballGuid,
+        donutGuid,
         pos.x,
         pos.y,
         pos.z,
       );
       filament.changeRotationByGUID(
-        SettingsSceneView.objectGuids['bg_shape_1']!,
+        donutGuid,
         rot.x,
         rot.y,
         rot.z,
@@ -659,36 +636,22 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     }
   }
 
-  static const double _wheelCameraDistanceZ = 1;
-  static const double _wheelCameraDistanceY = 0;
-  static final Map<String, Vector3> _wheelCameraPositions = SettingsSceneView.wheelPositions.map((key, value) => MapEntry(
-    key,
-    value
-      + Vector3.only(y: _wheelCameraDistanceY)
-      + (
-        value.z > 0
-          ? Vector3.only(x: _wheelCameraDistanceZ)
-          : Vector3.only(x: -_wheelCameraDistanceZ)
-        )
-  ));
-
   @override
   void onTriggerEvent(final String eventName, [ final dynamic? eventData ]) {
     if(eventName != "touchObject") return;
 
     final CollisionEvent event = eventData as CollisionEvent;
-    final String guid = event.results[0].guid;
+    final String name = event.results[0].name;
 
-    print('Touched object with guid: ${guid}');
+    print('Touched object with name: ${name}');
 
     // If touched any of the wheels...
     if(
-      guid == SettingsSceneView.objectGuids['s_wheel_F1'] ||
-      guid == SettingsSceneView.objectGuids['s_wheel_F2'] ||
-      guid == SettingsSceneView.objectGuids['s_wheel_B1'] ||
-      guid == SettingsSceneView.objectGuids['s_wheel_B2']
+      name == 'wheel_FL' ||
+      name == 'wheel_FR' ||
+      name == 'wheel_BL' ||
+      name == 'wheel_BR'
     ) {
-      final String name = SettingsSceneView.objectGuids.entries.firstWhere((entry) => entry.value == guid).key;
       print('Touched wheel ${name}');
 
       // Change camera position to wheel
@@ -704,7 +667,9 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
 
   void _cameraFocusOnTire(String name) {
     final Vector3 cameraLookAt = SettingsSceneView.wheelPositions[name]!;
-    final Vector3 cameraLookFrom = _wheelCameraPositions[name]!;
+    final Vector3 cameraLookFrom = SettingsSceneView.wheelCameraPositions[name]!;
+
+    print("Focusing on tire '${name}' at ${cameraLookAt} from ${cameraLookFrom}");
 
 
     widget.filament.changeCameraFlightStartPosition(
@@ -712,12 +677,6 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
       cameraLookFrom.y,
       cameraLookFrom.z,
     );
-
-    // widget.filament.changeCameraOrbitHomePosition(
-    //   cameraLookFrom.x,
-    //   cameraLookFrom.y,
-    //   cameraLookFrom.z,
-    // );
 
     widget.filament.changeCameraTargetPosition(
       cameraLookAt.x,
@@ -727,11 +686,12 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
 
 
     // If last character is 1, it's left - set camera angle
-    if(name.endsWith('1')) {  
+    if(name.endsWith('L')) {  
       widget.filament.setCameraRotation(pi * 0.5);
     } else {
       widget.filament.setCameraRotation(pi * -0.5);
     }
+
 
     print("Set camera to tire ${name}, look from ${cameraLookFrom} at ${cameraLookAt}");
 
@@ -760,6 +720,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
   @override
   Widget build(BuildContext context) {
     _screenHeight = MediaQuery.of(context).size.height;
+    print("rebuild!");
 
     // If settings hidden, show large invisible button to show settings
     if(!_showSettings) {
@@ -816,7 +777,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
         width: 320,
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.66),
-          borderRadius: const BorderRadius.only(
+          borderRadius: BorderRadius.only(
             topLeft: Radius.circular(16),
             topRight: Radius.circular(16),
           ),
@@ -841,6 +802,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
                       child: IconButton(
                         icon: const Icon(Icons.arrow_back),
                         onPressed: () {
+                          print("reset from pressed");
                           _resetCamera();
                           _menuSelected.value = 0;
                         },
@@ -1094,7 +1056,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
         listenable: _wiperSpeed,
         builder: (BuildContext context, Widget? child) => Slider(
           min: 0,
-          max: 20,
+          max: 64,
           value: _wiperSpeed.value,
           onChanged: (double value) {
             _wiperSpeed.value = value;
@@ -1171,7 +1133,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
         listenable: _lightAngleX,
         builder: (BuildContext context, Widget? child) => Slider(
           min: -pi / 4,
-          max: pi / 4,
+          max:  pi / 4,
           value: _lightAngleX.value,
           onChanged: (double value) {
             _lightAngleX.value = value;
@@ -1184,7 +1146,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
         listenable: _lightAngleY,
         builder: (BuildContext context, Widget? child) => Slider(
           min: -pi / 4,
-          max: pi / 4,
+          max:  pi / 4,
           value: _lightAngleY.value,
           onChanged: (double value) {
             _lightAngleY.value = value;
@@ -1209,17 +1171,17 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
   );
 
   final Map<String, ValueNotifier<double>> _tirePressures = {
-    's_wheel_F1': ValueNotifier<double>(0.5),
-    's_wheel_F2': ValueNotifier<double>(0.5),
-    's_wheel_B1': ValueNotifier<double>(0.5),
-    's_wheel_B2': ValueNotifier<double>(0.5),
+    'wheel_FL': ValueNotifier<double>(0.5),
+    'wheel_FR': ValueNotifier<double>(0.5),
+    'wheel_BL': ValueNotifier<double>(0.5),
+    'wheel_BR': ValueNotifier<double>(0.5),
   };
 
   static const Map<String, String> _tireNames = {
-    's_wheel_F1': 'Front-left',
-    's_wheel_F2': 'Front-right',
-    's_wheel_B1': 'Back-left',
-    's_wheel_B2': 'Back-right',
+    'wheel_FL': 'Front-left',
+    'wheel_FR': 'Front-right',
+    'wheel_BL': 'Back-left',
+    'wheel_BR': 'Back-right',
   };
 
   Widget _buildTireSettings(BuildContext context) => Column(

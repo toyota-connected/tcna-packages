@@ -1,7 +1,9 @@
+import 'package:filament_scene/filament_scene.dart';
 import 'package:filament_scene/scene/camera/camera.dart';
 import 'package:filament_scene/scene/indirect_light/indirect_light.dart';
 import 'package:filament_scene/scene/light/light.dart';
 import 'package:filament_scene/scene/skybox/skybox.dart';
+import 'package:filament_scene/utils/guid.dart';
 
 /// An object that represents the scene to  be rendered with information about light, skybox and more.
 // TODO(kerberjg): separate into Scene(entities, camera) and SceneLighting(skybox, indirectLight)
@@ -11,8 +13,19 @@ class Scene {
   List<Light>? lights;
   Camera? camera;
 
+  final Map<EntityGUID, Entity> entities = <EntityGUID, Entity>{};
+
   Scene({this.skybox, this.indirectLight, this.lights, this.camera});
 
+  /*
+   *  Entity management
+   */
+  Entity? getEntity(final EntityGUID id) => entities[id];
+
+
+  /*
+   *  Serialization
+   */
   Map<String, dynamic> toJson() => {
     'skybox': skybox?.toJson(),
     'lights': lights?.map((light) => light.toJson()).toList(),

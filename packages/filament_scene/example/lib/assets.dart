@@ -1,7 +1,9 @@
+import 'package:filament_scene/math/vectors.dart';
 import 'package:my_fox_example/shape_and_object_creators.dart';
 import 'package:filament_scene/filament_scene.dart';
-import 'package:uuid/uuid.dart';
 
+
+const String sequoiaWithWheelsAsset = "assets/models/sequoia_notes.glb";
 const String sequoiaAsset = "assets/models/sequoia_ngp.glb";
 const String garageAsset = "assets/models/garagescene.glb";
 
@@ -25,81 +27,76 @@ List<Model> getBaseModels() {
 
   // Car
   models.add(GlbModel.asset(
-    sequoiaAsset,
-    centerPosition: Vector3.only(x: 0, y: 0, z: 0),
-    scale: Vector3.only(x: 1, y: 1, z: 1),
-    rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
+    assetPath: sequoiaAsset,
+    position: Vector3(0, 0, 0),
+    scale: Vector3(1, 1, 1),
+    rotation: Quaternion(0, 0, 0, 1),
     collidable: null,
     animation: null,
     receiveShadows: true,
     castShadows: true,
     name: sequoiaAsset,
-    guid: const Uuid().v4(),
-    keepInMemory: true,
-    isInstancePrimary: true,
+    id: generateGuid(),
+    instancingMode: ModelInstancingType.primaryInstanceable,
   ));
 
   // Fox
   models.add(GlbModel.asset(
-    foxAsset,
-    centerPosition: Vector3.only(x: 0, y: 0, z: 0),
-    scale: Vector3.only(x: 1, y: 1, z: 1),
-    rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
+    assetPath: foxAsset,
+    position: Vector3(0, 0, 0),
+    scale: Vector3(1, 1, 1),
+    rotation: Quaternion(0, 0, 0, 1),
     collidable: null,
     animation: null,
     receiveShadows: true,
     castShadows: true,
-    guid: const Uuid().v4(),
-    keepInMemory: true,
-    isInstancePrimary: true,
+    id: generateGuid(),
+    instancingMode: ModelInstancingType.primaryInstanceable,
   ));
 
   // Radar cone
   models.add(GlbModel.asset(
-    radarConeAsset,
-    centerPosition: Vector3.only(x: 0, y: 0, z: 0),
-    scale: Vector3.only(x: 1, y: 1, z: 1),
-    rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
+    assetPath: radarConeAsset,
+    position: Vector3(0, 0, 0),
+    scale: Vector3(1, 1, 1),
+    rotation: Quaternion(0, 0, 0, 1),
     collidable: null,
     animation: null,
     receiveShadows: false,
     castShadows: false,
     name: radarConeAsset,
-    guid: const Uuid().v4(),
-    keepInMemory: true,
-    isInstancePrimary: true,
+    id: generateGuid(),
+    instancingMode: ModelInstancingType.primaryInstanceable,
   ));
 
   // Radar segment
   models.add(GlbModel.asset(
-    radarSegmentAsset,
-    centerPosition: Vector3.only(x: 0, y: 0, z: 0),
-    scale: Vector3.only(x: 1, y: 1, z: 1),
-    rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
+    assetPath: radarSegmentAsset,
+    position: Vector3(0, 0, 0),
+    scale: Vector3(1, 1, 1),
+    rotation: Quaternion(0, 0, 0, 1),
     collidable: null,
     animation: null,
     receiveShadows: true,
     castShadows: true,
     name: radarSegmentAsset,
-    guid: const Uuid().v4(),
-    keepInMemory: true,
-    isInstancePrimary: true,
+    id: generateGuid(),
+    instancingMode: ModelInstancingType.primaryInstanceable,
   ));
 
   // Floor
   models.add(GlbModel.asset(
-      checkerboardFloor,
-      centerPosition: Vector3.only(x: 0, y: -0.1, z: 0),
+      assetPath: checkerboardFloor,
+      position: Vector3(0, -0.1, 0),
       scale: Vector3.all(1),
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
+      rotation: Quaternion(0, 0, 0, 1),
       collidable: null,
       animation: null,
       receiveShadows: true,
       castShadows: false,
       name: checkerboardFloor,
-      guid: const Uuid().v4(),
-      keepInMemory: true,
-      isInstancePrimary: true,
+      id: generateGuid(),
+    instancingMode: ModelInstancingType.primaryInstanceable,
     ));
 
   return models;
