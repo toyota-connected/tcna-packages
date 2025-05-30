@@ -39,6 +39,28 @@ extension QuaterionWithDegrees on Quaternion {
   }
 }
 
+extension Vector3WithStorage64 on Vector3 {
+  static const int storageSize = 3;
+  Float64List get storage64 {
+    final Float64List list = Float64List(storageSize);
+    for (int i = 0; i < storageSize; i++) {
+      list[i] = storage[i];
+    }
+    return list;
+  }
+}
+
+extension QuaternionWithStorage64 on Quaternion {
+  static const int storageSize = 4;
+  Float64List get storage64 {
+    final Float64List list = Float64List(storageSize);
+    for (int i = 0; i < storageSize; i++) {
+      list[i] = storage[i];
+    }
+    return list;
+  }
+}
+
 /// A data class for Vector3
 @immutable class Vector3Data {
   final double x, y ,z;

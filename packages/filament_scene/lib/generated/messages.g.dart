@@ -144,29 +144,6 @@ class FilamentViewApi {
     }
   }
 
-  /// Set shape's transform by GUID.
-  Future<void> setShapeTransform(int id, {double posx = 0, double posy = 0, double posz = 0, double rotx = 0, double roty = 0, double rotz = 0, double rotw = 1, double sclx = 1, double scly = 1, double sclz = 1, }) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.setShapeTransform$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[id, posx, posy, posz, rotx, roty, rotz, rotw, sclx, scly, sclz]) as List<Object?>?;
-    if (pigeonVar_replyList == null) {
-      throw _createConnectionError(pigeonVar_channelName);
-    } else if (pigeonVar_replyList.length > 1) {
-      throw PlatformException(
-        code: pigeonVar_replyList[0]! as String,
-        message: pigeonVar_replyList[1] as String?,
-        details: pigeonVar_replyList[2],
-      );
-    } else {
-      return;
-    }
-  }
-
   /// Cycle between view quality settings presets.
   Future<void> changeViewQualitySettings() async {
     final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeViewQualitySettings$pigeonVar_messageChannelSuffix';
@@ -643,15 +620,15 @@ class FilamentViewApi {
     }
   }
 
-  Future<void> changeScaleByGUID(int id, double x, double y, double z) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeScaleByGUID$pigeonVar_messageChannelSuffix';
+  Future<void> setEntityTransformScale(int id, Float64List scl) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.setEntityTransformScale$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[id, x, y, z]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[id, scl]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -665,15 +642,15 @@ class FilamentViewApi {
     }
   }
 
-  Future<void> changeTranslationByGUID(int id, double x, double y, double z) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeTranslationByGUID$pigeonVar_messageChannelSuffix';
+  Future<void> setEntityTransformPosition(int id, Float64List pos) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.setEntityTransformPosition$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[id, x, y, z]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[id, pos]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -687,15 +664,15 @@ class FilamentViewApi {
     }
   }
 
-  Future<void> changeRotationByGUID(int id, double x, double y, double z, double w) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeRotationByGUID$pigeonVar_messageChannelSuffix';
+  Future<void> setEntityTransformRotation(int id, Float64List rot) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.setEntityTransformRotation$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[id, x, y, z, w]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[id, rot]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {

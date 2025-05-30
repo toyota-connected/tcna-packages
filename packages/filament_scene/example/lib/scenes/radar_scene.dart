@@ -284,7 +284,10 @@ void vSetPositionAndScale(FilamentViewApi filamentView, EntityGUID id,
   // Add your custom logic for applying position and scale to the model
   //print("vSetPositionAndScale: $id | positionOffset = $positionOffset, scaleFactor = $scaleFactor");
 
-  filamentView.changeTranslationByGUID(id, -42.2 - positionOffset, 1, 0);
+  filamentView.setEntityTransformPosition(
+    id,
+    Vector3(-42.2 - positionOffset, 1, 0).storage64,
+  );
 
   /* if(scaleFactor == 0) {
     filamentView.turnOffVisualForEntity(id); // turnOnVisualForEntity
@@ -294,8 +297,10 @@ void vSetPositionAndScale(FilamentViewApi filamentView, EntityGUID id,
     filamentView.turnOnVisualForEntity(id); // turnOnVisualForEntity
   }*/
 
-  filamentView.changeScaleByGUID(
-      id, scaleFactor * 6, scaleFactor, scaleFactor);
+  filamentView.setEntityTransformScale(
+    id,
+    Vector3(scaleFactor * 6, scaleFactor, scaleFactor).storage64,
+  );
 }
 
 void resetSegment(FilamentViewApi filamentView, EntityGUID id) {
