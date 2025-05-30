@@ -45,12 +45,6 @@ abstract class FilamentViewApi {
    */
   /// Toggle shapes visibility in the scene.
   void toggleShapesInScene(bool value);
-  /// Set shape's transform by GUID.
-  void setShapeTransform(int id, {
-    double posx = 0, double posy = 0, double posz = 0,
-    double rotx = 0, double roty = 0, double rotz = 0, double rotw = 1,
-    double sclx = 1, double scly = 1, double sclz = 1,
-  });
 
   /*
    * Rendering
@@ -121,10 +115,10 @@ abstract class FilamentViewApi {
   /*
    *  Transform
    */
-  void changeScaleByGUID(int id, double x, double y, double z);
-  void changeTranslationByGUID(int id, double x, double y, double z);
-  void changeRotationByGUID(
-      int id, double x, double y, double z, double w);
+  void setEntityTransformScale(int id, Float64List scl);
+  void setEntityTransformPosition(int id, Float64List pos);
+  void setEntityTransformRotation(int id, Float64List rot);
+
 
   // runtime visual
   void turnOffVisualForEntity(int id);
