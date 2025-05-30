@@ -16,7 +16,7 @@
 
 import 'package:pigeon/pigeon.dart';
 
-// TODO(kerberjg): refactor to use int guids instead of strings
+// TODO(kerberjg): Use Float32List instead of separate doubles for vectors and quaternions
 
 @ConfigurePigeon(PigeonOptions(
   dartOut: 'generated/src/dart/messages.g.dart',
@@ -36,9 +36,9 @@ abstract class FilamentViewApi {
    *  Materials
    */
   /// Change material parameters for the given entity.
-  void changeMaterialParameter(Map<String?, Object?> params, String guid);
+  void changeMaterialParameter(Map<String?, Object?> params, int id);
   /// Change material definition for the given entity.
-  void changeMaterialDefinition(Map<String?, Object?> params, String guid);
+  void changeMaterialDefinition(Map<String?, Object?> params, int id);
 
   /*
    *  Shapes
@@ -46,7 +46,7 @@ abstract class FilamentViewApi {
   /// Toggle shapes visibility in the scene.
   void toggleShapesInScene(bool value);
   /// Set shape's transform by GUID.
-  void setShapeTransform(String guid, {
+  void setShapeTransform(int id, {
     double posx = 0, double posy = 0, double posz = 0,
     double rotx = 0, double roty = 0, double rotz = 0, double rotw = 1,
     double sclx = 1, double scly = 1, double sclz = 1,
@@ -78,22 +78,22 @@ abstract class FilamentViewApi {
    *  Lights
   */
   /// Set a light's color and intensity by GUID.
-  void changeLightColorByGUID(String guid, String color, int intensity);
+  void changeLightColorByGUID(int id, String color, int intensity);
   /// Set a light's transform by GUID. Deprecated.
   @Deprecated('Use changeTranslationByGUID and changeRotationByGUID instead')
-  void changeLightTransformByGUID(String guid, double posx, double posy,
+  void changeLightTransformByGUID(int id, double posx, double posy,
       double posz, double dirx, double diry, double dirz);
 
   /*
    *  Animations
    */
-  void enqueueAnimation(String guid, int animationIndex);
-  void clearAnimationQueue(String guid);
-  void playAnimation(String guid, int animationIndex);
-  void changeAnimationSpeed(String guid, double speed);
-  void pauseAnimation(String guid);
-  void resumeAnimation(String guid);
-  void setAnimationLooping(String guid, bool looping);
+  void enqueueAnimation(int id, int animationIndex);
+  void clearAnimationQueue(int id);
+  void playAnimation(int id, int animationIndex);
+  void changeAnimationSpeed(int id, double speed);
+  void pauseAnimation(int id);
+  void resumeAnimation(int id);
+  void setAnimationLooping(int id, bool looping);
 
   /*
    * Collision
@@ -111,22 +111,22 @@ abstract class FilamentViewApi {
       double length);
   /// Disable raycast checks for the given entity.
   /// NOTE: this will not hide the collider debug visual.
-  void turnOffCollisionChecksForEntity(String guid);
+  void turnOffCollisionChecksForEntity(int id);
   /// Enable raycast checks for the given entity.
   /// NOTE: this will not show the collider debug visual.
-  void turnOnCollisionChecksForEntity(String guid);
+  void turnOnCollisionChecksForEntity(int id);
   /// Enable/disable debug collidable visuals in the scene.
   void toggleDebugCollidableViewsInScene(bool value);
 
   /*
    *  Transform
    */
-  void changeScaleByGUID(String guid, double x, double y, double z);
-  void changeTranslationByGUID(String guid, double x, double y, double z);
+  void changeScaleByGUID(int id, double x, double y, double z);
+  void changeTranslationByGUID(int id, double x, double y, double z);
   void changeRotationByGUID(
-      String guid, double x, double y, double z, double w);
+      int id, double x, double y, double z, double w);
 
   // runtime visual
-  void turnOffVisualForEntity(String guid);
-  void turnOnVisualForEntity(String guid);
+  void turnOffVisualForEntity(int id);
+  void turnOnVisualForEntity(int id);
 }

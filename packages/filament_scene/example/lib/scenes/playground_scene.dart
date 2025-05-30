@@ -1,4 +1,7 @@
 
+import 'package:filament_scene/components/collidable.dart';
+import 'package:filament_scene/math/vectors.dart';
+import 'package:filament_scene/shapes/shapes.dart';
 import 'package:flutter/material.dart' hide Animation;
 import 'package:my_fox_example/assets.dart';
 import 'package:my_fox_example/demo_widgets.dart';
@@ -8,7 +11,8 @@ import 'package:filament_scene/generated/messages.g.dart';
 import 'package:my_fox_example/scenes/scene_view.dart';
 import 'package:my_fox_example/shape_and_object_creators.dart';
 import 'package:filament_scene/filament_scene.dart';
-import 'package:uuid/uuid.dart';
+import 'package:filament_scene/utils/guid.dart';
+
 
 class PlaygroundSceneView extends StatefulSceneView {
 
@@ -23,12 +27,12 @@ class PlaygroundSceneView extends StatefulSceneView {
   @override
   _PlaygroundSceneViewState createState() => _PlaygroundSceneViewState();
 
-  static const Map<String, Uuid> objectGuids = {
+  static Map<String, EntityGUID> objectGuids = {
     // Models
-    'car': Uuid(),
-    'garage': Uuid(),
-    'fox1': Uuid(),
-    'fox2': Uuid(),
+    'car': generateGuid(),
+    'garage': generateGuid(),
+    'fox1': generateGuid(),
+    'fox2': generateGuid(),
     // Shapes
 
     // Lights
@@ -41,71 +45,57 @@ class PlaygroundSceneView extends StatefulSceneView {
     // TODO: use only GlbModel.asset instead of poCreateModel
 
     // Car
-      // itemsToReturn.add(poGetModel(
-      // sequoiaAsset,
-      // Vector3.only(x: 0, y: 0, z: 0),
-      // Vector3.only(x: 1, y: 1, z: 1),
-      // Vector4(x: 0, y: 0, z: 0, w: 1),
-      // Collidable(isStatic: false, shouldMatchAttachedObject: true),
-      // null,
-      // true,
-      // true,
-      // const Uuid().v4(),
-      // true,
-      // false));
     models.add(GlbModel.asset(
-      sequoiaAsset,
-      centerPosition: Vector3.only(x: 0, y: 0, z: 0),
-      scale: Vector3.only(x: 1, y: 1, z: 1),
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
+      assetPath: sequoiaAsset,
+      position: Vector3(0, 0, 0),
+      scale: Vector3.all(1),
+      rotation: Quaternion.identity(),
       collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
       animation: null,
       receiveShadows: true,
       castShadows: true,
       name: sequoiaAsset,
-      guid: objectGuids['car']!.v4(),
-      keepInMemory: true,
-      isInstancePrimary: false,
+      id: objectGuids['car']!,
+      instancingMode: ModelInstancingType.instanced,
     ));
 
     // Garage
     models.add(GlbModel.asset(
-      garageAsset,
-      centerPosition: Vector3(0, 0, -16),
+      assetPath: garageAsset,
+      position: Vector3(0, 0, -16),
       scale: Vector3.all(1),
-      rotation: Vector4(w: 1),
+      rotation: Quaternion.identity(),
       castShadows: false,
       receiveShadows: true,
-      guid: objectGuids['garage']!.v4(),
+      id: objectGuids['garage']!,
+      name: "garageEnvironment"
     ));
 
     // Foxes
     models.add(GlbModel.asset(
-      foxAsset,
-      centerPosition: Vector3.only(x: 1, y: 0, z: 4),
-      scale: Vector3.only(x: 0.04, y: 0.04, z: 0.04),
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
+      assetPath: foxAsset,
+      position: Vector3(1, 0, 4),
+      scale: Vector3(0.04, 0.04, 0.04),
+      rotation: Quaternion.identity(),
       collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
       animation: Animation.byIndex(0, autoPlay: true),
       receiveShadows: true,
       castShadows: true,
-      guid: objectGuids['fox1']!.v4(),
-      keepInMemory: true,
-      isInstancePrimary: false,
+      id: objectGuids['fox1']!,
+      instancingMode: ModelInstancingType.instanced,
     ));
 
     models.add(GlbModel.asset(
-      foxAsset,
-      centerPosition: Vector3.only(x: -1, y: 0, z: 4),
-      scale: Vector3.only(x: 0.04, y: 0.04, z: 0.04),
-      rotation: Vector4(x: 0, y: 0, z: 0, w: 1),
+      assetPath: foxAsset,
+      position: Vector3(-1, 0, 4),
+      scale: Vector3(0.04, 0.04, 0.04),
+      rotation: Quaternion.identity(),
       collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
       animation: Animation.byIndex(1, autoPlay: true, notifyOfAnimationEvents: true),
       receiveShadows: true,
       castShadows: true,
-      guid: objectGuids['fox2']!.v4(),
-      keepInMemory: true,
-      isInstancePrimary: false,
+      id: objectGuids['fox2']!,
+      instancingMode: ModelInstancingType.instanced,
     ));
 
     return models;
@@ -115,51 +105,58 @@ class PlaygroundSceneView extends StatefulSceneView {
     final List<Shape> shapes = [];
 
     shapes.add(poCreateCube(
-      Vector3.only(x: 3, y: 1, z: 3),
-      Vector3.only(x: 2, y: 2, z: 2),
-      Vector3.only(x: 2, y: 2, z: 2),
+      Vector3(3, 1, 3),
+      Vector3(2, 2, 2),
+      Vector3(2, 2, 2),
       null,
+      'cube1',
     ));
 
     shapes.add(poCreateCube(
-      Vector3.only(x: 0, y: 1, z: 3),
-      Vector3.only(x: .1, y: 1, z: .1),
-      Vector3.only(x: 1, y: 1, z: 1), 
+      Vector3(0, 1, 3),
+      Vector3(.1, 1, .1),
+      Vector3(1, 1, 1), 
       null,
+      'cube2',
     ));
 
     shapes.add(poCreateCube(
-      Vector3.only(x: -3, y: 1, z: 3),
-      Vector3.only(x: .5, y: .5, z: .5),
-      Vector3.only(x: 1, y: 1, z: 1),
+      Vector3(-3, 1, 3),
+      Vector3(.5, .5, .5),
+      Vector3(1, 1, 1),
       null,
+      'cube3',
     ));
 
     shapes.add(poCreateSphere(
-      Vector3.only(x: 3, y: 1, z: -3),
-      Vector3.only(x: 1, y: 1, z: 1),
-      Vector3.only(x: 1, y: 1, z: 1),
+      Vector3(3, 1, -3),
+      Vector3(1, 1, 1),
+      Vector3(1, 1, 1),
       11, 5, null,
+      'sphere1',
     ));
 
     shapes.add(poCreateSphere(
-      Vector3.only(x: 0, y: 1, z: -3),
-      Vector3.only(x: 1, y: 1, z: 1),
-      Vector3.only(x: 1, y: 1, z: 1),
+      Vector3(0, 1, -3),
+      Vector3(2, 2, 2),
+      Vector3(1, 1, 1),
       20, 20, null,
+      'sphere2',
     ));
 
     shapes.add(poCreateSphere(
-      Vector3.only(x: -3, y: 1, z: -3),
-      Vector3.only(x: 1, y: .5, z: 1),
-      Vector3.only(x: 1, y: 1, z: 1),
+      Vector3(-3, 1, -3),
+      Vector3(1, .5, 1),
+      Vector3(1, 1, 1),
       20, 20, null,
+      'sphere3',
     ));
 
     shapes.add(poCreatePlane(
-      Vector3.only(x: -5, y: 1, z: 0),
-      Vector3.only(x: 1, y: 1, z: 1),
-      Vector3.only(x: 2, y: 1, z: 2),
+      Vector3(-5, 1, 0),
+      Vector3(1, 1, 1),
+      Vector3(2, 1, 2),
+      'smolPlane',
     ));
 
     return shapes;

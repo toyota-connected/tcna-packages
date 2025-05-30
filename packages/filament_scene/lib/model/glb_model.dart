@@ -6,83 +6,40 @@ part of 'model.dart';
 /// It bundles all the textures and mesh data into a single file.
 class GlbModel extends Model {
   /// creates glb model based on glb file asset path.
-  GlbModel.asset(
-    final String path, {
-    super.scale,
-    super.keepInMemory,
-    super.isInstancePrimary, 
+  GlbModel.asset({
+    required super.assetPath,
+    required super.scale,
+    super.instancingMode,
     super.collidable,
-    super.centerPosition,
+    required super.position,
     super.animation,
-    super.rotation,
+    required super.rotation,
     required super.castShadows,
     required super.receiveShadows,
     super.name,
-    super.guid
-  }) : 
-    assert(path.isNotEmpty, "path should not be empty"),
-    assert(path.contains('.glb'), "path should be a glb file path"),
-    // if is_primary_to_instance_from is true, it cannot have collidable and animation
-    assert(
-      isInstancePrimary == false || (collidable == null && animation == null),
-      "Primary model (instance template) cannot have collidable and animation",
-    ),
-    super(assetPath: path)
+    required super.id
+  }) :
+    assert(assetPath!.contains('.glb'), "path should be a glb file path"),
+    super()
   ;
 
-  /// creates glb model based on glb file url.
-  GlbModel.url(String url,
-      {super.scale, super.centerPosition
-        , super.keepInMemory
-        , super.isInstancePrimary
-      , super.animation, required bool receiveShadows, required bool castShadows})
-      : super(url: url, receiveShadows: receiveShadows
-                        , castShadows: castShadows);
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'assetPath': assetPath,
-    'url': url,
-    // TODO(kerberjg): update fields in Filament C++ API
-    'should_keep_asset_in_memory': keepInMemory,
-    'is_primary_to_instance_from': isInstancePrimary,
-    'scale': scale?.toJson(),
-    'collidable': collidable?.toJson(),
-    'rotation': rotation?.toJson(),
-    'centerPosition': centerPosition?.toJson(),
-    'animation': animation?.toJson(),
-    'castShadows': castShadows,
-    'receiveShadows': receiveShadows,
+    ...super.toJson(),
     'isGlb': true,
-    'name': name,
-    'global_guid' : guid,
   };
 
   @override
-  String toString() {
-    return 'GlbModel(assetPath: $assetPath, url: $url, scale: $scale, centerPosition: $centerPosition, animation: $animation)';
-  }
-
-  @override
+  // ignore: hash_and_equals
   bool operator ==(final  Object other) {
     if (identical(this, other)) return true;
 
     return
       other is GlbModel &&
       other.assetPath == assetPath &&
-      other.url == url &&
       other.scale == scale &&
-      other.centerPosition == centerPosition &&
+      other.position == position &&
       other.animation == animation;
-  }
-
-  @override
-  int get hashCode {
-    return
-      assetPath.hashCode ^
-      url.hashCode ^
-      scale.hashCode ^
-      centerPosition.hashCode ^
-      animation.hashCode;
   }
 }

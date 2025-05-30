@@ -12,15 +12,16 @@ class Sphere extends Shape {
   Vector3 size;
 
   Sphere({
-    required super.centerPosition,
+    required super.id,
+    required super.position,
     this.stacks,
     this.slices,
-    super.global_guid,
     super.name,
+    super.parentId,
     super.normal,
     super.material,
-    super.scale,
-    super.rotation,
+    required super.scale,
+    required super.rotation,
     super.collidable,
     required this.size,
     super.doubleSided,
@@ -31,28 +32,12 @@ class Sphere extends Shape {
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'name': name,
-    'global_guid' : global_guid,
-    'centerPosition': centerPosition?.toJson(),
-    'normal': normal?.toJson(),
-    'scale': scale?.toJson(),
+    ...super.toJson(),
     'size': size.toJson(),
     'stacks': stacks,
     'slices': slices,
-    'collidable': collidable?.toJson(),
-    'material': material?.toJson(),
     'shapeType': 3,
-    'rotation': rotation?.toJson(),
-    'doubleSided': doubleSided,
-    'cullingEnabled': cullingEnabled,
-    'receiveShadows': receiveShadows,
-    'castShadows': castShadows,
   };
-
-  @override
-  String toString() {
-    return 'Sphere(centerPosition: $centerPosition)';
-  }
 
   @override
   bool operator ==(final Object other) {

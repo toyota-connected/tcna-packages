@@ -1,5 +1,7 @@
+import 'package:filament_scene/math/vectors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:my_fox_example/scenes/planetarium_scene.dart';
 import 'package:my_fox_example/scenes/playground_scene.dart';
 import 'package:my_fox_example/scenes/radar_scene.dart';
 import 'package:my_fox_example/scenes/scene_view.dart';
@@ -90,6 +92,12 @@ class _MyAppState extends State<MyApp> {
         readinessController: _nativeReadiness,
       ),
       2 => SettingsSceneView(
+        filament: filamentViewApi,
+        frameController: _frameEventChannel, 
+        collisionController: _collisionEventChannel,
+        readinessController: _nativeReadiness,
+      ),
+      3 => PlanetariumSceneView(
         filament: filamentViewApi,
         frameController: _frameEventChannel, 
         collisionController: _collisionEventChannel,
@@ -191,6 +199,10 @@ class _MyAppState extends State<MyApp> {
                     child: const Text('Settings'),
                     onPressed: () => setState(() =>_setScene(2)),
                   ),
+                  MenuItemButton(
+                    child: const Text('Planetarium'),
+                    onPressed: () => setState(() =>_setScene(3)),
+                  ),
                 ],
               ),
             ),
@@ -216,18 +228,18 @@ class _MyAppState extends State<MyApp> {
             sensitivity: 150,
           ),
 
-          /*orbitHomePosition: Position.only(x: -40, y: 5, z: 0),
-          targetPosition: Position.only(x: -50.0, y: 0.0, z: 0.0),
+          /*orbitHomePosition: Position(-40, 5, 0),
+          targetPosition: Position(-50.0, 0.0, 0.0),
           // This is used as your extents when orbiting around an object
           // when the camera is set to inertiaAndGestures
-          flightStartPosition: Position.only(x: -25.0, y: 15.0, z: 0),
+          flightStartPosition: Position(-25.0, 15.0, 0),
 */
-          orbitHomePosition: Position.only(x: 0, y: 3.0, z: 0),
-          targetPosition: Position.only(x: 0.0, y: 0.0, z: 0.0),
+          orbitHomePosition: Position(0, 3.0, 0),
+          targetPosition: Position(0.0, 0.0, 0.0),
           // This is used as your extents when orbiting around an object
           // when the camera is set to inertiaAndGestures
-          flightStartPosition: Position.only(x: 8.0, y: 3.0, z: 8.0),
-          upVector: Position.only(x: 0.0, y: 1.0, z: 0.0),
+          flightStartPosition: Position(8.0, 3.0, 8.0),
+          upVector: Position(0.0, 1.0, 0.0),
           // how much ongoing rotation velocity effects, default 0.05
           inertia_rotationSpeed: 0.05,
           // 0-1 how much of a flick distance / delta gets multiplied, default 0.2

@@ -1,6 +1,8 @@
+import 'package:filament_scene/entity/entity.dart';
+import 'package:filament_scene/math/vectors.dart';
+import 'package:filament_scene/utils/guid.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:vector_math/vector_math_64.dart';
 import 'dart:io';
 import 'dart:math' as math;
 import '../shape_and_object_creators.dart';
@@ -15,7 +17,7 @@ import 'package:filament_scene/generated/messages.g.dart';
   const CollisionEvent(this.results, this.source, this.type);
   // TODO(kerberjg): make sure `results` is immutable
 
-  // //Received event: {collision_event_hit_count: 1, collision_event_hit_result_0: {guid: 73bcc636-16b2-41d0-813e-f4d95f52d67a, hitPosition: [-1.4180145263671875, 1.1819745302200317, -0.35870814323425293], name: assets/models/sequoia_ngp.glb}, collision_event_source: vOnTouch, collision_event_type: 1}
+  // //Received event: {collision_event_hit_count: 1, collision_event_hit_result_0: {id: 73bcc636-16b2-41d0-813e-f4d95f52d67a, hitPosition: [-1.4180145263671875, 1.1819745302200317, -0.35870814323425293], name: assets/models/sequoia_ngp.glb}, collision_event_source: vOnTouch, collision_event_type: 1}
   static CollisionEvent fromJson(Map<String, dynamic> json) {
     print(json);
 
@@ -24,12 +26,12 @@ import 'package:filament_scene/generated/messages.g.dart';
 
     for(int i = 0; i < resultCount; i++) {
       final Map<String, dynamic> hitResult = Map<String, dynamic>.from(json['collision_event_hit_result_$i']);
-      final String guild = hitResult['guid'];
+      final EntityGUID id = hitResult['guid'];
       final List<dynamic> hitPosition = hitResult['hitPosition'];
       final String name = hitResult['name'];
 
       results.add(CollisionEventHitResult(
-        guild,
+        id,
         Vector3(
           hitPosition[0].toDouble(),
           hitPosition[1].toDouble(),
@@ -53,15 +55,15 @@ import 'package:filament_scene/generated/messages.g.dart';
 }
 
 @immutable class CollisionEventHitResult {
-  final String guid;
+  final EntityGUID id;
   final Vector3 hitPosition;
   final String name;
 
-  const CollisionEventHitResult(this.guid, this.hitPosition, this.name);
+  const CollisionEventHitResult(this.id, this.hitPosition, this.name);
 
   @override
   String toString() {
-    return 'CollisionEventHitResult{guid: $guid, hitPosition: $hitPosition, name: $name}';
+    return 'CollisionEventHitResult{id: $id, hitPosition: $hitPosition, name: $name}';
   }
 }
 
@@ -70,8 +72,6 @@ typedef CollisionEventHandler = void Function(CollisionEvent event);
 class CollisionEventChannel {
   static const EventChannel _eventChannel =
       EventChannel('plugin.filament_view.collision_info');
-
-  bool bWriteEventsToLog = false;
 
   late FilamentViewApi filamentViewApi;
 
@@ -113,13 +113,13 @@ class CollisionEventChannel {
       _eventChannel.receiveBroadcastStream().listen(
         (event) {
           // Handle incoming event
-          if (bWriteEventsToLog) stdout.write('Received event: $event\n');
+          print('Received event: $event\n');
 
-          //Received event: {collision_event_hit_count: 1, collision_event_hit_result_0: {guid: 73bcc636-16b2-41d0-813e-f4d95f52d67a, hitPosition: [-1.4180145263671875, 1.1819745302200317, -0.35870814323425293], name: assets/models/sequoia_ngp.glb}, collision_event_source: vOnTouch, collision_event_type: 1}
+          //Received event: {collision_event_hit_count: 1, collision_event_hit_result_0: {guid: 1682202689430419,, hitPosition: [-1.4180145263671875, 1.1819745302200317, -0.35870814323425293], name: assets/models/sequoia_ngp.glb}, collision_event_source: vOnTouch, collision_event_type: 1}
 
           if (event.containsKey("collision_event_hit_result_0")) {
             Map<String, dynamic> hitResult = Map<String, dynamic>.from(event["collision_event_hit_result_0"]);
-            String guid = hitResult["guid"];
+            EntityGUID guid = hitResult["guid"];
 
             // Example: Change the material of the object that was touched
             // TODO: remove

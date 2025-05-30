@@ -1,8 +1,9 @@
 library light;
 
 import 'dart:ui';
-import 'package:filament_scene/scene/geometry/geometry.dart';
-import 'package:filament_scene/utils/colors_ext.dart';
+import 'package:filament_scene/entity/entity.dart';
+import 'package:filament_scene/utils/serialization.dart';
+import 'package:vector_math/vector_math.dart';
 
 /// Type of the direct that will be used in the scene.
 enum LightType {
@@ -55,10 +56,7 @@ enum LightType {
 ///
 /// Defaults to Directional light with  colorTemperature = 6_500.0, intensity = 100_000.0f,
 /// and direction = Direction(x:0.0, y:-1.0,z: 0.0), castShadows = true, cast light=false
-class Light {
-  /// used for communication back and forth from dart/native
-  final String global_guid;
-
+class Light extends Entity {
   /// Denotes the type of the light being created.
   LightType type;
 
@@ -144,7 +142,7 @@ class Light {
 
   // TODO(kerberjg): specify defaults in constructor as per docs above
   Light({
-    required this.global_guid,
+    required super.id,
     this.type = LightType.directional,
     this.color,
     this.colorTemperature,
@@ -165,8 +163,9 @@ class Light {
     assert(type != LightType.spot || direction != null, "Direction must be specified for spot lights")
   ;
 
+  @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'global_guid' : global_guid,
+    ...super.toJson(),
     'type': type.value,
     'color': color?.toHex(),
     'colorTemperature': colorTemperature,
@@ -182,11 +181,6 @@ class Light {
     'sunHaloSize': sunHaloSize,
     'sunHaloFalloff': sunHaloFalloff,
   };
-
-  @override
-  String toString() {
-    return 'Light(type: $type, color: $color, colorTemperature: $colorTemperature, intensity: $intensity, position: $position, direction: $direction, castLight: $castLight, castShadows: $castShadows, falloffRadius: $falloffRadius, spotLightConeInner: $spotLightConeInner, spotLightConeOuter: $spotLightConeOuter, sunAngularRadius: $sunAngularRadius, sunHaloSize: $sunHaloSize, sunHaloFalloff: $sunHaloFalloff)';
-  }
 
   @override
   bool operator ==(final Object other) {

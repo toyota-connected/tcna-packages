@@ -12,11 +12,11 @@ class AnimationEventChannel {
   Key: animation_event_data, Value: 1 // m_nCurrentPlayingIndex
   Key: animation_event_type, Value: 1 // AnimationEventType
   // what you would use to call functionality from the controller
-  Key: global_guid, Value: 184ee0b0-a280-4976-8eae-0a33083b315b
+  Key: id, Value: 184ee0b0-a280-4976-8eae-0a33083b315b
   Key: animation_event_data, Value: 1 // m_nCurrentPlayingIndex
   Key: animation_event_type, Value: 0 // AnimationEventType
   // what you would use to call functionality from the controller
-  Key: global_guid, Value: 184ee0b0-a280-4976-8eae-0a33083b315b
+  Key: id, Value: 184ee0b0-a280-4976-8eae-0a33083b315b
   */
 
   void initEventChannel() {
