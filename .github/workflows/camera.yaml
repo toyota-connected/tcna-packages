@@ -1,0 +1,47 @@
+name: "camera"
+
+on:
+  pull_request:
+    paths:
+      # in packages/camera/camera_linux
+      - "packages/camera/camera_linux/pubspec.yaml"
+      - "packages/camera/camera_linux/analysis_options.yaml"
+      - "packages/camera/camera_linux/pubspec.lock"
+      - "packages/camera/camera_linux/lib/**"
+      - "packages/camera/camera_linux/test/**"
+      - "packages/camera/camera_linux/linux_cpp/**"
+      - "packages/camera/camera_linux/pigeons/**"
+      # in packages/camera/camera_linux/example
+      - "packages/camera/camera_linux/example/pubspec.yaml"
+      - "packages/camera/camera_linux/example/lib/**"
+      - "packages/camera/camera_linux/example/test/**"
+      - "packages/camera/camera_linux/example/assets/**"
+      # workflow definition itself
+      - ".github/workflows/camera.yaml"
+      - ".github/workflows/ci.yaml"
+  push:
+    branches:
+      - main
+    paths:
+      # in packages/camera/camera_linux
+      - "packages/camera/camera_linux/pubspec.yaml"
+      - "packages/camera/camera_linux/analysis_options.yaml"
+      - "packages/camera/camera_linux/pubspec.lock"
+      - "packages/camera/camera_linux/lib/**"
+      - "packages/camera/camera_linux/test/**"
+      - "packages/camera/camera_linux/linux_cpp/**"
+      - "packages/camera/camera_linux/pigeons/**"
+      # in packages/camera/camera_linux/example
+      - "packages/camera/camera_linux/example/pubspec.yaml"
+      - "packages/camera/camera_linux/example/lib/**"
+      - "packages/camera/camera_linux/example/test/**"
+      - "packages/camera/camera_linux/example/assets/**"
+      # workflow definition itself
+      - ".github/workflows/camera.yaml"
+      - ".github/workflows/ci.yaml"
+
+jobs:
+  run_checks:
+    uses: ./.github/workflows/ci.yaml
+    with:
+      package-path: "packages/camera/camera_linux"
