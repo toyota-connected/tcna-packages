@@ -8,21 +8,20 @@ on:
   pull_request:
     paths:
       - ".github/workflows/spell-check.yaml"
-      - ".github/cspell.json"
-      - "**/*.md|"
-      - "!brick/**/*.md|"
-      - ".*/**/*.md"
+      - "lib/**"
+      - "test/**"
+      - "pubspec.yaml"
   push:
     branches:
       - main
     paths:
       - ".github/workflows/spell-check.yaml"
-      - ".github/cspell.json"
-      - "**/*.md|"
-      - "!brick/**/*.md|"
-      - ".*/**/*.md"
+      - "lib/**"
+      - "test/**"
+      - "pubspec.yaml"
 
 jobs:
+
   spell-check:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/spell_check.yml@v1
     with:
