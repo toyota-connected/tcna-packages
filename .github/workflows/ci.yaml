@@ -26,3 +26,6 @@ jobs:
       runs_on: ubuntu-latest
       setup: flutter doctor --verbose
       concurrency: 4
+
+env:
+  TEST_DATETIME: "2025-06-02T18:28:00Z"
