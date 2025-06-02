@@ -18,18 +18,19 @@ import 'package:pigeon/pigeon.dart';
 
 // TODO(kerberjg): Use Float32List instead of separate doubles for vectors and quaternions
 
-@ConfigurePigeon(PigeonOptions(
-  dartOut: 'generated/src/dart/messages.g.dart',
-  dartTestOut: 'generated/src/dart/test/test_api.g.dart',
-  cppHeaderOut: 'generated/src/cpp/messages.g.h',
-  cppSourceOut: 'generated/src/cpp/messages.g.cc',
-  cppOptions: CppOptions(
-    namespace: 'plugin_filament_view',
+@ConfigurePigeon(
+  PigeonOptions(
+    dartOut: 'generated/src/dart/messages.g.dart',
+    dartTestOut: 'generated/src/dart/test/test_api.g.dart',
+    cppHeaderOut: 'generated/src/cpp/messages.g.h',
+    cppSourceOut: 'generated/src/cpp/messages.g.cc',
+    cppOptions: CppOptions(
+      namespace: 'plugin_filament_view',
+    ),
+    copyrightHeader: 'pigeons/copyright.txt',
+    dartPackageName: 'filament_scene',
   ),
-  copyrightHeader: 'pigeons/copyright.txt',
-  dartPackageName: 'filament_scene',
-),)
-
+)
 @HostApi()
 abstract class FilamentViewApi {
   /*
@@ -37,6 +38,7 @@ abstract class FilamentViewApi {
    */
   /// Change material parameters for the given entity.
   void changeMaterialParameter(final Map<String?, Object?> params, final int id);
+
   /// Change material definition for the given entity.
   void changeMaterialDefinition(final Map<String?, Object?> params, final int id);
 
@@ -51,6 +53,7 @@ abstract class FilamentViewApi {
    */
   /// Cycle between view quality settings presets.
   void changeViewQualitySettings();
+
   /// Set fog options
   void setFogOptions(final bool enable);
 
@@ -63,8 +66,10 @@ abstract class FilamentViewApi {
   void changeCameraOrbitHomePosition(final double x, final double y, final double z);
   void changeCameraTargetPosition(final double x, final double y, final double z);
   void changeCameraFlightStartPosition(final double x, final double y, final double z);
+
   /// (For `INERTIA_AND_GESTURES` mode) Reset inertia camera to default values.
   void resetInertiaCameraToDefaultValues();
+
   /// Set camera rotation by a float value.
   void setCameraRotation(final double value);
 
@@ -73,10 +78,18 @@ abstract class FilamentViewApi {
   */
   /// Set a light's color and intensity by GUID.
   void changeLightColorByGUID(final int id, final String color, final int intensity);
+
   /// Set a light's transform by GUID. Deprecated.
   @Deprecated('Use changeTranslationByGUID and changeRotationByGUID instead')
-  void changeLightTransformByGUID(final int id, final double posx, final double posy,
-      final double posz, final double dirx, final double diry, final double dirz,);
+  void changeLightTransformByGUID(
+    final int id,
+    final double posx,
+    final double posy,
+    final double posz,
+    final double dirx,
+    final double diry,
+    final double dirz,
+  );
 
   /*
    *  Animations
@@ -95,20 +108,24 @@ abstract class FilamentViewApi {
   /// Perform a raycast query.
   /// The result will be sent back to the client via the collision_info event channel.
   void requestCollisionCheckFromRay(
-      final String queryID,
-      final double originX,
-      final double originY,
-      final double originZ,
-      final double directionX,
-      final double directionY,
-      final double directionZ,
-      final double length,);
+    final String queryID,
+    final double originX,
+    final double originY,
+    final double originZ,
+    final double directionX,
+    final double directionY,
+    final double directionZ,
+    final double length,
+  );
+
   /// Disable raycast checks for the given entity.
   /// NOTE: this will not hide the collider debug visual.
   void turnOffCollisionChecksForEntity(final int id);
+
   /// Enable raycast checks for the given entity.
   /// NOTE: this will not show the collider debug visual.
   void turnOnCollisionChecksForEntity(final int id);
+
   /// Enable/disable debug collidable visuals in the scene.
   void toggleDebugCollidableViewsInScene(final bool value);
 
@@ -118,7 +135,6 @@ abstract class FilamentViewApi {
   void setEntityTransformScale(final int id, final Float64List scl);
   void setEntityTransformPosition(final int id, final Float64List pos);
   void setEntityTransformRotation(final int id, final Float64List rot);
-
 
   // runtime visual
   void turnOffVisualForEntity(final int id);
