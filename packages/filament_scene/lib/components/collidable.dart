@@ -12,7 +12,7 @@ class Collidable {
   });
 
   // Convert the object to JSON
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'collidable_isStatic': isStatic,
         'collidable_shouldMatchAttachedObject': shouldMatchAttachedObject,
       };
@@ -22,7 +22,7 @@ class Collidable {
       'Collidable(collidable_isStatic: $isStatic, collidable_shouldMatchAttachedObject: $shouldMatchAttachedObject)';
 
   @override
-  bool operator ==(Object other) {
+  bool operator ==(final Object other) {
     if (identical(this, other)) return true;
 
     return other is Collidable &&

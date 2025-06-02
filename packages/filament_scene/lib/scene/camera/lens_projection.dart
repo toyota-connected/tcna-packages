@@ -21,7 +21,7 @@ class LensProjection {
   LensProjection({required this.focalLength, this.aspect, this.near, this.far});
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       "focalLength": focalLength,
       "aspect": aspect,
       "near": near,
@@ -35,7 +35,7 @@ class LensProjection {
   }
 
   @override
-  bool operator ==(Object other) {
+  bool operator ==(final Object other) {
     if (identical(this, other)) return true;
 
     return other is LensProjection &&

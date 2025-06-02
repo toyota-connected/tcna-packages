@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:my_fox_example/assets.dart';
 import 'package:filament_scene/generated/messages.g.dart';
 import 'package:my_fox_example/scenes/scene_view.dart';
-import 'package:my_fox_example/shape_and_object_creators.dart';
 import 'package:filament_scene/filament_scene.dart';
 
 
@@ -16,7 +15,7 @@ final List<EntityGUID> _radarSegmentPieceGUID = [];
 
 class RadarSceneView extends StatefulSceneView {
 
-  RadarSceneView({
+  const RadarSceneView({
     super.key,
     required super.filament,
     required super.frameController,
@@ -34,78 +33,86 @@ class RadarSceneView extends StatefulSceneView {
   static List<Model> getSceneModels() {
     final List<Model> models = [];
 
-      for (int i = 0; i < 10; i++) {
-    models.add(poGetModel(
-        sequoiaAsset,
-        Vector3(-40, 0, i * 5 - 25),
-        Vector3(1, 1, 1),
-        Quaternion.identity(),
-        null,
-        null,
-        true,
-        true,
-        generateGuid(),
-        ModelInstancingType.instanced,));
-  }
+    for (int i = 0; i < 10; i++) {
+      models.add(GlbModel.asset(
+        assetPath: sequoiaAsset,
+        position: Vector3(-40, 0, i * 5 - 25),
+        scale: Vector3.all(1),
+        rotation: Quaternion.identity(),
+        collidable: null,
+        animation: null,
+        receiveShadows: true,
+        castShadows: true,
+        name: "sequoia_$i",
+        id: generateGuid(),
+        instancingMode: ModelInstancingType.instanced,
+      ));
+    }
 
-  models.add(poGetModel(
-      roadAsset,
-      Vector3(-40, 0, 0),
-      Vector3(.4, .1, .2),
-      Quaternion.identity(),
-      null,
-      null,
-      true,
-      false,
-      generateGuid(),
-      ModelInstancingType.none));
+    models.add(GlbModel.asset(
+      assetPath: roadAsset,
+      position: Vector3(-40, 0, 0),
+      scale: Vector3(.4, .1, .2),
+      rotation: Quaternion.identity(),
+      collidable: null,
+      animation: null,
+      receiveShadows: true,
+      castShadows: false,
+      name: "road",
+      id: generateGuid(),
+      instancingMode: ModelInstancingType.none,
+    ));
 
-  EntityGUID id = generateGuid();
-  _radarConePieceGUID.add(id);
+    EntityGUID id = generateGuid();
+    _radarConePieceGUID.add(id);
 
-  models.add(poGetModel(
-      radarConeAsset,
-      Vector3(-42.1, 1, 0),
-      Vector3(4, 1, 3),
-      Quaternion.identity(),
-      null,
-      null,
-      false,
-      false,
-      id,
-      ModelInstancingType.none));
+    models.add(GlbModel.asset(
+      id: id,
+      assetPath: radarConeAsset,
+      name: "radarCone",
+      position: Vector3(-42.1, 1, 0),
+      scale: Vector3(4, 1, 3),
+      rotation: Quaternion.identity(),
+      collidable: null,
+      animation: null,
+      receiveShadows: false,
+      castShadows: false,
+      instancingMode: ModelInstancingType.none,
+    ));
 
-  // primary radar segment
-  // models.add(poGetModel(
-  //     radarSegmentAsset,
-  //     Vector3(0, 0, 0),
-  //     Vector3(1, 1, 1),
-  //     Quaternion(0.0, 0, 0, 1),
-  //     null,
-  //     null,
-  //     true,
-  //     true,
-  //     generateGuid(),
-  //     true,
-  //     true));
+    // primary radar segment
+    // models.add(poGetModel(
+    //     radarSegmentAsset,
+    //     Vector3(0, 0, 0),
+    //     Vector3.all(1),
+    //     Quaternion(0.0, 0, 0, 1),
+    //     null,
+    //     null,
+    //     true,
+    //     true,
+    //     generateGuid(),
+    //     true,
+    //     true));
 
-  for (int i = 0; i < 20; i++) {
-    EntityGUID idForSegment = generateGuid();
+    for (int i = 0; i < 20; i++) {
+      EntityGUID idForSegment = generateGuid();
 
-    models.add(poGetModel(
-        radarSegmentAsset,
-        Vector3(-42.2, 0, 0),
-        Vector3(0, 0, 0),
-        Quaternion(0.7071, 0, 0.7071, 0),
-        null,
-        null,
-        true,
-        true,
-        idForSegment,
-        ModelInstancingType.instanced));
+      models.add(GlbModel.asset(
+        id: idForSegment,
+        assetPath: radarSegmentAsset,
+        name: "radarSegment_$i",
+        position: Vector3(-42.2, 0, 0),
+        scale: Vector3(0, 0, 0),
+        rotation: Quaternion(0.7071, 0, 0.7071, 0),
+        collidable: null,
+        animation: null,
+        receiveShadows: true,
+        castShadows: true,
+        instancingMode: ModelInstancingType.instanced,
+      ));
 
-    _radarSegmentPieceGUID.add(idForSegment);
-  }
+      _radarSegmentPieceGUID.add(idForSegment);
+    }
 
     return models;
   }
@@ -167,7 +174,7 @@ class _RadarSceneViewState extends StatefulSceneViewState<RadarSceneView> {
   void onDestroy() {}
 
   @override
-  void onTriggerEvent(final String eventName, [final dynamic? eventData]) {
+  void onTriggerEvent(final String eventName, [final dynamic eventData]) {
     switch(eventName) {
       case "doOneWaveSegment":
         vDoOneWaveSegment(widget.filament);
@@ -209,7 +216,7 @@ class _RadarSceneViewState extends StatefulSceneViewState<RadarSceneView> {
       double moveDistance = segment.elapsedTime * 12; // Example movement distance
 
       // Apply the position and scale changes
-      vSetPositionAndScale(filamentView, segment.id, moveDistance, scaleFactor);
+      _setPositionAndScale(filamentView, segment.id, moveDistance, scaleFactor);
 
       // Debugging: Print the update
       // print('vUpdate: Moving segment ${segment.id} to positionOffset: $moveDistance, scaleFactor: $scaleFactor');
@@ -238,7 +245,7 @@ void vDoOneWaveSegment(FilamentViewApi filamentView) {
     inUse.add(segmentData); // Add to in-use list
 
     // Set the position and scale for this segment
-    vSetPositionAndScale(filamentView, segmentData.id, 0.0, 0.0);
+    _setPositionAndScale(filamentView, segmentData.id, 0.0, 0.0);
     filamentView
         .turnOnVisualForEntity(segmentData.id); // turnOnVisualForEntity
 
@@ -263,7 +270,7 @@ void vDo3RadarWaveSegments(FilamentViewApi filamentView) {
       inUse.add(segmentData); // Add to in-use list
 
       // Set the position and scale for this segment
-      vSetPositionAndScale(filamentView, segmentData.id, 0.0, 0.0);
+      _setPositionAndScale(filamentView, segmentData.id, 0.0, 0.0);
       filamentView
           .turnOnVisualForEntity(segmentData.id); // turnOnVisualForEntity
 
@@ -276,13 +283,11 @@ void vDo3RadarWaveSegments(FilamentViewApi filamentView) {
   }
 }
 
-// TODO(kerberjg): this should be inside the filament frame update logic
-@Deprecated("this should be inside the filament frame update logic")
-void vSetPositionAndScale(FilamentViewApi filamentView, EntityGUID id,
+void _setPositionAndScale(FilamentViewApi filamentView, EntityGUID id,
     double positionOffset, double scaleFactor) {
   // Placeholder function to set position and scale based on GUID
   // Add your custom logic for applying position and scale to the model
-  //print("vSetPositionAndScale: $id | positionOffset = $positionOffset, scaleFactor = $scaleFactor");
+  //print("_setPositionAndScale: $id | positionOffset = $positionOffset, scaleFactor = $scaleFactor");
 
   filamentView.setEntityTransformPosition(
     id,
@@ -317,7 +322,7 @@ void resetSegment(FilamentViewApi filamentView, EntityGUID id) {
 
     filamentView.turnOffVisualForEntity(id); // turnOnVisualForEntity
 
-    vSetPositionAndScale(filamentView, id, 0, 0);
+    _setPositionAndScale(filamentView, id, 0, 0);
 
     //print('resetSegment: Moved $id back to free list.');
   } else {

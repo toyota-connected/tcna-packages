@@ -5,11 +5,11 @@ class ColoredSkybox extends Skybox {
   ColoredSkybox({required super.color});
 
   @override
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'assetPath': assetPath,
         'url': url,
         'color': color?.toHex(),
-        'skyboxType': 3
+        'skyboxType': 3,
       };
 
   @override
@@ -18,7 +18,7 @@ class ColoredSkybox extends Skybox {
   }
 
   @override
-  bool operator ==(Object other) {
+  bool operator ==(final Object other) {
     if (identical(this, other)) return true;
 
     return other is ColoredSkybox && super == other && other.color == color;

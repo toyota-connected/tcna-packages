@@ -7,20 +7,17 @@ import 'package:filament_scene/shapes/shapes.dart';
 import 'package:filament_scene/utils/serialization.dart';
 import 'package:flutter/material.dart' hide Material;
 import 'package:my_fox_example/assets.dart';
-import 'package:my_fox_example/demo_widgets.dart';
 import 'package:my_fox_example/events/collision_event_channel.dart';
-import 'package:my_fox_example/main.dart';
 import 'package:my_fox_example/material_helpers.dart';
 import 'package:filament_scene/generated/messages.g.dart';
 import 'package:my_fox_example/scenes/scene_view.dart';
-import 'package:my_fox_example/shape_and_object_creators.dart';
 import 'package:filament_scene/filament_scene.dart';
 
 
 final Random random = Random();
 
 class SettingsSceneView extends StatefulSceneView {
-  SettingsSceneView({
+  const SettingsSceneView({
     super.key,
     required super.filament,
     required super.frameController,
@@ -36,7 +33,7 @@ class SettingsSceneView extends StatefulSceneView {
   static final Vector3 lightSize = Vector3(0.2, 0.2, 0.2);
 
   static final Vector3 wheelOffset = Vector3(1.75, 0.425, 0.85);
-  static final double wheelBackOffset = 0.4;
+  static const double wheelBackOffset = 0.4;
   static final Map<String, Vector3> wheelPositions = {
     'wheel_FL': carOrigin + Vector3(-wheelOffset.x,                   wheelOffset.y, wheelOffset.z),
     'wheel_FR': carOrigin + Vector3(-wheelOffset.x,                   wheelOffset.y, -wheelOffset.z),
@@ -211,7 +208,7 @@ class SettingsSceneView extends StatefulSceneView {
     final List<Shape> shapes = [];
 
     /// tree of nested cubes above the car
-    final tree_uuids = {
+    final treeUuids = {
       (generateGuid()): "tree_root",
       (generateGuid()): "tree_layer_1",
       (generateGuid()): "tree_layer_2",
@@ -222,11 +219,11 @@ class SettingsSceneView extends StatefulSceneView {
     /*
      *  Entity parenting example
      */ 
-    print("tree_uuids: $tree_uuids");
+    print("tree_uuids: $treeUuids");
     shapes.add(
       Cube(
-        id: tree_uuids.keys.elementAt(0),
-        name: tree_uuids.values.elementAt(0),
+        id: treeUuids.keys.elementAt(0),
+        name: treeUuids.values.elementAt(0),
         // TODO: this doesn't work because the model instantiation is so deferred that it doesn't exist on create time
         // parentId: objectGuids['car']!,
         // position: Vector3(15, 0.25, 10),
@@ -248,8 +245,8 @@ class SettingsSceneView extends StatefulSceneView {
           ),
           // tree layers
           Cube(
-            id: tree_uuids.keys.elementAt(1),
-            name: tree_uuids.values.elementAt(1),
+            id: treeUuids.keys.elementAt(1),
+            name: treeUuids.values.elementAt(1),
             position: Vector3(0, 2, 0), // relative to parent
             scale: Vector3(0.75, 1, 0.75),
             rotation: Quaternion.identity(),
@@ -257,8 +254,8 @@ class SettingsSceneView extends StatefulSceneView {
             material: poGetLitMaterial(Colors.green),
             children: [
               Cube(
-                id: tree_uuids.keys.elementAt(2),
-                name: tree_uuids.values.elementAt(2),
+                id: treeUuids.keys.elementAt(2),
+                name: treeUuids.values.elementAt(2),
                 position: Vector3(0, 2, 0), // relative to parent
                 scale: Vector3(0.75, 1, 0.75),
                 rotation: Quaternion.identity(),
@@ -266,8 +263,8 @@ class SettingsSceneView extends StatefulSceneView {
                 material: poGetLitMaterial(Colors.green),
                 children: [
                   Cube(
-                    id: tree_uuids.keys.elementAt(3),
-                    name: tree_uuids.values.elementAt(3),
+                    id: treeUuids.keys.elementAt(3),
+                    name: treeUuids.values.elementAt(3),
                     position: Vector3(0, 2, 0), // relative to parent
                     scale: Vector3(0.75, 1, 0.75),
                     rotation: Quaternion.identity(),
@@ -275,8 +272,8 @@ class SettingsSceneView extends StatefulSceneView {
                     material: poGetLitMaterial(Colors.green),
                     children: [
                       Cube(
-                        id: tree_uuids.keys.elementAt(4),
-                        name: tree_uuids.values.elementAt(4),
+                        id: treeUuids.keys.elementAt(4),
+                        name: treeUuids.values.elementAt(4),
                         position: Vector3(0, 2, 0), // relative to parent
                         scale: Vector3(0.25, 0.25, 0.25),
                         rotation: Quaternion.identity(),
@@ -334,22 +331,24 @@ class SettingsSceneView extends StatefulSceneView {
     // use cube as wipers
     Vector3 wiperOffset = Vector3(-1.3, 1.45, -0.45);
 
-    shapes.add(poCreateCube(
-      Vector3(72, 0, 68) + wiperOffset,
-      wiperSize,
-      wiperSize,
-      null,
-      'wiper1',
-      objectGuids['wiper1']!,
+    shapes.add(Cube(
+      id: objectGuids['wiper1']!,
+      name: 'wiper1',
+      position: Vector3(72, 0, 68) + wiperOffset,
+      scale: wiperSize,
+      rotation: Quaternion.identity(),
+      size: Vector3.all(1),
+      material: poGetLitMaterial(Colors.black),
     ));
 
-    shapes.add(poCreateCube(
-      Vector3(72, 0, 68) + wiperOffset - Vector3(0, 0, wiperOffset.z * 2),
-      wiperSize,
-      wiperSize,
-      null,
-      'wiper2',
-      objectGuids['wiper2']!,
+    shapes.add(Cube(
+      id: objectGuids['wiper2']!,
+      name: 'wiper2',
+      position: Vector3(72, 0, 68) + wiperOffset - Vector3(0, 0, wiperOffset.z * 2),
+      scale: wiperSize,
+      rotation: Quaternion.identity(),
+      size: Vector3.all(1),
+      material: poGetLitMaterial(Colors.black),
     ));
 
     return shapes;
@@ -607,13 +606,13 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
   }
 
   @override
-  void onTriggerEvent(final String eventName, [ final dynamic? eventData ]) {
+  void onTriggerEvent(final String eventName, [ final dynamic eventData ]) {
     if(eventName != "touchObject") return;
 
     final CollisionEvent event = eventData as CollisionEvent;
     final String name = event.results[0].name;
 
-    print('Touched object with name: ${name}');
+    print('Touched object with name: $name');
 
     // If touched any of the wheels...
     if(
@@ -622,7 +621,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
       name == 'wheel_BL' ||
       name == 'wheel_BR'
     ) {
-      print('Touched wheel ${name}');
+      print('Touched wheel $name');
 
       // Change camera position to wheel
       _cameraFocusOnTire(name);
@@ -639,7 +638,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     final Vector3 cameraLookAt = SettingsSceneView.wheelPositions[name]!;
     final Vector3 cameraLookFrom = SettingsSceneView.wheelCameraPositions[name]!;
 
-    print("Focusing on tire '${name}' at ${cameraLookAt} from ${cameraLookFrom}");
+    print("Focusing on tire '$name' at $cameraLookAt from $cameraLookFrom");
 
 
     widget.filament.changeCameraFlightStartPosition(
@@ -663,7 +662,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     }
 
 
-    print("Set camera to tire ${name}, look from ${cameraLookFrom} at ${cameraLookAt}");
+    print("Set camera to tire $name, look from $cameraLookFrom at $cameraLookAt");
 
 
     // widget.filament.resetInertiaCameraToDefaultValues();
@@ -681,11 +680,11 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
   bool _showSettings = false;
   late AnimationController _animationController;
 
-  ValueNotifier<double> _setting1 = ValueNotifier<double>(0.5);
-  ValueNotifier<double> _setting2 = ValueNotifier<double>(0.5);
-  ValueNotifier<double> _setting3 = ValueNotifier<double>(0.5);
+  final ValueNotifier<double> _setting1 = ValueNotifier<double>(0.5);
+  final ValueNotifier<double> _setting2 = ValueNotifier<double>(0.5);
+  final ValueNotifier<double> _setting3 = ValueNotifier<double>(0.5);
 
-  ValueNotifier<int> _menuSelected = ValueNotifier<int>(0);
+  final ValueNotifier<int> _menuSelected = ValueNotifier<int>(0);
 
   @override
   Widget build(BuildContext context) {
@@ -734,8 +733,8 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
 
   Widget _buildSettingsBottomSheet(BuildContext context) {
     ButtonStyle squareStyle = ButtonStyle(
-      padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(8)),
-      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+      padding: WidgetStateProperty.all<EdgeInsets>(const EdgeInsets.all(8)),
+      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
         RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -746,8 +745,10 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
         height: _screenHeight,
         width: 320,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.66),
-          borderRadius: BorderRadius.only(
+          color: Colors.white.withValues(
+            alpha: 240,
+          ),
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(16),
             topRight: Radius.circular(16),
           ),
@@ -780,8 +781,8 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
                     )
                   ),
                   // Title
-                  Padding(
-                    padding: const EdgeInsets.all(16),
+                  const Padding(
+                    padding: EdgeInsets.all(16),
                     child: Text(
                       'Settings',
                       style: TextStyle(
@@ -815,7 +816,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
                     2 => _buildLightSettings(context),
                     3 => _buildWiperSettings(context),
                     4 => _buildTireSettings(context),
-                    _ => Text("Unknown menu item"),
+                    _ => const Text("Unknown menu item"),
                   },
 
                   // Menu selector (buttons with icon and text)
@@ -915,7 +916,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
   MaterialParameter _paramColor = MaterialParameter.baseColor(color: Colors.white);
   MaterialParameter _paramRoughness = MaterialParameter.roughness(value: 0.8);
   MaterialParameter _paramMetalness = MaterialParameter.metallic(value: 0.0);
-  HSVColor _customColor = HSVColor.fromColor(Color(0xffff00ff));
+  HSVColor _customColor = HSVColor.fromColor(const Color(0xffff00ff));
 
   void _onSettingChanged() {
     // Update hue
@@ -943,9 +944,9 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
   Widget _buildMaterialSettings(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
-      SizedBox(height: 16),
+      const SizedBox(height: 16),
       // Slider 1: Ambient light
-      Text("Color"),
+      const Text("Color"),
       ListenableBuilder(
         listenable: _setting1,
         builder: (BuildContext context, Widget? child) => Slider(
@@ -959,7 +960,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
         )
       ),
       // Slider 2: Direct light
-      Text("Roughness"),
+      const Text("Roughness"),
       ListenableBuilder(
         listenable: _setting2,
         builder: (BuildContext context, Widget? child) => Slider(
@@ -973,7 +974,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
         )
       ),
       // Slider 3: Indirect light
-      Text("Metallic"),
+      const Text("Metallic"),
       ListenableBuilder(
         listenable: _setting3,
         builder: (BuildContext context, Widget? child) => Slider(
@@ -1004,11 +1005,11 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
   Widget _buildWiperSettings(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
-      SizedBox(height: 16),
+      const SizedBox(height: 16),
       // Switch 1: Show wipers
       Row(
         children: <Widget>[
-          Text("Show wipers"),
+          const Text("Show wipers"),
           ListenableBuilder(
             listenable: _showWipers,
             builder: (BuildContext context, Widget? child) => Switch(
@@ -1021,7 +1022,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
         ],
       ),
       // Slider 1: Wiper speed
-      Text("Wiper speed"),
+      const Text("Wiper speed"),
       ListenableBuilder(
         listenable: _wiperSpeed,
         builder: (BuildContext context, Widget? child) => Slider(
@@ -1040,11 +1041,11 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
   Widget _buildLightSettings(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
-      SizedBox(height: 16),
+      const SizedBox(height: 16),
       // Switch 1: Show lights
       Row(
         children: <Widget>[
-          Text("Show lights"),
+          const Text("Show lights"),
           ListenableBuilder(
             listenable: _showLights,
             builder: (BuildContext context, Widget? child) => Switch(
@@ -1059,7 +1060,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
       // Switch 2: Activate turning lights
       Row(
         children: <Widget>[
-          Text("Activate turning lights"),
+          const Text("Activate turning lights"),
           ListenableBuilder(
             listenable: _activateTurningLights,
             builder: (BuildContext context, Widget? child) => Switch(
@@ -1072,7 +1073,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
         ],
       ),
       // Slider 1: Light length
-      Text("Light length"),
+      const Text("Light length"),
       ListenableBuilder(
         listenable: _lightLength,
         builder: (BuildContext context, Widget? child) => Slider(
@@ -1085,7 +1086,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
         )
       ),
       // Slider 2: Light width
-      Text("Light width"),
+      const Text("Light width"),
       ListenableBuilder(
         listenable: _lightWidth,
         builder: (BuildContext context, Widget? child) => Slider(
@@ -1098,7 +1099,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
         )
       ),
       // Slider 3: Light angle X
-      Text("Light turning"),
+      const Text("Light turning"),
       ListenableBuilder(
         listenable: _lightAngleX,
         builder: (BuildContext context, Widget? child) => Slider(
@@ -1111,7 +1112,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
         )
       ),
       // Slider 4: Light angle Y
-      Text("Light height"),
+      const Text("Light height"),
       ListenableBuilder(
         listenable: _lightAngleY,
         builder: (BuildContext context, Widget? child) => Slider(
@@ -1124,7 +1125,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
         )
       ),
       // Slider 5: Light intensity
-      Text("Light intensity"),
+      const Text("Light intensity"),
       ListenableBuilder(
         listenable: _lightIntensity,
         builder: (BuildContext context, Widget? child) => Slider(
@@ -1157,7 +1158,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
   Widget _buildTireSettings(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
-      SizedBox(height: 16),
+      const SizedBox(height: 16),
       
       // All tire pressure sliders
       for(final entry in _tirePressures.entries) ...[
