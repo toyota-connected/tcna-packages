@@ -1,0 +1,63 @@
+name: "CI (Reusable)"
+
+on:
+  workflow_call:
+    inputs:
+      package-path:
+        description: "Path to the package to check"
+        type: string
+        required: true
+        default: "packages/filament_scene"
+
+jobs:
+  install:
+    name: "install"
+    defaults:
+      run:
+        working-directory: ${{ inputs.package-path }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/flutter-setup
+        with:
+          package-path: ${{ inputs.package-path }}
+
+  format:
+    name: "format"
+    defaults:
+      run:
+        working-directory: ${{ inputs.package-path }}
+    runs-on: ubuntu-latest
+    needs: install
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/flutter-setup
+        with:
+          package-path: ${{ inputs.package-path }}
+
+      - name: "dart format"
+        run: |
+          echo "Checking Dart formatting...\nFiles displayed below:"
+          dart format -o none --set-exit-if-changed ./**/*.dart
+          echo "No formatting issues found."
+
+  analyze:
+    name: "analyze"
+    defaults:
+      run:
+        working-directory: ${{ inputs.package-path }}
+    runs-on: ubuntu-latest
+    needs: install
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/flutter-setup
+        with:
+          package-path: ${{ inputs.package-path }}
+
+      - name: Run analysis
+        run: flutter analyze --fatal-warnings
+
+  # TODO: add a `test` job
