@@ -2,7 +2,7 @@ import 'dart:ffi';
 
 import 'package:flutter/foundation.dart';
 
-import './vectors.dart';
+import 'package:filament_scene/math/vectors.dart';
 
 /// Constructs a [Vector3] from a native pointer to a raw contiguous array of 3x floats (32-bit).
 Vector3 createVector3FromPointer(final Pointer<Float> pointer) {

@@ -237,7 +237,7 @@ Camera.autoOrbit({
           this.pan_angleCapX,
           this.pan_angleCapY,
           this.zoom_minCap,
-          this.zoom_maxCap
+          this.zoom_maxCap,
         }) {
           _mode = CameraMode.inertiaAndGestures;
         }
@@ -245,7 +245,7 @@ Camera.autoOrbit({
   // TODO(kerberjg): replace with serialization lib
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       "exposure": exposure?.toJson(),
       "projection": projection?.toJson(),
       "lensProjection": lensProjection?.toJson(),
@@ -274,7 +274,7 @@ Camera.autoOrbit({
       "pan_angleCapX" : pan_angleCapX,
       "pan_angleCapY" : pan_angleCapY,
       "zoom_minCap" : zoom_minCap,
-      "zoom_maxCap" : zoom_maxCap
+      "zoom_maxCap" : zoom_maxCap,
     };
   }
 
@@ -284,7 +284,7 @@ Camera.autoOrbit({
   }
 
   @override
-  bool operator ==(Object other) {
+  bool operator ==(final Object other) {
     if (identical(this, other)) return true;
 
     return other is Camera &&

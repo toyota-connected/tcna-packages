@@ -1,5 +1,4 @@
 import 'package:flutter/services.dart';
-import 'package:my_fox_example/scenes/scene_view.dart';
 import 'dart:io';
 import '../utils.dart';
 import 'package:filament_scene/generated/messages.g.dart';
@@ -40,7 +39,7 @@ class FrameEventChannel {
         (event) {
           // Handle incoming event
           if (bWriteEventsToLog) stdout.write('Received event: $event\n');
-          final double elapsedFrameTime = 0.016;
+          const double elapsedFrameTime = 0.016;
 
           if (event is Map) {
             //final elapsedFrameTime = event['elapsedFrameTime'];

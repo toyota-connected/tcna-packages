@@ -1,7 +1,5 @@
-import 'package:filament_scene/components/collidable.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/shapes/shapes.dart';
-import 'package:filament_scene/utils/guid.dart';
 import 'package:flutter/material.dart' hide Animation;
 import 'package:my_fox_example/assets.dart';
 import 'package:my_fox_example/scenes/planetarium_scene.dart';
@@ -10,139 +8,9 @@ import 'package:my_fox_example/scenes/radar_scene.dart';
 import 'package:my_fox_example/scenes/settings_scene.dart';
 import 'package:filament_scene/filament_scene.dart';
 
-import 'material_helpers.dart';
-
-
-// TODO(kerberjg): redudant, remove
-@Deprecated("Use GlbModel.asset instead")
-GlbModel poGetModel(
-    String assetPath,
-    Vector3 position,
-    Vector3 scale,
-    Quaternion rotation,
-    Collidable? collidable,
-    Animation? animationInfo,
-    bool bReceiveShadows,
-    bool bCastShadows,
-    EntityGUID? id,
-    ModelInstancingType instancingMode,
-  ) => GlbModel.asset(
-    assetPath: assetPath,
-    instancingMode: instancingMode,
-    animation: animationInfo,
-    collidable: collidable,
-    position: position,
-    scale: scale,
-    rotation: rotation,
-    name: assetPath,
-    receiveShadows: bReceiveShadows,
-    castShadows: bCastShadows,
-    id: id ?? generateGuid()
-  );
-
-////////////////////////////////////////////////////////////////////////////////
-// TODO(kerberjg): investigate and remove
-@Deprecated("Will be removed")
-List<EntityGUID> thingsWeCanChangeParamsOn = [];
-
-// TODO(kerberjg): refactor as `Cube.default`
-@Deprecated("Will be removed")
-Shape poCreateCube(Vector3 pos, Vector3 scale, Vector3 sizeExtents, Color? colorOveride, String name, [ EntityGUID? id ]) {
-  id ??= generateGuid();
-
-  // Just to show off changing material params during runtime.
-  thingsWeCanChangeParamsOn.add(id);
-
-  return Cube(
-      id: id,
-      name: name,
-      size: sizeExtents,
-      position: pos,
-      rotation: Quaternion.identity(),
-      scale: scale,
-      castShadows: true,
-      receiveShadows: true,
-      material: poGetLitMaterialWithRandomValues(),
-      collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
-      //material: colorOveride != null
-      //    ? poGetLitMaterial(colorOveride)
-      //    : poGetLitMaterialWithRandomValues(),
-      );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// TODO(kerberjg): refactor as `Sphere.default`
-@Deprecated("Will be removed")
-Shape poCreateSphere(Vector3 pos, Vector3 scale, Vector3 sizeExtents,
-    int stacks, int slices, Color? colorOveride, String name, [ EntityGUID? id ]) {
-  return Sphere(
-    position: pos,
-    rotation: Quaternion.identity(),
-    material: poGetTexturedMaterial(),
-    //material: poGetLitMaterial(null),
-    stacks: stacks,
-    collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
-    slices: slices,
-    cullingEnabled: false,
-    castShadows: true,
-    receiveShadows: true,
-    scale: scale,
-    size: sizeExtents,
-    id: id ?? generateGuid(),
-    name: name,
-  );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// TODO(kerberjg): refactor as `Plane.default`
-@Deprecated("Will be removed")
-Shape poCreatePlane(Vector3 pos, Vector3 scale, Vector3 sizeExtents, String name, [ EntityGUID? id ]) {
-  return Plane(
-      id: id ?? generateGuid(),
-      name: name,
-      doubleSided: true,
-      size: sizeExtents,
-      scale: scale,
-      castShadows: true,
-      receiveShadows: true,
-      position: pos,
-      collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
-
-      // facing UP
-      rotation: Quaternion(0, .7071, .7071, 0),
-      // identity
-      // rotation: Quaterion.identity(),
-      material: poGetTexturedMaterial());
-  //material: poGetLitMaterialWithRandomValues());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// TODO(kerberjg): investigate
-List<Shape> poCreateLineGrid() {
-  List<Shape> itemsToReturn = [];
-  double countExtents = 6;
-  for (double i = -countExtents; i <= countExtents; i += 2) {
-    for (int j = 0; j < 1; j++) {
-      for (double k = -countExtents; k <= countExtents; k += 2) {
-        itemsToReturn.add(poCreateCube(
-          Vector3(i, 0, k),
-          Vector3(1, 1, 1),
-          Vector3(1, 1, 1),
-          null,
-          'lineGrid???_subcube$k'
-        ));
-      }
-    }
-  }
-
-  return itemsToReturn;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // TODO(kerberjg): remove! Shapes will become components on scene entities, and this will go to init
-@Deprecated("Will be removed")
 List<Shape> poGetScenesShapes() {
-  //return poCreateLineGrid();
 
   List<Shape> itemsToReturn = [];
 
@@ -163,7 +31,6 @@ List<Shape> poGetScenesShapes() {
 
 ////////////////////////////////////////////////////////////////////////////////
 // TODO(kerberjg): refactor as an Entity
-@Deprecated("Will be removed")
 class MovingDemoLight {
   EntityGUID id;
   Vector3 origin;
@@ -194,7 +61,6 @@ List<MovingDemoLight> lightsWeCanChangeParamsOn = [];
 final EntityGUID centerPointLightGUID = generateGuid();
 
 // TODO(kerberjg): this should be initialized as components on scene entities
-@Deprecated("Will be removed")
 List<Light> poGetSceneLightsList() {
   List<Light> itemsToReturn = [];
 
@@ -408,7 +274,7 @@ List<Light> poGetSceneLightsList() {
 List<String> radarConePieceGUID = [];
 
 List<Model> poGetModelList() {
-@Deprecated("move to scene file")
+  // TODO(kerberjg): remove this, use scene files
   List<Model> itemsToReturn = [];
 
 

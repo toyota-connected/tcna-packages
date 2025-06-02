@@ -12,7 +12,7 @@ abstract class StatefulSceneView extends StatefulWidget {
   final CollisionEventChannel collisionController;
   final NativeReadiness readinessController;
 
-  StatefulSceneView({
+  const StatefulSceneView({
     super.key,
     required this.filament,
     required this.frameController,
@@ -36,7 +36,7 @@ abstract class StatefulSceneViewState<T extends StatefulSceneView> extends State
   void onUpdateFrame(FilamentViewApi filament, double dt);
 
   /// Called when an event by a given name is triggered
-  void onTriggerEvent(String eventName, [ dynamic? eventData ]);
+  void onTriggerEvent(String eventName, [ dynamic eventData ]);
 
   /// Called when the scene is unmounted - supercedes [State.dispose]
   void onDestroy();

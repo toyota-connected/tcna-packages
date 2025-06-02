@@ -1,6 +1,5 @@
 import 'package:filament_scene/math/vectors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:my_fox_example/scenes/planetarium_scene.dart';
 import 'package:my_fox_example/scenes/playground_scene.dart';
 import 'package:my_fox_example/scenes/radar_scene.dart';
@@ -10,7 +9,6 @@ import 'package:filament_scene/filament_scene.dart';
 import 'dart:async';
 import 'dart:io';
 import 'shape_and_object_creators.dart';
-import 'demo_widgets.dart';
 import 'events/animation_event_channel.dart';
 import 'events/frame_event_channel.dart';
 import 'events/collision_event_channel.dart';
@@ -161,7 +159,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: Colors.black.withOpacity(0.0),
+        backgroundColor: Colors.black.withAlpha(0),
         body: Stack(
           fit: StackFit.expand,
           children: [

@@ -13,10 +13,10 @@ class Entity {
 
   late final Scene scene;
 
-  EntityGUID? _parentId;
+  final EntityGUID? _parentId;
   Entity? get parent => scene.getEntity(_parentId!);
 
-  Iterable<EntityGUID> _children = <EntityGUID>[];
+  final Iterable<EntityGUID> _children = <EntityGUID>[];
   Iterable<Entity> get children => _children.map((final id) => scene.getEntity(id)!);
   /// List of children to be passed from the constructor. Only using at scene initialization.
   Iterable<Entity> tmpChildren = <Entity>[];
@@ -39,10 +39,10 @@ class Entity {
   }
 
 
-  // TODO: set parent
+  // TODO(kerberg): set parent
   EntityGUID? get parentId => _parentId;
 
-  // TODO: add/remove child
+  // TODO(kerberjg): add/remove child
 
   /// Returns a child entity with a given [name]
   Entity? getChildByName(final String name) => children.firstWhereOrNull((final child) => child.name == name);
@@ -67,7 +67,7 @@ class Entity {
     final List<JsonObject> flattenedChildren = <JsonObject>[];
 
     for (final Entity child in tmpChildren) {
-      final children = child.toFlatJson(isParent: false);
+      final List<JsonObject> children = child.toFlatJson(isParent: false);
       for(final JsonObject child in children) {
         child['parentId'] ??= id; // if already set, it's a grandchild
 
@@ -79,7 +79,7 @@ class Entity {
     final JsonObject thisJson = toJson();
     if(isParent) thisJson['children'] = null;
 
-    final data = <JsonObject>[
+    final List<JsonObject> data = <JsonObject>[
       thisJson,
       ...flattenedChildren,
     ];
@@ -92,7 +92,7 @@ class Entity {
   /// Overriding is not necessary, as it will call the subclass' [toJson] method to get the fields.
   String toString() {
     // ignore: no_runtimetype_tostring
-    return '$runtimeType(${toJson().entries.map((e) => '${e.key}: ${e.value}').join(', ')})';
+    return '$runtimeType(${toJson().entries.map((final e) => '${e.key}: ${e.value}').join(', ')})';
   }
 
   @override

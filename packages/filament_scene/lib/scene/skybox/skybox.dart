@@ -38,7 +38,7 @@ abstract class Skybox {
     this.url,
   });
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'assetPath': assetPath,
         'url': url,
         'color': color?.toHex,
@@ -50,7 +50,7 @@ abstract class Skybox {
   }
 
   @override
-  bool operator ==(Object other) {
+  bool operator ==(final Object other) {
     if (identical(this, other)) return true;
 
     return other is Skybox &&

@@ -7,14 +7,14 @@ part of 'skybox.dart';
 ///Filament provides an offline tool called cmgen that can consume an equirectangular image and produce these two files in one fell swoop.
 class KtxSkybox extends Skybox {
   /// Creates skybox object from ktx file from assets.
-  KtxSkybox.asset(String path) : super(assetPath: path);
+  KtxSkybox.asset(final String path) : super(assetPath: path);
 
   /// Creates skybox object from ktx file from url.
-  KtxSkybox.url(String url) : super(url: url);
+  KtxSkybox.url(final String url) : super(url: url);
 
   @override
   Map<String, dynamic> toJson() =>
-      {'assetPath': assetPath, 'url': url, 'skyboxType': 1};
+      <String, dynamic>{'assetPath': assetPath, 'url': url, 'skyboxType': 1};
 
   @override
   String toString() {
@@ -22,7 +22,7 @@ class KtxSkybox extends Skybox {
   }
 
   @override
-  bool operator ==(Object other) {
+  bool operator ==(final Object other) {
     if (identical(this, other)) return true;
 
     return other is KtxSkybox && super == other;
@@ -30,7 +30,7 @@ class KtxSkybox extends Skybox {
 
   @override
   int get hashCode {
-    final hash = super.hashCode;
+    final int hash = super.hashCode;
     return hash;
   }
 }

@@ -2,8 +2,6 @@ library model;
 
 import 'package:filament_scene/components/collidable.dart';
 import 'package:filament_scene/entity/entity.dart';
-import 'package:filament_scene/utils/serialization.dart';
-import 'package:vector_math/vector_math.dart';
 
 part 'animation.dart';
 part 'glb_model.dart';
@@ -69,7 +67,7 @@ abstract class Model extends TransformEntity {
   ;
 
   @override
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => <String, dynamic>{
     ...super.toJson(),
     'assetPath': assetPath,
     'instancingMode': instancingMode.value,
@@ -80,7 +78,7 @@ abstract class Model extends TransformEntity {
   };
 
   @override
-  bool operator ==(Object other) {
+  bool operator ==(final Object other) {
     if (identical(this, other)) return true;
 
     return other is Model &&
