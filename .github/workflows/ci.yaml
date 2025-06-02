@@ -10,19 +10,54 @@ on:
         default: "packages/filament_scene"
 
 jobs:
-  check-package:
-    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml@v1
-    with:
-      working_directory: "${{ inputs.package-path }}"
-      flutter_version: 3.32.0
-      runs_on: ubuntu-latest
-      setup: flutter doctor --verbose
-      concurrency: 4
-  check-example:
-    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml@v1
-    with:
-      working_directory: "${{ inputs.package-path }}/example"
-      flutter_version: 3.32.0
-      runs_on: ubuntu-latest
-      setup: flutter doctor --verbose
-      concurrency: 4
+  install:
+    name: "install"
+    defaults:
+      run:
+        working-directory: ${{ inputs.package-path }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/flutter-setup
+        with:
+          package-path: ${{ inputs.package-path }}
+
+  format:
+    name: "format"
+    defaults:
+      run:
+        working-directory: ${{ inputs.package-path }}
+    runs-on: ubuntu-latest
+    needs: install
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/flutter-setup
+        with:
+          package-path: ${{ inputs.package-path }}
+
+      - name: "dart format"
+        run: |
+          echo "Checking Dart formatting...\nFiles displayed below:"
+          dart format -o none --set-exit-if-changed ./**/*.dart
+          echo "No formatting issues found."
+
+  analyze:
+    name: "analyze"
+    defaults:
+      run:
+        working-directory: ${{ inputs.package-path }}
+    runs-on: ubuntu-latest
+    needs: install
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/flutter-setup
+        with:
+          package-path: ${{ inputs.package-path }}
+
+      - name: Run analysis
+        run: flutter analyze --fatal-warnings
+
+  # TODO: add a `test` job

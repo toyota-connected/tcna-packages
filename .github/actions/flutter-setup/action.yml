@@ -1,0 +1,45 @@
+
+# NOTE: Flutter version is defined here!
+
+name: "Flutter Setup"
+description: "Sets up a Flutter environment"
+inputs:
+  flutter-version:
+    description: "Version of Flutter to use"
+    type: string
+    required: false
+    default: "3.32.0"
+  flutter-channel:
+    description: "Flutter channel to use"
+    type: string
+    required: false
+    default: "stable"
+  package-path:
+    description: "Path to the package to check"
+    type: string
+    required: true
+    default: "./"
+runs:
+  using: "composite"
+
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check env
+      run: |
+        cd ${{ inputs.package-path }}
+        echo "Package path: $(pwd)"
+      shell: bash
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ inputs.flutter-version }}
+        channel: ${{ inputs.flutter-channel }}
+        cache: true
+        # NOTE: no need to specify cache-key and cache-path, defaults are sufficient
+
+    - name: Install dependencies
+      run: cd ${{ inputs.package-path }} && flutter pub get
+      shell: bash
