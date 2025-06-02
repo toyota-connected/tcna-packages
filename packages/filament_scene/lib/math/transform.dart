@@ -42,13 +42,13 @@ class TransformData {
 class Transform {
   final TransformData local;
   final TransformData global;
-  final Matrix4 _globalMatrix;
+  // final Matrix4 _globalMatrix;
 
   Transform({
     required this.local,
     required final Matrix4 globalMatrix,
   }) :
-    _globalMatrix = globalMatrix,
+    // _globalMatrix = globalMatrix,
     global = TransformData.fromMatrix(globalMatrix);
 
 }

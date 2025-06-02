@@ -1,4 +1,3 @@
-library light;
 
 import 'dart:ui';
 import 'package:filament_scene/entity/entity.dart';

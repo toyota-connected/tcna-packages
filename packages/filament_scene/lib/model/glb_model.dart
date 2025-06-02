@@ -17,7 +17,7 @@ class GlbModel extends Model {
     required super.castShadows,
     required super.receiveShadows,
     super.name,
-    required super.id
+    required super.id,
   }) :
     assert(assetPath!.contains('.glb'), "path should be a glb file path"),
     super()

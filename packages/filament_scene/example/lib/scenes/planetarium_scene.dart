@@ -1,5 +1,3 @@
-
-import 'package:filament_scene/components/collidable.dart';
 import 'package:filament_scene/filament_scene.dart';
 import 'package:filament_scene/generated/messages.g.dart';
 import 'package:filament_scene/math/vectors.dart';
@@ -7,13 +5,12 @@ import 'package:filament_scene/shapes/shapes.dart';
 import 'package:flutter/material.dart';
 import 'package:my_fox_example/material_helpers.dart';
 import 'package:my_fox_example/scenes/scene_view.dart';
-import 'package:my_fox_example/shape_and_object_creators.dart';
 
 class PlanetariumSceneView extends StatefulSceneView {
   static final Vector3 scenePosition = Vector3(-720, 0, 680);
   static final Vector3 cameraOffset = Vector3(0, 90, 0);
 
-  PlanetariumSceneView({
+  const PlanetariumSceneView({
     super.key,
     required super.filament,
     required super.frameController,
@@ -270,7 +267,7 @@ class _PlanetariumSceneViewState extends StatefulSceneViewState {
   }
 
   @override
-  void onTriggerEvent(final String eventName, [ final dynamic? eventData ]) {}
+  void onTriggerEvent(final String eventName, [ final dynamic eventData ]) {}
 
   double _timer = 60 * 10; // 10 minutes
 
@@ -281,7 +278,7 @@ class _PlanetariumSceneViewState extends StatefulSceneViewState {
     // rotate planets
     for(final String name in PlanetariumSceneView.planets) {
       final double speed = 1 / PlanetariumSceneView.planetSpeeds[name]! * 0.25;
-      final double distance = PlanetariumSceneView.planetDistances[name]!;
+      // final double distance = PlanetariumSceneView.planetDistances[name]!;
 
       // rotate around the sun
       final double angle = _timer * speed * 2 * 3.14;
@@ -302,6 +299,7 @@ class _PlanetariumSceneViewState extends StatefulSceneViewState {
   /*
    *  UI
    */
+  @override
   Widget build(BuildContext context) {
     return Container();
   }

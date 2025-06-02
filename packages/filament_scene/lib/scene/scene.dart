@@ -1,9 +1,4 @@
 import 'package:filament_scene/filament_scene.dart';
-import 'package:filament_scene/scene/camera/camera.dart';
-import 'package:filament_scene/scene/indirect_light/indirect_light.dart';
-import 'package:filament_scene/scene/light/light.dart';
-import 'package:filament_scene/scene/skybox/skybox.dart';
-import 'package:filament_scene/utils/guid.dart';
 
 /// An object that represents the scene to  be rendered with information about light, skybox and more.
 // TODO(kerberjg): separate into Scene(entities, camera) and SceneLighting(skybox, indirectLight)
@@ -26,9 +21,9 @@ class Scene {
   /*
    *  Serialization
    */
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => <String, dynamic>{
     'skybox': skybox?.toJson(),
-    'lights': lights?.map((light) => light.toJson()).toList(),
+    'lights': lights?.map((final light) => light.toJson()).toList(),
     'indirectLight': indirectLight?.toJson(),
     'camera': camera?.toJson(),
   };
@@ -39,7 +34,7 @@ class Scene {
   }
 
   @override
-  bool operator ==(Object other) {
+  bool operator ==(final Object other) {
     if (identical(this, other)) return true;
 
     return other is Scene &&
@@ -58,10 +53,10 @@ class Scene {
   }
 
   Scene copyWith({
-    Skybox? skybox,
-    IndirectLight? indirectLight,
-    List<Light>? lights,
-    Camera? camera,
+    final Skybox? skybox,
+    final IndirectLight? indirectLight,
+    final List<Light>? lights,
+    final Camera? camera,
   }) {
     return Scene(
       skybox: skybox ?? this.skybox,

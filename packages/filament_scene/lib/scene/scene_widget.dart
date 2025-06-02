@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:core';
 
 import 'package:collection/collection.dart';
+import 'package:filament_scene/filament_scene.dart' show Camera, IndirectLight, Light, Skybox;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -30,21 +30,21 @@ class SceneController {
     _channel = MethodChannel('${_channelName}_$id');
   }
 
-  /// Updates the current 3d scene view with the new [scene], [model], and [shapes].
+  /// Updates the current 3d scene view with the new [scene], [models], and [shapes].
   /// Returns true if the scene was updated successfully.
   Future<Result<bool>> updateFilamentScene({
     final Scene? scene,
     final List<Model>? models,
-    final List<Shape>? shapes
+    final List<Shape>? shapes,
   }) async {
 
     
-    final data = _channel.invokeMethod<bool>(
+    final Future<bool?> data = _channel.invokeMethod<bool>(
       _updateFilamentScene,
-      {
+      <String, Object?>{
         _updateFilamentSceneSceneKey: scene?.toJson(),
-        _updateFilamentSceneModelKey: models?.map((e) => e.toJson()).toList(),
-        _updateFilamentSceneShapesKey: shapes?.map((e) => e.toJson()).toList(),
+        _updateFilamentSceneModelKey: models?.map((final e) => e.toJson()).toList(),
+        _updateFilamentSceneShapesKey: shapes?.map((final e) => e.toJson()).toList(),
       },
     );
 
@@ -68,7 +68,7 @@ class SceneView extends StatefulWidget {
   /// provide details about the scene to be rendered.
   /// like skybox, light, camera, etc.
   /// Default scene is a transparent [Skybox] with default [Light] and default [IndirectLight]
-  /// with default [Camera] and no [Ground]
+  /// with default [Camera]
   final Scene? scene;
 
   /// List of shapes to be rendered.
@@ -125,11 +125,22 @@ class SceneView extends StatefulWidget {
       this.shapes,
       this.onCreated,
       this.gestureRecognizers =
-          const <Factory<OneSequenceGestureRecognizer>>{}});
+          const <Factory<OneSequenceGestureRecognizer>>{},});
 
   @override
   State<StatefulWidget> createState() {
     return ModelViewerState();
+  }
+
+  @override
+  void debugFillProperties(final DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(IterableProperty<Model>('models', models))
+      ..add(DiagnosticsProperty<Scene?>('scene', scene))
+      ..add(IterableProperty<Shape>('shapes', shapes))
+      ..add(ObjectFlagProperty<SceneCreatedCallback?>.has('onCreated', onCreated))
+      ..add(IterableProperty<Factory<OneSequenceGestureRecognizer>>('gestureRecognizers', gestureRecognizers));
   }
 }
 
@@ -147,7 +158,7 @@ class ModelViewerState extends State<SceneView> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     if (defaultTargetPlatform == TargetPlatform.android ||
         defaultTargetPlatform == TargetPlatform.linux) {
       return AndroidView(
@@ -163,15 +174,15 @@ class ModelViewerState extends State<SceneView> {
 
   void _setupCreationParams() {
     //final model = widget.models?.toJson();
-    final scene = widget.scene?.toJson();
+    final Map<String, dynamic>? scene = widget.scene?.toJson();
     _creationParams["models"] =
-        widget.models?.map((param) => param.toJson()).toList();
+        widget.models?.map((final param) => param.toJson()).toList();
     _creationParams["scene"] = scene;
     // _creationParams["shapes"] =
     //     widget.shapes?.map((param) => param.toJson()).toList();
     // use concatenated toFlatJson
     _creationParams["shapes"] = 
-        widget.shapes?.map((param) => param.toFlatJson()).flattenedToList;
+        widget.shapes?.map((final param) => param.toFlatJson()).flattenedToList;
 
     // pretty print json
     // JsonEncoder encoder = const JsonEncoder.withIndent('  ');
@@ -179,32 +190,32 @@ class ModelViewerState extends State<SceneView> {
     // debugPrint(json);
   }
 
-  void _onPlatformViewCreated(int id) {
-    final controller = SceneController(id: id);
+  void _onPlatformViewCreated(final int id) {
+    final SceneController controller = SceneController(id: id);
 
     _controller.complete(controller);
     if (widget.onCreated != null) {
-      widget.onCreated!(controller);
+      widget.onCreated?.call(controller);
     }
   }
 
   @override
-  void didUpdateWidget(SceneView oldWidget) {
+  void didUpdateWidget(final SceneView oldWidget) {
     super.didUpdateWidget(oldWidget);
     _updateWidget(oldWidget);
   }
 
-  void _updateWidget(SceneView? oldWidget) {
+  void _updateWidget(final SceneView? oldWidget) {
     _setupCreationParams();
     if (!listEquals(oldWidget?.models, widget.models) ||
         oldWidget?.scene != widget.scene ||
         !listEquals(oldWidget?.shapes, widget.shapes)) {
-      _updateScene();
+      unawaited(_updateScene());
     }
   }
 
   Future<void> _updateScene() async {
-    final controller = (await _controller.future);
+    final SceneController controller = (await _controller.future);
     await controller.updateFilamentScene(
       models: widget.models,
       scene: widget.scene,
