@@ -1,5 +1,4 @@
 import 'package:filament_scene/math/vectors.dart';
-import 'package:my_fox_example/shape_and_object_creators.dart';
 import 'package:filament_scene/filament_scene.dart';
 
 
@@ -29,7 +28,7 @@ List<Model> getBaseModels() {
   models.add(GlbModel.asset(
     assetPath: sequoiaAsset,
     position: Vector3(0, 0, 0),
-    scale: Vector3(1, 1, 1),
+    scale: Vector3.all(1),
     rotation: Quaternion(0, 0, 0, 1),
     collidable: null,
     animation: null,
@@ -44,7 +43,7 @@ List<Model> getBaseModels() {
   models.add(GlbModel.asset(
     assetPath: foxAsset,
     position: Vector3(0, 0, 0),
-    scale: Vector3(1, 1, 1),
+    scale: Vector3.all(1),
     rotation: Quaternion(0, 0, 0, 1),
     collidable: null,
     animation: null,
@@ -58,7 +57,7 @@ List<Model> getBaseModels() {
   models.add(GlbModel.asset(
     assetPath: radarConeAsset,
     position: Vector3(0, 0, 0),
-    scale: Vector3(1, 1, 1),
+    scale: Vector3.all(1),
     rotation: Quaternion(0, 0, 0, 1),
     collidable: null,
     animation: null,
@@ -73,7 +72,7 @@ List<Model> getBaseModels() {
   models.add(GlbModel.asset(
     assetPath: radarSegmentAsset,
     position: Vector3(0, 0, 0),
-    scale: Vector3(1, 1, 1),
+    scale: Vector3.all(1),
     rotation: Quaternion(0, 0, 0, 1),
     collidable: null,
     animation: null,

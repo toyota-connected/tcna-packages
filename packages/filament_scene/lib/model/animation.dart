@@ -32,7 +32,7 @@ class Animation {
        this.notifyOfAnimationEvents = false,
      });
 
-     Map<String, dynamic> toJson() => {
+     Map<String, dynamic> toJson() => <String, dynamic>{
            'index': index,
            'autoPlay': autoPlay,
            'loop': loop,
@@ -46,7 +46,7 @@ class Animation {
          'Animation(index: $index, autoPlay: $autoPlay, loop: $loop, resetToTPoseOnReset: $resetToTPoseOnReset, playbackSpeed: $playbackSpeed, notifyOfAnimationEvents: $notifyOfAnimationEvents)';
 
      @override
-     bool operator ==(Object other) {
+     bool operator ==(final Object other) {
        if (identical(this, other)) return true;
 
        return other is Animation &&

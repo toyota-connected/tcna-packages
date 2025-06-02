@@ -1,11 +1,9 @@
 import 'package:filament_scene/entity/entity.dart';
 import 'package:filament_scene/math/vectors.dart';
-import 'package:filament_scene/utils/guid.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
 import 'dart:math' as math;
-import '../shape_and_object_creators.dart';
 import '../material_helpers.dart';
 import 'package:filament_scene/generated/messages.g.dart';
 
@@ -122,17 +120,8 @@ class CollisionEventChannel {
             EntityGUID guid = hitResult["guid"];
 
             // Example: Change the material of the object that was touched
-            // TODO: remove
-            if (thingsWeCanChangeParamsOn.contains(guid)) {
-              Map<String, dynamic> ourJson =
-                  poGetRandomColorMaterialParam().toJson();
-              filamentViewApi.changeMaterialParameter(ourJson, guid);
-            } else {
-              Map<String, dynamic> ourJson =
-                  poGetLitMaterialWithRandomValues().toJson();
-              thingsWeCanChangeParamsOn.add(guid);
-              filamentViewApi.changeMaterialDefinition(ourJson, guid);
-            }
+            Map<String, dynamic> ourJson = poGetLitMaterialWithRandomValues().toJson();
+            filamentViewApi.changeMaterialDefinition(ourJson, guid);
 
             // Emit event
             final CollisionEvent collisionEvent = CollisionEvent.fromJson(Map<String, dynamic>.from(event));

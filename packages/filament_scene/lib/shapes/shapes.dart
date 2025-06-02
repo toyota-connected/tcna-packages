@@ -3,7 +3,6 @@ library shapes;
 import 'package:filament_scene/components/collidable.dart';
 import 'package:filament_scene/entity/entity.dart';
 import 'package:filament_scene/material/material.dart';
-import 'package:filament_scene/utils/guid.dart';
 import 'package:filament_scene/utils/serialization.dart';
 import 'package:vector_math/vector_math.dart';
 
@@ -53,8 +52,8 @@ class Shape extends TransformEntity {
     this.collidable,
     this.doubleSided = false,
     this.cullingEnabled = true,
-    this.castShadows = false,
-    this.receiveShadows = false,
+    this.castShadows = true,
+    this.receiveShadows = true,
   });
 
   @override

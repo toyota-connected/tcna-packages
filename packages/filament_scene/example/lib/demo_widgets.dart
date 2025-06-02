@@ -47,6 +47,7 @@ class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
   bool _toggleShapes = true;
   bool _toggleCollidableVisuals = false;
 
+  @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -138,6 +139,7 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
 
 
 
+  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -151,7 +153,7 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Direct Light', style: defaultTextStyle),
+          const Text('Direct Light', style: defaultTextStyle),
           const SizedBox(height: 8),
           SizedBox(
             width: 100,
@@ -161,8 +163,7 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
               onColorChanged: (Color color) {
                 setState(() {
                   _directLightColor = color;
-                  final String colorString =
-                      '#${_directLightColor.value.toRadixString(16).padLeft(8, '0')}';
+                  final String colorString = _directLightColor.toHexString(includeHashSign: true);
 
                   widget.filament.changeLightColorByGUID(
                     centerPointLightGUID,
@@ -184,7 +185,7 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Intensity', style: defaultTextStyle),
+                const Text('Intensity', style: defaultTextStyle),
                 Slider(
                   value: _directIntensity,
                   min: _minIntensity,
@@ -192,8 +193,7 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
                   onChanged: (double value) {
                     setState(() {
                       _directIntensity = value;
-                      final String colorString =
-                          '#${_directLightColor.value.toRadixString(16).padLeft(8, '0')}';
+                      final String colorString = _directLightColor.toHexString(includeHashSign: true);
 
                       widget.filament.changeLightColorByGUID(
                         centerPointLightGUID,
@@ -210,7 +210,7 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
           const SizedBox(height: 20),
 
           // -- CAMERA ROTATION SLIDER --
-          Text('Camera Rotation', style: defaultTextStyle),
+          const Text('Camera Rotation', style: defaultTextStyle),
           Slider(
             value: _cameraRotation,
             min: 0,

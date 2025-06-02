@@ -14,7 +14,7 @@ class HdrIndirectLight extends IndirectLight {
     'assetPath': assetPath,
     'url': url,
     'intensity': intensity,
-    'lightType': 2
+    'lightType': 2,
   };
 
   @override

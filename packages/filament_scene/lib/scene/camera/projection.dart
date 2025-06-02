@@ -58,7 +58,7 @@ class Projection {
       required this.bottom,
       required this.top,
       this.near,
-      this.far});
+      this.far,});
 
   ///Sets the projection matrix from the field-of-view.
   Projection.fromFov(
@@ -66,10 +66,10 @@ class Projection {
       required this.fovDirection,
       this.aspect,
       this.near,
-      this.far});
+      this.far,});
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       "projection": projection?.value,
       "left": left,
       "right": right,
@@ -89,7 +89,7 @@ class Projection {
   }
 
   @override
-  bool operator ==(Object other) {
+  bool operator ==(final Object other) {
     if (identical(this, other)) return true;
 
     return other is Projection &&

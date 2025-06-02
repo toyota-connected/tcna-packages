@@ -37,7 +37,7 @@ class Exposure {
   Exposure.formExposure({required this.exposure});
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       "aperture": aperture,
       "shutterSpeed": shutterSpeed,
       "sensitivity": sensitivity,
@@ -51,7 +51,7 @@ class Exposure {
   }
 
   @override
-  bool operator ==(Object other) {
+  bool operator ==(final Object other) {
     if (identical(this, other)) return true;
 
     return other is Exposure &&

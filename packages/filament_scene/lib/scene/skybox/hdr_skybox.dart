@@ -9,19 +9,15 @@ class HdrSkybox extends Skybox {
 
   /// creates skybox object from hdr file from assets.
   HdrSkybox.asset(
-    String path, {
-    bool showSun = false,
-  }) : super(assetPath: path);
+    final String path,) : super(assetPath: path);
 
   /// creates skybox object from hdr file from url.
   HdrSkybox.url(
-    String url, {
-    bool showSun = false,
-  }) : super(url: url);
+    final String url,) : super(url: url);
 
   @override
   Map<String, dynamic> toJson() =>
-      {'assetPath': assetPath, 'url': url, 'showSun': showSun, 'skyboxType': 2};
+      <String, dynamic>{'assetPath': assetPath, 'url': url, 'showSun': showSun, 'skyboxType': 2};
 
   @override
   String toString() {
@@ -29,7 +25,7 @@ class HdrSkybox extends Skybox {
   }
 
   @override
-  bool operator ==(Object other) {
+  bool operator ==(final Object other) {
     if (identical(this, other)) return true;
 
     return other is HdrSkybox && super == other && other.showSun == showSun;

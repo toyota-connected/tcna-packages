@@ -10,6 +10,9 @@
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
+  exclude:
+    - build/**
+    - lib/**.g.dart
   errors: 
     collection_methods_unrelated_type: error
     invalid_use_of_protected_member: error
@@ -21,6 +24,7 @@ analyzer:
     avoid_returning_this: ignore
     sort_pub_dependencies: ignore
     combinators_ordering: ignore
+    avoid_print: ignore
 
 linter:
   # The lint rules applied to this project can be customized in the
@@ -38,7 +42,7 @@ linter:
   - always_declare_return_types
   # - always_put_control_body_on_new_line
   # - always_put_required_named_parameters_first
-  - always_specify_types
+  - specify_nonobvious_local_variable_types
   - always_use_package_imports
   - annotate_overrides
   - annotate_redeclares
