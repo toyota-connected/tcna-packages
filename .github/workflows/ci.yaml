@@ -5,6 +5,7 @@ on:
     inputs:
       package-path:
         description: "Path to the package to check"
+        type: string
         required: true
         default: "packages/filament_scene"
 
@@ -18,7 +19,7 @@ jobs:
       setup: flutter doctor --verbose
       concurrency: 4
   check-example:
-    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package_example.yml@v1
+    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml@v1
     with:
       working_directory: "${{ inputs.package-path }}/example"
       flutter_version: 3.32.0

@@ -42,6 +42,6 @@ on:
 
 jobs:
   run_checks:
-    uses: .github/workflows/ci.yaml@v1
+    uses: ./.github/workflows/ci.yaml
     with:
       package-path: "packages/camera/camera_linux"
