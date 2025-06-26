@@ -56,11 +56,11 @@ class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
           onPressed: () {
             setState(() {
               _autoRotate = !_autoRotate;
-              if (_autoRotate) {
-                widget.filament.changeCameraMode("AUTO_ORBIT");
-              } else {
-                widget.filament.changeCameraMode("INERTIA_AND_GESTURES");
-              }
+              // if (_autoRotate) {
+              //   widget.filament.changeCameraMode("AUTO_ORBIT");
+              // } else {
+              //   widget.filament.changeCameraMode("INERTIA_AND_GESTURES");
+              // }
             });
           },
           child: Text(
@@ -71,7 +71,7 @@ class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
         ElevatedButton(
           onPressed: () {
             setState(() {
-              widget.filament.resetInertiaCameraToDefaultValues();
+              // widget.filament.resetInertiaCameraToDefaultValues();
             });
           },
           child: const Text('Reset'),
@@ -218,7 +218,7 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
             onChanged: (double value) {
               setState(() {
                 _cameraRotation = value;
-                widget.filament.setCameraRotation(_cameraRotation / 100);
+                // widget.filament.setCameraRotation(_cameraRotation / 100);
               });
             },
           ),

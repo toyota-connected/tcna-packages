@@ -219,38 +219,38 @@ class _MyAppState extends State<MyApp> {
       //indirectLight: poGetDefaultIndirectLight(),
       lights: poGetSceneLightsList(),
 
-      camera: Camera.inertiaAndGestures(
-          exposure: Exposure.formAperture(
-            aperture: 24.0,
-            shutterSpeed: 1 / 60,
-            sensitivity: 150,
-          ),
+//       camera: Camera.inertiaAndGestures(
+//           exposure: Exposure.formAperture(
+//             aperture: 24.0,
+//             shutterSpeed: 1 / 60,
+//             sensitivity: 150,
+//           ),
 
-          /*orbitHomePosition: Position(-40, 5, 0),
-          targetPosition: Position(-50.0, 0.0, 0.0),
-          // This is used as your extents when orbiting around an object
-          // when the camera is set to inertiaAndGestures
-          flightStartPosition: Position(-25.0, 15.0, 0),
-*/
-          orbitHomePosition: Position(0, 3.0, 0),
-          targetPosition: Position(0.0, 0.0, 0.0),
-          // This is used as your extents when orbiting around an object
-          // when the camera is set to inertiaAndGestures
-          flightStartPosition: Position(8.0, 3.0, 8.0),
-          upVector: Position(0.0, 1.0, 0.0),
-          // how much ongoing rotation velocity effects, default 0.05
-          inertia_rotationSpeed: 0.05,
-          // 0-1 how much of a flick distance / delta gets multiplied, default 0.2
-          inertia_velocityFactor: 0.2,
-          // 0-1 larger number means it takes longer for it to decay, default 0.86
-          inertia_decayFactor: 0.86,
-          pan_angleCapX: 15,
-          pan_angleCapY: 20,
-          // how close can you zoom in.
-          zoom_minCap: 3,
-          // max that you're able to zoom out.
-          zoom_maxCap: 10),
-    );
+//           /*orbitHomePosition: Position(-40, 5, 0),
+//           targetPosition: Position(-50.0, 0.0, 0.0),
+//           // This is used as your extents when orbiting around an object
+//           // when the camera is set to inertiaAndGestures
+//           flightStartPosition: Position(-25.0, 15.0, 0),
+// */
+//           orbitHomePosition: Position(0, 3.0, 0),
+//           targetPosition: Position(0.0, 0.0, 0.0),
+//           // This is used as your extents when orbiting around an object
+//           // when the camera is set to inertiaAndGestures
+//           flightStartPosition: Position(8.0, 3.0, 8.0),
+//           upVector: Position(0.0, 1.0, 0.0),
+//           // how much ongoing rotation velocity effects, default 0.05
+//           inertia_rotationSpeed: 0.05,
+//           // 0-1 how much of a flick distance / delta gets multiplied, default 0.2
+//           inertia_velocityFactor: 0.2,
+//           // 0-1 larger number means it takes longer for it to decay, default 0.86
+//           inertia_decayFactor: 0.86,
+//           pan_angleCapX: 15,
+//           pan_angleCapY: 20,
+//           // how close can you zoom in.
+//           zoom_minCap: 3,
+//           // max that you're able to zoom out.
+//           zoom_maxCap: 10),
+//     );
   }
 
   ////////////////////////////////////////////////////////////////////////

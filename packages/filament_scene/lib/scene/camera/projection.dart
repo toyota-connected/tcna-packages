@@ -14,6 +14,20 @@ enum ProjectionType {
   static ProjectionType from(final String? type) => ProjectionType.values.asNameMap()[type] ?? ProjectionType.perspective;
 }
 
+///Denotes a field-of-view direction.
+enum Fov {
+  /// The field-of-view angle is defined on the vertical axis.
+  vertical("VERTICAL"),
+
+  /// The field-of-view angle is defined on the horizontal axis.
+  horizontal("HORIZONTAL");
+
+  final String value;
+  const Fov(this.value);
+
+  static Fov from(final String? fov) => Fov.values.asNameMap()[fov] ?? Fov.vertical;
+}
+
 ///An object that controls camera projection matrix.
 class Projection {
   ///Denotes the projection type used by this camera.

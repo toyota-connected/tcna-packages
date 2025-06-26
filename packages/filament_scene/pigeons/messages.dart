@@ -58,22 +58,6 @@ abstract class FilamentViewApi {
   void setFogOptions(final bool enable);
 
   /*
-   *  Camera
-   */
-  /// Change the camera mode by name.
-  // TODO(kerberjg): refactor to use an enum instead of string
-  void changeCameraMode(final String mode);
-  void changeCameraOrbitHomePosition(final double x, final double y, final double z);
-  void changeCameraTargetPosition(final double x, final double y, final double z);
-  void changeCameraFlightStartPosition(final double x, final double y, final double z);
-
-  /// (For `INERTIA_AND_GESTURES` mode) Reset inertia camera to default values.
-  void resetInertiaCameraToDefaultValues();
-
-  /// Set camera rotation by a float value.
-  void setCameraRotation(final double value);
-
-  /*
    *  Lights
   */
   /// Set a light's color and intensity by GUID.
