@@ -379,16 +379,16 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
   }
 
   void _resetCamera({ bool autoOrbit = false}) {
-    if(autoOrbit) {
-      widget.filament.changeCameraMode("AUTO_ORBIT");
-    } else {
-      widget.filament.changeCameraMode("INERTIA_AND_GESTURES");
-    }
+    // if(autoOrbit) {
+    //   widget.filament.changeCameraMode("AUTO_ORBIT");
+    // } else {
+    //   widget.filament.changeCameraMode("INERTIA_AND_GESTURES");
+    // }
 
 
-    widget.filament.changeCameraOrbitHomePosition(64,3,64);
-    widget.filament.changeCameraTargetPosition(72,1,68);
-    widget.filament.changeCameraFlightStartPosition(64, 3, 64);
+    // widget.filament.changeCameraOrbitHomePosition(64,3,64);
+    // widget.filament.changeCameraTargetPosition(72,1,68);
+    // widget.filament.changeCameraFlightStartPosition(64, 3, 64);
 
     // fog
     widget.filament.setFogOptions(false);
@@ -641,25 +641,25 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     print("Focusing on tire '$name' at $cameraLookAt from $cameraLookFrom");
 
 
-    widget.filament.changeCameraFlightStartPosition(
-      cameraLookFrom.x,
-      cameraLookFrom.y,
-      cameraLookFrom.z,
-    );
+    // widget.filament.changeCameraFlightStartPosition(
+    //   cameraLookFrom.x,
+    //   cameraLookFrom.y,
+    //   cameraLookFrom.z,
+    // );
 
-    widget.filament.changeCameraTargetPosition(
-      cameraLookAt.x,
-      cameraLookAt.y,
-      cameraLookAt.z,
-    );
+    // widget.filament.changeCameraTargetPosition(
+    //   cameraLookAt.x,
+    //   cameraLookAt.y,
+    //   cameraLookAt.z,
+    // );
 
 
-    // If last character is 1, it's left - set camera angle
-    if(name.endsWith('L')) {  
-      widget.filament.setCameraRotation(pi * 0.5);
-    } else {
-      widget.filament.setCameraRotation(pi * -0.5);
-    }
+    // // If last character is 1, it's left - set camera angle
+    // if(name.endsWith('L')) {  
+    //   widget.filament.setCameraRotation(pi * 0.5);
+    // } else {
+    //   widget.filament.setCameraRotation(pi * -0.5);
+    // }
 
 
     print("Set camera to tire $name, look from $cameraLookFrom at $cameraLookAt");

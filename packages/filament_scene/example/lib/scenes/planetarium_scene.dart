@@ -238,21 +238,21 @@ class _PlanetariumSceneViewState extends StatefulSceneViewState {
     final Vector3 cameraOffset = PlanetariumSceneView.scenePosition + PlanetariumSceneView.cameraOffset;
 
     // set camera
-    widget.filament.changeCameraTargetPosition(
-      PlanetariumSceneView.scenePosition.x,
-      PlanetariumSceneView.scenePosition.y,
-      PlanetariumSceneView.scenePosition.z,
-    );
-    widget.filament.changeCameraOrbitHomePosition(
-      cameraOffset.x,
-      cameraOffset.y,
-      cameraOffset.z,
-    );
-    widget.filament.changeCameraFlightStartPosition(
-      cameraOffset.x,
-      cameraOffset.y,
-      cameraOffset.z,
-    );
+    // widget.filament.changeCameraTargetPosition(
+    //   PlanetariumSceneView.scenePosition.x,
+    //   PlanetariumSceneView.scenePosition.y,
+    //   PlanetariumSceneView.scenePosition.z,
+    // );
+    // widget.filament.changeCameraOrbitHomePosition(
+    //   cameraOffset.x,
+    //   cameraOffset.y,
+    //   cameraOffset.z,
+    // );
+    // widget.filament.changeCameraFlightStartPosition(
+    //   cameraOffset.x,
+    //   cameraOffset.y,
+    //   cameraOffset.z,
+    // );
 
     widget.filament.setFogOptions(false);
 

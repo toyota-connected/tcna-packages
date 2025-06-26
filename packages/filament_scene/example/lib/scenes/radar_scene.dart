@@ -163,9 +163,9 @@ class _RadarSceneViewState extends StatefulSceneViewState<RadarSceneView> {
 
   @override
   void onCreate() {
-    widget.filament.changeCameraOrbitHomePosition(-40, 4, 0);
-    widget.filament.changeCameraTargetPosition(-45, 1, 0);
-    widget.filament.changeCameraFlightStartPosition(-40, 6, 0);
+    // widget.filament.changeCameraOrbitHomePosition(-40, 4, 0);
+    // widget.filament.changeCameraTargetPosition(-45, 1, 0);
+    // widget.filament.changeCameraFlightStartPosition(-40, 6, 0);
 
     widget.filament.setFogOptions(false);
   }
