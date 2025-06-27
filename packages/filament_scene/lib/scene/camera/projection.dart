@@ -1,4 +1,3 @@
-part of 'camera.dart';
 
 ///Denotes the projection type used by this camera.
 enum ProjectionType {
@@ -31,56 +30,74 @@ enum Fov {
 ///An object that controls camera projection matrix.
 class Projection {
   ///Denotes the projection type used by this camera.
-  ProjectionType? projection;
+  final ProjectionType? projection;
 
   ///distance in world units from the camera to the left plane, at the near plane. Precondition: left != right
-  double? left;
+  final double? left;
 
   ///distance in world units from the camera to the right plane, at the near plane. Precondition: left != right
-  double? right;
+  final double? right;
 
   ///distance in world units from the camera to the bottom plane, at the near plane. Precondition: bottom != top
-  double? bottom;
+  final double? bottom;
 
   ///distance in world units from the camera to the top plane, at the near plane. Precondition: bottom != top
-  double? top;
+  final double? top;
 
   ///distance in world units from the camera to the near plane.
   /// The near plane's position in view space is z = -near.
   /// Precondition: near > 0 for ProjectionType.PERSPECTIVE or near != far for ProjectionType.ORTHO.
-  double? near;
+  final double? near;
 
   ///distance in world units from the camera to the far plane.
   /// The far plane's position in view space is z = -far.
   /// Precondition: far > near for ProjectionType.PERSPECTIVE or far != near for ProjectionType.ORTHO.
-  double? far;
+  final double? far;
 
   /// full field-of-view in degrees. 0 < fovInDegrees < 180
-  double? fovInDegrees;
+  final double? fovInDegrees;
 
   /// aspect ratio width/height. aspect > 0
-  double? aspect;
+  final double? aspect;
 
   ///direction of the field-of-view parameter.
-  Fov? fovDirection;
-
-  ///Sets the projection matrix from a frustum defined by six planes.
-  Projection.fromPlanes(
-      {required this.projection,
-      required this.left,
-      required this.right,
-      required this.bottom,
-      required this.top,
-      this.near,
-      this.far,});
+  final Fov? fovDirection;
 
   ///Sets the projection matrix from the field-of-view.
-  Projection.fromFov(
-      {required this.fovInDegrees,
-      required this.fovDirection,
-      this.aspect,
-      this.near,
-      this.far,});
+  const Projection({
+    this.projection = ProjectionType.perspective,
+    this.fovInDegrees = 60.0,
+    this.fovDirection = Fov.vertical,
+    this.aspect,
+    this.near,
+    this.far,
+  }) :
+    left = null,
+    right = null,
+    bottom = null,
+    top = null,
+    assert(fovInDegrees != null && fovInDegrees > 0 && fovInDegrees < 180, "Field of view must be between 0 and 180 degrees"),
+    assert(aspect == null || aspect > 0, "Aspect ratio must be greater than 0"),
+    assert(near == null || near > 0, "Near must be greater than 0 for perspective projection");
+    // assert(far == null || far > near!, "Far must be greater than near for perspective projection");
+
+  ///Sets the projection matrix from a frustum defined by six planes.
+  const Projection.fromPlanes({
+    required this.projection,
+    required this.left,
+    required this.right,
+    required this.bottom,
+    required this.top,
+    this.near,
+    this.far,
+  }) :
+    aspect = null,
+    fovInDegrees = null,
+    fovDirection = null,
+    assert(left != null && right != null && left < right, "Left must be less than right"),
+    assert(bottom != null && top != null && bottom < top, "Bottom must be less than top"),
+    assert(near == null || near > 0, "Near must be greater than 0 for perspective projection");
+    // assert(far == null || far > near!, "Far must be greater than near for perspective projection");
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
