@@ -16,7 +16,7 @@
 
 import 'package:pigeon/pigeon.dart';
 
-// TODO(kerberjg): Use Float32List instead of separate doubles for vectors and quaternions
+// TODO(kerberjg): Use Float32List instead of Float64List or double/float
 
 @ConfigurePigeon(
   PigeonOptions(
@@ -58,8 +58,27 @@ abstract class FilamentViewApi {
   void setFogOptions(final bool enable);
 
   /*
+   *  Camera
+   */
+  /// Set the camera's targeting
+  void setCameraTarget(
+    final int id,
+    final Float64List? targetPosition,
+    final int targetEntityId,
+  );
+
+  /// Set a given camera as the active camera for a view
+  void setActiveCamera(
+    /// View ID to set the camera for.
+    /// If null, the default view will be used.
+    final int? viewId,
+    /// EntityGUID of the camera to set as active.
+    final int cameraId,
+  );
+
+  /*
    *  Lights
-  */
+   */
   /// Set a light's color and intensity by GUID.
   void changeLightColorByGUID(final int id, final String color, final int intensity);
 
