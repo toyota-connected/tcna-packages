@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:filament_scene/generated/messages.g.dart';
 import 'package:filament_scene/math/vectors.dart';
@@ -154,4 +156,39 @@ class TransformEntity extends Entity {
     'scale': scale.toJson(),
     'rotation': rotation.toJson(),
   };
+
+  // TODO(kerberjg): instead of explicit setters, get vector array address on init
+
+  /// Sets the local position of this entity.
+  void setLocalPosition([final Position? newPosition]) {
+    if(newPosition != null) position.setFrom(newPosition);
+    unawaited(engine.setEntityTransformPosition(id, position.storage64));
+  }
+
+  /// Sets the local scale of this entity.
+  void setLocalScale([final Scale? newScale]) {
+    if(newScale != null) scale.setFrom(newScale);
+    unawaited(engine.setEntityTransformScale(id, scale.storage64));
+  }
+
+  /// Sets the local rotation of this entity.
+  void setLocalRotation([final Quaternion? newRotation]) {
+    if(newRotation != null) rotation.setFrom(newRotation);
+    unawaited(engine.setEntityTransformRotation(id, rotation.storage64));
+  }
+
+  /// Sets the local rotation of this entity from Euler angles.
+  /// The angles are in radians.
+  void setLocalRotationFromEuler(final Vector3 rad) {
+    rotation.setEulerRadians(rad.x, rad.y, rad.z);
+    setLocalRotation();
+  }
+
+
+  /// Flushes the current transform state to the engine
+  void updateTransform() {
+    unawaited(engine.setEntityTransformPosition(id, position.storage64));
+    unawaited(engine.setEntityTransformScale(id, scale.storage64));
+    unawaited(engine.setEntityTransformRotation(id, rotation.storage64));
+  }
 }
