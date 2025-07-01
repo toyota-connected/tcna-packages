@@ -28,6 +28,8 @@ analyzer:
     sort_pub_dependencies: ignore
     combinators_ordering: ignore
     avoid_print: ignore
+    library_prefixes: ignore
+    unnecessary_this: ignore
 
 linter:
   # The lint rules applied to this project can be customized in the

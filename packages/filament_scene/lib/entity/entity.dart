@@ -49,6 +49,7 @@ class Entity {
     return _engine!;
   }
 
+  @mustCallSuper
   void initialize(final FilamentViewApi engine) {
     if (_engine != null) {
       throw StateError('Entity is already initialized with a FilamentViewApi engine.');
