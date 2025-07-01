@@ -1,5 +1,6 @@
 
 import 'package:collection/collection.dart';
+import 'package:filament_scene/generated/messages.g.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/scene/scene.dart';
 import 'package:filament_scene/utils/serialization.dart';
@@ -37,6 +38,23 @@ class Entity {
       'Direct children should not have a parentId set. When adding children, leave the parentId null.',
     );
   }
+
+  FilamentViewApi? _engine;
+  @protected FilamentViewApi get engine {
+    if (_engine == null) {
+      throw StateError('Entity is not initialized with a FilamentViewApi engine.');
+    }
+    return _engine!;
+  }
+
+  void initialize(final FilamentViewApi engine) {
+    if (_engine != null) {
+      throw StateError('Entity is already initialized with a FilamentViewApi engine.');
+    }
+
+    _engine = engine;
+  }
+
 
 
   // TODO(kerberg): set parent
