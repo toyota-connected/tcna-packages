@@ -1,3 +1,4 @@
+import 'package:filament_scene/camera/camera.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/shapes/shapes.dart';
 import 'package:flutter/material.dart' hide Animation;
@@ -334,4 +335,15 @@ Light poGetDefaultPointLight(Color directLightColor, double intensity) {
       falloffRadius: 300.1, // what base is this in? meters?
       position: Vector3(0, 5, 1),
       direction: Vector3(0, 1, 0));
+}
+
+List<Camera> poGetScenesCameras() {
+  List<Camera> itemsToReturn = [];
+
+  itemsToReturn.addAll(PlaygroundSceneView.getSceneCameras());
+  itemsToReturn.addAll(RadarSceneView.getSceneCameras());
+  itemsToReturn.addAll(SettingsSceneView.getSceneCameras());
+  // itemsToReturn.addAll(PlanetariumSceneView.getSceneCameras());
+
+  return itemsToReturn;
 }

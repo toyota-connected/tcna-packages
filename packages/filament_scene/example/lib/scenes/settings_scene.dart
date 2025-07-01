@@ -1,7 +1,9 @@
 
 import 'dart:math';
 
+import 'package:filament_scene/camera/camera.dart';
 import 'package:filament_scene/components/collidable.dart';
+import 'package:filament_scene/math/utils.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/shapes/shapes.dart';
 import 'package:filament_scene/utils/serialization.dart';
@@ -55,6 +57,8 @@ class SettingsSceneView extends StatefulSceneView {
   ));
 
   static final Map<String, EntityGUID> objectGuids = {
+    'camera': generateGuid(),
+    
     'car': generateGuid(),
     'floor1': generateGuid(),
     'floor2': generateGuid(),
@@ -89,6 +93,18 @@ class SettingsSceneView extends StatefulSceneView {
     'bg_shape_0': generateGuid(),
     'bg_shape_1': generateGuid(),
   };
+  
+  static final Camera _sceneCamera = Camera(
+    id: objectGuids['camera']!,
+    targetPoint: carOrigin,
+    orbitAngles: Vector2(radians(14.85), radians(45)),
+    targetDistance: 11.71,
+    name: 'camera',
+  );
+
+  static List<Camera> getSceneCameras() {
+    return [ _sceneCamera ];
+  }
 
   static List<Model> getSceneModels() {
     final List<Model> models = [];
@@ -385,10 +401,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     //   widget.filament.changeCameraMode("INERTIA_AND_GESTURES");
     // }
 
-
-    // widget.filament.changeCameraOrbitHomePosition(64,3,64);
-    // widget.filament.changeCameraTargetPosition(72,1,68);
-    // widget.filament.changeCameraFlightStartPosition(64, 3, 64);
+    SettingsSceneView._sceneCamera.setActive();
 
     // fog
     widget.filament.setFogOptions(false);

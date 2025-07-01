@@ -1,6 +1,7 @@
 import 'dart:math' as Math;
-
 import 'package:filament_scene/math/vectors.dart';
+
+export 'package:vector_math/vector_math.dart' show radians, degrees;
 
 /// Converts spherical coordinates (Euler angles X and Y in radians) to Cartesian coordinates
 /// given a distance radius.
@@ -20,3 +21,4 @@ Vector3 sphericalToCartesian(
     radius * cosX * Math.cos(y),
   );
 }
+
