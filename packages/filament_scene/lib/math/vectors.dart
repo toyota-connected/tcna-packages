@@ -6,6 +6,18 @@ extension Vector3WithExtras on Vector3 {
   /// Construct a [Vector3] from a [Vector3Data].
   static Vector3 fromData(final Vector3Data data) => Vector3(data.x, data.y, data.z);
 
+  Quaternion toQuaternionDegrees() {
+    final Quaternion q = Quaternion.identity()
+    ..setEulerDegrees(x, y, z);
+    return q;
+  }
+
+  Quaternion toQuaternionRadians() {
+    final Quaternion q = Quaternion.identity()
+    ..setEulerRadians(x, y, z);
+    return q;
+  }
+
   /// Multiply each component of the vector by the corresponding component of the other vector.
   Vector3 mul(final Vector3 other) => Vector3(x * other.x, y * other.y, z * other.z);
 

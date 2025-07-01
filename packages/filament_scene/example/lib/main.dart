@@ -250,15 +250,17 @@ class _MyAppState extends State<MyApp> {
 //           zoom_minCap: 3,
 //           // max that you're able to zoom out.
 //           zoom_maxCap: 10),
-//     );
+    );
   }
 
   ////////////////////////////////////////////////////////////////////////
   SceneView poGetFilamentScene() {
     return SceneView(
+      filament: filamentViewApi,
       models: poGetModelList(),
       scene: poGetScene(),
       shapes: poGetScenesShapes(),
+      cameras: poGetScenesCameras(),
       onCreated: (SceneController controller) async {
         print('poGetFilamentScene onCreated');
 

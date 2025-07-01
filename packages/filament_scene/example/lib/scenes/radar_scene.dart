@@ -1,4 +1,5 @@
 
+import 'package:filament_scene/camera/camera.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/shapes/shapes.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:my_fox_example/assets.dart';
 import 'package:filament_scene/generated/messages.g.dart';
 import 'package:my_fox_example/scenes/scene_view.dart';
 import 'package:filament_scene/filament_scene.dart';
+import 'package:filament_scene/math/utils.dart';
 
 
 
@@ -26,9 +28,21 @@ class RadarSceneView extends StatefulSceneView {
   @override
   _RadarSceneViewState createState() => _RadarSceneViewState();
 
-  static const Map<String, EntityGUID> objectGuids = {
-
+  static final Map<String, EntityGUID> objectGuids = {
+    'camera': generateGuid(),
   };
+
+  static final Camera _sceneCamera = Camera(
+    id: objectGuids['camera']!,
+    targetPoint: Vector3(-45, 1, 0),
+    orbitAngles: Vector2(radians(14.85), radians(45)),
+    targetDistance: 11.71,
+    name: 'camera',
+  );
+
+  static List<Camera> getSceneCameras() {
+    return [ _sceneCamera ];
+  }
 
   static List<Model> getSceneModels() {
     final List<Model> models = [];
@@ -166,6 +180,7 @@ class _RadarSceneViewState extends StatefulSceneViewState<RadarSceneView> {
     // widget.filament.changeCameraOrbitHomePosition(-40, 4, 0);
     // widget.filament.changeCameraTargetPosition(-45, 1, 0);
     // widget.filament.changeCameraFlightStartPosition(-40, 6, 0);
+    RadarSceneView._sceneCamera.setActive();
 
     widget.filament.setFogOptions(false);
   }

@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:core';
 
 import 'package:collection/collection.dart';
+import 'package:filament_scene/camera/camera.dart';
 import 'package:filament_scene/filament_scene.dart' show Camera, IndirectLight, Light, Skybox;
+import 'package:filament_scene/generated/messages.g.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -59,6 +61,10 @@ const String _updateFilamentSceneShapesKey = "UPDATE_FILAMENT_SCENE_SHAPES_KEY";
 
 
 class SceneView extends StatefulWidget {
+  /// FilamentViewApi instance to be used for rendering the scene.
+  final FilamentViewApi filament;
+
+
   /// Model to be rendered.
   /// provide details about the model to be rendered.
   /// like asset path, url, animation, etc.
@@ -80,6 +86,14 @@ class SceneView extends StatefulWidget {
   /// [Sphere]
   /// [Plane]
   final List<Shape>? shapes;
+
+  /// List of cameras to be rendered.
+  /// each camera will be rendered with its own rig and head.
+  /// See also:
+  /// [Camera]
+  /// [CameraRig]
+  /// [CameraHead]
+  final List<Camera>? cameras;
 
   /// onCreated callback provides an object of [SceneController] when the native view is created.
   /// This controller provides utility methods to update the viewer, change the animation environment, lightening, etc.
@@ -118,14 +132,16 @@ class SceneView extends StatefulWidget {
   /// were not claimed by any other gesture recognizer.
   final Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers;
 
-  const SceneView(
-      {super.key,
-      this.models,
-      this.scene,
-      this.shapes,
-      this.onCreated,
-      this.gestureRecognizers =
-          const <Factory<OneSequenceGestureRecognizer>>{},});
+  const SceneView({
+    super.key,
+    required this.filament,
+    this.models,
+    this.scene,
+    this.shapes,
+    this.cameras,
+    this.onCreated,
+    this.gestureRecognizers = const <Factory<OneSequenceGestureRecognizer>>{},
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -176,13 +192,15 @@ class ModelViewerState extends State<SceneView> {
     //final model = widget.models?.toJson();
     final Map<String, dynamic>? scene = widget.scene?.toJson();
     _creationParams["models"] =
-        widget.models?.map((final param) => param.toJson()).toList();
+      widget.models?.map((final param) => param.toJson()).toList();
     _creationParams["scene"] = scene;
     // _creationParams["shapes"] =
     //     widget.shapes?.map((param) => param.toJson()).toList();
     // use concatenated toFlatJson
     _creationParams["shapes"] = 
-        widget.shapes?.map((final param) => param.toFlatJson()).flattenedToList;
+      widget.shapes?.map((final param) => param.toFlatJson()).flattenedToList;
+    _creationParams["cameras"] = 
+      widget.cameras?.map((final param) => param.toJson()).toList();
 
     // pretty print json
     // JsonEncoder encoder = const JsonEncoder.withIndent('  ');
@@ -195,6 +213,13 @@ class ModelViewerState extends State<SceneView> {
 
     _controller.complete(controller);
     if (widget.onCreated != null) {
+      // Set the engine on all entities
+      /// TODO(kerberjg): just keep a list of entities in a single map
+      widget.models?.forEach((final model) => model.initialize(widget.filament));
+      widget.shapes?.forEach((final shape) => shape.initialize(widget.filament));
+      widget.cameras?.forEach((final camera) => camera.initialize(widget.filament));
+
+      // Call the onCreated callback with the controller
       widget.onCreated?.call(controller);
     }
   }

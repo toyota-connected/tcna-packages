@@ -1,4 +1,4 @@
-
+import 'package:filament_scene/camera/camera.dart';
 import 'package:filament_scene/components/collidable.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/shapes/shapes.dart';
@@ -9,6 +9,7 @@ import 'package:filament_scene/generated/messages.g.dart';
 import 'package:my_fox_example/material_helpers.dart';
 import 'package:my_fox_example/scenes/scene_view.dart';
 import 'package:filament_scene/filament_scene.dart';
+import 'package:filament_scene/math/utils.dart';
 
 
 class PlaygroundSceneView extends StatefulSceneView {
@@ -24,8 +25,9 @@ class PlaygroundSceneView extends StatefulSceneView {
   @override
   _PlaygroundSceneViewState createState() => _PlaygroundSceneViewState();
 
-  static Map<String, EntityGUID> objectGuids = {
+  static final Map<String, EntityGUID> objectGuids = {
     // Models
+    'playground_camera': generateGuid(),
     'car': generateGuid(),
     'garage': generateGuid(),
     'fox1': generateGuid(),
@@ -33,8 +35,19 @@ class PlaygroundSceneView extends StatefulSceneView {
     // Shapes
 
     // Lights
-
   };
+
+  static final Camera _sceneCamera = Camera(
+    id: objectGuids['playground_camera']!,
+    targetPoint: Vector3(0, 0, 0),
+    orbitAngles: Vector2(radians(14.85), radians(45)),
+    targetDistance: 11.71,
+    name: 'playgroundCamera',
+  );
+
+  static List<Camera> getSceneCameras() {
+    return [ _sceneCamera ];
+  }
 
   static List<Model> getSceneModels() {
     final List<Model> models = [];
@@ -211,9 +224,7 @@ class _PlaygroundSceneViewState extends StatefulSceneViewState {
 
   @override
   void onCreate() {
-    // widget.filament.changeCameraOrbitHomePosition(8, 3, 0);
-    // widget.filament.changeCameraTargetPosition(0, 0, 0);
-    // widget.filament.changeCameraFlightStartPosition(8, 3, 8);
+    PlaygroundSceneView._sceneCamera.setActive();
 
     widget.filament.setFogOptions(false);
   }
