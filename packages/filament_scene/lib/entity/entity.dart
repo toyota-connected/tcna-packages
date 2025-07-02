@@ -16,6 +16,9 @@ class Entity {
 
   late final Scene scene;
 
+  FilamentViewApi? _engine;
+  @protected FilamentViewApi? get engine => _engine;
+
   final EntityGUID? _parentId;
   Entity? get parent => scene.getEntity(_parentId!);
 
@@ -39,14 +42,6 @@ class Entity {
       children.every((final child) => child._parentId == null),
       'Direct children should not have a parentId set. When adding children, leave the parentId null.',
     );
-  }
-
-  FilamentViewApi? _engine;
-  @protected FilamentViewApi get engine {
-    if (_engine == null) {
-      throw StateError('Entity is not initialized with a FilamentViewApi engine.');
-    }
-    return _engine!;
   }
 
   @mustCallSuper
@@ -163,19 +158,19 @@ class TransformEntity extends Entity {
   /// Sets the local position of this entity.
   void setLocalPosition([final Position? newPosition]) {
     if(newPosition != null) position.setFrom(newPosition);
-    unawaited(engine.setEntityTransformPosition(id, position.storage64));
+    unawaited(engine?.setEntityTransformPosition(id, position.storage64));
   }
 
   /// Sets the local scale of this entity.
   void setLocalScale([final Scale? newScale]) {
     if(newScale != null) scale.setFrom(newScale);
-    unawaited(engine.setEntityTransformScale(id, scale.storage64));
+    unawaited(engine?.setEntityTransformScale(id, scale.storage64));
   }
 
   /// Sets the local rotation of this entity.
   void setLocalRotation([final Quaternion? newRotation]) {
     if(newRotation != null) rotation.setFrom(newRotation);
-    unawaited(engine.setEntityTransformRotation(id, rotation.storage64));
+    unawaited(engine?.setEntityTransformRotation(id, rotation.storage64));
   }
 
   /// Sets the local rotation of this entity from Euler angles.
@@ -188,8 +183,8 @@ class TransformEntity extends Entity {
 
   /// Flushes the current transform state to the engine
   void updateTransform() {
-    unawaited(engine.setEntityTransformPosition(id, position.storage64));
-    unawaited(engine.setEntityTransformScale(id, scale.storage64));
-    unawaited(engine.setEntityTransformRotation(id, rotation.storage64));
+    unawaited(engine?.setEntityTransformPosition(id, position.storage64));
+    unawaited(engine?.setEntityTransformScale(id, scale.storage64));
+    unawaited(engine?.setEntityTransformRotation(id, rotation.storage64));
   }
 }
