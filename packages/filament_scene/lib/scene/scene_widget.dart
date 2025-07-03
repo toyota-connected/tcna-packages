@@ -1,9 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:core';
 
 import 'package:collection/collection.dart';
 import 'package:filament_scene/camera/camera.dart';
-import 'package:filament_scene/filament_scene.dart' show Camera, IndirectLight, Light, Skybox;
+import 'package:filament_scene/filament_scene.dart' show IndirectLight, Light, Skybox;
 import 'package:filament_scene/generated/messages.g.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -155,6 +156,8 @@ class SceneView extends StatefulWidget {
       ..add(IterableProperty<Model>('models', models))
       ..add(DiagnosticsProperty<Scene?>('scene', scene))
       ..add(IterableProperty<Shape>('shapes', shapes))
+      ..add(IterableProperty<Camera>('cameras', cameras))
+      ..add(ObjectFlagProperty<FilamentViewApi>('filament', filament, ifNull: 'no engine'))
       ..add(ObjectFlagProperty<SceneCreatedCallback?>.has('onCreated', onCreated))
       ..add(IterableProperty<Factory<OneSequenceGestureRecognizer>>('gestureRecognizers', gestureRecognizers));
   }

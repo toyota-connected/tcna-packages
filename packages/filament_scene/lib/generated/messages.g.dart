@@ -191,7 +191,7 @@ class FilamentViewApi {
   }
 
   /// Set the camera's targeting
-  Future<void> setCameraTarget(int id, Float64List? targetPosition, int targetEntityId) async {
+  Future<void> setCameraTarget(int id, int targetEntityId) async {
     final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.setCameraTarget$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
@@ -199,7 +199,7 @@ class FilamentViewApi {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[id, targetPosition, targetEntityId]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[id, targetEntityId]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -236,6 +236,31 @@ class FilamentViewApi {
     }
   }
 
+  /// Set the camera's dolly offset.
+  /// The dolly offset is the camera's position relative to its target.
+  Future<void> setCameraDolly(int id, Float64List dollyOffset) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.setCameraDolly$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[id, dollyOffset]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  /// TODO(kerberjg): add setCameraIpd to support stereoscopic/VR cameras
   /// Set a light's color and intensity by GUID.
   Future<void> changeLightColorByGUID(int id, String color, int intensity) async {
     final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeLightColorByGUID$pigeonVar_messageChannelSuffix';

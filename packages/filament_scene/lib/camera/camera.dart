@@ -12,15 +12,11 @@ import 'package:filament_scene/utils/serialization.dart';
 
 /// This [Entity] represents a camera in the scene.
 /// It's composed by two entities:
-/// - rig (parent): centered at the target's position;
+/// - rig (entity): centered at the target's position;
 ///                 its rotation is used to control the camera's orbit (Y, X)
-/// - head (child): always at (x:0, y:0, z: [targetDistance]) + [dollyOffset] relative to the rig;
-///                 its rotation is used to control the camera's pitch (X) yaw (Y), and roll (Z)
+/// - head (camera eye): always at (x:0, y:0, z: [targetDistance]) + [dollyOffset] relative to the rig;
+/// 
 class Camera extends TransformEntity with CameraComponent.Camera, CameraComponent.CameraRig {
-  /// This entity uses separate GUIDs for the rig and the camera itself (head).
-  /// The rig is used to control the camera's motion and transform.
-  final EntityGUID _headId = generateGuid();
-
   Camera({
     required super.id,
     super.name,
@@ -28,6 +24,7 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
     final Vector3? targetPoint,
     final EntityGUID? targetEntity,
     final double targetDistance = 1,
+    final Vector3? dollyOffset,
     // Orbit
     /// The orbit rotation euler angles in radians.
     Vector2? orbitAngles,
@@ -53,11 +50,17 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
     super.targetEntity = targetEntity;
     super.targetDistance = targetDistance;
 
+    super.dollyOffset = dollyOffset ?? Vector3.zero();
+
+    // Now engine is null - all this does is set the transform for serialization
+    _updateHeadPosition();
+    _updateRigPosition();
+
     // Set orbit angles
     orbitAngles ??= Vector2.zero();
     this._orbitAngles.setValues(
-      orbitAngles.x,  // horizontal (azimuth)
       orbitAngles.y,  // vertical (elevation)
+      orbitAngles.x,  // horizontal (azimuth)
       roll,           // roll
     );
   }
@@ -67,6 +70,10 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
   void initialize(final FilamentViewApi engine) {
     super.initialize(engine);
 
+    onEnable();
+  }
+
+  void onEnable() {
     // Set the initial position of the head
     _updateHeadPosition();
 
@@ -76,10 +83,9 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
 
   /// Sets the camera as active for the given view
   void setActive([final int? viewId]) {
-    unawaited(engine.setActiveCamera(viewId, _headId));
+    unawaited(engine?.setActiveCamera(viewId, id));
+    onEnable();
   }
-
-
 
 
   /*
@@ -113,11 +119,11 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
   }
 
   void _updateRigPosition() {
-    unawaited(engine.setCameraTarget(
-      _headId,
-      (targetPoint ?? Vector3.zero()).storage64,
+    if(targetPoint != null) setLocalPosition(targetPoint);
+    unawaited(engine?.setCameraTarget(
+      id,
       targetEntity ?? kNullGuid,
-    ));
+    ),);
   }
 
   @override
@@ -133,22 +139,13 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
     
     // Move the rig to head's current position and reset the target distance.
     if (targetType == CameraComponent.CameraTargetType.point) {
-      // Use _orbitAngles and targetDistance to calculate the head's position
-      // TODO(kerberjg): once [_head] is just an entity and not an ID, get its position directly
-      final Vector3 headOffset = sphericalToCartesian(
-        targetDistance, _orbitAngles.x, _orbitAngles.y,
-      );
-
-      final Vector3 currentPosition = (targetPoint ?? Vector3.zero()) + headOffset;
-
-      // Reset the head position
-      targetDistance = 0; // calls _updateHeadPosition()
+      final Vector3 currentPosition = (targetPoint ?? position);
 
       // Set the rig's position
-      unawaited(engine.setEntityTransformPosition(
-        _headId,
+      unawaited(engine?.setEntityTransformPosition(
+        id,
         currentPosition.storage64,
-      ));
+      ),);
     }
   }
 
@@ -188,8 +185,6 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
   /*
    *  Dolly
    */
-  final Vector3 _headPosition = Vector3.zero();
-
   @override
   set targetDistance(final double distance) {
     super.targetDistance = distance;
@@ -197,22 +192,20 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
     _updateHeadPosition();
   }
 
+  static final Vector3 kTargetDistanceAxis = Vector3(0, 0, 1);
+
+  @override
+  Vector3 get dollyOffset => super.dollyOffset - (kTargetDistanceAxis * targetDistance);
+
   @override
   set dollyOffset(final Vector3 offset) {
-    super.dollyOffset = offset;
+    super.dollyOffset = offset + (kTargetDistanceAxis * targetDistance);
     
     _updateHeadPosition();
   }
 
   void _updateHeadPosition() {
-    // TODO(kerberjg): optimize for SIMD when vector_math supports it
-    _headPosition.setValues(
-      0 + dollyOffset.x,
-      0 + dollyOffset.y,
-      targetDistance + dollyOffset.z,
-    );
-
-    unawaited(engine.setEntityTransformPosition(_headId, _headPosition.storage64));
+    unawaited(engine?.setCameraDolly(id, super.dollyOffset.storage64));
   }
 
   /*
@@ -241,5 +234,4 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
       ...rigToJson(),
     };
   }
-
 }
