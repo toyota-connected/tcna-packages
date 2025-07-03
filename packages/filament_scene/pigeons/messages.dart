@@ -63,7 +63,6 @@ abstract class FilamentViewApi {
   /// Set the camera's targeting
   void setCameraTarget(
     final int id,
-    final Float64List? targetPosition,
     final int targetEntityId,
   );
 
@@ -75,6 +74,14 @@ abstract class FilamentViewApi {
     /// EntityGUID of the camera to set as active.
     final int cameraId,
   );
+  /// Set the camera's dolly offset.
+  /// The dolly offset is the camera's position relative to its target.
+  void setCameraDolly(
+    final int id,
+    final Float64List dollyOffset,
+  );
+
+  /// TODO(kerberjg): add setCameraIpd to support stereoscopic/VR cameras
 
   /*
    *  Lights

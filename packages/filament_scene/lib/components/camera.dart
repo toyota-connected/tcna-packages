@@ -27,6 +27,10 @@ mixin class Camera {
   Projection? projection;
   LensProjection? lens;
 
+  // NOTE: expose this to properly support multiview
+  // ignore: prefer_final_fields
+  int _viewId = 0;
+
   void setProjection({
     final Projection? projection,
     final LensProjection? lens,
@@ -43,14 +47,11 @@ mixin class Camera {
   }
 
   JsonObject cameraToJson() {
-    return toJson();
-  }
-
-  JsonObject toJson() {
     return <String, dynamic>{
       'exposure': exposure?.toJson(),
       'projection': projection?.toJson(),
       'lens': lens?.toJson(),
+      'viewId': _viewId,
     };
   }
 }
@@ -123,12 +124,9 @@ abstract mixin class CameraRig {
   }
 
   JsonObject rigToJson() {
-    return toJson();
-  }
-
-  JsonObject toJson() {
     return <String, dynamic>{
       'dollyOffset': dollyOffset.toJson(),
+      // NOTE: no need to deserialize targetPoint! it's sent as position in the transform
       'targetPoint': _targetPoint?.toJson() ?? Vector3.zero().toJson(),
       'targetEntity': _targetEntity ?? kNullGuid,
       'targetDistance': _targetDistance,

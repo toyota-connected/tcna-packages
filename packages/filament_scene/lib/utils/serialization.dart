@@ -5,6 +5,7 @@ import 'package:vector_math/vector_math.dart';
 
 typedef JsonObject = Map<String, dynamic>;
 typedef JsonArray = List<dynamic>;
+typedef JsonKey = String;
 typedef JsonValue = dynamic;
 
 /// Serialization extension for Vector2
