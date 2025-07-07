@@ -37,9 +37,11 @@ class PlaygroundSceneView extends StatefulSceneView {
     // Lights
   };
 
+  static final Vector3 focusPoint = Vector3(0, 0, 0);
+
   static final Camera _sceneCamera = Camera(
     id: objectGuids['playground_camera']!,
-    targetPoint: Vector3(0, 0, 0),
+    targetPoint: focusPoint,
     orbitAngles: Vector2(radians(14.85), radians(45)),
     targetDistance: 11.71,
     name: 'playgroundCamera',
@@ -200,6 +202,12 @@ class PlaygroundSceneView extends StatefulSceneView {
 }
 
 class _PlaygroundSceneViewState extends StatefulSceneViewState {
+  ValueNotifier<double> cameraXAngle = ValueNotifier<double>(0);
+  ValueNotifier<double> cameraYAngle = ValueNotifier<double>(0);
+  ValueNotifier<double> cameraZAngle = ValueNotifier<double>(0);
+  ValueNotifier<double> cameraDistance = ValueNotifier<double>(11.71);
+
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -211,7 +219,65 @@ class _PlaygroundSceneViewState extends StatefulSceneViewState {
         // -- DIRECT LIGHT CONTROLS --
         Expanded(
           flex: 0,
-          child: LightSettingsWidget(filament: widget.filament),
+          child: Column(
+            children: [
+              // Slider for camera X angle
+              ValueListenableBuilder<double>(
+                valueListenable: cameraXAngle,
+                builder: (context, value, child) => Slider(
+                  value: value,
+                  min: -180,
+                  max: 180,
+                  divisions: 360,
+                  label: 'Camera X Angle: ${value.toStringAsFixed(2)}°',
+                  onChanged: (newValue) {
+                    cameraXAngle.value = newValue;
+                  }
+                )
+              ),
+              // Slider for camera Y angle
+              ValueListenableBuilder<double>(
+                valueListenable: cameraYAngle,
+                builder: (context, value, child) => Slider(
+                  value: value,
+                  min: -180,
+                  max: 180,
+                  divisions: 360,
+                  label: 'Camera Y Angle: ${value.toStringAsFixed(2)}°',
+                  onChanged: (newValue) {
+                    cameraYAngle.value = newValue;
+                  }
+                )
+              ),
+              // Slider for camera Z angle
+              // ValueListenableBuilder<double>(
+              //   valueListenable: cameraZAngle,
+              //   builder: (context, value, child) => Slider(
+              //     value: value,
+              //     min: -180,
+              //     max: 180,
+              //     divisions: 36,
+              //     label: 'Camera Z Angle: ${value.toStringAsFixed(2)}°',
+              //     onChanged: (newValue) {
+              //       cameraZAngle.value = newValue;
+              //     }
+              //   )
+              // ),
+              // Slider for camera distance
+              ValueListenableBuilder<double>(
+                valueListenable: cameraDistance,
+                builder: (context, value, child) => Slider(
+                  value: value,
+                  min: 1,
+                  max: 20,
+                  label: 'Camera Distance: ${value.toStringAsFixed(2)}',
+                  onChanged: (newValue) {
+                    cameraDistance.value = newValue;
+                  }
+                )
+              ),
+            ],
+          )
         ),
 
         const SizedBox(height: 20),
@@ -235,8 +301,28 @@ class _PlaygroundSceneViewState extends StatefulSceneViewState {
   @override
   void onTriggerEvent(final String eventName, [ final dynamic eventData ]) {}
 
+  Vector3 _cameraRotation = Vector3.zero();
+  Quaternion _cameraQuaternion = Quaternion.identity();
+
   @override
   void onUpdateFrame(FilamentViewApi filament, double dt) {
-    // print("update playground");
+    // Update camera angles and distance based on the sliders
+    _cameraRotation.setFrom(Vector3(
+      radians(cameraXAngle.value),
+      radians(cameraYAngle.value),
+      radians(cameraZAngle.value),
+    ));
+    cameraOrbitToQuaternion(
+      radians(cameraXAngle.value),
+      radians(cameraYAngle.value),
+      // radians(cameraZAngle.value),
+      _cameraQuaternion
+    );
+    
+    final double distance = cameraDistance.value;
+
+    PlaygroundSceneView._sceneCamera.targetDistance = distance;
+    // PlaygroundSceneView._sceneCamera.setLocalRotationFromEuler(_cameraRotation);
+    PlaygroundSceneView._sceneCamera.setLocalRotation(_cameraQuaternion);
   }
 }
