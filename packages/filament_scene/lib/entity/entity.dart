@@ -145,12 +145,16 @@ class TransformEntity extends Entity {
     super.children,
   }) : super();
 
-  @override @mustCallSuper
-  Map<String, dynamic> toJson() => <String, dynamic>{
-    ...super.toJson(),
+  JsonObject toComponentJson() => <JsonKey, JsonValue> {
     'position': position.toJson(),
     'scale': scale.toJson(),
     'rotation': rotation.toJson(),
+  };
+
+  @override @mustCallSuper
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    ...super.toJson(),
+    ...toComponentJson(),
   };
 
   // TODO(kerberjg): instead of explicit setters, get vector array address on init

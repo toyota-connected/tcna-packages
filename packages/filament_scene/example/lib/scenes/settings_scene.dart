@@ -30,6 +30,7 @@ class SettingsSceneView extends StatefulSceneView {
   @override
   _SettingsSceneViewState createState() => _SettingsSceneViewState();
 
+  static final Vector3 cameraMenuOffset = Vector3(-1.5, 0, 0);
   static final Vector3 carOrigin = Vector3(72, 0, 68);
   static final Vector3 wiperSize = Vector3(0.05, 0.75, 0.05);
   static final Vector3 lightSize = Vector3(0.2, 0.2, 0.2);
@@ -58,7 +59,7 @@ class SettingsSceneView extends StatefulSceneView {
 
   static final Map<String, EntityGUID> objectGuids = {
     'camera': generateGuid(),
-    
+
     'car': generateGuid(),
     'floor1': generateGuid(),
     'floor2': generateGuid(),
@@ -97,8 +98,9 @@ class SettingsSceneView extends StatefulSceneView {
   static final Camera _sceneCamera = Camera(
     id: objectGuids['camera']!,
     targetPoint: carOrigin,
-    orbitAngles: Vector2(radians(14.85), radians(45)),
-    targetDistance: 11.71,
+    orbitAngles: Vector2(radians(14.85), radians(30)),
+    dollyOffset: Vector3(-1.5, 0, 0),
+    targetDistance: 8,
     name: 'camera',
   );
 
@@ -616,7 +618,19 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
         rot.storage64,
       );
     }
+
+    // Rotate camera
+    {
+      _cameraOrbitAngles.x += radians(30) * dt;
+
+      SettingsSceneView._sceneCamera.setOrbit(
+        horizontal: _cameraOrbitAngles.x,
+        vertical: _cameraOrbitAngles.y,
+      );
+    }
   }
+
+  final Vector2 _cameraOrbitAngles = Vector2(radians(14.85), radians(30));
 
   @override
   void onTriggerEvent(final String eventName, [ final dynamic eventData ]) {

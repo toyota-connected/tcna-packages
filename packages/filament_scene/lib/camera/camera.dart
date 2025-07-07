@@ -47,22 +47,23 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
     );
 
     super.targetPoint = targetPoint;
-    super.targetEntity = targetEntity;
+    // super.targetEntity = targetEntity;
     super.targetDistance = targetDistance;
 
     super.dollyOffset = dollyOffset ?? Vector3.zero();
 
-    // Now engine is null - all this does is set the transform for serialization
-    _updateHeadPosition();
-    _updateRigPosition();
-
     // Set orbit angles
     orbitAngles ??= Vector2.zero();
     this._orbitAngles.setValues(
-      orbitAngles.y,  // vertical (elevation)
+      // roll,           // roll
       orbitAngles.x,  // horizontal (azimuth)
-      roll,           // roll
+      orbitAngles.y,  // vertical (elevation)
+      0,
     );
+
+    // Now engine is null - all this does is set the transform for serialization
+    _updateHeadPosition();
+    _updateRigPosition();
   }
 
 
@@ -74,6 +75,7 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
   }
 
   void onEnable() {
+    print('Camera $id enabled');
     // Set the initial position of the head
     _updateHeadPosition();
 
@@ -114,12 +116,16 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
     );
 
     super.targetPoint = point;
-    super.targetEntity = entity;
+    // super.targetEntity = entity;
     _updateRigPosition();
   }
 
   void _updateRigPosition() {
+    print('Camera $id updating rig position to ${targetPoint}');
     if(targetPoint != null) setLocalPosition(targetPoint);
+    print('Camera $id updating rig rotation to ${_orbitAngles}');
+    setLocalRotation();
+
     unawaited(engine?.setCameraTarget(
       id,
       targetEntity ?? kNullGuid,
@@ -166,18 +172,20 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
     /// the elevation angle in radians
     final double? vertical,
   }) {
-    _orbitAngles.y = horizontal ?? _orbitAngles.y;
-    _orbitAngles.x = vertical ?? _orbitAngles.x;
+    _orbitAngles.x = horizontal ?? _orbitAngles.x;
+    _orbitAngles.y = vertical ?? _orbitAngles.y;
+    cameraOrbitToQuaternion(_orbitAngles.x, _orbitAngles.y, this.rotation);
 
-    super.setLocalRotationFromEuler(_orbitAngles);
+    _updateRigPosition();
   }
 
   /// Sets the camera roll angle in radians.
   // TODO(kerberjg): allow to be set as [double] via direct setter
   //                 once direct memory access for vectors is supported
   void setRoll(final double roll) {
-    _orbitAngles.z = roll;
-    super.setLocalRotationFromEuler(_orbitAngles);
+    // _orbitAngles.x = roll;
+
+    // _updateRigPosition();
   }
 
 
@@ -188,24 +196,28 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
   @override
   set targetDistance(final double distance) {
     super.targetDistance = distance;
-    
     _updateHeadPosition();
   }
 
   static final Vector3 kTargetDistanceAxis = Vector3(0, 0, 1);
 
   @override
-  Vector3 get dollyOffset => super.dollyOffset - (kTargetDistanceAxis * targetDistance);
+  Vector3 get dollyOffset => super.dollyOffset;
 
   @override
   set dollyOffset(final Vector3 offset) {
-    super.dollyOffset = offset + (kTargetDistanceAxis * targetDistance);
+    super.dollyOffset = offset;
     
     _updateHeadPosition();
   }
 
+  Vector3 _tmpHeadPosition = Vector3.zero();
+
   void _updateHeadPosition() {
-    unawaited(engine?.setCameraDolly(id, super.dollyOffset.storage64));
+    _tmpHeadPosition.setFrom(dollyOffset);
+    _tmpHeadPosition.addScaled(kTargetDistanceAxis, targetDistance);
+
+    unawaited(engine?.setCameraDolly(id, _tmpHeadPosition.storage64));
   }
 
   /*
