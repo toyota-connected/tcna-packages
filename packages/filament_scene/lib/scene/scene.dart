@@ -16,7 +16,6 @@ class Scene {
    */
   Entity? getEntity(final EntityGUID id) => entities[id];
 
-
   /*
    *  Serialization
    */
@@ -43,9 +42,7 @@ class Scene {
 
   @override
   int get hashCode {
-    return skybox.hashCode ^
-        indirectLight.hashCode ^
-        lights.hashCode;
+    return skybox.hashCode ^ indirectLight.hashCode ^ lights.hashCode;
   }
 
   Scene copyWith({

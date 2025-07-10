@@ -24,9 +24,7 @@ import 'package:pigeon/pigeon.dart';
     dartTestOut: 'generated/src/dart/test/test_api.g.dart',
     cppHeaderOut: 'generated/src/cpp/messages.g.h',
     cppSourceOut: 'generated/src/cpp/messages.g.cc',
-    cppOptions: CppOptions(
-      namespace: 'plugin_filament_view',
-    ),
+    cppOptions: CppOptions(namespace: 'plugin_filament_view'),
     copyrightHeader: 'pigeons/copyright.txt',
     dartPackageName: 'filament_scene',
   ),
@@ -61,27 +59,23 @@ abstract class FilamentViewApi {
    *  Camera
    */
   /// Set the camera's targeting
-  void setCameraTarget(
-    final int id,
-    final int targetEntityId,
-  );
+  void setCameraTarget(final int id, final int targetEntityId);
 
   /// Set a given camera as the active camera for a view
   void setActiveCamera(
     /// View ID to set the camera for.
     /// If null, the default view will be used.
     final int? viewId,
+
     /// EntityGUID of the camera to set as active.
     final int cameraId,
   );
+
   /// Set the camera's dolly offset.
   /// The dolly offset is the camera's position relative to its target.
-  void setCameraDolly(
-    final int id,
-    final Float64List dollyOffset,
-  );
+  void setCameraDolly(final int id, final Float64List dollyOffset);
 
-  /// TODO(kerberjg): add setCameraIpd to support stereoscopic/VR cameras
+  // TODO(kerberjg): add setCameraIpd to support stereoscopic/VR cameras
 
   /*
    *  Lights

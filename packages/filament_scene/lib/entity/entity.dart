@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:collection/collection.dart';
@@ -17,13 +16,15 @@ class Entity {
   late final Scene scene;
 
   FilamentViewApi? _engine;
-  @protected FilamentViewApi? get engine => _engine;
+  @protected
+  FilamentViewApi? get engine => _engine;
 
   final EntityGUID? _parentId;
   Entity? get parent => scene.getEntity(_parentId!);
 
   final Iterable<EntityGUID> _children = <EntityGUID>[];
   Iterable<Entity> get children => _children.map((final id) => scene.getEntity(id)!);
+
   /// List of children to be passed from the constructor. Only using at scene initialization.
   Iterable<Entity> tmpChildren = <Entity>[];
 
@@ -32,11 +33,10 @@ class Entity {
     this.name,
     final EntityGUID? parentId,
     final Iterable<Entity> children = const <Entity>[],
-  }) 
-  // ;
-  :
-    _parentId = parentId,
-    tmpChildren = children {
+  })
+    // ;
+    : _parentId = parentId,
+       tmpChildren = children {
     // Make sure that direct children don't directly define a parentId
     assert(
       children.every((final child) => child._parentId == null),
@@ -53,18 +53,14 @@ class Entity {
     _engine = engine;
   }
 
-
-
   // TODO(kerberg): set parent
   EntityGUID? get parentId => _parentId;
 
   // TODO(kerberjg): add/remove child
 
   /// Returns a child entity with a given [name]
-  Entity? getChildByName(final String name) => children.firstWhereOrNull((final child) => child.name == name);
-
-
-
+  Entity? getChildByName(final String name) =>
+      children.firstWhereOrNull((final child) => child.name == name);
 
   /*
    *  Serialization
@@ -84,7 +80,7 @@ class Entity {
 
     for (final Entity child in tmpChildren) {
       final List<JsonObject> children = child.toFlatJson(isParent: false);
-      for(final JsonObject child in children) {
+      for (final JsonObject child in children) {
         child['parentId'] ??= id; // if already set, it's a grandchild
 
         child.remove('children');
@@ -93,17 +89,15 @@ class Entity {
     }
 
     final JsonObject thisJson = toJson();
-    if(isParent) thisJson['children'] = null;
+    if (isParent) thisJson['children'] = null;
 
-    final List<JsonObject> data = <JsonObject>[
-      thisJson,
-      ...flattenedChildren,
-    ];
+    final List<JsonObject> data = <JsonObject>[thisJson, ...flattenedChildren];
 
     return data;
   }
 
-  @override @nonVirtual
+  @override
+  @nonVirtual
   /// Returns a string representation of this object, including all of its fields (based on the [toJson] method).
   /// Overriding is not necessary, as it will call the subclass' [toJson] method to get the fields.
   String toString() {
@@ -145,35 +139,33 @@ class TransformEntity extends Entity {
     super.children,
   }) : super();
 
-  JsonObject toComponentJson() => <JsonKey, JsonValue> {
+  JsonObject toComponentJson() => <JsonKey, JsonValue>{
     'position': position.toJson(),
     'scale': scale.toJson(),
     'rotation': rotation.toJson(),
   };
 
-  @override @mustCallSuper
-  Map<String, dynamic> toJson() => <String, dynamic>{
-    ...super.toJson(),
-    ...toComponentJson(),
-  };
+  @override
+  @mustCallSuper
+  Map<String, dynamic> toJson() => <String, dynamic>{...super.toJson(), ...toComponentJson()};
 
   // TODO(kerberjg): instead of explicit setters, get vector array address on init
 
   /// Sets the local position of this entity.
   void setLocalPosition([final Position? newPosition]) {
-    if(newPosition != null) position.setFrom(newPosition);
+    if (newPosition != null) position.setFrom(newPosition);
     unawaited(engine?.setEntityTransformPosition(id, position.storage64));
   }
 
   /// Sets the local scale of this entity.
   void setLocalScale([final Scale? newScale]) {
-    if(newScale != null) scale.setFrom(newScale);
+    if (newScale != null) scale.setFrom(newScale);
     unawaited(engine?.setEntityTransformScale(id, scale.storage64));
   }
 
   /// Sets the local rotation of this entity.
   void setLocalRotation([final Quaternion? newRotation]) {
-    if(newRotation != null) rotation.setFrom(newRotation);
+    if (newRotation != null) rotation.setFrom(newRotation);
     unawaited(engine?.setEntityTransformRotation(id, rotation.storage64));
   }
 
@@ -183,7 +175,6 @@ class TransformEntity extends Entity {
     rotation.setEulerRadians(rad.x, rad.y, rad.z);
     setLocalRotation();
   }
-
 
   /// Flushes the current transform state to the engine
   void updateTransform() {

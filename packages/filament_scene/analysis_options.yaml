@@ -30,6 +30,8 @@ analyzer:
     avoid_print: ignore
     library_prefixes: ignore
     unnecessary_this: ignore
+    cascade_invocations: ignore
+    unnecessary_brace_in_string_interps: ignore
 
 linter:
   # The lint rules applied to this project can be customized in the

@@ -9,17 +9,9 @@ export 'package:vector_math/vector_math.dart' show radians, degrees;
 /// - Z is front
 /// - X is right
 /// - Y is up
-Vector3 sphericalToCartesian(
-  final double radius,
-  final double x,
-  final double y,
-) {
+Vector3 sphericalToCartesian(final double radius, final double x, final double y) {
   final double cosX = Math.cos(x);
-  return Vector3(
-    radius * cosX * Math.sin(y),
-    radius * Math.sin(x),
-    radius * cosX * Math.cos(y),
-  );
+  return Vector3(radius * cosX * Math.sin(y), radius * Math.sin(x), radius * cosX * Math.cos(y));
 }
 
 Quaternion tmpYaw = Quaternion.identity();
@@ -29,9 +21,9 @@ Quaternion tmpRoll = Quaternion.identity();
 Quaternion sphericalToQuaternion(
   final double azimuth, // azimuth angle (X) in radians
   final double elevation, // elevation angle (Y) in radians
-  final double roll, // roll angle (Z) in radians
-  [Quaternion? out]
-) {
+  final double roll, [ // roll angle (Z) in radians
+  Quaternion? out,
+]) {
   // First convert spherical to Euler angles
   final double yaw = azimuth; // Yaw (around Y axis)
   final double pitch = elevation; // Pitch (around X axis)
@@ -43,8 +35,7 @@ Quaternion sphericalToQuaternion(
   tmpPitch.setAxisAngle(Vector3(1, 0, 0), pitch);
   // Create the roll quaternion
   // Adjust roll by 90 degrees to match right-handed system
-  tmpRoll.setAxisAngle(Vector3(0, 0, 1), roll + Math.pi); 
-
+  tmpRoll.setAxisAngle(Vector3(0, 0, 1), roll + Math.pi);
 
   // Combine yaw and pitch to get the final quaternion
   out ??= Quaternion.identity();
@@ -58,10 +49,11 @@ Quaternion sphericalToQuaternion(
 Quaternion cameraOrbitToQuaternion(
   /// Azimuth angle (X) in radians
   final double azimuth,
+
   /// Elevation angle (Y) in radians
-  final double elevation,
-  [final Quaternion? out,]
-) {
+  final double elevation, [
+  final Quaternion? out,
+]) {
   return sphericalToQuaternion(
     azimuth,
     0, // roll and elevation are inverted for some reason

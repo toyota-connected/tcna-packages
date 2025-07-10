@@ -21,7 +21,7 @@ const LensProjection kDefaultLens = LensProjection();
 typedef CameraHead = Camera;
 
 /// A class that represents the camera settings for a scene.
-/// TODO(kerberjg): turns this into a component
+// TODO(kerberjg): turns this into a component
 mixin class Camera {
   Exposure? exposure;
   Projection? projection;
@@ -31,14 +31,11 @@ mixin class Camera {
   // ignore: prefer_final_fields
   int _viewId = 0;
 
-  void setProjection({
-    final Projection? projection,
-    final LensProjection? lens,
-  }) {
+  void setProjection({final Projection? projection, final LensProjection? lens}) {
     assert(
       (projection == null && lens == null) ||
-      (projection != null && lens == null) ||
-      (projection == null && lens != null),
+          (projection != null && lens == null) ||
+          (projection == null && lens != null),
       "Either projection or lens must be set, but not both.",
     );
 
@@ -59,8 +56,10 @@ mixin class Camera {
 enum CameraTargetType {
   /// No target, camera rotation is controlled by its transform directly.
   none,
+
   /// Camera is looking at a point in space.
   point,
+
   /// Camera is looking at an entity.
   entity,
 }
@@ -74,6 +73,7 @@ abstract mixin class CameraRig {
   set dollyOffset(final Vector3 offset) {
     _dollyOffset = offset;
   }
+
   /*
    *  Targeting
    */
@@ -81,12 +81,11 @@ abstract mixin class CameraRig {
   EntityGUID? _targetEntity;
   double _targetDistance = 1;
 
-  CameraTargetType get targetType =>
-    _targetPoint != null
+  CameraTargetType get targetType => _targetPoint != null
       ? CameraTargetType.point
       : _targetEntity != null
-        ? CameraTargetType.entity
-        : CameraTargetType.none;
+      ? CameraTargetType.entity
+      : CameraTargetType.none;
 
   Vector3? get targetPoint => _targetPoint;
   EntityGUID? get targetEntity => _targetEntity;
@@ -132,5 +131,4 @@ abstract mixin class CameraRig {
       'targetDistance': _targetDistance,
     };
   }
-
 }

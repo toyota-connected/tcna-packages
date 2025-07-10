@@ -8,35 +8,20 @@ const defaultTextStyle = TextStyle(
   fontWeight: FontWeight.bold,
   color: Colors.black,
   shadows: [
-    Shadow(
-      offset: Offset(-1.5, -1.5),
-      color: Colors.white,
-    ),
-    Shadow(
-      offset: Offset(1.5, -1.5),
-      color: Colors.white,
-    ),
-    Shadow(
-      offset: Offset(1.5, 1.5),
-      color: Colors.white,
-    ),
-    Shadow(
-      offset: Offset(-1.5, 1.5),
-      color: Colors.white,
-    ),
+    Shadow(offset: Offset(-1.5, -1.5), color: Colors.white),
+    Shadow(offset: Offset(1.5, -1.5), color: Colors.white),
+    Shadow(offset: Offset(1.5, 1.5), color: Colors.white),
+    Shadow(offset: Offset(-1.5, 1.5), color: Colors.white),
   ],
 );
 
 typedef StateSetter = void Function(VoidCallback fn);
 
-
 class ViewSettingsWidget extends StatefulWidget {
   final FilamentViewApi filament;
 
-  const ViewSettingsWidget({
-    Key? key,
-    required this.filament,
-  }) : super(key: key);
+  const ViewSettingsWidget({Key? key, required this.filament})
+    : super(key: key);
 
   @override
   _ViewSettingsWidgetState createState() => _ViewSettingsWidgetState();
@@ -63,9 +48,7 @@ class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
               // }
             });
           },
-          child: Text(
-            _autoRotate ? 'Auto Orbit On' : 'Inertia & Gestures On',
-          ),
+          child: Text(_autoRotate ? 'Auto Orbit On' : 'Inertia & Gestures On'),
         ),
         const SizedBox(width: 5),
         ElevatedButton(
@@ -113,7 +96,7 @@ class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
           },
           child: const Text('Qual'),
         ),
-      ]
+      ],
     );
   }
 }
@@ -121,10 +104,8 @@ class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
 class LightSettingsWidget extends StatefulWidget {
   final FilamentViewApi filament;
 
-  const LightSettingsWidget({
-    Key? key,
-    required this.filament,
-  }) : super(key: key);
+  const LightSettingsWidget({Key? key, required this.filament})
+    : super(key: key);
 
   @override
   _LightSettingsWidgetState createState() => _LightSettingsWidgetState();
@@ -136,8 +117,6 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
   final double _minIntensity = 500000;
   final double _maxIntensity = 300000000;
   double _cameraRotation = 0;
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +142,9 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
               onColorChanged: (Color color) {
                 setState(() {
                   _directLightColor = color;
-                  final String colorString = _directLightColor.toHexString(includeHashSign: true);
+                  final String colorString = _directLightColor.toHexString(
+                    includeHashSign: true,
+                  );
 
                   widget.filament.changeLightColorByGUID(
                     centerPointLightGUID,
@@ -193,7 +174,9 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
                   onChanged: (double value) {
                     setState(() {
                       _directIntensity = value;
-                      final String colorString = _directLightColor.toHexString(includeHashSign: true);
+                      final String colorString = _directLightColor.toHexString(
+                        includeHashSign: true,
+                      );
 
                       widget.filament.changeLightColorByGUID(
                         centerPointLightGUID,

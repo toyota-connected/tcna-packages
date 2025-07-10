@@ -1,4 +1,3 @@
-
 ///An object that control camera and set it's projection matrix from the focal length.
 class LensProjection {
   /// lens's focal length in millimeters.
@@ -22,11 +21,10 @@ class LensProjection {
     this.aspect,
     this.near,
     this.far,
-  }) :
-    assert(focalLength > 0, "Focal length must be greater than 0"),
-    assert(aspect == null || aspect > 0, "Aspect ratio must be greater than 0"),
-    assert(near == null || near > 0, "Near must be greater than 0 for perspective projection");
-    // assert(far == null || far > near!, "Far must be greater than near for perspective projection");
+  }) : assert(focalLength > 0, "Focal length must be greater than 0"),
+       assert(aspect == null || aspect > 0, "Aspect ratio must be greater than 0"),
+       assert(near == null || near > 0, "Near must be greater than 0 for perspective projection");
+  // assert(far == null || far > near!, "Far must be greater than near for perspective projection");
 
   LensProjection copyWith({
     final double? focalLength,
@@ -69,9 +67,6 @@ class LensProjection {
 
   @override
   int get hashCode {
-    return focalLength.hashCode ^
-        aspect.hashCode ^
-        near.hashCode ^
-        far.hashCode;
+    return focalLength.hashCode ^ aspect.hashCode ^ near.hashCode ^ far.hashCode;
   }
 }

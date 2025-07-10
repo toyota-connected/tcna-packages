@@ -13,8 +13,11 @@ class KtxSkybox extends Skybox {
   KtxSkybox.url(final String url) : super(url: url);
 
   @override
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{'assetPath': assetPath, 'url': url, 'skyboxType': 1};
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'assetPath': assetPath,
+    'url': url,
+    'skyboxType': 1,
+  };
 
   @override
   String toString() {
