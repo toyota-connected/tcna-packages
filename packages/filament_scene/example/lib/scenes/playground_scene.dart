@@ -40,8 +40,8 @@ class PlaygroundSceneView extends StatefulSceneView {
   static final Camera _sceneCamera = Camera(
     id: objectGuids['playground_camera']!,
     targetPoint: focusPoint,
-    orbitAngles: Vector2(radians(14.85), radians(45)),
-    targetDistance: 11.71,
+    orbitAngles: Vector2(radians(-60), radians(15)),
+    targetDistance: 9.5,
     name: 'playgroundCamera',
   );
 
@@ -256,10 +256,8 @@ class PlaygroundSceneView extends StatefulSceneView {
 }
 
 class _PlaygroundSceneViewState extends StatefulSceneViewState {
-  ValueNotifier<double> cameraXAngle = ValueNotifier<double>(0);
-  ValueNotifier<double> cameraYAngle = ValueNotifier<double>(0);
-  ValueNotifier<double> cameraZAngle = ValueNotifier<double>(0);
-  ValueNotifier<double> cameraDistance = ValueNotifier<double>(11.71);
+  ValueNotifier<double> cameraXAngle = ValueNotifier<double>(-60);
+  ValueNotifier<double> cameraYAngle = ValueNotifier<double>(15);
 
   @override
   Widget build(BuildContext context) {
@@ -269,67 +267,23 @@ class _PlaygroundSceneViewState extends StatefulSceneViewState {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // -- DIRECT LIGHT CONTROLS --
+        // Gesture for camera control
         Expanded(
-          flex: 0,
-          child: Column(
-            children: [
-              // Slider for camera X angle
-              ValueListenableBuilder<double>(
-                valueListenable: cameraXAngle,
-                builder: (context, value, child) => Slider(
-                  value: value,
-                  min: -180,
-                  max: 180,
-                  divisions: 360,
-                  label: 'Camera X Angle: ${value.toStringAsFixed(2)}°',
-                  onChanged: (newValue) {
-                    cameraXAngle.value = newValue;
-                  },
-                ),
-              ),
-              // Slider for camera Y angle
-              ValueListenableBuilder<double>(
-                valueListenable: cameraYAngle,
-                builder: (context, value, child) => Slider(
-                  value: value,
-                  min: -180,
-                  max: 180,
-                  divisions: 360,
-                  label: 'Camera Y Angle: ${value.toStringAsFixed(2)}°',
-                  onChanged: (newValue) {
-                    cameraYAngle.value = newValue;
-                  },
-                ),
-              ),
-              // Slider for camera Z angle
-              // ValueListenableBuilder<double>(
-              //   valueListenable: cameraZAngle,
-              //   builder: (context, value, child) => Slider(
-              //     value: value,
-              //     min: -180,
-              //     max: 180,
-              //     divisions: 36,
-              //     label: 'Camera Z Angle: ${value.toStringAsFixed(2)}°',
-              //     onChanged: (newValue) {
-              //       cameraZAngle.value = newValue;
-              //     }
-              //   )
-              // ),
-              // Slider for camera distance
-              ValueListenableBuilder<double>(
-                valueListenable: cameraDistance,
-                builder: (context, value, child) => Slider(
-                  value: value,
-                  min: 1,
-                  max: 20,
-                  label: 'Camera Distance: ${value.toStringAsFixed(2)}',
-                  onChanged: (newValue) {
-                    cameraDistance.value = newValue;
-                  },
-                ),
-              ),
-            ],
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent, // allow taps to pass through
+            // NOTE: exercise: try implementing a camera gesture that allows zooming in and out
+            onPanUpdate: (final details) {
+              // Updated camera angles based on initial touch position
+              cameraXAngle.value =
+                  (cameraXAngle.value + details.delta.dx * 0.25) % 360;
+              cameraYAngle.value =
+                  (cameraYAngle.value + details.delta.dy * 0.25).clamp(1, 90);
+
+              PlaygroundSceneView._sceneCamera.setOrbit(
+                horizontal: radians(cameraXAngle.value),
+                vertical: radians(cameraYAngle.value),
+              );
+            },
           ),
         ),
 
@@ -355,18 +309,5 @@ class _PlaygroundSceneViewState extends StatefulSceneViewState {
   void onTriggerEvent(final String eventName, [final dynamic eventData]) {}
 
   @override
-  void onUpdateFrame(FilamentViewApi filament, double dt) {
-    // Update camera angles and distance based on the sliders
-    cameraOrbitToQuaternion(
-      radians(cameraXAngle.value),
-      radians(cameraYAngle.value),
-      // radians(cameraZAngle.value),
-      PlaygroundSceneView._sceneCamera.rotation,
-    );
-
-    final double distance = cameraDistance.value;
-
-    PlaygroundSceneView._sceneCamera.targetDistance = distance;
-    PlaygroundSceneView._sceneCamera.setLocalRotation();
-  }
+  void onUpdateFrame(FilamentViewApi filament, double dt) {}
 }

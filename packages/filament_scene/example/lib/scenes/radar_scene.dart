@@ -28,8 +28,8 @@ class RadarSceneView extends StatefulSceneView {
   static final Camera _sceneCamera = Camera(
     id: objectGuids['camera']!,
     targetPoint: Vector3(-45, 1, 0),
-    orbitAngles: Vector2(radians(14.85), radians(45)),
-    targetDistance: 11.71,
+    orbitAngles: Vector2(radians(-105), radians(45)),
+    targetDistance: 12,
     name: 'camera',
   );
 
@@ -155,7 +155,6 @@ class _RadarSceneViewState extends StatefulSceneViewState<RadarSceneView> {
         ElevatedButton(
           onPressed: () {
             setState(() {
-              // vDoOneWaveSegment(filamentViewApi);
               onTriggerEvent("doOneWaveSegment");
             });
           },
@@ -165,7 +164,6 @@ class _RadarSceneViewState extends StatefulSceneViewState<RadarSceneView> {
         ElevatedButton(
           onPressed: () {
             setState(() {
-              // vDo3RadarWaveSegments(filamentViewApi);
               onTriggerEvent("do3RadarWaveSegments");
             });
           },
@@ -178,9 +176,6 @@ class _RadarSceneViewState extends StatefulSceneViewState<RadarSceneView> {
 
   @override
   void onCreate() {
-    // widget.filament.changeCameraOrbitHomePosition(-40, 4, 0);
-    // widget.filament.changeCameraTargetPosition(-45, 1, 0);
-    // widget.filament.changeCameraFlightStartPosition(-40, 6, 0);
     RadarSceneView._sceneCamera.setActive();
 
     widget.filament.setFogOptions(false);
