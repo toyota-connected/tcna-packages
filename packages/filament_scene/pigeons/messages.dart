@@ -109,6 +109,8 @@ abstract class FilamentViewApi {
   /*
    * Collision
    */
+  void raycastFromTap(final double x, final double y);
+
   /// Perform a raycast query.
   /// The result will be sent back to the client via the collision_info event channel.
   void requestCollisionCheckFromRay(

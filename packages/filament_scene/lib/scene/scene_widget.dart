@@ -7,7 +7,7 @@ import 'package:filament_scene/components/camera.dart' show CameraHead, CameraRi
 import 'package:filament_scene/filament_scene.dart' show IndirectLight, Light, Skybox;
 import 'package:filament_scene/generated/messages.g.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:filament_scene/model/model.dart';
@@ -95,36 +95,6 @@ class SceneView extends StatefulWidget {
   /// [SceneController]
   final SceneCreatedCallback? onCreated;
 
-  /// Which gestures should be consumed by the view.
-  ///
-  /// When the view is put inside other view like [ListView],
-  /// it might claim gestures that are recognized by any of the recognizers on this list.
-  /// as the [ListView] will handle vertical drags gestures.
-  ///
-  /// To get the [SceneView] to claim the vertical drag gestures we can pass a vertical drag
-  /// gesture recognizer factory in [gestureRecognizers] e.g:
-  ///
-  /// ```dart
-  /// GestureDetector(
-  ///   onVerticalDragStart: (DragStartDetails details) {},
-  ///   child: SizedBox(
-  ///     width: 200.0,
-  ///     height: 100.0,
-  ///     child: FilamentScene(
-  ///       gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
-  ///         Factory<OneSequenceGestureRecognizer>(
-  ///           () => EagerGestureRecognizer(),
-  ///         ),
-  ///       },
-  ///     ),
-  ///   ),
-  /// )
-  /// ```
-  ///
-  /// When this set is empty, the view will only handle pointer events for gestures that
-  /// were not claimed by any other gesture recognizer.
-  final Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers;
-
   const SceneView({
     super.key,
     required this.filament,
@@ -133,7 +103,6 @@ class SceneView extends StatefulWidget {
     this.shapes,
     this.cameras,
     this.onCreated,
-    this.gestureRecognizers = const <Factory<OneSequenceGestureRecognizer>>{},
   });
 
   @override
@@ -150,13 +119,7 @@ class SceneView extends StatefulWidget {
       ..add(IterableProperty<Shape>('shapes', shapes))
       ..add(IterableProperty<Camera>('cameras', cameras))
       ..add(ObjectFlagProperty<FilamentViewApi>('filament', filament, ifNull: 'no engine'))
-      ..add(ObjectFlagProperty<SceneCreatedCallback?>.has('onCreated', onCreated))
-      ..add(
-        IterableProperty<Factory<OneSequenceGestureRecognizer>>(
-          'gestureRecognizers',
-          gestureRecognizers,
-        ),
-      );
+      ..add(ObjectFlagProperty<SceneCreatedCallback?>.has('onCreated', onCreated));
   }
 }
 
@@ -176,12 +139,23 @@ class ModelViewerState extends State<SceneView> {
   Widget build(final BuildContext context) {
     if (defaultTargetPlatform == TargetPlatform.android ||
         defaultTargetPlatform == TargetPlatform.linux) {
-      return AndroidView(
-        viewType: _viewType,
-        creationParams: _creationParams,
-        creationParamsCodec: const StandardMessageCodec(),
-        onPlatformViewCreated: _onPlatformViewCreated,
-        gestureRecognizers: widget.gestureRecognizers,
+      return GestureDetector(
+        onTapUp: (final details) {
+          unawaited(
+            widget.filament.raycastFromTap(details.globalPosition.dx, details.globalPosition.dy),
+          );
+        },
+        behavior: HitTestBehavior.opaque,
+        child: AndroidView(
+          viewType: _viewType,
+          creationParams: _creationParams,
+          creationParamsCodec: const StandardMessageCodec(),
+          onPlatformViewCreated: _onPlatformViewCreated,
+          // NOTE: [hitTestBehavior] is set to [PlatformViewHitTestBehavior.transparent] to allow
+          // Flutter to handle the gestures instead of passing them to the platform view directly.
+          hitTestBehavior: PlatformViewHitTestBehavior.transparent,
+          gestureRecognizers: const {},
+        ),
       );
     }
     return Text('$defaultTargetPlatform is not yet supported by the plugin');
@@ -192,14 +166,13 @@ class ModelViewerState extends State<SceneView> {
     final Map<String, dynamic>? scene = widget.scene?.toJson();
     _creationParams["models"] = widget.models?.map((final param) => param.toJson()).toList();
     _creationParams["scene"] = scene;
-    // _creationParams["shapes"] =
-    //     widget.shapes?.map((param) => param.toJson()).toList();
     // use concatenated toFlatJson
     _creationParams["shapes"] = widget.shapes
         ?.map((final param) => param.toFlatJson())
         .flattenedToList;
     _creationParams["cameras"] = widget.cameras?.map((final param) => param.toJson()).toList();
 
+    // NOTE: use this to debug the creation params
     // pretty print json
     // JsonEncoder encoder = const JsonEncoder.withIndent('  ');
     // final json = encoder.convert(_creationParams);
