@@ -101,11 +101,11 @@ class SettingsSceneView extends StatefulSceneView {
     'bg_shape_1': generateGuid(),
   };
 
+  static const double cameraMenuDollyOffsetX = -1.5;
   static final Camera _sceneCamera = Camera(
     id: objectGuids['camera']!,
     targetPoint: carOrigin,
     orbitAngles: Vector2(radians(14.85), radians(30)),
-    dollyOffset: Vector3(-1.5, 0, 0),
     targetDistance: 8,
     name: 'camera',
   );
@@ -416,7 +416,15 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
     print("SettingsSceneView created!");
     _resetCamera();
 
-    _animationController = BottomSheet.createAnimationController(this);
+    _animationController = BottomSheet.createAnimationController(
+      this,
+      sheetAnimationStyle: const AnimationStyle(
+        curve: Curves.easeIn,
+        reverseCurve: Curves.easeOut,
+        duration: Duration(milliseconds: 600),
+        reverseDuration: Duration(milliseconds: 600),
+      ),
+    );
 
     // Set up listeners for wheel clicks
     widget.collisionController.addListener(_onObjectTouch);
@@ -639,16 +647,32 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
     }
 
     // Rotate camera
-    {
-      _cameraOrbitAngles.x += radians(30) * dt;
+    if (_cameraOrbitSpeed != 0) {
+      _cameraOrbitAngles.x += _cameraOrbitSpeed * dt;
 
-      SettingsSceneView._sceneCamera.setOrbit(
-        horizontal: _cameraOrbitAngles.x,
-        vertical: _cameraOrbitAngles.y,
-      );
+      SettingsSceneView._sceneCamera.orbitAngles = _cameraOrbitAngles;
+    }
+
+    // Animate camera to menu position
+    const double cameraMenuDollyOffsetX =
+        SettingsSceneView.cameraMenuDollyOffsetX;
+
+    // If animating, apply the offset to the camera
+    if (_animationController.isAnimating) {
+      _cameraMenuOffset.x = cameraMenuDollyOffsetX * _animationController.value;
+      SettingsSceneView._sceneCamera.dollyOffset = _cameraMenuOffset;
+
+      // Adjust camera orbit speed based on animation progress
+      _cameraOrbitSpeed =
+          _cameraOrbitMaxSpeed * (1 - _animationController.value);
     }
   }
 
+  static const double _cameraOrbitMaxSpeed =
+      30 * pi / 180; // 30 degrees per second
+  double _cameraOrbitSpeed = _cameraOrbitMaxSpeed;
+
+  final Vector3 _cameraMenuOffset = Vector3.zero();
   final Vector2 _cameraOrbitAngles = Vector2(radians(14.85), radians(30));
 
   @override
@@ -752,12 +776,8 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
           GestureDetector(
             onTap: () {
               setState(() {
-                _showSettings = !_showSettings;
-                if (_showSettings) {
-                  _animationController.forward();
-                } else {
-                  _animationController.reverse();
-                }
+                _showSettings = true;
+                _animationController.forward();
               });
             },
             child: Container(
@@ -790,7 +810,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       height: _screenHeight,
       width: 320,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 240),
+        color: Colors.white.withAlpha(200),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
@@ -840,6 +860,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
                   // Navigator.of(context).pop();
                   setState(() {
                     _showSettings = false;
+                    _animationController.reverse();
                   });
                 },
               ),

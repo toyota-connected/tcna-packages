@@ -51,7 +51,8 @@ Quaternion cameraOrbitToQuaternion(
   final double azimuth,
 
   /// Elevation angle (Y) in radians
-  final double elevation, [
+  final double elevation,
+  final double roll, [
   final Quaternion? out,
 ]) {
   return sphericalToQuaternion(
