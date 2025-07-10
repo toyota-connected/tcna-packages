@@ -4,8 +4,6 @@ part './default_indirect_light.dart';
 part './hdr_indirect_light.dart';
 part './ktx_indirect_light.dart';
 
-
-
 /// An object that represents Indirect Light which is used to simulate environment lighting, a form of global illumination.
 /// Filament supports rendering with image-based lighting, or IBL.
 /// This uses an environment map to approximate the lighting all directions.
@@ -40,11 +38,7 @@ abstract class IndirectLight {
   /// or create default light with certain intensity.
   double? intensity;
 
-  IndirectLight({
-    this.assetPath,
-    this.url,
-    this.intensity,
-  });
+  IndirectLight({this.assetPath, this.url, this.intensity});
 
   Map<String, dynamic> toJson() => <String, dynamic>{
     'intensity': intensity,
@@ -61,12 +55,10 @@ abstract class IndirectLight {
   bool operator ==(final Object other) {
     if (identical(this, other)) return true;
 
-    return
-      other is IndirectLight &&
-      other.assetPath == assetPath &&
-      other.url == url &&
-      other.intensity == intensity
-    ;
+    return other is IndirectLight &&
+        other.assetPath == assetPath &&
+        other.url == url &&
+        other.intensity == intensity;
   }
 
   @override

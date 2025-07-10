@@ -1,4 +1,3 @@
-
 ///Denotes the projection type used by this camera.
 enum ProjectionType {
   /// Perspective projection, objects get smaller as they are farther.
@@ -10,7 +9,8 @@ enum ProjectionType {
   final String value;
   const ProjectionType(this.value);
 
-  static ProjectionType from(final String? type) => ProjectionType.values.asNameMap()[type] ?? ProjectionType.perspective;
+  static ProjectionType from(final String? type) =>
+      ProjectionType.values.asNameMap()[type] ?? ProjectionType.perspective;
 }
 
 ///Denotes a field-of-view direction.
@@ -71,15 +71,17 @@ class Projection {
     this.aspect,
     this.near,
     this.far,
-  }) :
-    left = null,
-    right = null,
-    bottom = null,
-    top = null,
-    assert(fovInDegrees != null && fovInDegrees > 0 && fovInDegrees < 180, "Field of view must be between 0 and 180 degrees"),
-    assert(aspect == null || aspect > 0, "Aspect ratio must be greater than 0"),
-    assert(near == null || near > 0, "Near must be greater than 0 for perspective projection");
-    // assert(far == null || far > near!, "Far must be greater than near for perspective projection");
+  }) : left = null,
+       right = null,
+       bottom = null,
+       top = null,
+       assert(
+         fovInDegrees != null && fovInDegrees > 0 && fovInDegrees < 180,
+         "Field of view must be between 0 and 180 degrees",
+       ),
+       assert(aspect == null || aspect > 0, "Aspect ratio must be greater than 0"),
+       assert(near == null || near > 0, "Near must be greater than 0 for perspective projection");
+  // assert(far == null || far > near!, "Far must be greater than near for perspective projection");
 
   ///Sets the projection matrix from a frustum defined by six planes.
   const Projection.fromPlanes({
@@ -90,14 +92,13 @@ class Projection {
     required this.top,
     this.near,
     this.far,
-  }) :
-    aspect = null,
-    fovInDegrees = null,
-    fovDirection = null,
-    assert(left != null && right != null && left < right, "Left must be less than right"),
-    assert(bottom != null && top != null && bottom < top, "Bottom must be less than top"),
-    assert(near == null || near > 0, "Near must be greater than 0 for perspective projection");
-    // assert(far == null || far > near!, "Far must be greater than near for perspective projection");
+  }) : aspect = null,
+       fovInDegrees = null,
+       fovDirection = null,
+       assert(left != null && right != null && left < right, "Left must be less than right"),
+       assert(bottom != null && top != null && bottom < top, "Bottom must be less than top"),
+       assert(near == null || near > 0, "Near must be greater than 0 for perspective projection");
+  // assert(far == null || far > near!, "Far must be greater than near for perspective projection");
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{

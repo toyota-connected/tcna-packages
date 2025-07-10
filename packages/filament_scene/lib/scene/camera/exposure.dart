@@ -1,4 +1,3 @@
-
 /// An object that control camera Exposure.
 /// The exposure ultimately controls the scene's brightness,
 /// just like with a real camera. The default values provide adequate exposure for a camera
@@ -30,31 +29,37 @@ class Exposure {
   /// Many engines/tools use unit-less light intensities,
   /// which can be matched by setting the exposure manually.
   /// This can be typically achieved by setting the exposure to 1.0.
-  const Exposure([
-    final double exposure = 1.0,
-  ]) :
-    aperture = null,
-    shutterSpeed = null,
-    sensitivity = null,
-    // ignore: prefer_initializing_formals
-    exposure = exposure;
+  const Exposure([final double exposure = 1.0])
+    : aperture = null,
+      shutterSpeed = null,
+      sensitivity = null,
+      // ignore: prefer_initializing_formals
+      exposure = exposure;
 
   ///Sets this camera's exposure (default is f/16, 1/125s, 100 ISO)
   const Exposure.fromAperture({
     final double? aperture = 16.0,
     final double? shutterSpeed = 1 / 125.0,
     final double? sensitivity = 100.0,
-  }) :
-    exposure = null,
-    // ignore: prefer_initializing_formals
-    aperture = aperture,
-    assert(aperture != null && (aperture >= 0.5 && aperture <= 64), "Aperture must be between 0.5 and 64"),
-    // ignore: prefer_initializing_formals
-    shutterSpeed = shutterSpeed,
-    assert(shutterSpeed != null && (shutterSpeed >= 1 / 25000 && shutterSpeed <= 60), "Shutter speed must be between 1/25000 and 60 seconds"),
-    // ignore: prefer_initializing_formals
-    sensitivity = sensitivity,
-    assert(sensitivity != null && (sensitivity >= 10 && sensitivity <= 204800), "Sensitivity must be between 10 and 204800 ISO");
+  }) : exposure = null,
+       // ignore: prefer_initializing_formals
+       aperture = aperture,
+       assert(
+         aperture != null && (aperture >= 0.5 && aperture <= 64),
+         "Aperture must be between 0.5 and 64",
+       ),
+       // ignore: prefer_initializing_formals
+       shutterSpeed = shutterSpeed,
+       assert(
+         shutterSpeed != null && (shutterSpeed >= 1 / 25000 && shutterSpeed <= 60),
+         "Shutter speed must be between 1/25000 and 60 seconds",
+       ),
+       // ignore: prefer_initializing_formals
+       sensitivity = sensitivity,
+       assert(
+         sensitivity != null && (sensitivity >= 10 && sensitivity <= 204800),
+         "Sensitivity must be between 10 and 204800 ISO",
+       );
 
   Exposure copyWith({
     final double? aperture,
@@ -100,9 +105,6 @@ class Exposure {
 
   @override
   int get hashCode {
-    return aperture.hashCode ^
-        shutterSpeed.hashCode ^
-        sensitivity.hashCode ^
-        exposure.hashCode;
+    return aperture.hashCode ^ shutterSpeed.hashCode ^ sensitivity.hashCode ^ exposure.hashCode;
   }
 }

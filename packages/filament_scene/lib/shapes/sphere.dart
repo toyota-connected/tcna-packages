@@ -43,11 +43,7 @@ class Sphere extends Shape {
   bool operator ==(final Object other) {
     if (identical(this, other)) return true;
 
-    return
-      other is Sphere &&
-      other.stacks == stacks &&
-      other.slices == slices &&
-      super == other;
+    return other is Sphere && other.stacks == stacks && other.slices == slices && super == other;
   }
 
   @override

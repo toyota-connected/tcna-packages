@@ -25,5 +25,6 @@ enum LoadingState {
 
   const LoadingState(this.value);
 
-  static LoadingState from(final String? state) => LoadingState.values.asNameMap()[state] ?? LoadingState.none;
+  static LoadingState from(final String? state) =>
+      LoadingState.values.asNameMap()[state] ?? LoadingState.none;
 }

@@ -42,6 +42,5 @@ class Texture {
   }
 
   @override
-  int get hashCode =>
-      assetPath.hashCode ^ url.hashCode ^ type.hashCode ^ sampler.hashCode;
+  int get hashCode => assetPath.hashCode ^ url.hashCode ^ type.hashCode ^ sampler.hashCode;
 }

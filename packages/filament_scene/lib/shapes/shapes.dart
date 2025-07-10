@@ -73,16 +73,12 @@ class Shape extends TransformEntity {
   bool operator ==(final Object other) {
     if (identical(this, other)) return true;
 
-    return
-      other is Shape &&
-      other.position == position &&
-      other.normal == normal &&
-      other.material == material;
+    return other is Shape &&
+        other.position == position &&
+        other.normal == normal &&
+        other.material == material;
   }
 
   @override
-  int get hashCode =>
-      position.hashCode ^
-      normal.hashCode ^
-      material.hashCode;
+  int get hashCode => position.hashCode ^ normal.hashCode ^ material.hashCode;
 }

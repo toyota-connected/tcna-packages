@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:core';
 
 import 'package:collection/collection.dart';
 import 'package:filament_scene/camera/camera.dart';
+import 'package:filament_scene/components/camera.dart' show CameraHead, CameraRig;
 import 'package:filament_scene/filament_scene.dart' show IndirectLight, Light, Skybox;
 import 'package:filament_scene/generated/messages.g.dart';
 import 'package:flutter/foundation.dart';
@@ -15,14 +15,13 @@ import 'package:filament_scene/scene/scene.dart';
 import 'package:filament_scene/shapes/shapes.dart';
 import 'package:filament_scene/utils/result.dart';
 
-typedef SceneCreatedCallback = void Function( SceneController controller);
+typedef SceneCreatedCallback = void Function(SceneController controller);
 const String _channelName = "com.toyotaconnected.filament_view.channel";
 const String _viewType = "${_channelName}_3d_scene";
 
-
 /// An object which helps facilitate communication between the [SceneView] Widget
 /// and android side model viewer based on Filament.
-/// 
+///
 /// It provides utility methods to update the viewer, change the animation environment, lighting, etc.
 /// Each controller is unique for each widget.
 class SceneController {
@@ -40,16 +39,11 @@ class SceneController {
     final List<Model>? models,
     final List<Shape>? shapes,
   }) async {
-
-    
-    final Future<bool?> data = _channel.invokeMethod<bool>(
-      _updateFilamentScene,
-      <String, Object?>{
-        _updateFilamentSceneSceneKey: scene?.toJson(),
-        _updateFilamentSceneModelKey: models?.map((final e) => e.toJson()).toList(),
-        _updateFilamentSceneShapesKey: shapes?.map((final e) => e.toJson()).toList(),
-      },
-    );
+    final Future<bool?> data = _channel.invokeMethod<bool>(_updateFilamentScene, <String, Object?>{
+      _updateFilamentSceneSceneKey: scene?.toJson(),
+      _updateFilamentSceneModelKey: models?.map((final e) => e.toJson()).toList(),
+      _updateFilamentSceneShapesKey: shapes?.map((final e) => e.toJson()).toList(),
+    });
 
     return handleError(data);
   }
@@ -60,11 +54,9 @@ const String _updateFilamentSceneSceneKey = "UPDATE_FILAMENT_SCENE_SCENE_KEY";
 const String _updateFilamentSceneModelKey = "UPDATE_FILAMENT_SCENE_MODEL_KEY";
 const String _updateFilamentSceneShapesKey = "UPDATE_FILAMENT_SCENE_SHAPES_KEY";
 
-
 class SceneView extends StatefulWidget {
   /// FilamentViewApi instance to be used for rendering the scene.
   final FilamentViewApi filament;
-
 
   /// Model to be rendered.
   /// provide details about the model to be rendered.
@@ -159,14 +151,18 @@ class SceneView extends StatefulWidget {
       ..add(IterableProperty<Camera>('cameras', cameras))
       ..add(ObjectFlagProperty<FilamentViewApi>('filament', filament, ifNull: 'no engine'))
       ..add(ObjectFlagProperty<SceneCreatedCallback?>.has('onCreated', onCreated))
-      ..add(IterableProperty<Factory<OneSequenceGestureRecognizer>>('gestureRecognizers', gestureRecognizers));
+      ..add(
+        IterableProperty<Factory<OneSequenceGestureRecognizer>>(
+          'gestureRecognizers',
+          gestureRecognizers,
+        ),
+      );
   }
 }
 
 class ModelViewerState extends State<SceneView> {
   final Map<String, dynamic> _creationParams = <String, dynamic>{};
-  final Completer<SceneController> _controller =
-      Completer<SceneController>();
+  final Completer<SceneController> _controller = Completer<SceneController>();
 
   ModelViewerState();
 
@@ -194,16 +190,15 @@ class ModelViewerState extends State<SceneView> {
   void _setupCreationParams() {
     //final model = widget.models?.toJson();
     final Map<String, dynamic>? scene = widget.scene?.toJson();
-    _creationParams["models"] =
-      widget.models?.map((final param) => param.toJson()).toList();
+    _creationParams["models"] = widget.models?.map((final param) => param.toJson()).toList();
     _creationParams["scene"] = scene;
     // _creationParams["shapes"] =
     //     widget.shapes?.map((param) => param.toJson()).toList();
     // use concatenated toFlatJson
-    _creationParams["shapes"] = 
-      widget.shapes?.map((final param) => param.toFlatJson()).flattenedToList;
-    _creationParams["cameras"] = 
-      widget.cameras?.map((final param) => param.toJson()).toList();
+    _creationParams["shapes"] = widget.shapes
+        ?.map((final param) => param.toFlatJson())
+        .flattenedToList;
+    _creationParams["cameras"] = widget.cameras?.map((final param) => param.toJson()).toList();
 
     // pretty print json
     // JsonEncoder encoder = const JsonEncoder.withIndent('  ');
@@ -217,7 +212,7 @@ class ModelViewerState extends State<SceneView> {
     _controller.complete(controller);
     if (widget.onCreated != null) {
       // Set the engine on all entities
-      /// TODO(kerberjg): just keep a list of entities in a single map
+      // TODO(kerberjg): just keep a list of entities in a single map
       widget.models?.forEach((final model) => model.initialize(widget.filament));
       widget.shapes?.forEach((final shape) => shape.initialize(widget.filament));
       widget.cameras?.forEach((final camera) => camera.initialize(widget.filament));

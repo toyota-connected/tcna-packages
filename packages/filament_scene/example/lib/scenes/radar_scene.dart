@@ -1,4 +1,3 @@
-
 import 'package:filament_scene/camera/camera.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/shapes/shapes.dart';
@@ -9,14 +8,10 @@ import 'package:my_fox_example/scenes/scene_view.dart';
 import 'package:filament_scene/filament_scene.dart';
 import 'package:filament_scene/math/utils.dart';
 
-
-
-
 final List<EntityGUID> _radarConePieceGUID = [];
 final List<EntityGUID> _radarSegmentPieceGUID = [];
 
 class RadarSceneView extends StatefulSceneView {
-
   const RadarSceneView({
     super.key,
     required super.filament,
@@ -28,9 +23,7 @@ class RadarSceneView extends StatefulSceneView {
   @override
   _RadarSceneViewState createState() => _RadarSceneViewState();
 
-  static final Map<String, EntityGUID> objectGuids = {
-    'camera': generateGuid(),
-  };
+  static final Map<String, EntityGUID> objectGuids = {'camera': generateGuid()};
 
   static final Camera _sceneCamera = Camera(
     id: objectGuids['camera']!,
@@ -41,58 +34,64 @@ class RadarSceneView extends StatefulSceneView {
   );
 
   static List<Camera> getSceneCameras() {
-    return [ _sceneCamera ];
+    return [_sceneCamera];
   }
 
   static List<Model> getSceneModels() {
     final List<Model> models = [];
 
     for (int i = 0; i < 10; i++) {
-      models.add(GlbModel.asset(
-        assetPath: sequoiaAsset,
-        position: Vector3(-40, 0, i * 5 - 25),
-        scale: Vector3.all(1),
+      models.add(
+        GlbModel.asset(
+          assetPath: sequoiaAsset,
+          position: Vector3(-40, 0, i * 5 - 25),
+          scale: Vector3.all(1),
+          rotation: Quaternion.identity(),
+          collidable: null,
+          animation: null,
+          receiveShadows: true,
+          castShadows: true,
+          name: "sequoia_$i",
+          id: generateGuid(),
+          instancingMode: ModelInstancingType.instanced,
+        ),
+      );
+    }
+
+    models.add(
+      GlbModel.asset(
+        assetPath: roadAsset,
+        position: Vector3(-40, 0, 0),
+        scale: Vector3(.4, .1, .2),
         rotation: Quaternion.identity(),
         collidable: null,
         animation: null,
         receiveShadows: true,
-        castShadows: true,
-        name: "sequoia_$i",
+        castShadows: false,
+        name: "road",
         id: generateGuid(),
-        instancingMode: ModelInstancingType.instanced,
-      ));
-    }
-
-    models.add(GlbModel.asset(
-      assetPath: roadAsset,
-      position: Vector3(-40, 0, 0),
-      scale: Vector3(.4, .1, .2),
-      rotation: Quaternion.identity(),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: false,
-      name: "road",
-      id: generateGuid(),
-      instancingMode: ModelInstancingType.none,
-    ));
+        instancingMode: ModelInstancingType.none,
+      ),
+    );
 
     EntityGUID id = generateGuid();
     _radarConePieceGUID.add(id);
 
-    models.add(GlbModel.asset(
-      id: id,
-      assetPath: radarConeAsset,
-      name: "radarCone",
-      position: Vector3(-42.1, 1, 0),
-      scale: Vector3(4, 1, 3),
-      rotation: Quaternion.identity(),
-      collidable: null,
-      animation: null,
-      receiveShadows: false,
-      castShadows: false,
-      instancingMode: ModelInstancingType.none,
-    ));
+    models.add(
+      GlbModel.asset(
+        id: id,
+        assetPath: radarConeAsset,
+        name: "radarCone",
+        position: Vector3(-42.1, 1, 0),
+        scale: Vector3(4, 1, 3),
+        rotation: Quaternion.identity(),
+        collidable: null,
+        animation: null,
+        receiveShadows: false,
+        castShadows: false,
+        instancingMode: ModelInstancingType.none,
+      ),
+    );
 
     // primary radar segment
     // models.add(poGetModel(
@@ -111,19 +110,21 @@ class RadarSceneView extends StatefulSceneView {
     for (int i = 0; i < 20; i++) {
       EntityGUID idForSegment = generateGuid();
 
-      models.add(GlbModel.asset(
-        id: idForSegment,
-        assetPath: radarSegmentAsset,
-        name: "radarSegment_$i",
-        position: Vector3(-42.2, 0, 0),
-        scale: Vector3(0, 0, 0),
-        rotation: Quaternion(0.7071, 0, 0.7071, 0),
-        collidable: null,
-        animation: null,
-        receiveShadows: true,
-        castShadows: true,
-        instancingMode: ModelInstancingType.instanced,
-      ));
+      models.add(
+        GlbModel.asset(
+          id: idForSegment,
+          assetPath: radarSegmentAsset,
+          name: "radarSegment_$i",
+          position: Vector3(-42.2, 0, 0),
+          scale: Vector3(0, 0, 0),
+          rotation: Quaternion(0.7071, 0, 0.7071, 0),
+          collidable: null,
+          animation: null,
+          receiveShadows: true,
+          castShadows: true,
+          instancingMode: ModelInstancingType.instanced,
+        ),
+      );
 
       _radarSegmentPieceGUID.add(idForSegment);
     }
@@ -151,27 +152,27 @@ class _RadarSceneViewState extends StatefulSceneViewState<RadarSceneView> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-      ElevatedButton(
-        onPressed: () {
-          setState(() {
-            // vDoOneWaveSegment(filamentViewApi);
-            onTriggerEvent("doOneWaveSegment");
-          });
-        },
-        child: const Text('Send Single Line out'),
-      ),
-      const SizedBox(width: 5),
-      ElevatedButton(
-        onPressed: () {
-          setState(() {
-            // vDo3RadarWaveSegments(filamentViewApi);
-            onTriggerEvent("do3RadarWaveSegments");
-          });
-        },
-        child: const Text('Send Wave Out'),
-      ),
-      // Add more alternate buttons if needed
-    ]
+        ElevatedButton(
+          onPressed: () {
+            setState(() {
+              // vDoOneWaveSegment(filamentViewApi);
+              onTriggerEvent("doOneWaveSegment");
+            });
+          },
+          child: const Text('Send Single Line out'),
+        ),
+        const SizedBox(width: 5),
+        ElevatedButton(
+          onPressed: () {
+            setState(() {
+              // vDo3RadarWaveSegments(filamentViewApi);
+              onTriggerEvent("do3RadarWaveSegments");
+            });
+          },
+          child: const Text('Send Wave Out'),
+        ),
+        // Add more alternate buttons if needed
+      ],
     );
   }
 
@@ -190,17 +191,19 @@ class _RadarSceneViewState extends StatefulSceneViewState<RadarSceneView> {
 
   @override
   void onTriggerEvent(final String eventName, [final dynamic eventData]) {
-    switch(eventName) {
+    switch (eventName) {
       case "doOneWaveSegment":
         vDoOneWaveSegment(widget.filament);
         break;
-      
+
       case "do3RadarWaveSegments":
         vDo3RadarWaveSegments(widget.filament);
         break;
 
       default:
-        throw UnsupportedError("event '$eventName' is not supported by $runtimeType");
+        throw UnsupportedError(
+          "event '$eventName' is not supported by $runtimeType",
+        );
     }
   }
 
@@ -228,7 +231,8 @@ class _RadarSceneViewState extends StatefulSceneViewState<RadarSceneView> {
         scaleFactor = 0.0;
       }
 
-      double moveDistance = segment.elapsedTime * 12; // Example movement distance
+      double moveDistance =
+          segment.elapsedTime * 12; // Example movement distance
 
       // Apply the position and scale changes
       _setPositionAndScale(filamentView, segment.id, moveDistance, scaleFactor);
@@ -251,7 +255,9 @@ class SegmentData {
 List<SegmentData> inUse = [];
 
 // List of segments that are free (available to use)
-List<SegmentData> free = List.from(_radarSegmentPieceGUID.map((id) => SegmentData(id, 0.0)));
+List<SegmentData> free = List.from(
+  _radarSegmentPieceGUID.map((id) => SegmentData(id, 0.0)),
+);
 
 void vDoOneWaveSegment(FilamentViewApi filamentView) {
   if (free.isNotEmpty) {
@@ -261,8 +267,7 @@ void vDoOneWaveSegment(FilamentViewApi filamentView) {
 
     // Set the position and scale for this segment
     _setPositionAndScale(filamentView, segmentData.id, 0.0, 0.0);
-    filamentView
-        .turnOnVisualForEntity(segmentData.id); // turnOnVisualForEntity
+    filamentView.turnOnVisualForEntity(segmentData.id); // turnOnVisualForEntity
 
     // if you want a specific color; note the game models i checked in dont have
     // materials on them.
@@ -286,8 +291,9 @@ void vDo3RadarWaveSegments(FilamentViewApi filamentView) {
 
       // Set the position and scale for this segment
       _setPositionAndScale(filamentView, segmentData.id, 0.0, 0.0);
-      filamentView
-          .turnOnVisualForEntity(segmentData.id); // turnOnVisualForEntity
+      filamentView.turnOnVisualForEntity(
+        segmentData.id,
+      ); // turnOnVisualForEntity
 
       // Debugging: Print the current state
       //print('vDo3RadarWaveSegments: Moved GUID to inUse: ${segmentData.id}');
@@ -298,8 +304,12 @@ void vDo3RadarWaveSegments(FilamentViewApi filamentView) {
   }
 }
 
-void _setPositionAndScale(FilamentViewApi filamentView, EntityGUID id,
-    double positionOffset, double scaleFactor) {
+void _setPositionAndScale(
+  FilamentViewApi filamentView,
+  EntityGUID id,
+  double positionOffset,
+  double scaleFactor,
+) {
   // Placeholder function to set position and scale based on GUID
   // Add your custom logic for applying position and scale to the model
   //print("_setPositionAndScale: $id | positionOffset = $positionOffset, scaleFactor = $scaleFactor");
@@ -325,10 +335,11 @@ void _setPositionAndScale(FilamentViewApi filamentView, EntityGUID id,
 
 void resetSegment(FilamentViewApi filamentView, EntityGUID id) {
   // Move the segment back to the free list once it's done
-  SegmentData? segmentData = inUse.firstWhere((segment) => segment.id == id,
-      orElse: () =>
-          SegmentData(id, 0.0) // Provide a default object instead of null
-      );
+  SegmentData? segmentData = inUse.firstWhere(
+    (segment) => segment.id == id,
+    orElse: () =>
+        SegmentData(id, 0.0), // Provide a default object instead of null
+  );
 
   if (segmentData.id == id) {
     // Only proceed if we found a matching segment

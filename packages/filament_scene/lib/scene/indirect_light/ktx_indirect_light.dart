@@ -5,8 +5,7 @@ part of './indirect_light.dart';
 /// To extract indirect light from images, Use the cmgen tool to generate the indirect light data as ktx file format.
 class KtxIndirectLight extends IndirectLight {
   /// creates a new indirect light from ktx file format from assets.
-  KtxIndirectLight.asset(final String path, {super.intensity})
-      : super(assetPath: path);
+  KtxIndirectLight.asset(final String path, {super.intensity}) : super(assetPath: path);
 
   /// creates a new indirect light from ktx file format from url.
   KtxIndirectLight.url(final String url, {super.intensity}) : super(url: url);
@@ -29,9 +28,6 @@ class KtxIndirectLight extends IndirectLight {
   bool operator ==(final Object other) {
     if (identical(this, other)) return true;
 
-    return
-      other is KtxIndirectLight &&
-      super == other
-    ;
+    return other is KtxIndirectLight && super == other;
   }
 }

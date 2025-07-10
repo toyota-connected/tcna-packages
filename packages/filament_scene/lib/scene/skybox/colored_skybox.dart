@@ -6,11 +6,11 @@ class ColoredSkybox extends Skybox {
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'assetPath': assetPath,
-        'url': url,
-        'color': color?.toHex(),
-        'skyboxType': 3,
-      };
+    'assetPath': assetPath,
+    'url': url,
+    'color': color?.toHex(),
+    'skyboxType': 3,
+  };
 
   @override
   String toString() {
