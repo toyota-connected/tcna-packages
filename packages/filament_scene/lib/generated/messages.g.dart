@@ -40,6 +40,7 @@ List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty
   return <Object?>[error.code, error.message, error.details];
 }
 
+
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
@@ -66,10 +67,8 @@ class FilamentViewApi {
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
   FilamentViewApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
-    : pigeonVar_binaryMessenger = binaryMessenger,
-      pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty
-          ? '.$messageChannelSuffix'
-          : '';
+      : pigeonVar_binaryMessenger = binaryMessenger,
+        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
   final BinaryMessenger? pigeonVar_binaryMessenger;
 
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
@@ -78,8 +77,7 @@ class FilamentViewApi {
 
   /// Change material parameters for the given entity.
   Future<void> changeMaterialParameter(Map<String?, Object?> params, int id) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeMaterialParameter$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeMaterialParameter$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -102,8 +100,7 @@ class FilamentViewApi {
 
   /// Change material definition for the given entity.
   Future<void> changeMaterialDefinition(Map<String?, Object?> params, int id) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeMaterialDefinition$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeMaterialDefinition$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -126,8 +123,7 @@ class FilamentViewApi {
 
   /// Toggle shapes visibility in the scene.
   Future<void> toggleShapesInScene(bool value) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.toggleShapesInScene$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.toggleShapesInScene$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -150,14 +146,14 @@ class FilamentViewApi {
 
   /// Cycle between view quality settings presets.
   Future<void> changeViewQualitySettings() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeViewQualitySettings$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeViewQualitySettings$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final List<Object?>? pigeonVar_replyList = await pigeonVar_channel.send(null) as List<Object?>?;
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(null) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -173,8 +169,7 @@ class FilamentViewApi {
 
   /// Set fog options
   Future<void> setFogOptions(bool enable) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.setFogOptions$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.setFogOptions$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -196,16 +191,38 @@ class FilamentViewApi {
   }
 
   /// Set the camera orbit's anchoring/origin entity
-  Future<void> setCameraOrigin(int id, int originEntityId) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.setCameraOrigin$pigeonVar_messageChannelSuffix';
+  Future<void> setCameraOrbit(int id, int originEntityId, Float64List orbitRotation) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.setCameraOrbit$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[id, targetEntityId]) as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[id, originEntityId, orbitRotation]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  /// Set the camera's look-at target entity.
+  Future<void> setCameraTarget(int id, int targetEntityId, Float64List? targetPosition) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.setCameraTarget$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[id, targetEntityId, targetPosition]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -221,8 +238,7 @@ class FilamentViewApi {
 
   /// Set a given camera as the active camera for a view
   Future<void> setActiveCamera(int? viewId, int cameraId) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.setActiveCamera$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.setActiveCamera$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -246,8 +262,7 @@ class FilamentViewApi {
   /// Set the camera's dolly offset.
   /// The dolly offset is the camera's position relative to its target.
   Future<void> setCameraDolly(int id, Float64List dollyOffset) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.setCameraDolly$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.setCameraDolly$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -268,11 +283,9 @@ class FilamentViewApi {
     }
   }
 
-  // TODO(kerberjg): add setCameraIpd to support stereoscopic/VR cameras
   /// Set a light's color and intensity by GUID.
   Future<void> changeLightColorByGUID(int id, String color, int intensity) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeLightColorByGUID$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeLightColorByGUID$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -294,25 +307,15 @@ class FilamentViewApi {
   }
 
   /// Set a light's transform by GUID. Deprecated.
-  Future<void> changeLightTransformByGUID(
-    int id,
-    double posx,
-    double posy,
-    double posz,
-    double dirx,
-    double diry,
-    double dirz,
-  ) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeLightTransformByGUID$pigeonVar_messageChannelSuffix';
+  Future<void> changeLightTransformByGUID(int id, double posx, double posy, double posz, double dirx, double diry, double dirz) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeLightTransformByGUID$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[id, posx, posy, posz, dirx, diry, dirz])
-            as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[id, posx, posy, posz, dirx, diry, dirz]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -327,8 +330,7 @@ class FilamentViewApi {
   }
 
   Future<void> enqueueAnimation(int id, int animationIndex) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.enqueueAnimation$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.enqueueAnimation$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -350,8 +352,7 @@ class FilamentViewApi {
   }
 
   Future<void> clearAnimationQueue(int id) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.clearAnimationQueue$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.clearAnimationQueue$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -373,8 +374,7 @@ class FilamentViewApi {
   }
 
   Future<void> playAnimation(int id, int animationIndex) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.playAnimation$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.playAnimation$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -396,8 +396,7 @@ class FilamentViewApi {
   }
 
   Future<void> changeAnimationSpeed(int id, double speed) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeAnimationSpeed$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeAnimationSpeed$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -419,8 +418,7 @@ class FilamentViewApi {
   }
 
   Future<void> pauseAnimation(int id) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.pauseAnimation$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.pauseAnimation$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -442,8 +440,7 @@ class FilamentViewApi {
   }
 
   Future<void> resumeAnimation(int id) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.resumeAnimation$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.resumeAnimation$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -465,8 +462,7 @@ class FilamentViewApi {
   }
 
   Future<void> setAnimationLooping(int id, bool looping) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.setAnimationLooping$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.setAnimationLooping$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -488,8 +484,7 @@ class FilamentViewApi {
   }
 
   Future<void> raycastFromTap(double x, double y) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.raycastFromTap$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.raycastFromTap$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -512,35 +507,15 @@ class FilamentViewApi {
 
   /// Perform a raycast query.
   /// The result will be sent back to the client via the collision_info event channel.
-  Future<void> requestCollisionCheckFromRay(
-    String queryID,
-    double originX,
-    double originY,
-    double originZ,
-    double directionX,
-    double directionY,
-    double directionZ,
-    double length,
-  ) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.requestCollisionCheckFromRay$pigeonVar_messageChannelSuffix';
+  Future<void> requestCollisionCheckFromRay(String queryID, double originX, double originY, double originZ, double directionX, double directionY, double directionZ, double length) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.requestCollisionCheckFromRay$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[
-              queryID,
-              originX,
-              originY,
-              originZ,
-              directionX,
-              directionY,
-              directionZ,
-              length,
-            ])
-            as List<Object?>?;
+        await pigeonVar_channel.send(<Object?>[queryID, originX, originY, originZ, directionX, directionY, directionZ, length]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -557,8 +532,7 @@ class FilamentViewApi {
   /// Disable raycast checks for the given entity.
   /// NOTE: this will not hide the collider debug visual.
   Future<void> turnOffCollisionChecksForEntity(int id) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.turnOffCollisionChecksForEntity$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.turnOffCollisionChecksForEntity$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -582,8 +556,7 @@ class FilamentViewApi {
   /// Enable raycast checks for the given entity.
   /// NOTE: this will not show the collider debug visual.
   Future<void> turnOnCollisionChecksForEntity(int id) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.turnOnCollisionChecksForEntity$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.turnOnCollisionChecksForEntity$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -606,8 +579,7 @@ class FilamentViewApi {
 
   /// Enable/disable debug collidable visuals in the scene.
   Future<void> toggleDebugCollidableViewsInScene(bool value) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.toggleDebugCollidableViewsInScene$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.toggleDebugCollidableViewsInScene$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -629,8 +601,7 @@ class FilamentViewApi {
   }
 
   Future<void> setEntityTransformScale(int id, Float64List scl) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.setEntityTransformScale$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.setEntityTransformScale$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -652,8 +623,7 @@ class FilamentViewApi {
   }
 
   Future<void> setEntityTransformPosition(int id, Float64List pos) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.setEntityTransformPosition$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.setEntityTransformPosition$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -675,8 +645,7 @@ class FilamentViewApi {
   }
 
   Future<void> setEntityTransformRotation(int id, Float64List rot) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.setEntityTransformRotation$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.setEntityTransformRotation$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -698,8 +667,7 @@ class FilamentViewApi {
   }
 
   Future<void> turnOffVisualForEntity(int id) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.turnOffVisualForEntity$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.turnOffVisualForEntity$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -721,8 +689,7 @@ class FilamentViewApi {
   }
 
   Future<void> turnOnVisualForEntity(int id) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.turnOnVisualForEntity$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.filament_scene.FilamentViewApi.turnOnVisualForEntity$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
