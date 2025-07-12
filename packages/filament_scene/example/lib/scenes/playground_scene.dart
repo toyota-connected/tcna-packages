@@ -43,9 +43,9 @@ class PlaygroundSceneView extends StatefulSceneView {
 
   static final Camera _sceneCamera = Camera(
     id: objectGuids['playground_camera']!,
-    targetPoint: focusPoint,
+    orbitOriginPoint: focusPoint,
     orbitAngles: initialCameraRotation,
-    targetDistance: 9.5,
+    orbitDistance: 9.5,
     name: 'playgroundCamera',
   );
 

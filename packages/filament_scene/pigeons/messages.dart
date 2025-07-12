@@ -58,8 +58,8 @@ abstract class FilamentViewApi {
   /*
    *  Camera
    */
-  /// Set the camera's targeting
-  void setCameraTarget(final int id, final int targetEntityId);
+  /// Set the camera orbit's anchoring/origin entity
+  void setCameraOrigin(final int id, final int originEntityId);
 
   /// Set a given camera as the active camera for a view
   void setActiveCamera(

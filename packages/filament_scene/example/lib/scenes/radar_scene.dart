@@ -27,9 +27,9 @@ class RadarSceneView extends StatefulSceneView {
 
   static final Camera _sceneCamera = Camera(
     id: objectGuids['camera']!,
-    targetPoint: Vector3(-45, 1, 0),
+    orbitOriginPoint: Vector3(-45, 1, 0),
     orbitAngles: Vector2(radians(-45), radians(-45)),
-    targetDistance: 12,
+    orbitDistance: 12,
     name: 'camera',
   );
 

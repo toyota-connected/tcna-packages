@@ -10,20 +10,21 @@ import 'package:filament_scene/utils/serialization.dart';
 
 /// This [Entity] represents a camera in the scene.
 /// It's composed by two entities:
-/// - rig (entity): centered at the target's position;
+/// - rig (entity): centered at the [orbitOriginPoint], [orbitOriginEntity] or [position];
 ///                 its rotation is used to control the camera's orbit (Y, X)
-/// - head (camera eye): always at (x:0, y:0, z: [targetDistance]) + [dollyOffset] relative to the rig;
+/// - head (camera eye): always at (x:0, y:0, z: [orbitDistance]) + [dollyOffset] relative to the rig;
 ///
 class Camera extends TransformEntity with CameraComponent.Camera, CameraComponent.CameraRig {
   Camera({
     required super.id,
     super.name,
     // Target
-    final Vector3? targetPoint,
-    final EntityGUID? targetEntity,
-    final double targetDistance = 1,
     final Vector3? dollyOffset,
     // Orbit
+    final Vector3? orbitOriginPoint,
+    final EntityGUID? orbitOriginEntity,
+    final double orbitDistance = 0,
+
     /// The orbit rotation euler angles in radians.
     final Vector2? orbitAngles,
     final double? roll = 0,
@@ -34,13 +35,13 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
 
     // Set target
     assert(
-      targetPoint != null || targetEntity != null,
-      "Either targetPosition or targetEntity must be provided, but not both.",
+      orbitOriginPoint != null || orbitOriginEntity != null,
+      "Either targetPosition or orbitOriginEntity must be provided, but not both.",
     );
 
-    super.targetPoint = targetPoint;
-    // super.targetEntity = targetEntity;
-    super.targetDistance = targetDistance;
+    super.orbitOriginPoint = orbitOriginPoint;
+    super.orbitOriginEntity = orbitOriginEntity;
+    super.orbitDistance = orbitDistance;
 
     super.dollyOffset = dollyOffset ?? Vector3.zero();
 
@@ -82,31 +83,49 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
    *  Targeting
    */
 
+  bool _dirtyTarget = true;
+
   @override
-  set targetPoint(final Vector3? point) {
-    super.targetPoint = point;
+  set orbitOriginPoint(final Vector3? point) {
+    super.orbitOriginPoint = point;
+    _dirtyTarget = true;
     _updateRigPosition();
   }
 
   @override
-  set targetEntity(final EntityGUID? entity) {
-    super.targetEntity = entity;
-    unawaited(engine?.setCameraTarget(id, targetEntity ?? kNullGuid));
+  set orbitOriginEntity(final EntityGUID? entity) {
+    super.orbitOriginEntity = entity;
+    _dirtyTarget = true;
+    _updateRigPosition();
   }
 
   void setTarget({final Vector3? point, final EntityGUID? entity}) {
     assert(
       point != null || entity != null,
-      "Either targetPoint or targetEntity must be provided, but not both.",
+      "Either orbitOriginPoint or orbitOriginEntity must be provided, but not both.",
     );
 
-    super.targetPoint = point;
-    // super.targetEntity = entity;
+    super.orbitOriginPoint = point;
+    super.orbitOriginEntity = entity;
+    _dirtyTarget = true;
     _updateRigPosition();
   }
 
   void _updateRigPosition() {
-    if (targetPoint != null) setLocalPosition(targetPoint);
+    if (_dirtyTarget) {
+      print(
+        'Updating camera($id) target: type=${targetType.name}, point=$orbitOriginPoint, entity=$orbitOriginEntity',
+      );
+
+      unawaited(engine?.setCameraOrigin(id, orbitOriginEntity ?? kNullGuid));
+
+      if (orbitOriginPoint != null) {
+        setLocalPosition(orbitOriginPoint);
+      }
+
+      _dirtyTarget = false;
+    }
+
     setLocalRotation();
   }
 
@@ -117,13 +136,13 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
     // If the rig is following an entity, set it to the current position and stop following.
     if (targetType == CameraComponent.CameraTargetType.entity) {
       // skip our setter, we're updating the position below
-      super.targetPoint = getTargetPosition();
-      // super.targetEntity = null; // unnecessary! the above line already does this
+      super.orbitOriginPoint = getTargetPosition();
+      // super.orbitOriginEntity = null; // unnecessary! the above line already does this
     }
 
     // Move the rig to head's current position and reset the target distance.
     if (targetType == CameraComponent.CameraTargetType.point) {
-      final Vector3 currentPosition = (targetPoint ?? position);
+      final Vector3 currentPosition = (orbitOriginPoint ?? position);
 
       // Set the rig's position
       unawaited(engine?.setEntityTransformPosition(id, currentPosition.storage64));
@@ -170,8 +189,8 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
    *  Dolly
    */
   @override
-  set targetDistance(final double distance) {
-    super.targetDistance = distance;
+  set orbitDistance(final double distance) {
+    super.orbitDistance = distance;
     _updateHeadPosition();
   }
 
@@ -182,12 +201,12 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
     _updateHeadPosition();
   }
 
-  static final Vector3 kTargetDistanceAxis = Vector3(0, 0, 1);
+  static final Vector3 kOrbitDistanceAxis = Vector3(0, 0, 1);
   final Vector3 _tmpHeadPosition = Vector3.zero();
 
   void _updateHeadPosition() {
     _tmpHeadPosition.setFrom(dollyOffset);
-    _tmpHeadPosition.addScaled(kTargetDistanceAxis, targetDistance);
+    _tmpHeadPosition.addScaled(kOrbitDistanceAxis, orbitDistance);
 
     unawaited(engine?.setCameraDolly(id, _tmpHeadPosition.storage64));
   }

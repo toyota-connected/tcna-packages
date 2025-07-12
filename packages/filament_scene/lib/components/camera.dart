@@ -77,43 +77,43 @@ abstract mixin class CameraRig {
   /*
    *  Targeting
    */
-  Vector3? _targetPoint;
-  EntityGUID? _targetEntity;
-  double _targetDistance = 1;
+  Vector3? _orbitOriginPoint;
+  EntityGUID? _orbitOriginEntity;
+  double _orbitDistance = 1;
 
-  CameraTargetType get targetType => _targetPoint != null
+  CameraTargetType get targetType => _orbitOriginPoint != null
       ? CameraTargetType.point
-      : _targetEntity != null
+      : _orbitOriginEntity != null
       ? CameraTargetType.entity
       : CameraTargetType.none;
 
-  Vector3? get targetPoint => _targetPoint;
-  EntityGUID? get targetEntity => _targetEntity;
-  double get targetDistance => _targetDistance;
+  Vector3? get orbitOriginPoint => _orbitOriginPoint;
+  EntityGUID? get orbitOriginEntity => _orbitOriginEntity;
+  double get orbitDistance => _orbitDistance;
 
-  set targetPoint(final Vector3? point) {
-    _targetPoint = point;
-    _targetEntity = null;
+  set orbitOriginPoint(final Vector3? point) {
+    if (point != null) _orbitOriginEntity = null;
+    _orbitOriginPoint = point;
   }
 
-  set targetEntity(final EntityGUID? entity) {
-    _targetPoint = null;
-    _targetEntity = entity;
+  set orbitOriginEntity(final EntityGUID? entity) {
+    if (entity != null) _orbitOriginPoint = null;
+    _orbitOriginEntity = entity;
   }
 
-  set targetDistance(final double distance) {
-    _targetDistance = distance;
+  set orbitDistance(final double distance) {
+    _orbitDistance = distance;
   }
 
   void disableTarget() {
-    _targetPoint = null;
-    _targetEntity = null;
+    _orbitOriginPoint = null;
+    _orbitOriginEntity = null;
   }
 
   Vector3 getTargetPosition() {
     switch (targetType) {
       case CameraTargetType.point:
-        return _targetPoint!;
+        return _orbitOriginPoint!;
       case CameraTargetType.entity:
         // TODO(kerberjg): get position of entity
         throw UnimplementedError("Getting transform of entity is not implemented yet.");
@@ -125,10 +125,8 @@ abstract mixin class CameraRig {
   JsonObject rigToJson() {
     return <String, dynamic>{
       'dollyOffset': dollyOffset.toJson(),
-      // NOTE: no need to deserialize targetPoint! it's sent as position in the transform
-      'targetPoint': _targetPoint?.toJson() ?? Vector3.zero().toJson(),
-      'targetEntity': _targetEntity ?? kNullGuid,
-      'targetDistance': _targetDistance,
+      'orbitOriginEntity': _orbitOriginEntity ?? kNullGuid,
+      'orbitDistance': _orbitDistance,
     };
   }
 }
