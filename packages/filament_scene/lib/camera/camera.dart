@@ -152,7 +152,7 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
       roll ?? _orbitAngles.z, // roll
     );
 
-    cameraOrbitToQuaternion(_orbitAngles.x, _orbitAngles.y, _orbitAngles.z, this.rotation);
+    sphericalToQuaternion(_orbitAngles.x, _orbitAngles.y, _orbitAngles.z, this.rotation);
     _updateRigPosition();
   }
 

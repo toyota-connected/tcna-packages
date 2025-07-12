@@ -36,11 +36,15 @@ class PlaygroundSceneView extends StatefulSceneView {
   };
 
   static final Vector3 focusPoint = Vector3(0, 0, 0);
+  static final Vector2 initialCameraRotation = Vector2(
+    radians(240),
+    radians(-15),
+  );
 
   static final Camera _sceneCamera = Camera(
     id: objectGuids['playground_camera']!,
     targetPoint: focusPoint,
-    orbitAngles: Vector2(radians(-60), radians(15)),
+    orbitAngles: initialCameraRotation,
     targetDistance: 9.5,
     name: 'playgroundCamera',
   );
@@ -256,8 +260,12 @@ class PlaygroundSceneView extends StatefulSceneView {
 }
 
 class _PlaygroundSceneViewState extends StatefulSceneViewState {
-  ValueNotifier<double> cameraXAngle = ValueNotifier<double>(-60);
-  ValueNotifier<double> cameraYAngle = ValueNotifier<double>(15);
+  ValueNotifier<double> cameraXAngle = ValueNotifier<double>(
+    PlaygroundSceneView.initialCameraRotation.x,
+  );
+  ValueNotifier<double> cameraYAngle = ValueNotifier<double>(
+    PlaygroundSceneView.initialCameraRotation.y,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -275,9 +283,9 @@ class _PlaygroundSceneViewState extends StatefulSceneViewState {
             onPanUpdate: (final details) {
               // Updated camera angles based on initial touch position
               cameraXAngle.value =
-                  (cameraXAngle.value + details.delta.dx * 0.25) % 360;
+                  (cameraXAngle.value - details.delta.dx * 0.25) % 360;
               cameraYAngle.value =
-                  (cameraYAngle.value + details.delta.dy * 0.25).clamp(1, 90);
+                  (cameraYAngle.value - details.delta.dy * 0.25).clamp(-90, -1);
 
               PlaygroundSceneView._sceneCamera.setOrbit(
                 horizontal: radians(cameraXAngle.value),

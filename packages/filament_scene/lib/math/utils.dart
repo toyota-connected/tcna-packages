@@ -34,14 +34,11 @@ Quaternion sphericalToQuaternion(
   // Create the pitch quaternion
   tmpPitch.setAxisAngle(Vector3(1, 0, 0), pitch);
   // Create the roll quaternion
-  // Adjust roll by 90 degrees to match right-handed system
-  tmpRoll.setAxisAngle(Vector3(0, 0, 1), roll + Math.pi);
+  tmpRoll.setAxisAngle(Vector3(0, 0, 1), roll);
 
   // Combine yaw and pitch to get the final quaternion
   out ??= Quaternion.identity();
   out.setFrom(tmpYaw * tmpPitch * tmpRoll); // TODO(kerberjg): muls create new quats, optimize this
-
-  out.conjugate(); // Invert the quaternion to match the right-handed coordinate system
 
   return out;
 }
@@ -54,11 +51,4 @@ Quaternion cameraOrbitToQuaternion(
   final double elevation,
   final double roll, [
   final Quaternion? out,
-]) {
-  return sphericalToQuaternion(
-    azimuth,
-    0, // roll and elevation are inverted for some reason
-    elevation,
-    out,
-  );
-}
+]) => sphericalToQuaternion(azimuth, elevation, roll, out);

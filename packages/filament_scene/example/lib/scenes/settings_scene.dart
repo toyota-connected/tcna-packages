@@ -105,7 +105,7 @@ class SettingsSceneView extends StatefulSceneView {
   static final Camera _sceneCamera = Camera(
     id: objectGuids['camera']!,
     targetPoint: carOrigin,
-    orbitAngles: Vector2(radians(14.85), radians(30)),
+    orbitAngles: Vector2(radians(-14.85), radians(-30)),
     targetDistance: 8,
     name: 'camera',
   );
@@ -673,7 +673,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
   double _cameraOrbitSpeed = _cameraOrbitMaxSpeed;
 
   final Vector3 _cameraMenuOffset = Vector3.zero();
-  final Vector2 _cameraOrbitAngles = Vector2(radians(14.85), radians(30));
+  final Vector2 _cameraOrbitAngles = Vector2(radians(-14.85), radians(-30));
 
   @override
   void onTriggerEvent(final String eventName, [final dynamic eventData]) {
