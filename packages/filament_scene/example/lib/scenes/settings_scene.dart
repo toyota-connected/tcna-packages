@@ -104,9 +104,9 @@ class SettingsSceneView extends StatefulSceneView {
   static const double cameraMenuDollyOffsetX = -1.5;
   static final Camera _sceneCamera = Camera(
     id: objectGuids['camera']!,
-    targetPoint: carOrigin,
+    orbitOriginPoint: carOrigin,
     orbitAngles: Vector2(radians(-14.85), radians(-30)),
-    targetDistance: 8,
+    orbitDistance: 8,
     name: 'camera',
   );
 

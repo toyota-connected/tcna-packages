@@ -195,10 +195,10 @@ class FilamentViewApi {
     }
   }
 
-  /// Set the camera's targeting
-  Future<void> setCameraTarget(int id, int targetEntityId) async {
+  /// Set the camera orbit's anchoring/origin entity
+  Future<void> setCameraOrigin(int id, int originEntityId) async {
     final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.setCameraTarget$pigeonVar_messageChannelSuffix';
+        'dev.flutter.pigeon.filament_scene.FilamentViewApi.setCameraOrigin$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,

@@ -13,6 +13,7 @@ analyzer:
   errors:
     library_private_types_in_public_api: ignore
     avoid_print: ignore
+    library_prefixes: ignore
 
 include: package:flutter_lints/flutter.yaml
 
