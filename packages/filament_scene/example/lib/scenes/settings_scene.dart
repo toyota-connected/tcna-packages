@@ -1,7 +1,8 @@
-
 import 'dart:math';
 
+import 'package:filament_scene/camera/camera.dart';
 import 'package:filament_scene/components/collidable.dart';
+import 'package:filament_scene/math/utils.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/shapes/shapes.dart';
 import 'package:filament_scene/utils/serialization.dart';
@@ -12,7 +13,6 @@ import 'package:my_fox_example/material_helpers.dart';
 import 'package:filament_scene/generated/messages.g.dart';
 import 'package:my_fox_example/scenes/scene_view.dart';
 import 'package:filament_scene/filament_scene.dart';
-
 
 final Random random = Random();
 
@@ -28,6 +28,7 @@ class SettingsSceneView extends StatefulSceneView {
   @override
   _SettingsSceneViewState createState() => _SettingsSceneViewState();
 
+  static final Vector3 cameraMenuOffset = Vector3(-1.5, 0, 0);
   static final Vector3 carOrigin = Vector3(72, 0, 68);
   static final Vector3 wiperSize = Vector3(0.05, 0.75, 0.05);
   static final Vector3 lightSize = Vector3(0.2, 0.2, 0.2);
@@ -35,26 +36,36 @@ class SettingsSceneView extends StatefulSceneView {
   static final Vector3 wheelOffset = Vector3(1.75, 0.425, 0.85);
   static const double wheelBackOffset = 0.4;
   static final Map<String, Vector3> wheelPositions = {
-    'wheel_FL': carOrigin + Vector3(-wheelOffset.x,                   wheelOffset.y, wheelOffset.z),
-    'wheel_FR': carOrigin + Vector3(-wheelOffset.x,                   wheelOffset.y, -wheelOffset.z),
-    'wheel_BL': carOrigin + Vector3(wheelOffset.x - wheelBackOffset,  wheelOffset.y, wheelOffset.z),
-    'wheel_BR': carOrigin + Vector3(wheelOffset.x - wheelBackOffset,  wheelOffset.y, -wheelOffset.z),
+    'wheel_FL':
+        carOrigin + Vector3(-wheelOffset.x, wheelOffset.y, wheelOffset.z),
+    'wheel_FR':
+        carOrigin + Vector3(-wheelOffset.x, wheelOffset.y, -wheelOffset.z),
+    'wheel_BL':
+        carOrigin +
+        Vector3(wheelOffset.x - wheelBackOffset, wheelOffset.y, wheelOffset.z),
+    'wheel_BR':
+        carOrigin +
+        Vector3(wheelOffset.x - wheelBackOffset, wheelOffset.y, -wheelOffset.z),
   };
 
   static const double wheelCameraDistanceZ = 1;
   static const double wheelCameraDistanceY = 0;
-  static final Map<String, Vector3> wheelCameraPositions = SettingsSceneView.wheelPositions.map((key, value) => MapEntry(
-    key,
-    value
-      + Vector3(0, wheelCameraDistanceY, 0)
-      + (
-        value.z > SettingsSceneView.carOrigin.z
-          ? Vector3(0, 0,  wheelCameraDistanceZ)
-          : Vector3(0, 0, -wheelCameraDistanceZ)
-        )
-  ));
+  static final Map<String, Vector3> wheelCameraPositions = SettingsSceneView
+      .wheelPositions
+      .map(
+        (key, value) => MapEntry(
+          key,
+          value +
+              Vector3(0, wheelCameraDistanceY, 0) +
+              (value.z > SettingsSceneView.carOrigin.z
+                  ? Vector3(0, 0, wheelCameraDistanceZ)
+                  : Vector3(0, 0, -wheelCameraDistanceZ)),
+        ),
+      );
 
   static final Map<String, EntityGUID> objectGuids = {
+    'camera': generateGuid(),
+
     'car': generateGuid(),
     'floor1': generateGuid(),
     'floor2': generateGuid(),
@@ -90,56 +101,73 @@ class SettingsSceneView extends StatefulSceneView {
     'bg_shape_1': generateGuid(),
   };
 
+  static const double cameraMenuDollyOffsetX = -1.5;
+  static final Camera _sceneCamera = Camera(
+    id: objectGuids['camera']!,
+    orbitOriginPoint: carOrigin,
+    orbitAngles: Vector2(radians(-14.85), radians(-30)),
+    orbitDistance: 8,
+    name: 'camera',
+  );
+
+  static List<Camera> getSceneCameras() {
+    return [_sceneCamera];
+  }
+
   static List<Model> getSceneModels() {
     final List<Model> models = [];
 
-
-    models.add(GlbModel.asset(
-      assetPath: sequoiaWithWheelsAsset,
-      position: carOrigin,
-      scale: Vector3.all(1),
-      rotation: Quaternion(0, 0, 0, 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: true,
-      castShadows: true,
-      name: sequoiaAsset,
-      id: objectGuids['car']!,
-      instancingMode: ModelInstancingType.instanced,
-    ));
+    models.add(
+      GlbModel.asset(
+        assetPath: sequoiaWithWheelsAsset,
+        position: carOrigin,
+        scale: Vector3.all(1),
+        rotation: Quaternion(0, 0, 0, 1),
+        collidable: null,
+        animation: null,
+        receiveShadows: true,
+        castShadows: true,
+        name: sequoiaAsset,
+        id: objectGuids['car']!,
+        instancingMode: ModelInstancingType.instanced,
+      ),
+    );
 
     final Vector3 lightOffset = Vector3(-2.5, 1, -0.9);
 
     // use 'radar_cone' asset for lights
-    models.add(GlbModel.asset(
-      assetPath: radarConeAsset,
-      position: carOrigin + lightOffset - Vector3(0, 0, lightOffset.z * 2),
-      scale: lightSize,
-      rotation: Quaternion(0, 0, 0, 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: false,
-      castShadows: false,
-      name: radarConeAsset,
-      id: objectGuids['light1']!,
-      instancingMode: ModelInstancingType.instanced,
-    ));
+    models.add(
+      GlbModel.asset(
+        assetPath: radarConeAsset,
+        position: carOrigin + lightOffset - Vector3(0, 0, lightOffset.z * 2),
+        scale: lightSize,
+        rotation: Quaternion(0, 0, 0, 1),
+        collidable: null,
+        animation: null,
+        receiveShadows: false,
+        castShadows: false,
+        name: radarConeAsset,
+        id: objectGuids['light1']!,
+        instancingMode: ModelInstancingType.instanced,
+      ),
+    );
 
-
-    models.add(GlbModel.asset(
-      assetPath: radarConeAsset,
-      // position: Vector3(lightOffset.z * 10),
-      position: carOrigin + lightOffset - Vector3(0, 0, lightOffset.z * 0),
-      scale: lightSize,
-      rotation: Quaternion(0, 0, 0, 1),
-      collidable: null,
-      animation: null,
-      receiveShadows: false,
-      castShadows: false,
-      name: radarConeAsset,
-      id: objectGuids['light2']!,
-      instancingMode: ModelInstancingType.instanced,
-    ));
+    models.add(
+      GlbModel.asset(
+        assetPath: radarConeAsset,
+        // position: Vector3(lightOffset.z * 10),
+        position: carOrigin + lightOffset - Vector3(0, 0, lightOffset.z * 0),
+        scale: lightSize,
+        rotation: Quaternion(0, 0, 0, 1),
+        collidable: null,
+        animation: null,
+        receiveShadows: false,
+        castShadows: false,
+        name: radarConeAsset,
+        id: objectGuids['light2']!,
+        instancingMode: ModelInstancingType.instanced,
+      ),
+    );
 
     // 16x16 floor, 3x3 tiles
     const List<Vector3Data> floorPositions = [
@@ -154,52 +182,64 @@ class SettingsSceneView extends StatefulSceneView {
       Vector3Data(x: 0, y: 0, z: 16),
     ];
 
-    for(int i = 0; i < floorPositions.length; i++) {
+    for (int i = 0; i < floorPositions.length; i++) {
       final Vector3Data pos = floorPositions[i];
-      models.add(GlbModel.asset(
-        assetPath: checkerboardFloor,
-        position: carOrigin + pos.toVector3(),
-        scale: Vector3.all(1),
-        rotation: Quaternion(0, 0, 0, 1),
-        collidable: null,
-        animation: null,
-        receiveShadows: true,
-        castShadows: false,
-        name: "${checkerboardFloor}_${i + 1}",
-        id: objectGuids['floor${i + 1}']!,
-        instancingMode: ModelInstancingType.instanced,
-      ));
+      models.add(
+        GlbModel.asset(
+          assetPath: checkerboardFloor,
+          position: carOrigin + pos.toVector3(),
+          scale: Vector3.all(1),
+          rotation: Quaternion(0, 0, 0, 1),
+          collidable: null,
+          animation: null,
+          receiveShadows: true,
+          castShadows: false,
+          name: "${checkerboardFloor}_${i + 1}",
+          id: objectGuids['floor${i + 1}']!,
+          instancingMode: ModelInstancingType.instanced,
+        ),
+      );
     }
 
     // Bounce ball
-    models.add(GlbModel.asset(
-      assetPath: bounceBall,
-      position: carOrigin + Vector3(12, 3, 12),
-      scale: Vector3.all(0.75),
-      // rotation: Quaternion.fromEulerAngles(0, 90, 0),
-      rotation: Quaternion.identity()..setEulerDegrees(0, 90, 0),
-      collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
-      animation: null,
-      receiveShadows: true,
-      castShadows: true,
-      name: bounceBall,
-      id: objectGuids['bg_shape_0']!,
-      instancingMode: ModelInstancingType.none,
-    ));
+    models.add(
+      GlbModel.asset(
+        assetPath: bounceBall,
+        position: carOrigin + Vector3(12, 3, 12),
+        scale: Vector3.all(0.75),
+        // rotation: Quaternion.fromEulerAngles(0, 90, 0),
+        rotation: Quaternion.identity()..setEulerDegrees(0, 90, 0),
+        collidable: Collidable(
+          isStatic: false,
+          shouldMatchAttachedObject: true,
+        ),
+        animation: null,
+        receiveShadows: true,
+        castShadows: true,
+        name: bounceBall,
+        id: objectGuids['bg_shape_0']!,
+        instancingMode: ModelInstancingType.none,
+      ),
+    );
     // Donut
-    models.add(GlbModel.asset(
-      assetPath: donut,
-      position: carOrigin + Vector3(12, 3, -12),
-      scale: Vector3.all(0.005),
-      rotation: Quaternion.identity()..setEulerDegrees(0, 90, 0),
-      collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
-      animation: null,
-      receiveShadows: true,
-      castShadows: true,
-      name: donut,
-      id: objectGuids['bg_shape_1']!,
-      instancingMode: ModelInstancingType.none,
-    ));
+    models.add(
+      GlbModel.asset(
+        assetPath: donut,
+        position: carOrigin + Vector3(12, 3, -12),
+        scale: Vector3.all(0.005),
+        rotation: Quaternion.identity()..setEulerDegrees(0, 90, 0),
+        collidable: Collidable(
+          isStatic: false,
+          shouldMatchAttachedObject: true,
+        ),
+        animation: null,
+        receiveShadows: true,
+        castShadows: true,
+        name: donut,
+        id: objectGuids['bg_shape_1']!,
+        instancingMode: ModelInstancingType.none,
+      ),
+    );
 
     return models;
   }
@@ -218,7 +258,7 @@ class SettingsSceneView extends StatefulSceneView {
 
     /*
      *  Entity parenting example
-     */ 
+     */
     print("tree_uuids: $treeUuids");
     shapes.add(
       Cube(
@@ -280,13 +320,13 @@ class SettingsSceneView extends StatefulSceneView {
                         size: Vector3.all(1),
                         material: poGetLitMaterial(Colors.yellow),
                       ),
-                    ]
+                    ],
                   ),
                 ],
               ),
             ],
           ),
-        ]
+        ],
       ),
     );
 
@@ -298,7 +338,7 @@ class SettingsSceneView extends StatefulSceneView {
     //   objectGuids['cube']!,
     // ));
 
-    // Wall (use cube as wall), floor is 48x48 
+    // Wall (use cube as wall), floor is 48x48
     // shapes.add(poCreateCube(
     //   carOrigin - Vector3(0, -8 + 0.1, 24),
     //   Vector3(48, 16, 0.1),
@@ -331,25 +371,30 @@ class SettingsSceneView extends StatefulSceneView {
     // use cube as wipers
     Vector3 wiperOffset = Vector3(-1.3, 1.45, -0.45);
 
-    shapes.add(Cube(
-      id: objectGuids['wiper1']!,
-      name: 'wiper1',
-      position: Vector3(72, 0, 68) + wiperOffset,
-      scale: wiperSize,
-      rotation: Quaternion.identity(),
-      size: Vector3.all(1),
-      material: poGetLitMaterial(Colors.black),
-    ));
+    shapes.add(
+      Cube(
+        id: objectGuids['wiper1']!,
+        name: 'wiper1',
+        position: Vector3(72, 0, 68) + wiperOffset,
+        scale: wiperSize,
+        rotation: Quaternion.identity(),
+        size: Vector3.all(1),
+        material: poGetLitMaterial(Colors.black),
+      ),
+    );
 
-    shapes.add(Cube(
-      id: objectGuids['wiper2']!,
-      name: 'wiper2',
-      position: Vector3(72, 0, 68) + wiperOffset - Vector3(0, 0, wiperOffset.z * 2),
-      scale: wiperSize,
-      rotation: Quaternion.identity(),
-      size: Vector3.all(1),
-      material: poGetLitMaterial(Colors.black),
-    ));
+    shapes.add(
+      Cube(
+        id: objectGuids['wiper2']!,
+        name: 'wiper2',
+        position:
+            Vector3(72, 0, 68) + wiperOffset - Vector3(0, 0, wiperOffset.z * 2),
+        scale: wiperSize,
+        rotation: Quaternion.identity(),
+        size: Vector3.all(1),
+        material: poGetLitMaterial(Colors.black),
+      ),
+    );
 
     return shapes;
   }
@@ -361,7 +406,8 @@ class SettingsSceneView extends StatefulSceneView {
   }
 }
 
-class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> with SingleTickerProviderStateMixin {
+class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
+    with SingleTickerProviderStateMixin {
   /*
    *  Game logic
    */
@@ -372,23 +418,26 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
 
     _animationController = BottomSheet.createAnimationController(
       this,
+      sheetAnimationStyle: const AnimationStyle(
+        curve: Curves.easeIn,
+        reverseCurve: Curves.easeOut,
+        duration: Duration(milliseconds: 600),
+        reverseDuration: Duration(milliseconds: 600),
+      ),
     );
 
     // Set up listeners for wheel clicks
     widget.collisionController.addListener(_onObjectTouch);
   }
 
-  void _resetCamera({ bool autoOrbit = false}) {
-    if(autoOrbit) {
-      widget.filament.changeCameraMode("AUTO_ORBIT");
-    } else {
-      widget.filament.changeCameraMode("INERTIA_AND_GESTURES");
-    }
+  void _resetCamera({bool autoOrbit = false}) {
+    // if(autoOrbit) {
+    //   widget.filament.changeCameraMode("AUTO_ORBIT");
+    // } else {
+    //   widget.filament.changeCameraMode("INERTIA_AND_GESTURES");
+    // }
 
-
-    widget.filament.changeCameraOrbitHomePosition(64,3,64);
-    widget.filament.changeCameraTargetPosition(72,1,68);
-    widget.filament.changeCameraFlightStartPosition(64, 3, 64);
+    SettingsSceneView._sceneCamera.setActive();
 
     // fog
     widget.filament.setFogOptions(false);
@@ -419,34 +468,31 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     // Wipers
     final double wiperSpeed = _wiperSpeed.value;
     final double wiperAngle = sin(_timer * wiperSpeed) * 0.66;
-    final Quaternion wiperRotation = Quaternion.identity()..setEulerRadians(wiperAngle, 0, -0.8);
+    final Quaternion wiperRotation = Quaternion.identity()
+      ..setEulerRadians(wiperAngle, 0, -0.8);
     filament.setEntityTransformRotation(
       SettingsSceneView.objectGuids['wiper1']!,
       wiperRotation.storage64,
     );
     filament.setEntityTransformRotation(
       SettingsSceneView.objectGuids['wiper2']!,
-      wiperRotation.storage64
+      wiperRotation.storage64,
     );
 
     // show/hide wipers
     filament.setEntityTransformScale(
       SettingsSceneView.objectGuids['wiper1']!,
-      (SettingsSceneView.wiperSize * (_showWipers.value ? 1 : 0)).storage64
+      (SettingsSceneView.wiperSize * (_showWipers.value ? 1 : 0)).storage64,
     );
     filament.setEntityTransformScale(
       SettingsSceneView.objectGuids['wiper2']!,
-      (SettingsSceneView.wiperSize * (_showWipers.value ? 1 : 0)).storage64
+      (SettingsSceneView.wiperSize * (_showWipers.value ? 1 : 0)).storage64,
     );
 
     // Lights
-    Vector3 lightScale = SettingsSceneView.lightSize.mul(Vector3(
-      _lightLength.value,
-      1,
-      _lightWidth.value,
-    )).mul(Vector3.all(
-      _showLights.value ? 1 : 0,
-    ));
+    Vector3 lightScale = SettingsSceneView.lightSize
+        .mul(Vector3(_lightLength.value, 1, _lightWidth.value))
+        .mul(Vector3.all(_showLights.value ? 1 : 0));
 
     filament.setEntityTransformScale(
       SettingsSceneView.objectGuids['light1']!,
@@ -456,7 +502,8 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
       SettingsSceneView.objectGuids['light2']!,
       lightScale.storage64,
     );
-    Quaternion lightRotation = Quaternion.identity()..setEulerRadians(0, _lightAngleX.value + pi, _lightAngleY.value);
+    Quaternion lightRotation = Quaternion.identity()
+      ..setEulerRadians(0, _lightAngleX.value + pi, _lightAngleY.value);
     filament.setEntityTransformRotation(
       SettingsSceneView.objectGuids['light1']!,
       lightRotation.storage64,
@@ -467,7 +514,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     );
 
     // show/hide lights
-    if(_showLights.value) {
+    if (_showLights.value) {
       filament.changeLightColorByGUID(
         SettingsSceneView.objectGuids['l_light_BL']!,
         Colors.red.toHex(),
@@ -483,13 +530,13 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
       filament.changeLightColorByGUID(
         SettingsSceneView.objectGuids['l_light_FL']!,
         Colors.yellow.toHex(),
-        (5000000 * _lightIntensity.value).round()
+        (5000000 * _lightIntensity.value).round(),
       );
 
       filament.changeLightColorByGUID(
         SettingsSceneView.objectGuids['l_light_FR']!,
         Colors.yellow.toHex(),
-        (5000000 * _lightIntensity.value).round()
+        (5000000 * _lightIntensity.value).round(),
       );
     } else {
       filament.changeLightColorByGUID(
@@ -518,7 +565,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     }
 
     // blink turning lights
-    if((_timer * 2).floor() % 2 == 1 && _activateTurningLights.value == true) {
+    if ((_timer * 2).floor() % 2 == 1 && _activateTurningLights.value == true) {
       filament.changeLightColorByGUID(
         SettingsSceneView.objectGuids['l_light_tBL']!,
         Colors.orange.toHex(),
@@ -573,13 +620,12 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
       final ballGuid = SettingsSceneView.objectGuids['bg_shape_0']!;
       final double bounce = sin(_timer * 2) * 1;
 
-      final Vector3 pos = SettingsSceneView.carOrigin + Vector3(9, 2.5 + bounce, -9);
-      final Quaternion rot = Quaternion.identity()..setEulerDegrees(30, _timer * 90, 0);
+      final Vector3 pos =
+          SettingsSceneView.carOrigin + Vector3(9, 2.5 + bounce, -9);
+      final Quaternion rot = Quaternion.identity()
+        ..setEulerDegrees(30, _timer * 90, 0);
 
-      filament.setEntityTransformPosition(
-        ballGuid,
-        pos.storage64,
-      );
+      filament.setEntityTransformPosition(ballGuid, pos.storage64);
       filament.setEntityTransformRotation(
         SettingsSceneView.objectGuids['bg_shape_0']!,
         rot.storage64,
@@ -591,23 +637,47 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
       final donutGuid = SettingsSceneView.objectGuids['bg_shape_1']!;
       final double bounce = sin(_timer * 2) * 1;
 
-      final Vector3 pos = SettingsSceneView.carOrigin + Vector3(-10, 2 + bounce, 10);
-      final Quaternion rot = Quaternion.identity()..setEulerDegrees(30 * bounce, _timer * 90, 0);
+      final Vector3 pos =
+          SettingsSceneView.carOrigin + Vector3(-10, 2 + bounce, 10);
+      final Quaternion rot = Quaternion.identity()
+        ..setEulerDegrees(30 * bounce, _timer * 90, 0);
 
-      filament.setEntityTransformPosition(
-        donutGuid,
-        pos.storage64,
-      );
-      filament.setEntityTransformRotation(
-        donutGuid,
-        rot.storage64,
-      );
+      filament.setEntityTransformPosition(donutGuid, pos.storage64);
+      filament.setEntityTransformRotation(donutGuid, rot.storage64);
+    }
+
+    // Rotate camera
+    if (_cameraOrbitSpeed != 0) {
+      _cameraOrbitAngles.x += _cameraOrbitSpeed * dt;
+
+      SettingsSceneView._sceneCamera.orbitAngles = _cameraOrbitAngles;
+    }
+
+    // Animate camera to menu position
+    const double cameraMenuDollyOffsetX =
+        SettingsSceneView.cameraMenuDollyOffsetX;
+
+    // If animating, apply the offset to the camera
+    if (_animationController.isAnimating) {
+      _cameraMenuOffset.x = cameraMenuDollyOffsetX * _animationController.value;
+      SettingsSceneView._sceneCamera.dollyOffset = _cameraMenuOffset;
+
+      // Adjust camera orbit speed based on animation progress
+      _cameraOrbitSpeed =
+          _cameraOrbitMaxSpeed * (1 - _animationController.value);
     }
   }
 
+  static const double _cameraOrbitMaxSpeed =
+      30 * pi / 180; // 30 degrees per second
+  double _cameraOrbitSpeed = _cameraOrbitMaxSpeed;
+
+  final Vector3 _cameraMenuOffset = Vector3.zero();
+  final Vector2 _cameraOrbitAngles = Vector2(radians(-14.85), radians(-30));
+
   @override
-  void onTriggerEvent(final String eventName, [ final dynamic eventData ]) {
-    if(eventName != "touchObject") return;
+  void onTriggerEvent(final String eventName, [final dynamic eventData]) {
+    if (eventName != "touchObject") return;
 
     final CollisionEvent event = eventData as CollisionEvent;
     final String name = event.results[0].name;
@@ -615,12 +685,10 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     print('Touched object with name: $name');
 
     // If touched any of the wheels...
-    if(
-      name == 'wheel_FL' ||
-      name == 'wheel_FR' ||
-      name == 'wheel_BL' ||
-      name == 'wheel_BR'
-    ) {
+    if (name == 'wheel_FL' ||
+        name == 'wheel_FR' ||
+        name == 'wheel_BL' ||
+        name == 'wheel_BR') {
       print('Touched wheel $name');
 
       // Change camera position to wheel
@@ -630,40 +698,42 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
       _menuSelected.value = 4;
 
       // Increase tire pressure
-      _tirePressures[name]!.value = (_tirePressures[name]!.value + 0.025).clamp(0, 1);
+      _tirePressures[name]!.value = (_tirePressures[name]!.value + 0.025).clamp(
+        0,
+        1,
+      );
     }
   }
 
   void _cameraFocusOnTire(String name) {
     final Vector3 cameraLookAt = SettingsSceneView.wheelPositions[name]!;
-    final Vector3 cameraLookFrom = SettingsSceneView.wheelCameraPositions[name]!;
+    final Vector3 cameraLookFrom =
+        SettingsSceneView.wheelCameraPositions[name]!;
 
     print("Focusing on tire '$name' at $cameraLookAt from $cameraLookFrom");
 
+    // widget.filament.changeCameraFlightStartPosition(
+    //   cameraLookFrom.x,
+    //   cameraLookFrom.y,
+    //   cameraLookFrom.z,
+    // );
 
-    widget.filament.changeCameraFlightStartPosition(
-      cameraLookFrom.x,
-      cameraLookFrom.y,
-      cameraLookFrom.z,
+    // widget.filament.changeCameraTargetPosition(
+    //   cameraLookAt.x,
+    //   cameraLookAt.y,
+    //   cameraLookAt.z,
+    // );
+
+    // // If last character is 1, it's left - set camera angle
+    // if(name.endsWith('L')) {
+    //   widget.filament.setCameraRotation(pi * 0.5);
+    // } else {
+    //   widget.filament.setCameraRotation(pi * -0.5);
+    // }
+
+    print(
+      "Set camera to tire $name, look from $cameraLookFrom at $cameraLookAt",
     );
-
-    widget.filament.changeCameraTargetPosition(
-      cameraLookAt.x,
-      cameraLookAt.y,
-      cameraLookAt.z,
-    );
-
-
-    // If last character is 1, it's left - set camera angle
-    if(name.endsWith('L')) {  
-      widget.filament.setCameraRotation(pi * 0.5);
-    } else {
-      widget.filament.setCameraRotation(pi * -0.5);
-    }
-
-
-    print("Set camera to tire $name, look from $cameraLookFrom at $cameraLookAt");
-
 
     // widget.filament.resetInertiaCameraToDefaultValues();
   }
@@ -692,7 +762,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     print("rebuild!");
 
     // If settings hidden, show large invisible button to show settings
-    if(!_showSettings) {
+    if (!_showSettings) {
       // TODO(kerberjg): add viewport adjustment to filament view
       _resetCamera(autoOrbit: true);
     } else {
@@ -702,23 +772,20 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     return Stack(
       children: [
         // GestureDetector to show/hide
-        if(!_showSettings) GestureDetector(
-          onTap: () {
-            setState(() {
-              _showSettings = !_showSettings;
-              if (_showSettings) {
+        if (!_showSettings)
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _showSettings = true;
                 _animationController.forward();
-              } else {
-                _animationController.reverse();
-              }
-            });
-          },
-          child: Container(
-            color: Colors.transparent,
-            width: double.infinity,
-            height: double.infinity,
+              });
+            },
+            child: Container(
+              color: Colors.transparent,
+              width: double.infinity,
+              height: double.infinity,
+            ),
           ),
-        ),
 
         // Settings bottom sheet on the left (use AnimatedBuilder to animate)
         AnimatedPositioned(
@@ -726,8 +793,8 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
           bottom: _showSettings ? 0 : -_screenHeight,
           duration: const Duration(milliseconds: 300),
           child: _buildSettingsBottomSheet(context),
-        )
-      ]
+        ),
+      ],
     );
   }
 
@@ -735,185 +802,180 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     ButtonStyle squareStyle = ButtonStyle(
       padding: WidgetStateProperty.all<EdgeInsets>(const EdgeInsets.all(8)),
       shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-        RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
     );
 
     return Container(
-        height: _screenHeight,
-        width: 320,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(
-            alpha: 240,
-          ),
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(16),
-            topRight: Radius.circular(16),
-          ),
+      height: _screenHeight,
+      width: 320,
+      decoration: BoxDecoration(
+        color: Colors.white.withAlpha(200),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
         ),
-        //
-        child: Column(
+      ),
+      //
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          // Row 1: title, close button
+          Row(
             mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              // Row 1: title, close button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  // back button (visible only when _menuSelected.value != 0)
-                  ListenableBuilder(
-                    listenable: _menuSelected,
-                    builder: (BuildContext context, Widget? child) => Visibility(
-                      visible: _menuSelected.value != 0,
-                      maintainSize: true,
-                      maintainAnimation: true,
-                      maintainState: true,
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: () {
-                          print("reset from pressed");
-                          _resetCamera();
-                          _menuSelected.value = 0;
-                        },
-                      ),
-                    )
+              // back button (visible only when _menuSelected.value != 0)
+              ListenableBuilder(
+                listenable: _menuSelected,
+                builder: (BuildContext context, Widget? child) => Visibility(
+                  visible: _menuSelected.value != 0,
+                  maintainSize: true,
+                  maintainAnimation: true,
+                  maintainState: true,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      print("reset from pressed");
+                      _resetCamera();
+                      _menuSelected.value = 0;
+                    },
                   ),
-                  // Title
-                  const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Text(
-                      'Settings',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                ),
+              ),
+              // Title
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  'Settings',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+              ),
+              //spacing
+              const Spacer(),
+              // close button
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  // Navigator.of(context).pop();
+                  setState(() {
+                    _showSettings = false;
+                    _animationController.reverse();
+                  });
+                },
+              ),
+            ],
+          ),
+          // Row 2: settings (3 sliders)
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: ListenableBuilder(
+              listenable: _menuSelected,
+              builder: (context, child) => switch (_menuSelected.value) {
+                0 => child!,
+                1 => _buildMaterialSettings(context),
+                2 => _buildLightSettings(context),
+                3 => _buildWiperSettings(context),
+                4 => _buildTireSettings(context),
+                _ => const Text("Unknown menu item"),
+              },
+
+              // Menu selector (buttons with icon and text)
+              child: Wrap(
+                // crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 8,
+                runSpacing: 8,
+                children: <Widget>[
+                  // Material settings
+                  // square button, large icon and text under
+                  SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: FilledButton(
+                      onPressed: () {
+                        _menuSelected.value = 1;
+                      },
+                      // not round
+                      style: squareStyle,
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(Icons.color_lens, size: 48),
+                          Text('Material'),
+                        ],
                       ),
                     ),
                   ),
-                  //spacing
-                  const Spacer(),
-                  // close button
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      // Navigator.of(context).pop();
-                      setState(() {
-                        _showSettings = false;
-                      });
-                    },
+                  // Light settings
+                  SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: FilledButton(
+                      onPressed: () {
+                        _menuSelected.value = 2;
+                      },
+                      // not round
+                      style: squareStyle,
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(Icons.lightbulb, size: 48),
+                          Text('Light'),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Wiper settings
+                  SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: FilledButton(
+                      onPressed: () {
+                        _menuSelected.value = 3;
+                      },
+                      // not round
+                      style: squareStyle,
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(Icons.wb_sunny, size: 48),
+                          Text('Wiper'),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Tire settings
+                  SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: FilledButton(
+                      onPressed: () {
+                        _menuSelected.value = 4;
+                      },
+                      // not round
+                      style: squareStyle,
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(Icons.directions_car, size: 48),
+                          Text('Tire'),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
-              // Row 2: settings (3 sliders)
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: ListenableBuilder(
-                  listenable: _menuSelected,
-                  builder:(context, child) => switch(_menuSelected.value) {
-                    0 => child!,
-                    1 => _buildMaterialSettings(context),
-                    2 => _buildLightSettings(context),
-                    3 => _buildWiperSettings(context),
-                    4 => _buildTireSettings(context),
-                    _ => const Text("Unknown menu item"),
-                  },
-
-                  // Menu selector (buttons with icon and text)
-                  child: Wrap(
-                    // crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: <Widget>[
-                      // Material settings
-                      // square button, large icon and text under
-                      SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: FilledButton(
-                          onPressed: () {
-                            _menuSelected.value = 1;
-                          },
-                          // not round
-                          style: squareStyle,
-                          child: const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Icon(Icons.color_lens, size: 48),
-                              Text('Material'),
-                            ],
-                          ),
-                        ),
-                      ),
-                      // Light settings
-                      SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: FilledButton(
-                          onPressed: () {
-                            _menuSelected.value = 2;
-                          },
-                          // not round
-                          style: squareStyle,
-                          child: const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Icon(Icons.lightbulb, size: 48),
-                              Text('Light'),
-                            ],
-                          ),
-                        ),
-                      ),
-                      // Wiper settings
-                      SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: FilledButton(
-                          onPressed: () {
-                            _menuSelected.value = 3;
-                          },
-                          // not round
-                          style: squareStyle,
-                          child: const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Icon(Icons.wb_sunny, size: 48),
-                              Text('Wiper'),
-                            ],
-                          ),
-                        ),
-                      ),
-                      // Tire settings
-                      SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: FilledButton(
-                          onPressed: () {
-                            _menuSelected.value = 4;
-                          },
-                          // not round
-                          style: squareStyle,
-                          child: const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Icon(Icons.directions_car, size: 48),
-                              Text('Tire'),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                )
-              ),
-            ],
-        ),
-      );
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Material _customizedMaterial = poGetLitMaterialWithRandomValues();
-  MaterialParameter _paramColor = MaterialParameter.baseColor(color: Colors.white);
+  MaterialParameter _paramColor = MaterialParameter.baseColor(
+    color: Colors.white,
+  );
   MaterialParameter _paramRoughness = MaterialParameter.roughness(value: 0.8);
   MaterialParameter _paramMetalness = MaterialParameter.metallic(value: 0.0);
   HSVColor _customColor = HSVColor.fromColor(const Color(0xffff00ff));
@@ -932,13 +994,12 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     // Set material
     _customizedMaterial = Material.asset(
       litMat,
-      parameters: [
-        _paramColor,
-        _paramRoughness,
-        _paramMetalness,
-      ],
+      parameters: [_paramColor, _paramRoughness, _paramMetalness],
     );
-    widget.filament.changeMaterialDefinition(_customizedMaterial.toJson(), SettingsSceneView.objectGuids['car']!);
+    widget.filament.changeMaterialDefinition(
+      _customizedMaterial.toJson(),
+      SettingsSceneView.objectGuids['car']!,
+    );
   }
 
   Widget _buildMaterialSettings(BuildContext context) => Column(
@@ -957,7 +1018,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
             _setting1.value = value;
             _onSettingChanged();
           },
-        )
+        ),
       ),
       // Slider 2: Direct light
       const Text("Roughness"),
@@ -971,7 +1032,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
             _setting2.value = value;
             _onSettingChanged();
           },
-        )
+        ),
       ),
       // Slider 3: Indirect light
       const Text("Metallic"),
@@ -985,7 +1046,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
             _setting3.value = value;
             _onSettingChanged();
           },
-        )
+        ),
       ),
       // Button: Randomize
       ElevatedButton(
@@ -999,7 +1060,6 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
       ),
     ],
   );
-
 
   // Wiper settings
   Widget _buildWiperSettings(BuildContext context) => Column(
@@ -1032,7 +1092,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
           onChanged: (double value) {
             _wiperSpeed.value = value;
           },
-        )
+        ),
       ),
     ],
   );
@@ -1083,7 +1143,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
           onChanged: (double value) {
             _lightLength.value = value;
           },
-        )
+        ),
       ),
       // Slider 2: Light width
       const Text("Light width"),
@@ -1096,7 +1156,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
           onChanged: (double value) {
             _lightWidth.value = value;
           },
-        )
+        ),
       ),
       // Slider 3: Light angle X
       const Text("Light turning"),
@@ -1104,12 +1164,12 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
         listenable: _lightAngleX,
         builder: (BuildContext context, Widget? child) => Slider(
           min: -pi / 4,
-          max:  pi / 4,
+          max: pi / 4,
           value: _lightAngleX.value,
           onChanged: (double value) {
             _lightAngleX.value = value;
           },
-        )
+        ),
       ),
       // Slider 4: Light angle Y
       const Text("Light height"),
@@ -1117,12 +1177,12 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
         listenable: _lightAngleY,
         builder: (BuildContext context, Widget? child) => Slider(
           min: -pi / 4,
-          max:  pi / 4,
+          max: pi / 4,
           value: _lightAngleY.value,
           onChanged: (double value) {
             _lightAngleY.value = value;
           },
-        )
+        ),
       ),
       // Slider 5: Light intensity
       const Text("Light intensity"),
@@ -1135,9 +1195,8 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
           onChanged: (double value) {
             _lightIntensity.value = value;
           },
-        )
+        ),
       ),
-
     ],
   );
 
@@ -1159,9 +1218,9 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
       const SizedBox(height: 16),
-      
+
       // All tire pressure sliders
-      for(final entry in _tirePressures.entries) ...[
+      for (final entry in _tirePressures.entries) ...[
         Text(_tireNames[entry.key]!),
         ListenableBuilder(
           listenable: entry.value,
@@ -1177,10 +1236,9 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView> 
               // set value
               entry.value.value = value;
             },
-          )
+          ),
         ),
       ],
     ],
   );
-
 }

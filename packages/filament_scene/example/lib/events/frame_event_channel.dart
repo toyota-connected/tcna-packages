@@ -3,14 +3,16 @@ import 'dart:io';
 import '../utils.dart';
 import 'package:filament_scene/generated/messages.g.dart';
 
-typedef UpdateCallback = void Function(FilamentViewApi api, double elapsedFrameTime);
+typedef UpdateCallback =
+    void Function(FilamentViewApi api, double elapsedFrameTime);
 typedef TriggerEventFunction = void Function(String eventName);
 
 void noopUpdate(FilamentViewApi api, double elapsedFrameTime) {}
 
 class FrameEventChannel {
-  static const EventChannel _eventChannel =
-      EventChannel('plugin.filament_view.frame_view');
+  static const EventChannel _eventChannel = EventChannel(
+    'plugin.filament_view.frame_view',
+  );
 
   bool bWriteEventsToLog = false;
 
@@ -19,10 +21,13 @@ class FrameEventChannel {
     filamentViewApi = api;
   }
 
-  final List<UpdateCallback> _callbacks = List<UpdateCallback>.empty(growable: true);
+  final List<UpdateCallback> _callbacks = List<UpdateCallback>.empty(
+    growable: true,
+  );
   void addCallback(UpdateCallback callback) {
     _callbacks.add(callback);
   }
+
   void removeCallback(UpdateCallback callback) {
     _callbacks.remove(callback);
   }
@@ -48,7 +53,7 @@ class FrameEventChannel {
             // Log extracted values
             if (method == 'preRenderFrame') {
               vRunLightLoops(filamentViewApi);
-              for(final onUpdate in _callbacks) {
+              for (final onUpdate in _callbacks) {
                 onUpdate(filamentViewApi, elapsedFrameTime);
               }
             }
@@ -58,7 +63,8 @@ class FrameEventChannel {
           // Handle specific errors
           if (error is MissingPluginException) {
             stdout.write(
-                'MissingPluginException: Make sure the plugin is registered on the native side.\nDetails: $error\n');
+              'MissingPluginException: Make sure the plugin is registered on the native side.\nDetails: $error\n',
+            );
           } else {
             stdout.write('Other Error: $error\n');
           }
@@ -68,7 +74,8 @@ class FrameEventChannel {
       // Catch any synchronous exceptions
       if (e is MissingPluginException) {
         stdout.write(
-            'Caught MissingPluginException during EventChannel initialization.\nDetails: $e\nStack Trace:\n$stackTrace\n');
+          'Caught MissingPluginException during EventChannel initialization.\nDetails: $e\nStack Trace:\n$stackTrace\n',
+        );
       } else {
         stdout.write('Unexpected Error: $e\nStack Trace:\n$stackTrace\n');
       }

@@ -3,15 +3,21 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 class NativeReadiness {
-  static const MethodChannel _readinessChecker =
-      MethodChannel('plugin.filament_view.readiness_checker');
-  static const EventChannel _readinessChannel =
-      EventChannel('plugin.filament_view.readiness');
+  static const MethodChannel _readinessChecker = MethodChannel(
+    'plugin.filament_view.readiness_checker',
+  );
+  static const EventChannel _readinessChannel = EventChannel(
+    'plugin.filament_view.readiness',
+  );
 
   /// Adds a one-time callback to be called when the native side is ready.
   /// If a the native side is already ready, a check is scheduled immediately,
   /// and retried  until the callback is called.
-  void addCallback(Function callback, [int maxRetries = 60 * 30, Duration retryInterval = const Duration(milliseconds: 16)]) {
+  void addCallback(
+    Function callback, [
+    int maxRetries = 60 * 30,
+    Duration retryInterval = const Duration(milliseconds: 16),
+  ]) {
     int attempt = 0;
 
     // print('Ready?');

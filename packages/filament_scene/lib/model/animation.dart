@@ -24,46 +24,46 @@ class Animation {
 
   /// creates animation object by index to be played.
   Animation.byIndex(
-       this.index, {
-       this.autoPlay = true,
-       this.loop = true,
-       this.resetToTPoseOnReset = false,
-       this.playbackSpeed = 1.0,
-       this.notifyOfAnimationEvents = false,
-     });
+    this.index, {
+    this.autoPlay = true,
+    this.loop = true,
+    this.resetToTPoseOnReset = false,
+    this.playbackSpeed = 1.0,
+    this.notifyOfAnimationEvents = false,
+  });
 
-     Map<String, dynamic> toJson() => <String, dynamic>{
-           'index': index,
-           'autoPlay': autoPlay,
-           'loop': loop,
-           'resetToTPoseOnReset': resetToTPoseOnReset,
-           'playbackSpeed': playbackSpeed,
-           'notifyOfAnimationEvents': notifyOfAnimationEvents,
-         };
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'index': index,
+    'autoPlay': autoPlay,
+    'loop': loop,
+    'resetToTPoseOnReset': resetToTPoseOnReset,
+    'playbackSpeed': playbackSpeed,
+    'notifyOfAnimationEvents': notifyOfAnimationEvents,
+  };
 
-     @override
-     String toString() =>
-         'Animation(index: $index, autoPlay: $autoPlay, loop: $loop, resetToTPoseOnReset: $resetToTPoseOnReset, playbackSpeed: $playbackSpeed, notifyOfAnimationEvents: $notifyOfAnimationEvents)';
+  @override
+  String toString() =>
+      'Animation(index: $index, autoPlay: $autoPlay, loop: $loop, resetToTPoseOnReset: $resetToTPoseOnReset, playbackSpeed: $playbackSpeed, notifyOfAnimationEvents: $notifyOfAnimationEvents)';
 
-     @override
-     bool operator ==(final Object other) {
-       if (identical(this, other)) return true;
+  @override
+  bool operator ==(final Object other) {
+    if (identical(this, other)) return true;
 
-       return other is Animation &&
-           other.index == index &&
-           other.autoPlay == autoPlay &&
-           other.loop == loop &&
-           other.resetToTPoseOnReset == resetToTPoseOnReset &&
-           other.playbackSpeed == playbackSpeed &&
-           other.notifyOfAnimationEvents == notifyOfAnimationEvents;
-     }
+    return other is Animation &&
+        other.index == index &&
+        other.autoPlay == autoPlay &&
+        other.loop == loop &&
+        other.resetToTPoseOnReset == resetToTPoseOnReset &&
+        other.playbackSpeed == playbackSpeed &&
+        other.notifyOfAnimationEvents == notifyOfAnimationEvents;
+  }
 
-     @override
-     int get hashCode =>
-         index.hashCode ^
-         autoPlay.hashCode ^
-         loop.hashCode ^
-         resetToTPoseOnReset.hashCode ^
-         playbackSpeed.hashCode ^
-         notifyOfAnimationEvents.hashCode;
+  @override
+  int get hashCode =>
+      index.hashCode ^
+      autoPlay.hashCode ^
+      loop.hashCode ^
+      resetToTPoseOnReset.hashCode ^
+      playbackSpeed.hashCode ^
+      notifyOfAnimationEvents.hashCode;
 }

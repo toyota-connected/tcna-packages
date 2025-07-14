@@ -22,9 +22,8 @@ class Cube extends Shape {
     super.castShadows,
     super.receiveShadows,
     super.cullingEnabled,
-  }) : 
-    _size = size,
-    super();
+  }) : _size = size,
+       super();
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{

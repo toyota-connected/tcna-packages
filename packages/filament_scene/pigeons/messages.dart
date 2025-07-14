@@ -16,7 +16,7 @@
 
 import 'package:pigeon/pigeon.dart';
 
-// TODO(kerberjg): Use Float32List instead of separate doubles for vectors and quaternions
+// TODO(kerberjg): Use Float32List instead of Float64List or double/float
 
 @ConfigurePigeon(
   PigeonOptions(
@@ -24,9 +24,7 @@ import 'package:pigeon/pigeon.dart';
     dartTestOut: 'generated/src/dart/test/test_api.g.dart',
     cppHeaderOut: 'generated/src/cpp/messages.g.h',
     cppSourceOut: 'generated/src/cpp/messages.g.cc',
-    cppOptions: CppOptions(
-      namespace: 'plugin_filament_view',
-    ),
+    cppOptions: CppOptions(namespace: 'plugin_filament_view'),
     copyrightHeader: 'pigeons/copyright.txt',
     dartPackageName: 'filament_scene',
   ),
@@ -60,22 +58,31 @@ abstract class FilamentViewApi {
   /*
    *  Camera
    */
-  /// Change the camera mode by name.
-  // TODO(kerberjg): refactor to use an enum instead of string
-  void changeCameraMode(final String mode);
-  void changeCameraOrbitHomePosition(final double x, final double y, final double z);
-  void changeCameraTargetPosition(final double x, final double y, final double z);
-  void changeCameraFlightStartPosition(final double x, final double y, final double z);
+  /// Set the camera orbit's anchoring/origin entity
+  void setCameraOrbit(final int id, final int originEntityId, final Float64List orbitRotation);
 
-  /// (For `INERTIA_AND_GESTURES` mode) Reset inertia camera to default values.
-  void resetInertiaCameraToDefaultValues();
+  /// Set the camera's look-at target entity.
+  void setCameraTarget(final int id, final int targetEntityId, final Float64List? targetPosition);
 
-  /// Set camera rotation by a float value.
-  void setCameraRotation(final double value);
+  /// Set a given camera as the active camera for a view
+  void setActiveCamera(
+    /// View ID to set the camera for.
+    /// If null, the default view will be used.
+    final int? viewId,
+
+    /// EntityGUID of the camera to set as active.
+    final int cameraId,
+  );
+
+  /// Set the camera's dolly offset.
+  /// The dolly offset is the camera's position relative to its target.
+  void setCameraDolly(final int id, final Float64List dollyOffset);
+
+  // TODO(kerberjg): add setCameraIpd to support stereoscopic/VR cameras
 
   /*
    *  Lights
-  */
+   */
   /// Set a light's color and intensity by GUID.
   void changeLightColorByGUID(final int id, final String color, final int intensity);
 
@@ -105,6 +112,8 @@ abstract class FilamentViewApi {
   /*
    * Collision
    */
+  void raycastFromTap(final double x, final double y);
+
   /// Perform a raycast query.
   /// The result will be sent back to the client via the collision_info event channel.
   void requestCollisionCheckFromRay(

@@ -32,17 +32,13 @@ abstract class Skybox {
   /// A Transparent color will be used.
   Color? color;
 
-  Skybox({
-    this.color,
-    this.assetPath,
-    this.url,
-  });
+  Skybox({this.color, this.assetPath, this.url});
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'assetPath': assetPath,
-        'url': url,
-        'color': color?.toHex,
-      };
+    'assetPath': assetPath,
+    'url': url,
+    'color': color?.toHex,
+  };
 
   @override
   String toString() {

@@ -15,7 +15,9 @@ Material poGetLitMaterial(Color? colorOveride) {
     parameters: [
       //update base color property with color
       MaterialParameter.color(
-          color: colorOveride ?? Colors.white, name: "baseColor"),
+        color: colorOveride ?? Colors.white,
+        name: "baseColor",
+      ),
       //update roughness property with it's value
       MaterialParameter.float(value: .8, name: "roughness"),
       //update metallicproperty with it's value
@@ -46,35 +48,40 @@ Material poGetLitMaterialWithRandomValues() {
 ////////////////////////////////////////////////////////////////////////////////
 MaterialParameter poGetRandomColorMaterialParam() {
   return MaterialParameter.color(
-      color: getRandomPresetColor(), name: "baseColor");
+    color: getRandomPresetColor(),
+    name: "baseColor",
+  );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 Material poGetTexturedMaterial() {
-  return Material.asset(texturedMat, parameters: [
-    MaterialParameter.texture(
-      value: Texture.asset(
-        "assets/materials/texture/floor_basecolor.png",
-        type: TextureType.color,
-        sampler: TextureSampler(anisotropy: 8),
+  return Material.asset(
+    texturedMat,
+    parameters: [
+      MaterialParameter.texture(
+        value: Texture.asset(
+          "assets/materials/texture/floor_basecolor.png",
+          type: TextureType.color,
+          sampler: TextureSampler(anisotropy: 8),
+        ),
+        name: "baseColor",
       ),
-      name: "baseColor",
-    ),
-    MaterialParameter.texture(
-      value: Texture.asset(
-        "assets/materials/texture/floor_normal.png",
-        type: TextureType.normal,
-        sampler: TextureSampler(anisotropy: 8),
+      MaterialParameter.texture(
+        value: Texture.asset(
+          "assets/materials/texture/floor_normal.png",
+          type: TextureType.normal,
+          sampler: TextureSampler(anisotropy: 8),
+        ),
+        name: "normal",
       ),
-      name: "normal",
-    ),
-    MaterialParameter.texture(
-      value: Texture.asset(
-        "assets/materials/texture/floor_ao_roughness_metallic.png",
-        type: TextureType.data,
-        sampler: TextureSampler(anisotropy: 8),
+      MaterialParameter.texture(
+        value: Texture.asset(
+          "assets/materials/texture/floor_ao_roughness_metallic.png",
+          type: TextureType.data,
+          sampler: TextureSampler(anisotropy: 8),
+        ),
+        name: "aoRoughnessMetallic",
       ),
-      name: "aoRoughnessMetallic",
-    ),
-  ]);
+    ],
+  );
 }

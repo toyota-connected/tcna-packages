@@ -6,17 +6,15 @@ class Scene {
   Skybox? skybox;
   IndirectLight? indirectLight;
   List<Light>? lights;
-  Camera? camera;
 
   final Map<EntityGUID, Entity> entities = <EntityGUID, Entity>{};
 
-  Scene({this.skybox, this.indirectLight, this.lights, this.camera});
+  Scene({this.skybox, this.indirectLight, this.lights});
 
   /*
    *  Entity management
    */
   Entity? getEntity(final EntityGUID id) => entities[id];
-
 
   /*
    *  Serialization
@@ -25,12 +23,11 @@ class Scene {
     'skybox': skybox?.toJson(),
     'lights': lights?.map((final light) => light.toJson()).toList(),
     'indirectLight': indirectLight?.toJson(),
-    'camera': camera?.toJson(),
   };
 
   @override
   String toString() {
-    return 'Scene(skybox: $skybox, indirectLight: $indirectLight, lights: $lights, camera: $camera)';
+    return 'Scene(skybox: $skybox, indirectLight: $indirectLight, lights: $lights)';
   }
 
   @override
@@ -40,29 +37,23 @@ class Scene {
     return other is Scene &&
         other.skybox == skybox &&
         other.indirectLight == indirectLight &&
-        other.lights == lights &&
-        other.camera == camera;
+        other.lights == lights;
   }
 
   @override
   int get hashCode {
-    return skybox.hashCode ^
-        indirectLight.hashCode ^
-        lights.hashCode ^
-        camera.hashCode;
+    return skybox.hashCode ^ indirectLight.hashCode ^ lights.hashCode;
   }
 
   Scene copyWith({
     final Skybox? skybox,
     final IndirectLight? indirectLight,
     final List<Light>? lights,
-    final Camera? camera,
   }) {
     return Scene(
       skybox: skybox ?? this.skybox,
       indirectLight: indirectLight ?? this.indirectLight,
       lights: lights ?? this.lights,
-      camera: camera ?? this.camera,
     );
   }
 }

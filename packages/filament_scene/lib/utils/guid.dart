@@ -4,6 +4,8 @@ import 'package:filament_scene/entity/entity.dart' show EntityGUID;
  *  GUID generator
  */
 
+EntityGUID kNullGuid = 0;
+
 int _counter = 0;
 const int _preamble = 0; // even number for Dart (C++ has odd)
 const int _increment = 2;

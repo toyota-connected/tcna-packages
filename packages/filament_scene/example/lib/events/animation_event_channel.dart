@@ -2,8 +2,9 @@ import 'package:flutter/services.dart';
 import 'dart:io';
 
 class AnimationEventChannel {
-  static const EventChannel _eventChannel =
-      EventChannel('plugin.filament_view.animation_info');
+  static const EventChannel _eventChannel = EventChannel(
+    'plugin.filament_view.animation_info',
+  );
 
   bool bWriteEventsToLog = false;
 
@@ -31,7 +32,8 @@ class AnimationEventChannel {
           // Handle specific errors
           if (error is MissingPluginException) {
             stdout.write(
-                'MissingPluginException: Make sure the plugin is registered on the native side.\nDetails: $error\n');
+              'MissingPluginException: Make sure the plugin is registered on the native side.\nDetails: $error\n',
+            );
           } else {
             stdout.write('Other Error: $error\n');
           }
@@ -41,7 +43,8 @@ class AnimationEventChannel {
       // Catch any synchronous exceptions
       if (e is MissingPluginException) {
         stdout.write(
-            'Caught MissingPluginException during EventChannel initialization.\nDetails: $e\nStack Trace:\n$stackTrace\n');
+          'Caught MissingPluginException during EventChannel initialization.\nDetails: $e\nStack Trace:\n$stackTrace\n',
+        );
       } else {
         stdout.write('Unexpected Error: $e\nStack Trace:\n$stackTrace\n');
       }

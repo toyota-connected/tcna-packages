@@ -6,6 +6,16 @@ extension Vector3WithExtras on Vector3 {
   /// Construct a [Vector3] from a [Vector3Data].
   static Vector3 fromData(final Vector3Data data) => Vector3(data.x, data.y, data.z);
 
+  Quaternion toQuaternionDegrees() {
+    final Quaternion q = Quaternion.identity()..setEulerDegrees(x, y, z);
+    return q;
+  }
+
+  Quaternion toQuaternionRadians() {
+    final Quaternion q = Quaternion.identity()..setEulerRadians(x, y, z);
+    return q;
+  }
+
   /// Multiply each component of the vector by the corresponding component of the other vector.
   Vector3 mul(final Vector3 other) => Vector3(x * other.x, y * other.y, z * other.z);
 
@@ -62,14 +72,11 @@ extension QuaternionWithStorage64 on Quaternion {
 }
 
 /// A data class for Vector3
-@immutable class Vector3Data {
-  final double x, y ,z;
+@immutable
+class Vector3Data {
+  final double x, y, z;
 
-  const Vector3Data({
-    required this.x,
-    required this.y,
-    required this.z,
-  });
+  const Vector3Data({required this.x, required this.y, required this.z});
 
   @override
   String toString() => 'Vector3Data(x: $x, y: $y, z: $z)';
@@ -79,39 +86,26 @@ extension QuaternionWithStorage64 on Quaternion {
 }
 
 /// A data class for Quaternion
-@immutable class QuaternionData {
+@immutable
+class QuaternionData {
   final double x, y, z, w;
   final bool isEuler, isDegrees;
 
-  const QuaternionData({
-    required this.x,
-    required this.y,
-    required this.z,
-    required this.w,
-  }) :
-    isEuler = false,
-    isDegrees = false;
+  const QuaternionData({required this.x, required this.y, required this.z, required this.w})
+    : isEuler = false,
+      isDegrees = false;
 
   /// Euler angles in radians
-  const QuaternionData.euler({
-    required this.x,
-    required this.y,
-    required this.z,
-  }) : 
-    w = double.nan,
-    isEuler = true,
-    isDegrees = false;
+  const QuaternionData.euler({required this.x, required this.y, required this.z})
+    : w = double.nan,
+      isEuler = true,
+      isDegrees = false;
 
   /// Euler angles in degrees
-  const QuaternionData.eulerDegrees({
-    required this.x,
-    required this.y,
-    required this.z,
-  }) : 
-    w = double.nan,
-    isEuler = true,
-    isDegrees = true;  
-  
+  const QuaternionData.eulerDegrees({required this.x, required this.y, required this.z})
+    : w = double.nan,
+      isEuler = true,
+      isDegrees = true;
 
   @override
   String toString() => 'QuaternionData(x: $x, y: $y, z: $z, w: $w)';

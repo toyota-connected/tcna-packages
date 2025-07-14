@@ -8,75 +8,37 @@ const defaultTextStyle = TextStyle(
   fontWeight: FontWeight.bold,
   color: Colors.black,
   shadows: [
-    Shadow(
-      offset: Offset(-1.5, -1.5),
-      color: Colors.white,
-    ),
-    Shadow(
-      offset: Offset(1.5, -1.5),
-      color: Colors.white,
-    ),
-    Shadow(
-      offset: Offset(1.5, 1.5),
-      color: Colors.white,
-    ),
-    Shadow(
-      offset: Offset(-1.5, 1.5),
-      color: Colors.white,
-    ),
+    Shadow(offset: Offset(-1.5, -1.5), color: Colors.white),
+    Shadow(offset: Offset(1.5, -1.5), color: Colors.white),
+    Shadow(offset: Offset(1.5, 1.5), color: Colors.white),
+    Shadow(offset: Offset(-1.5, 1.5), color: Colors.white),
   ],
 );
 
 typedef StateSetter = void Function(VoidCallback fn);
 
-
 class ViewSettingsWidget extends StatefulWidget {
   final FilamentViewApi filament;
 
-  const ViewSettingsWidget({
-    Key? key,
-    required this.filament,
-  }) : super(key: key);
+  const ViewSettingsWidget({Key? key, required this.filament})
+    : super(key: key);
 
   @override
   _ViewSettingsWidgetState createState() => _ViewSettingsWidgetState();
 }
 
 class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
-  bool _autoRotate = false;
   bool _toggleShapes = true;
   bool _toggleCollidableVisuals = false;
+
+  int _quality = 4;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
+      spacing: 16,
       children: [
-        ElevatedButton(
-          onPressed: () {
-            setState(() {
-              _autoRotate = !_autoRotate;
-              if (_autoRotate) {
-                widget.filament.changeCameraMode("AUTO_ORBIT");
-              } else {
-                widget.filament.changeCameraMode("INERTIA_AND_GESTURES");
-              }
-            });
-          },
-          child: Text(
-            _autoRotate ? 'Auto Orbit On' : 'Inertia & Gestures On',
-          ),
-        ),
-        const SizedBox(width: 5),
-        ElevatedButton(
-          onPressed: () {
-            setState(() {
-              widget.filament.resetInertiaCameraToDefaultValues();
-            });
-          },
-          child: const Text('Reset'),
-        ),
-        const SizedBox(width: 20),
         ElevatedButton(
           onPressed: () {
             setState(() {
@@ -88,7 +50,6 @@ class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
             _toggleShapes ? 'Toggle Shapes: On' : 'Toggle Shapes: Off',
           ),
         ),
-        const SizedBox(width: 20),
         ElevatedButton(
           onPressed: () {
             setState(() {
@@ -104,16 +65,16 @@ class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
                 : 'Toggle Collidables: Off',
           ),
         ),
-        const SizedBox(width: 5),
         ElevatedButton(
           onPressed: () {
             setState(() {
+              _quality = (_quality + 1) % 5; // Cycle through 0-4
               widget.filament.changeViewQualitySettings();
             });
           },
-          child: const Text('Qual'),
+          child: Text('Quality ($_quality)'),
         ),
-      ]
+      ],
     );
   }
 }
@@ -121,10 +82,8 @@ class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
 class LightSettingsWidget extends StatefulWidget {
   final FilamentViewApi filament;
 
-  const LightSettingsWidget({
-    Key? key,
-    required this.filament,
-  }) : super(key: key);
+  const LightSettingsWidget({Key? key, required this.filament})
+    : super(key: key);
 
   @override
   _LightSettingsWidgetState createState() => _LightSettingsWidgetState();
@@ -135,9 +94,6 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
   double _directIntensity = 300000000;
   final double _minIntensity = 500000;
   final double _maxIntensity = 300000000;
-  double _cameraRotation = 0;
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +119,9 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
               onColorChanged: (Color color) {
                 setState(() {
                   _directLightColor = color;
-                  final String colorString = _directLightColor.toHexString(includeHashSign: true);
+                  final String colorString = _directLightColor.toHexString(
+                    includeHashSign: true,
+                  );
 
                   widget.filament.changeLightColorByGUID(
                     centerPointLightGUID,
@@ -193,7 +151,9 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
                   onChanged: (double value) {
                     setState(() {
                       _directIntensity = value;
-                      final String colorString = _directLightColor.toHexString(includeHashSign: true);
+                      final String colorString = _directLightColor.toHexString(
+                        includeHashSign: true,
+                      );
 
                       widget.filament.changeLightColorByGUID(
                         centerPointLightGUID,
@@ -205,22 +165,6 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
                 ),
               ],
             ),
-          ),
-
-          const SizedBox(height: 20),
-
-          // -- CAMERA ROTATION SLIDER --
-          const Text('Camera Rotation', style: defaultTextStyle),
-          Slider(
-            value: _cameraRotation,
-            min: 0,
-            max: 600,
-            onChanged: (double value) {
-              setState(() {
-                _cameraRotation = value;
-                widget.filament.setCameraRotation(_cameraRotation / 100);
-              });
-            },
           ),
         ],
       ),

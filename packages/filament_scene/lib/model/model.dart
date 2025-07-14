@@ -9,16 +9,18 @@ part 'glb_model.dart';
 enum ModelInstancingType {
   /// Model is not instanced, will be used once
   none(0),
+
   /// Model is instanceable - primary object, will be used as a template for other instances
   /// It will not be rendered
   primaryInstanceable(1),
+
   /// Model is instanced - rendered as a copy of the primary object
   instanced(2);
 
   final int value;
   const ModelInstancingType(this.value);
 }
-  
+
 /// represents base object of the 3d model to be rendered.
 ///
 /// see also :
@@ -57,14 +59,14 @@ abstract class Model extends TransformEntity {
     this.animation,
     required this.castShadows,
     required this.receiveShadows,
-  })  : 
-    assert(assetPath != null && assetPath.isNotEmpty, "path should not be empty"),
-    /// if [ModelInstancingType.primaryInstanceable] is true, it cannot have collidable and animation
-    assert(
-      instancingMode != ModelInstancingType.primaryInstanceable || (collidable == null && animation == null),
-      "Primary model (instance template) cannot have collidable and animation",
-    )
-  ;
+  }) : assert(assetPath != null && assetPath.isNotEmpty, "path should not be empty"),
+
+       /// if [ModelInstancingType.primaryInstanceable] is true, it cannot have collidable and animation
+       assert(
+         instancingMode != ModelInstancingType.primaryInstanceable ||
+             (collidable == null && animation == null),
+         "Primary model (instance template) cannot have collidable and animation",
+       );
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -90,10 +92,6 @@ abstract class Model extends TransformEntity {
 
   @override
   int get hashCode {
-    return 
-      assetPath.hashCode ^
-      scale.hashCode ^
-      position.hashCode ^
-      animation.hashCode;
+    return assetPath.hashCode ^ scale.hashCode ^ position.hashCode ^ animation.hashCode;
   }
 }

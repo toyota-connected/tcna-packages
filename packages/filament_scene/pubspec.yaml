@@ -5,7 +5,7 @@ issue_tracker: https://github.com/toyota-connected/tcna-packages/issues?q=is%3Ai
 version: 0.1.0
 
 environment:
-  sdk: ">=3.5.0 <4.0.0"
+  sdk: ^3.8.0
   flutter: ">=3.27.1 <4.0.0"
   
 dependencies:

@@ -7,7 +7,8 @@ import 'dart:math' as math;
 import '../material_helpers.dart';
 import 'package:filament_scene/generated/messages.g.dart';
 
-@immutable class CollisionEvent {
+@immutable
+class CollisionEvent {
   final List<CollisionEventHitResult> results;
   final String source;
   final int type;
@@ -22,27 +23,31 @@ import 'package:filament_scene/generated/messages.g.dart';
     final int resultCount = json['collision_event_hit_count'];
     final List<CollisionEventHitResult> results = <CollisionEventHitResult>[];
 
-    for(int i = 0; i < resultCount; i++) {
-      final Map<String, dynamic> hitResult = Map<String, dynamic>.from(json['collision_event_hit_result_$i']);
+    for (int i = 0; i < resultCount; i++) {
+      final Map<String, dynamic> hitResult = Map<String, dynamic>.from(
+        json['collision_event_hit_result_$i'],
+      );
       final EntityGUID id = hitResult['guid'];
       final List<dynamic> hitPosition = hitResult['hitPosition'];
       final String name = hitResult['name'];
 
-      results.add(CollisionEventHitResult(
-        id,
-        Vector3(
-          hitPosition[0].toDouble(),
-          hitPosition[1].toDouble(),
-          hitPosition[2].toDouble()
+      results.add(
+        CollisionEventHitResult(
+          id,
+          Vector3(
+            hitPosition[0].toDouble(),
+            hitPosition[1].toDouble(),
+            hitPosition[2].toDouble(),
+          ),
+          name,
         ),
-        name
-      ));
+      );
     }
 
     return CollisionEvent(
       results,
       json['collision_event_source'],
-      json['collision_event_type']
+      json['collision_event_type'],
     );
   }
 
@@ -52,7 +57,8 @@ import 'package:filament_scene/generated/messages.g.dart';
   }
 }
 
-@immutable class CollisionEventHitResult {
+@immutable
+class CollisionEventHitResult {
   final EntityGUID id;
   final Vector3 hitPosition;
   final String name;
@@ -68,8 +74,9 @@ import 'package:filament_scene/generated/messages.g.dart';
 typedef CollisionEventHandler = void Function(CollisionEvent event);
 
 class CollisionEventChannel {
-  static const EventChannel _eventChannel =
-      EventChannel('plugin.filament_view.collision_info');
+  static const EventChannel _eventChannel = EventChannel(
+    'plugin.filament_view.collision_info',
+  );
 
   late FilamentViewApi filamentViewApi;
 
@@ -116,15 +123,20 @@ class CollisionEventChannel {
           //Received event: {collision_event_hit_count: 1, collision_event_hit_result_0: {guid: 1682202689430419,, hitPosition: [-1.4180145263671875, 1.1819745302200317, -0.35870814323425293], name: assets/models/sequoia_ngp.glb}, collision_event_source: vOnTouch, collision_event_type: 1}
 
           if (event.containsKey("collision_event_hit_result_0")) {
-            Map<String, dynamic> hitResult = Map<String, dynamic>.from(event["collision_event_hit_result_0"]);
+            Map<String, dynamic> hitResult = Map<String, dynamic>.from(
+              event["collision_event_hit_result_0"],
+            );
             EntityGUID guid = hitResult["guid"];
 
             // Example: Change the material of the object that was touched
-            Map<String, dynamic> ourJson = poGetLitMaterialWithRandomValues().toJson();
+            Map<String, dynamic> ourJson = poGetLitMaterialWithRandomValues()
+                .toJson();
             filamentViewApi.changeMaterialDefinition(ourJson, guid);
 
             // Emit event
-            final CollisionEvent collisionEvent = CollisionEvent.fromJson(Map<String, dynamic>.from(event));
+            final CollisionEvent collisionEvent = CollisionEvent.fromJson(
+              Map<String, dynamic>.from(event),
+            );
             print(collisionEvent);
             _emitEvent(collisionEvent);
           }
@@ -133,7 +145,8 @@ class CollisionEventChannel {
           // Handle specific errors
           if (error is MissingPluginException) {
             stdout.write(
-                'MissingPluginException: Make sure the plugin is registered on the native side.\nDetails: $error\n');
+              'MissingPluginException: Make sure the plugin is registered on the native side.\nDetails: $error\n',
+            );
           } else {
             stdout.write('Other Error: $error\n');
           }
@@ -143,7 +156,8 @@ class CollisionEventChannel {
       // Catch any synchronous exceptions
       if (e is MissingPluginException) {
         stdout.write(
-            'Caught MissingPluginException during EventChannel initialization.\nDetails: $e\nStack Trace:\n$stackTrace\n');
+          'Caught MissingPluginException during EventChannel initialization.\nDetails: $e\nStack Trace:\n$stackTrace\n',
+        );
       } else {
         stdout.write('Unexpected Error: $e\nStack Trace:\n$stackTrace\n');
       }
