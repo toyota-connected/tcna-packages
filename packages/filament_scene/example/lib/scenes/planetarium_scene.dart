@@ -31,7 +31,7 @@ class PlanetariumSceneView extends StatefulSceneView {
     'saturn',
     'uranus',
     'neptune',
-    'pluto'
+    'pluto',
   ];
 
   static Map<String, EntityGUID> objectGuids = {
@@ -71,7 +71,7 @@ class PlanetariumSceneView extends StatefulSceneView {
     'pluto': const Color(0xFF8B4513),
   };
 
-  // 
+  //
   static const Map<String, double> planetSizes = {
     'sun': 10.0,
     'mercury': 0.5,
@@ -115,7 +115,6 @@ class PlanetariumSceneView extends StatefulSceneView {
     'neptune': 164.8,
     'pluto': 248,
   };
-
 
   static List<Model> getSceneModels() {
     return [];
@@ -163,7 +162,7 @@ class PlanetariumSceneView extends StatefulSceneView {
     // If a planet has an orbit, parent it to the orbit,
     // otherwise parent it to the system
     final Map<String, EntityGUID> orbitIds = {};
-    for(final String name in planets) {
+    for (final String name in planets) {
       final id = orbitIds[name] = generateGuid();
       objectGuids["${name}_orbit"] = id;
 
@@ -173,8 +172,8 @@ class PlanetariumSceneView extends StatefulSceneView {
         parentId: objectGuids['system']!,
         position: Vector3.all(0),
         scale: name == 'sun'
-          ? Vector3.all(1)
-          : Vector3.all(planetDistances[name]!),
+            ? Vector3.all(1)
+            : Vector3.all(planetDistances[name]!),
         size: Vector3.all(1),
         rotation: Quaternion.identity(),
         stacks: 8,
@@ -186,21 +185,21 @@ class PlanetariumSceneView extends StatefulSceneView {
     }
 
     // Create planets
-    for(final String name in planets) {
+    for (final String name in planets) {
       final double distance = planetDistances[name]!;
       print("$name distance: $distance");
-      print('planet: $name (${objectGuids[name]!}), distance: ${planetDistances[name]}, size: ${planetSizes[name]}');
-      
+      print(
+        'planet: $name (${objectGuids[name]!}), distance: ${planetDistances[name]}, size: ${planetSizes[name]}',
+      );
+
       shapes[name] = Sphere(
         id: objectGuids[name]!,
         name: "${name}_planet",
         parentId: orbitIds[name]!,
-        position: name == 'sun'
-          ? Vector3.all(0)
-          : Vector3(1, 0, 0),
+        position: name == 'sun' ? Vector3.all(0) : Vector3(1, 0, 0),
         scale: name == 'sun'
-          ? Vector3.all(planetSizes[name]!)
-          : Vector3.all(planetSizes[name]! / distance),
+            ? Vector3.all(planetSizes[name]!)
+            : Vector3.all(planetSizes[name]! / distance),
         size: Vector3.all(1),
         rotation: Quaternion.identity(),
         // collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
@@ -235,39 +234,42 @@ class PlanetariumSceneView extends StatefulSceneView {
 class _PlanetariumSceneViewState extends StatefulSceneViewState {
   @override
   void onCreate() {
-    final Vector3 cameraOffset = PlanetariumSceneView.scenePosition + PlanetariumSceneView.cameraOffset;
+    // final Vector3 cameraOffset = PlanetariumSceneView.scenePosition + PlanetariumSceneView.cameraOffset;
 
     // set camera
-    widget.filament.changeCameraTargetPosition(
-      PlanetariumSceneView.scenePosition.x,
-      PlanetariumSceneView.scenePosition.y,
-      PlanetariumSceneView.scenePosition.z,
-    );
-    widget.filament.changeCameraOrbitHomePosition(
-      cameraOffset.x,
-      cameraOffset.y,
-      cameraOffset.z,
-    );
-    widget.filament.changeCameraFlightStartPosition(
-      cameraOffset.x,
-      cameraOffset.y,
-      cameraOffset.z,
-    );
+    // widget.filament.changeCameraTargetPosition(
+    //   PlanetariumSceneView.scenePosition.x,
+    //   PlanetariumSceneView.scenePosition.y,
+    //   PlanetariumSceneView.scenePosition.z,
+    // );
+    // widget.filament.changeCameraOrbitHomePosition(
+    //   cameraOffset.x,
+    //   cameraOffset.y,
+    //   cameraOffset.z,
+    // );
+    // widget.filament.changeCameraFlightStartPosition(
+    //   cameraOffset.x,
+    //   cameraOffset.y,
+    //   cameraOffset.z,
+    // );
 
     widget.filament.setFogOptions(false);
 
     // deactivate rendering for system and orbits
-    widget.filament.turnOffVisualForEntity(PlanetariumSceneView.objectGuids['system']!);
-    for(final String name in PlanetariumSceneView.objectGuids.keys) {
-      if(name.endsWith('_orbit')) {
-        widget.filament.turnOffVisualForEntity(PlanetariumSceneView.objectGuids[name]!);
+    widget.filament.turnOffVisualForEntity(
+      PlanetariumSceneView.objectGuids['system']!,
+    );
+    for (final String name in PlanetariumSceneView.objectGuids.keys) {
+      if (name.endsWith('_orbit')) {
+        widget.filament.turnOffVisualForEntity(
+          PlanetariumSceneView.objectGuids[name]!,
+        );
       }
     }
-
   }
 
   @override
-  void onTriggerEvent(final String eventName, [ final dynamic eventData ]) {}
+  void onTriggerEvent(final String eventName, [final dynamic eventData]) {}
 
   double _timer = 60 * 10; // 10 minutes
 
@@ -276,7 +278,7 @@ class _PlanetariumSceneViewState extends StatefulSceneViewState {
     _timer += dt;
 
     // rotate planets
-    for(final String name in PlanetariumSceneView.planets) {
+    for (final String name in PlanetariumSceneView.planets) {
       final double speed = 1 / PlanetariumSceneView.planetSpeeds[name]! * 0.25;
       // final double distance = PlanetariumSceneView.planetDistances[name]!;
 
@@ -286,15 +288,13 @@ class _PlanetariumSceneViewState extends StatefulSceneViewState {
 
       widget.filament.setEntityTransformRotation(
         PlanetariumSceneView.objectGuids["${name}_orbit"]!,
-        rot.storage64
+        rot.storage64,
       );
     }
   }
 
   @override
-  void onDestroy() {
-
-  }
+  void onDestroy() {}
 
   /*
    *  UI

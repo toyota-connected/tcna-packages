@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 import 'package:filament_scene/entity/entity.dart';
 import 'package:filament_scene/utils/serialization.dart';
@@ -10,7 +9,7 @@ enum LightType {
   sun("SUN"),
 
   /// Directional light, emits light in a given direction.
-  /// 
+  ///
   /// Directional lights have a direction, but don't have a position.
   /// All light rays are parallel and come from infinitely far away and from everywhere. Typically a directional light is used to simulate the sun.
   /// Directional lights and spot lights are able to cast shadows.
@@ -19,13 +18,13 @@ enum LightType {
   directional("DIRECTIONAL"),
 
   /// Point light, emits light from a position, in all directions.
-  /// 
+  ///
   /// Unlike directional lights, point lights have a position but emit light in all directions.
   /// The intensity of the light diminishes with the inverse square of the distance to the light.
   point("POINT"),
 
   /// Physically correct spot light.
-  /// 
+  ///
   /// A physically correct spot light is a little difficult to use because changing the outer angle of the cone changes the illumination levels,
   /// as the same amount of light is spread over a changing volume.
   /// The coupling of illumination and the outer cone means that an artist cannot tweak the influence cone of a spot light without also changing the perceived illumination.
@@ -33,12 +32,12 @@ enum LightType {
   focusedSpot("FOCUSED_SPOT"),
 
   /// Spot light with coupling of outer cone and illumination disabled.
-  /// 
+  ///
   /// A spot light is defined by a position, a direction and two cones, inner and outer.
   /// These two cones are used to define the angular falloff attenuation of the spot light
   /// and are defined by the angle from the center axis to where the falloff begins
   /// (i.e. cones are defined by their half-angle).
-  /// 
+  ///
   /// Spot lights are similar to point lights but the light they emit is limited to a cone defined by spotLightCone and the light's direction.
   /// A spot light is therefore defined by a position, a direction and inner and outer cones.
   /// The spot light's influence is limited to inside the outer cone. The inner cone defines the light's falloff attenuation.
@@ -47,9 +46,9 @@ enum LightType {
   final String value;
   const LightType(this.value);
 
-  static LightType from(final String? value) => LightType.values.asNameMap()[value] ?? LightType.directional;
+  static LightType from(final String? value) =>
+      LightType.values.asNameMap()[value] ?? LightType.directional;
 }
-
 
 /// An object that allows you to create a light source in the scene, such as a sun or street lights.
 ///
@@ -68,12 +67,12 @@ class Light extends Entity {
   /// instead of passing color directly, you can pass the temperature, in Kelvin.
   /// Converts a correlated color temperature to a  RGB color in sRGB space.
   /// The temperature must be expressed in Kelvin and must be in the range 1,000K to 15,000K.
-  /// 
+  ///
   /// Only one of temperature or color should be specified.
   double? colorTemperature;
 
   /// Sets the initial intensity of a light.
-  /// 
+  ///
   /// This parameter depends on the LightType.
   /// For directional lights,it specifies the illuminance in lux (or lumen/m^2).
   /// For point lights and spot lights, it specifies the luminous power in lumen.
@@ -82,7 +81,7 @@ class Light extends Entity {
 
   ///Sets the initial position of the light in world space.
   /// note: The Light's position is ignored for directional lights (LightManager.Type.DIRECTIONAL or LightManager.Type.SUN)
-  /// 
+  ///
   /// Default is Position(x:0.0, y:0.0,z: 0.0).
   Vector3? position;
 
@@ -117,12 +116,12 @@ class Light extends Entity {
   double? falloffRadius;
 
   /// Defines a spot light's inner cone angle in radian between 0 and pi/2 outer
-  /// 
+  ///
   /// NOTE: The spot light cone is ignored for directional and point lights.
   double? spotLightConeInner;
 
   /// Defines a spot light's outer cone angle in radians between inner and pi/2
-  /// 
+  ///
   /// NOTE: The spot light cone is ignored for directional and point lights.
   double? spotLightConeOuter;
 
@@ -156,11 +155,15 @@ class Light extends Entity {
     this.sunAngularRadius,
     this.sunHaloSize,
     this.sunHaloFalloff,
-  }) :
-    assert(color != null || colorTemperature != null, "Either color or colorTemperature must be specified, not both"),
-    // A non-zero direction is required for spot lights
-    assert(type != LightType.spot || direction != null, "Direction must be specified for spot lights")
-  ;
+  }) : assert(
+         color != null || colorTemperature != null,
+         "Either color or colorTemperature must be specified, not both",
+       ),
+       // A non-zero direction is required for spot lights
+       assert(
+         type != LightType.spot || direction != null,
+         "Direction must be specified for spot lights",
+       );
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{

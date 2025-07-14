@@ -24,7 +24,7 @@ Future<Result<T>> handleError<T>(final Future<T?> future) async {
     return Result<T>.success(result);
   } on PlatformException catch (err) {
     return Result.error(err.message);
-  // ignore: avoid_catches_without_on_clauses
+    // ignore: avoid_catches_without_on_clauses
   } catch (err) {
     return Result.error("Something went wrong: $err");
   }

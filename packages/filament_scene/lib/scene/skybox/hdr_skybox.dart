@@ -8,16 +8,18 @@ class HdrSkybox extends Skybox {
   bool showSun = false;
 
   /// creates skybox object from hdr file from assets.
-  HdrSkybox.asset(
-    final String path,) : super(assetPath: path);
+  HdrSkybox.asset(final String path) : super(assetPath: path);
 
   /// creates skybox object from hdr file from url.
-  HdrSkybox.url(
-    final String url,) : super(url: url);
+  HdrSkybox.url(final String url) : super(url: url);
 
   @override
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{'assetPath': assetPath, 'url': url, 'showSun': showSun, 'skyboxType': 2};
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'assetPath': assetPath,
+    'url': url,
+    'showSun': showSun,
+    'skyboxType': 2,
+  };
 
   @override
   String toString() {

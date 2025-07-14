@@ -3,7 +3,7 @@ description: Demonstrates how to use the playx 3d Scene plugin to show 3d model.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
-  sdk: '>=3.5.0 <4.0.0'
+  sdk: ^3.8.0
 
 dependencies:
   flutter:

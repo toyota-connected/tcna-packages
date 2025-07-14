@@ -18,28 +18,21 @@ class GlbModel extends Model {
     required super.receiveShadows,
     super.name,
     required super.id,
-  }) :
-    assert(assetPath!.contains('.glb'), "path should be a glb file path"),
-    super()
-  ;
-
+  }) : assert(assetPath!.contains('.glb'), "path should be a glb file path"),
+       super();
 
   @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
-    ...super.toJson(),
-    'isGlb': true,
-  };
+  Map<String, dynamic> toJson() => <String, dynamic>{...super.toJson(), 'isGlb': true};
 
   @override
   // ignore: hash_and_equals
-  bool operator ==(final  Object other) {
+  bool operator ==(final Object other) {
     if (identical(this, other)) return true;
 
-    return
-      other is GlbModel &&
-      other.assetPath == assetPath &&
-      other.scale == scale &&
-      other.position == position &&
-      other.animation == animation;
+    return other is GlbModel &&
+        other.assetPath == assetPath &&
+        other.scale == scale &&
+        other.position == position &&
+        other.animation == animation;
   }
 }

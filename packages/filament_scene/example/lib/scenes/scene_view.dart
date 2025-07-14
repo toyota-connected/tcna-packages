@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:my_fox_example/events/collision_event_channel.dart';
@@ -21,11 +20,13 @@ abstract class StatefulSceneView extends StatefulWidget {
   }) : super();
 }
 
-abstract class StatefulSceneViewState<T extends StatefulSceneView> extends State<T> {
+abstract class StatefulSceneViewState<T extends StatefulSceneView>
+    extends State<T> {
   /// Called when the scene view is mounted - supercedes [State.initState]
   void onCreate();
 
-  @override @nonVirtual
+  @override
+  @nonVirtual
   void initState() {
     widget.frameController.addCallback(this.onUpdateFrame);
     widget.readinessController.addCallback(this.onCreate);
@@ -36,12 +37,13 @@ abstract class StatefulSceneViewState<T extends StatefulSceneView> extends State
   void onUpdateFrame(FilamentViewApi filament, double dt);
 
   /// Called when an event by a given name is triggered
-  void onTriggerEvent(String eventName, [ dynamic eventData ]);
+  void onTriggerEvent(String eventName, [dynamic eventData]);
 
   /// Called when the scene is unmounted - supercedes [State.dispose]
   void onDestroy();
 
-  @override @nonVirtual
+  @override
+  @nonVirtual
   void dispose() {
     this.onDestroy();
     widget.frameController.removeCallback(this.onUpdateFrame);
