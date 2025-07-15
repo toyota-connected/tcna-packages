@@ -1,5 +1,7 @@
+import 'package:filament_scene/camera/camera.dart';
 import 'package:filament_scene/filament_scene.dart';
 import 'package:filament_scene/generated/messages.g.dart';
+import 'package:filament_scene/math/utils.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/shapes/shapes.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +10,6 @@ import 'package:my_fox_example/scenes/scene_view.dart';
 
 class PlanetariumSceneView extends StatefulSceneView {
   static final Vector3 scenePosition = Vector3(-720, 0, 680);
-  static final Vector3 cameraOffset = Vector3(0, 90, 0);
 
   const PlanetariumSceneView({
     super.key,
@@ -35,6 +36,7 @@ class PlanetariumSceneView extends StatefulSceneView {
   ];
 
   static Map<String, EntityGUID> objectGuids = {
+    'camera': generateGuid(),
     // Models
     // Shapes
     'system': generateGuid(),
@@ -54,6 +56,14 @@ class PlanetariumSceneView extends StatefulSceneView {
     'sun_light': generateGuid(),
     'moon_light': generateGuid(),
   };
+
+  static final Camera camera = Camera(
+    id: objectGuids['camera']!,
+    orbitOriginPoint: scenePosition,
+    orbitAngles: Vector2(0, 90),
+    orbitDistance: 80,
+    name: 'planetariumCamera',
+  );
 
   static Map<String, Color> planetColors = {
     'sun': const Color(0xFFFFD700),
@@ -115,6 +125,10 @@ class PlanetariumSceneView extends StatefulSceneView {
     'neptune': 164.8,
     'pluto': 248,
   };
+
+  static List<Camera> getSceneCameras() {
+    return [camera];
+  }
 
   static List<Model> getSceneModels() {
     return [];
@@ -202,7 +216,6 @@ class PlanetariumSceneView extends StatefulSceneView {
             : Vector3.all(planetSizes[name]! / distance),
         size: Vector3.all(1),
         rotation: Quaternion.identity(),
-        // collidable: Collidable(isStatic: false, shouldMatchAttachedObject: true),
         material: poGetLitMaterial(planetColors[name]!),
         stacks: 20,
         slices: 20,
@@ -234,24 +247,7 @@ class PlanetariumSceneView extends StatefulSceneView {
 class _PlanetariumSceneViewState extends StatefulSceneViewState {
   @override
   void onCreate() {
-    // final Vector3 cameraOffset = PlanetariumSceneView.scenePosition + PlanetariumSceneView.cameraOffset;
-
-    // set camera
-    // widget.filament.changeCameraTargetPosition(
-    //   PlanetariumSceneView.scenePosition.x,
-    //   PlanetariumSceneView.scenePosition.y,
-    //   PlanetariumSceneView.scenePosition.z,
-    // );
-    // widget.filament.changeCameraOrbitHomePosition(
-    //   cameraOffset.x,
-    //   cameraOffset.y,
-    //   cameraOffset.z,
-    // );
-    // widget.filament.changeCameraFlightStartPosition(
-    //   cameraOffset.x,
-    //   cameraOffset.y,
-    //   cameraOffset.z,
-    // );
+    PlanetariumSceneView.camera.setActive();
 
     widget.filament.setFogOptions(false);
 
@@ -299,8 +295,41 @@ class _PlanetariumSceneViewState extends StatefulSceneViewState {
   /*
    *  UI
    */
+  ValueNotifier<double> cameraXAngle = ValueNotifier<double>(
+    PlanetariumSceneView.camera.orbitAngles.x,
+  );
+  ValueNotifier<double> cameraYAngle = ValueNotifier<double>(
+    PlanetariumSceneView.camera.orbitAngles.y,
+  );
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Column(
+      // Force left justification in the column
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Gesture for camera control
+        Expanded(
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent, // allow taps to pass through
+            // NOTE: exercise: try implementing a camera gesture that allows zooming in and out
+            onPanUpdate: (final details) {
+              // Updated camera angles based on initial touch position
+              cameraXAngle.value =
+                  (cameraXAngle.value - details.delta.dx * 0.25) % 360;
+              cameraYAngle.value =
+                  (cameraYAngle.value - details.delta.dy * 0.25).clamp(-90, -1);
+
+              PlanetariumSceneView.camera.setOrbit(
+                horizontal: radians(cameraXAngle.value),
+                vertical: radians(cameraYAngle.value),
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 }
