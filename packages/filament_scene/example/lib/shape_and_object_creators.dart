@@ -385,7 +385,7 @@ List<Camera> poGetScenesCameras() {
   itemsToReturn.addAll(PlaygroundSceneView.getSceneCameras());
   itemsToReturn.addAll(RadarSceneView.getSceneCameras());
   itemsToReturn.addAll(SettingsSceneView.getSceneCameras());
-  // itemsToReturn.addAll(PlanetariumSceneView.getSceneCameras());
+  itemsToReturn.addAll(PlanetariumSceneView.getSceneCameras());
   itemsToReturn.addAll(TrainsetSceneView.getSceneCameras());
 
   return itemsToReturn;
