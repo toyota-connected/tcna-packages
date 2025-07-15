@@ -12,7 +12,6 @@ import 'package:filament_scene/utils/serialization.dart';
 /// - rig (entity): centered at the [orbitOriginPoint], [orbitOriginEntity] or [position];
 ///                 its rotation is used to control the camera's orbit (Y, X)
 /// - head (camera eye): always at (x:0, y:0, z: [orbitDistance]) + [dollyOffset] relative to the rig;
-///
 class Camera extends TransformEntity with CameraComponent.Camera, CameraComponent.CameraRig {
   Camera({
     required super.id,

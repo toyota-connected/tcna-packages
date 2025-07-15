@@ -8,6 +8,11 @@ on:
         type: string
         required: true
         default: "packages/filament_scene"
+      package-name:
+        description: "Name of the package to check"
+        type: string
+        required: true
+        default: "filament_scene"
 
 jobs:
   install:
@@ -16,6 +21,9 @@ jobs:
       run:
         working-directory: ${{ inputs.package-path }}
     runs-on: ubuntu-latest
+
+    # Skip if job has label 'skip-[package name]'
+    if: "!contains(github.event.pull_request.labels.*.name, 'ci: skip ${{ inputs.package-name }}') && !contains(github.event.head_commit.message, '[skip ${{ inputs.package-name }}]')"
 
     steps:
       - uses: actions/checkout@v4
@@ -59,5 +67,36 @@ jobs:
 
       - name: Run analysis
         run: flutter analyze --fatal-warnings
+
+  docs:
+    name: "docs"
+    defaults:
+      run:
+        working-directory: ${{ inputs.package-path }}
+    runs-on: ubuntu-latest
+    needs: [ analyze, format ]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/flutter-setup
+        with:
+          package-path: ${{ inputs.package-path }}
+
+      - name: Build Documentation
+        run: |
+          flutter pub global activate dartdoc
+          flutter pub global run dartdoc
+
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs
+          path: ${{ inputs.package-path }}/doc
+
+      - name: Instructions
+        run: |
+          echo "To view docs, download the file above, unzip it and run the following in its folder:"
+          echo "  > dart pub global activate dhttpd"
+          echo "  > dart pub global run dhttpd --path ./"
 
   # TODO: add a `test` job
