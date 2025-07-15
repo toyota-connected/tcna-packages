@@ -8,6 +8,7 @@ import 'package:my_fox_example/scenes/playground_scene.dart';
 import 'package:my_fox_example/scenes/radar_scene.dart';
 import 'package:my_fox_example/scenes/settings_scene.dart';
 import 'package:filament_scene/filament_scene.dart';
+import 'package:my_fox_example/scenes/trainset_scene.dart';
 
 ////////////////////////////////////////////////////////////////////////////////
 // TODO(kerberjg): remove! Shapes will become components on scene entities, and this will go to init
@@ -17,14 +18,10 @@ List<Shape> poGetScenesShapes() {
   itemsToReturn.addAll(PlaygroundSceneView.getSceneShapes());
   itemsToReturn.addAll(RadarSceneView.getSceneShapes());
   itemsToReturn.addAll(SettingsSceneView.getSceneShapes());
-  try {
-    itemsToReturn.addAll(PlanetariumSceneView.getSceneShapes());
-  } catch (e, st) {
-    // TODO(kerberjg): remove this try/catch
-    print("PlanetariumSceneView.getSceneShapes() failed: $e\n$st");
-  }
+  itemsToReturn.addAll(PlanetariumSceneView.getSceneShapes());
+  itemsToReturn.addAll(TrainsetSceneView.getSceneShapes());
 
-  // TODO: add other scenes if needed
+  // NOTE: add other scenes if needed
 
   return itemsToReturn;
 }
@@ -331,14 +328,11 @@ List<Model> poGetModelList() {
   // 'primary objects'
   itemsToReturn.addAll(getBaseModels());
 
-  // scene 0
   itemsToReturn.addAll(PlaygroundSceneView.getSceneModels());
-
-  // scene 1
   itemsToReturn.addAll(RadarSceneView.getSceneModels());
-
-  // scene 2
   itemsToReturn.addAll(SettingsSceneView.getSceneModels());
+  itemsToReturn.addAll(PlanetariumSceneView.getSceneModels());
+  itemsToReturn.addAll(TrainsetSceneView.getSceneModels());
 
   return itemsToReturn;
 }
@@ -392,6 +386,7 @@ List<Camera> poGetScenesCameras() {
   itemsToReturn.addAll(RadarSceneView.getSceneCameras());
   itemsToReturn.addAll(SettingsSceneView.getSceneCameras());
   // itemsToReturn.addAll(PlanetariumSceneView.getSceneCameras());
+  itemsToReturn.addAll(TrainsetSceneView.getSceneCameras());
 
   return itemsToReturn;
 }

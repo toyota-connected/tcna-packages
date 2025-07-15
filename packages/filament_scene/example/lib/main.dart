@@ -4,6 +4,7 @@ import 'package:my_fox_example/scenes/playground_scene.dart';
 import 'package:my_fox_example/scenes/radar_scene.dart';
 import 'package:my_fox_example/scenes/scene_view.dart';
 import 'package:my_fox_example/scenes/settings_scene.dart';
+import 'package:my_fox_example/scenes/trainset_scene.dart';
 import 'package:filament_scene/filament_scene.dart';
 import 'dart:async';
 import 'dart:io';
@@ -97,6 +98,12 @@ class _MyAppState extends State<MyApp> {
         readinessController: _nativeReadiness,
       ),
       3 => PlanetariumSceneView(
+        filament: filamentViewApi,
+        frameController: _frameEventChannel,
+        collisionController: _collisionEventChannel,
+        readinessController: _nativeReadiness,
+      ),
+      4 => TrainsetSceneView(
         filament: filamentViewApi,
         frameController: _frameEventChannel,
         collisionController: _collisionEventChannel,
@@ -204,6 +211,10 @@ class _MyAppState extends State<MyApp> {
                   MenuItemButton(
                     child: const Text('Planetarium'),
                     onPressed: () => setState(() => _setScene(3)),
+                  ),
+                  MenuItemButton(
+                    child: const Text('Trainset'),
+                    onPressed: () => setState(() => _setScene(4)),
                   ),
                 ],
               ),
