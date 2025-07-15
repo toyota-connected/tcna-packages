@@ -45,3 +45,4 @@ jobs:
     uses: ./.github/workflows/ci.yaml
     with:
       package-path: "packages/webview/webview_flutter_linux"
+      package-name: "webview"
