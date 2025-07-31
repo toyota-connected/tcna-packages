@@ -1,27 +1,27 @@
-class Collidable {
+class Collider {
   bool isStatic;
   // Assumed to always be true at the moment
   bool shouldMatchAttachedObject;
 
   // Add properties for future layer, mask, and shape types/extensions if needed
 
-  Collidable({this.isStatic = true, this.shouldMatchAttachedObject = true});
+  Collider({this.isStatic = true, this.shouldMatchAttachedObject = true});
 
   // Convert the object to JSON
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'collidable_isStatic': isStatic,
-    'collidable_shouldMatchAttachedObject': shouldMatchAttachedObject,
+    'collider_isStatic': isStatic,
+    'collider_shouldMatchAttachedObject': shouldMatchAttachedObject,
   };
 
   @override
   String toString() =>
-      'Collidable(collidable_isStatic: $isStatic, collidable_shouldMatchAttachedObject: $shouldMatchAttachedObject)';
+      'Collider(collider_isStatic: $isStatic, collider_shouldMatchAttachedObject: $shouldMatchAttachedObject)';
 
   @override
   bool operator ==(final Object other) {
     if (identical(this, other)) return true;
 
-    return other is Collidable &&
+    return other is Collider &&
         other.isStatic == isStatic &&
         other.shouldMatchAttachedObject == shouldMatchAttachedObject;
   }
