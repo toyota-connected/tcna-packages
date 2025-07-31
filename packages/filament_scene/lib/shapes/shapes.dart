@@ -1,6 +1,6 @@
 library shapes;
 
-import 'package:filament_scene/components/collidable.dart';
+import 'package:filament_scene/components/collider.dart';
 import 'package:filament_scene/entity/entity.dart';
 import 'package:filament_scene/material/material.dart';
 import 'package:filament_scene/utils/serialization.dart';
@@ -23,8 +23,8 @@ class Shape extends TransformEntity {
   /// material to be used for the shape.
   Material? material;
 
-  /// Do we have a collidable for this object (expecting to collide)
-  Collidable? collidable;
+  /// Do we have a collider for this object (expecting to collide)
+  Collider? collider;
 
   /// When creating geometry if its inside and out, or only
   /// outward facing
@@ -49,7 +49,7 @@ class Shape extends TransformEntity {
     required super.scale,
     required super.rotation,
     super.children,
-    this.collidable,
+    this.collider,
     this.doubleSided = false,
     this.cullingEnabled = true,
     this.castShadows = true,
@@ -60,7 +60,7 @@ class Shape extends TransformEntity {
   Map<String, dynamic> toJson() => <String, dynamic>{
     ...super.toJson(),
     'normal': normal?.toJson(),
-    'collidable': collidable?.toJson(),
+    'collider': collider?.toJson(),
     'material': material?.toJson(),
     'type': 0,
     'doubleSided': doubleSided,

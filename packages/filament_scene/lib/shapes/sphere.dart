@@ -22,7 +22,7 @@ class Sphere extends Shape {
     super.material,
     required super.scale,
     required super.rotation,
-    super.collidable,
+    super.collider,
     required this.size,
     super.doubleSided,
     super.castShadows,

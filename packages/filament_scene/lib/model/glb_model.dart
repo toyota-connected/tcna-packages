@@ -10,7 +10,7 @@ class GlbModel extends Model {
     required super.assetPath,
     required super.scale,
     super.instancingMode,
-    super.collidable,
+    super.collider,
     required super.position,
     super.animation,
     required super.rotation,
