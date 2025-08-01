@@ -28,8 +28,8 @@ abstract class StatefulSceneViewState<T extends StatefulSceneView>
   @override
   @nonVirtual
   void initState() {
-    widget.frameController.addCallback(this.onUpdateFrame);
     widget.readinessController.addCallback(this.onCreate);
+    widget.frameController.addCallback(this.onUpdateFrame);
     super.initState();
   }
 

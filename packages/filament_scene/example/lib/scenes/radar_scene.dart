@@ -178,7 +178,7 @@ class _RadarSceneViewState extends StatefulSceneViewState<RadarSceneView> {
   void onCreate() {
     RadarSceneView._sceneCamera.setActive();
 
-    widget.filament.setFogOptions(false);
+    widget.filament.setFogOptions(true);
   }
 
   @override
