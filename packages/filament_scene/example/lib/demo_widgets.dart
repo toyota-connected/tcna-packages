@@ -53,7 +53,7 @@ class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
         ElevatedButton(
           onPressed: () {
             setState(() {
-              widget.filament.toggleDebugColliderViewsInScene(
+              widget.filament.toggleDebugCollidableViewsInScene(
                 _toggleColliderVisuals,
               );
               _toggleColliderVisuals = !_toggleColliderVisuals;

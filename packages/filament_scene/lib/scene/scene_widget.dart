@@ -6,6 +6,7 @@ import 'package:filament_scene/camera/camera.dart';
 import 'package:filament_scene/components/camera.dart' show CameraHead, CameraRig;
 import 'package:filament_scene/filament_scene.dart' show IndirectLight, Light, Skybox;
 import 'package:filament_scene/generated/messages.g.dart';
+import 'package:filament_scene/utils/serialization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -124,7 +125,7 @@ class SceneView extends StatefulWidget {
 }
 
 class ModelViewerState extends State<SceneView> {
-  final Map<String, dynamic> _creationParams = <String, dynamic>{};
+  final JsonObject _creationParams = <String, dynamic>{};
   final Completer<SceneController> _controller = Completer<SceneController>();
 
   ModelViewerState();
@@ -163,7 +164,7 @@ class ModelViewerState extends State<SceneView> {
 
   void _setupCreationParams() {
     //final model = widget.models?.toJson();
-    final Map<String, dynamic>? scene = widget.scene?.toJson();
+    final JsonObject? scene = widget.scene?.toJson();
     _creationParams["models"] = widget.models?.map((final param) => param.toJson()).toList();
     _creationParams["scene"] = scene;
     // use concatenated toFlatJson

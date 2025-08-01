@@ -136,7 +136,7 @@ abstract class FilamentViewApi {
   void turnOnCollisionChecksForEntity(final int id);
 
   /// Enable/disable debug collider visuals in the scene.
-  void toggleDebugColliderViewsInScene(final bool value);
+  void toggleDebugCollidableViewsInScene(final bool value);
 
   /*
    *  Transform

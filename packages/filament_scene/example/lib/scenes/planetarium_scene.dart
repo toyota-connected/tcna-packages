@@ -143,7 +143,6 @@ class PlanetariumSceneView extends StatefulSceneView {
       name: 'system',
       position: scenePosition,
       scale: Vector3.all(1),
-      size: Vector3.all(1),
       rotation: Quaternion.identity(),
       stacks: 8,
       slices: 8,
@@ -188,7 +187,6 @@ class PlanetariumSceneView extends StatefulSceneView {
         scale: name == 'sun'
             ? Vector3.all(1)
             : Vector3.all(planetDistances[name]!),
-        size: Vector3.all(1),
         rotation: Quaternion.identity(),
         stacks: 8,
         slices: 8,
@@ -214,7 +212,6 @@ class PlanetariumSceneView extends StatefulSceneView {
         scale: name == 'sun'
             ? Vector3.all(planetSizes[name]!)
             : Vector3.all(planetSizes[name]! / distance),
-        size: Vector3.all(1),
         rotation: Quaternion.identity(),
         material: poGetLitMaterial(planetColors[name]!),
         stacks: 20,

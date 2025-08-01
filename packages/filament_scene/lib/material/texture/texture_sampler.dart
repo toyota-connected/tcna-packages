@@ -73,7 +73,7 @@ enum WrapMode {
 }
 
 /// An object that defines how a texture is accessed.
-class TextureSampler {
+class TextureSampler with Jsonable {
   ///Minification filter to be used.
   /// Defaults to LINEAR_MIPMAP_LINEAR
   MinFilter min;
@@ -96,29 +96,11 @@ class TextureSampler {
     this.anisotropy,
   });
 
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  @override
+  JsonObject toJson() => <String, dynamic>{
     'min': min.value,
     'mag': mag.value,
     'wrap': wrap.value,
     'anisotropy': anisotropy,
   };
-
-  @override
-  String toString() {
-    return 'TextureSampler(min: $min, mag: $mag, wrap: $wrap, anisotropy: $anisotropy)';
-  }
-
-  @override
-  bool operator ==(final Object other) {
-    if (identical(this, other)) return true;
-
-    return other is TextureSampler &&
-        other.min == min &&
-        other.mag == mag &&
-        other.wrap == wrap &&
-        other.anisotropy == anisotropy;
-  }
-
-  @override
-  int get hashCode => min.hashCode ^ mag.hashCode ^ wrap.hashCode ^ anisotropy.hashCode;
 }

@@ -1,3 +1,5 @@
+import 'package:filament_scene/utils/serialization.dart';
+
 /// An object that control camera Exposure.
 /// The exposure ultimately controls the scene's brightness,
 /// just like with a real camera. The default values provide adequate exposure for a camera
@@ -5,7 +7,7 @@
 /// the scene must contain at least one Light of intensity similar to the sun
 /// (e.g.: a 100,000 lux directional light) and/or an indirect light of appropriate intensity (30,000).
 /// Default is f/16, 1/125s, 100 ISO
-class Exposure {
+class Exposure with Jsonable {
   /// Aperture in f-stops, clamped between 0.5 and 64. A lower aperture value increases the exposure,
   /// leading to a brighter scene. Realistic values are between 0.95 and 32.
   final double? aperture;
@@ -78,33 +80,11 @@ class Exposure {
     }
   }
 
-  Map<String, dynamic> toJson() {
-    return <String, dynamic>{
-      "aperture": aperture,
-      "shutterSpeed": shutterSpeed,
-      "sensitivity": sensitivity,
-      "exposure": exposure,
-    };
-  }
-
   @override
-  String toString() {
-    return 'Exposure(aperture: $aperture, shutterSpeed: $shutterSpeed, sensitivity: $sensitivity, exposure: $exposure)';
-  }
-
-  @override
-  bool operator ==(final Object other) {
-    if (identical(this, other)) return true;
-
-    return other is Exposure &&
-        other.aperture == aperture &&
-        other.shutterSpeed == shutterSpeed &&
-        other.sensitivity == sensitivity &&
-        other.exposure == exposure;
-  }
-
-  @override
-  int get hashCode {
-    return aperture.hashCode ^ shutterSpeed.hashCode ^ sensitivity.hashCode ^ exposure.hashCode;
-  }
+  JsonObject toJson() => {
+    "aperture": aperture,
+    "shutterSpeed": shutterSpeed,
+    "sensitivity": sensitivity,
+    "exposure": exposure,
+  };
 }

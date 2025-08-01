@@ -228,7 +228,7 @@ class _MyAppState extends State<MyApp> {
   ////////////////////////////////////////////////////////////////////////
   Scene poGetScene() {
     return Scene(
-      skybox: ColoredSkybox(color: Colors.white),
+      skybox: ColorSkybox(color: Colors.white),
       //skybox: HdrSkybox.asset("assets/envs/courtyard.hdr"),
       indirectLight: HdrIndirectLight.asset("assets/envs/courtyard.hdr"),
       //indirectLight: poGetDefaultIndirectLight(),

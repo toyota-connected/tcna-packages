@@ -266,7 +266,7 @@ void vDoOneWaveSegment(FilamentViewApi filamentView) {
 
     // if you want a specific color; note the game models i checked in dont have
     // materials on them.
-    // Map<String, dynamic> ourJson = poGetRandomColorMaterialParam().toJson();
+    // JsonObject ourJson = poGetRandomColorMaterialParam().toJson();
     // filamentView.changeMaterialParameter(ourJson, segmentData.id);
 
     // Debugging: Print the current state

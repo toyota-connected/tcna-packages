@@ -1,8 +1,24 @@
 library indirect_light;
 
+import 'package:filament_scene/utils/serialization.dart';
+
 part './default_indirect_light.dart';
 part './hdr_indirect_light.dart';
 part './ktx_indirect_light.dart';
+
+enum IndirectLightType {
+  /// Indirect light created from ktx file format.
+  ktx(1),
+
+  /// Indirect light created from hdr file format.
+  hdr(2),
+
+  /// Default indirect light with default parameters.
+  defaultLight(3);
+
+  final int value;
+  const IndirectLightType(this.value);
+}
 
 /// An object that represents Indirect Light which is used to simulate environment lighting, a form of global illumination.
 /// Filament supports rendering with image-based lighting, or IBL.
@@ -24,7 +40,7 @@ part './ktx_indirect_light.dart';
 ///
 /// Defaults to   [DefaultIndirectLight] with intensity = 30_000,
 /// radianceBands = 1, radianceSh = [1,1,1], irradianceBands = 1, irradianceSh =[1,1,1]
-abstract class IndirectLight {
+abstract class IndirectLight with Jsonable {
   /// light asset path used to load KTX FILE from assets.
   /// used to change indirect lighting from Image-Based Light.
   String? assetPath;
@@ -38,29 +54,16 @@ abstract class IndirectLight {
   /// or create default light with certain intensity.
   double? intensity;
 
+  /// Type of the indirect light.
+  IndirectLightType get lightType;
+
   IndirectLight({this.assetPath, this.url, this.intensity});
 
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  @override
+  JsonObject toJson() => <String, dynamic>{
     'intensity': intensity,
     'assetPath': assetPath,
     'url': url,
+    'lightType': lightType.value,
   };
-
-  @override
-  String toString() {
-    return 'IndirectLight(assetPath: $assetPath, url: $url, intensity: $intensity)';
-  }
-
-  @override
-  bool operator ==(final Object other) {
-    if (identical(this, other)) return true;
-
-    return other is IndirectLight &&
-        other.assetPath == assetPath &&
-        other.url == url &&
-        other.intensity == intensity;
-  }
-
-  @override
-  int get hashCode => assetPath.hashCode ^ url.hashCode ^ intensity.hashCode;
 }

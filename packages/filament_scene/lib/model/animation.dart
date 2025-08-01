@@ -32,7 +32,7 @@ class Animation {
     this.notifyOfAnimationEvents = false,
   });
 
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  JsonObject toJson() => {
     'index': index,
     'autoPlay': autoPlay,
     'loop': loop,
@@ -40,30 +40,4 @@ class Animation {
     'playbackSpeed': playbackSpeed,
     'notifyOfAnimationEvents': notifyOfAnimationEvents,
   };
-
-  @override
-  String toString() =>
-      'Animation(index: $index, autoPlay: $autoPlay, loop: $loop, resetToTPoseOnReset: $resetToTPoseOnReset, playbackSpeed: $playbackSpeed, notifyOfAnimationEvents: $notifyOfAnimationEvents)';
-
-  @override
-  bool operator ==(final Object other) {
-    if (identical(this, other)) return true;
-
-    return other is Animation &&
-        other.index == index &&
-        other.autoPlay == autoPlay &&
-        other.loop == loop &&
-        other.resetToTPoseOnReset == resetToTPoseOnReset &&
-        other.playbackSpeed == playbackSpeed &&
-        other.notifyOfAnimationEvents == notifyOfAnimationEvents;
-  }
-
-  @override
-  int get hashCode =>
-      index.hashCode ^
-      autoPlay.hashCode ^
-      loop.hashCode ^
-      resetToTPoseOnReset.hashCode ^
-      playbackSpeed.hashCode ^
-      notifyOfAnimationEvents.hashCode;
 }

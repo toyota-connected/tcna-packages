@@ -1,3 +1,5 @@
+import 'package:filament_scene/utils/serialization.dart';
+
 ///Denotes the projection type used by this camera.
 enum ProjectionType {
   /// Perspective projection, objects get smaller as they are farther.
@@ -28,7 +30,7 @@ enum Fov {
 }
 
 ///An object that controls camera projection matrix.
-class Projection {
+class Projection with Jsonable {
   ///Denotes the projection type used by this camera.
   final ProjectionType? projection;
 
@@ -100,54 +102,17 @@ class Projection {
        assert(near == null || near > 0, "Near must be greater than 0 for perspective projection");
   // assert(far == null || far > near!, "Far must be greater than near for perspective projection");
 
-  Map<String, dynamic> toJson() {
-    return <String, dynamic>{
-      "projection": projection?.value,
-      "left": left,
-      "right": right,
-      "bottom": bottom,
-      "top": top,
-      "near": near,
-      "far": far,
-      "fovInDegrees": fovInDegrees,
-      "aspect": aspect,
-      "direction": fovDirection?.value,
-    };
-  }
-
   @override
-  String toString() {
-    return 'Projection(projection: $projection, left: $left, right: $right, bottom: $bottom, top: $top, near: $near, far: $far, fovInDegrees: $fovInDegrees, aspect: $aspect, fovDirection: $fovDirection)';
-  }
-
-  @override
-  bool operator ==(final Object other) {
-    if (identical(this, other)) return true;
-
-    return other is Projection &&
-        other.projection == projection &&
-        other.left == left &&
-        other.right == right &&
-        other.bottom == bottom &&
-        other.top == top &&
-        other.near == near &&
-        other.far == far &&
-        other.fovInDegrees == fovInDegrees &&
-        other.aspect == aspect &&
-        other.fovDirection == fovDirection;
-  }
-
-  @override
-  int get hashCode {
-    return projection.hashCode ^
-        left.hashCode ^
-        right.hashCode ^
-        bottom.hashCode ^
-        top.hashCode ^
-        near.hashCode ^
-        far.hashCode ^
-        fovInDegrees.hashCode ^
-        aspect.hashCode ^
-        fovDirection.hashCode;
-  }
+  JsonObject toJson() => {
+    "projection": projection?.value,
+    "left": left,
+    "right": right,
+    "bottom": bottom,
+    "top": top,
+    "near": near,
+    "far": far,
+    "fovInDegrees": fovInDegrees,
+    "aspect": aspect,
+    "direction": fovDirection?.value,
+  };
 }

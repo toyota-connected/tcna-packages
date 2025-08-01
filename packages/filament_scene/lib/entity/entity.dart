@@ -9,7 +9,7 @@ import 'package:flutter/foundation.dart';
 
 typedef EntityGUID = int;
 
-class Entity {
+class Entity with Jsonable {
   final EntityGUID id;
   final String? name;
 
@@ -65,6 +65,7 @@ class Entity {
   /*
    *  Serialization
    */
+  @override
   @mustCallSuper
   JsonObject toJson() => <String, dynamic>{
     'guid': id,
@@ -95,25 +96,6 @@ class Entity {
 
     return data;
   }
-
-  @override
-  @nonVirtual
-  /// Returns a string representation of this object, including all of its fields (based on the [toJson] method).
-  /// Overriding is not necessary, as it will call the subclass' [toJson] method to get the fields.
-  String toString() {
-    // ignore: no_runtimetype_tostring
-    return '$runtimeType(${toJson().entries.map((final e) => '${e.key}: ${e.value}').join(', ')})';
-  }
-
-  @override
-  bool operator ==(final Object other) {
-    if (identical(this, other)) return true;
-
-    return other is Entity && other.id == id;
-  }
-
-  @override
-  int get hashCode => id.hashCode;
 }
 
 class TransformEntity extends Entity {
@@ -147,7 +129,7 @@ class TransformEntity extends Entity {
 
   @override
   @mustCallSuper
-  Map<String, dynamic> toJson() => <String, dynamic>{...super.toJson(), ...toComponentJson()};
+  JsonObject toJson() => <String, dynamic>{...super.toJson(), ...toComponentJson()};
 
   // TODO(kerberjg): instead of explicit setters, get vector array address on init
 
