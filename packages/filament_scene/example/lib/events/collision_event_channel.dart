@@ -1,5 +1,6 @@
 import 'package:filament_scene/entity/entity.dart';
 import 'package:filament_scene/math/vectors.dart';
+import 'package:filament_scene/utils/serialization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
@@ -17,14 +18,14 @@ class CollisionEvent {
   // TODO(kerberjg): make sure `results` is immutable
 
   // //Received event: {collision_event_hit_count: 1, collision_event_hit_result_0: {id: 73bcc636-16b2-41d0-813e-f4d95f52d67a, hitPosition: [-1.4180145263671875, 1.1819745302200317, -0.35870814323425293], name: assets/models/sequoia_ngp.glb}, collision_event_source: vOnTouch, collision_event_type: 1}
-  static CollisionEvent fromJson(Map<String, dynamic> json) {
+  static CollisionEvent fromJson(JsonObject json) {
     print(json);
 
     final int resultCount = json['collision_event_hit_count'];
     final List<CollisionEventHitResult> results = <CollisionEventHitResult>[];
 
     for (int i = 0; i < resultCount; i++) {
-      final Map<String, dynamic> hitResult = Map<String, dynamic>.from(
+      final JsonObject hitResult = JsonObject.from(
         json['collision_event_hit_result_$i'],
       );
       final EntityGUID id = hitResult['guid'];
@@ -123,19 +124,18 @@ class CollisionEventChannel {
           //Received event: {collision_event_hit_count: 1, collision_event_hit_result_0: {guid: 1682202689430419,, hitPosition: [-1.4180145263671875, 1.1819745302200317, -0.35870814323425293], name: assets/models/sequoia_ngp.glb}, collision_event_source: vOnTouch, collision_event_type: 1}
 
           if (event.containsKey("collision_event_hit_result_0")) {
-            Map<String, dynamic> hitResult = Map<String, dynamic>.from(
+            JsonObject hitResult = JsonObject.from(
               event["collision_event_hit_result_0"],
             );
             EntityGUID guid = hitResult["guid"];
 
             // Example: Change the material of the object that was touched
-            Map<String, dynamic> ourJson = poGetLitMaterialWithRandomValues()
-                .toJson();
+            JsonObject ourJson = poGetLitMaterialWithRandomValues().toJson();
             filamentViewApi.changeMaterialDefinition(ourJson, guid);
 
             // Emit event
             final CollisionEvent collisionEvent = CollisionEvent.fromJson(
-              Map<String, dynamic>.from(event),
+              JsonObject.from(event),
             );
             print(collisionEvent);
             _emitEvent(collisionEvent);

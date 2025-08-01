@@ -46,41 +46,15 @@ class DefaultIndirectLight extends IndirectLight {
   });
 
   @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
-    'intensity': intensity,
+  IndirectLightType get lightType => IndirectLightType.defaultLight;
+
+  @override
+  JsonObject toJson() => {
+    ...super.toJson(),
     'radianceBands': radianceBands,
     'radianceSh': radianceSh,
     'irradianceBands': irradianceBands,
     'irradianceSh': irradianceSh,
     'rotation': rotation,
-    'lightType': 3,
   };
-
-  @override
-  String toString() {
-    return 'DefaultIndirectLight(intensity: $intensity, radianceBands: $radianceBands, radianceSh: $radianceSh, irradianceBands: $irradianceBands, irradianceSh: $irradianceSh, rotation: $rotation)';
-  }
-
-  @override
-  bool operator ==(final Object other) {
-    if (identical(this, other)) return true;
-
-    return other is DefaultIndirectLight &&
-        other.radianceBands == radianceBands &&
-        other.radianceSh == radianceSh &&
-        other.irradianceBands == irradianceBands &&
-        other.irradianceSh == irradianceSh &&
-        other.rotation == rotation &&
-        super == other;
-  }
-
-  @override
-  int get hashCode {
-    return radianceBands.hashCode ^
-        radianceSh.hashCode ^
-        irradianceBands.hashCode ^
-        irradianceSh.hashCode ^
-        rotation.hashCode ^
-        super.hashCode;
-  }
 }
