@@ -18,7 +18,7 @@ class Plane extends Shape {
     super.normal,
     required super.rotation,
     super.material,
-    super.collidable,
+    super.collider,
     super.doubleSided,
     super.castShadows,
     super.receiveShadows,

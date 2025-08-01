@@ -1,5 +1,5 @@
 import 'package:filament_scene/camera/camera.dart';
-import 'package:filament_scene/components/collidable.dart';
+import 'package:filament_scene/components/collider.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/shapes/shapes.dart';
 import 'package:flutter/material.dart' hide Animation;
@@ -63,10 +63,7 @@ class PlaygroundSceneView extends StatefulSceneView {
         position: Vector3(0, 0, 0),
         scale: Vector3.all(1),
         rotation: Quaternion.identity(),
-        collidable: Collidable(
-          isStatic: false,
-          shouldMatchAttachedObject: true,
-        ),
+        collider: Collider(isStatic: false, shouldMatchAttachedObject: true),
         animation: null,
         receiveShadows: true,
         castShadows: true,
@@ -97,10 +94,7 @@ class PlaygroundSceneView extends StatefulSceneView {
         position: Vector3(1, 0, 4),
         scale: Vector3(0.04, 0.04, 0.04),
         rotation: Quaternion.identity(),
-        collidable: Collidable(
-          isStatic: false,
-          shouldMatchAttachedObject: true,
-        ),
+        collider: Collider(isStatic: false, shouldMatchAttachedObject: true),
         animation: Animation.byIndex(0, autoPlay: true),
         receiveShadows: true,
         castShadows: true,
@@ -115,10 +109,7 @@ class PlaygroundSceneView extends StatefulSceneView {
         position: Vector3(-1, 0, 4),
         scale: Vector3(0.04, 0.04, 0.04),
         rotation: Quaternion.identity(),
-        collidable: Collidable(
-          isStatic: false,
-          shouldMatchAttachedObject: true,
-        ),
+        collider: Collider(isStatic: false, shouldMatchAttachedObject: true),
         animation: Animation.byIndex(
           1,
           autoPlay: true,
@@ -145,10 +136,7 @@ class PlaygroundSceneView extends StatefulSceneView {
         size: Vector3.all(1),
         rotation: Quaternion.identity(),
         name: 'cube1',
-        collidable: Collidable(
-          isStatic: false,
-          shouldMatchAttachedObject: true,
-        ),
+        collider: Collider(isStatic: false, shouldMatchAttachedObject: true),
         material: poGetLitMaterialWithRandomValues(),
       ),
     );
@@ -161,10 +149,7 @@ class PlaygroundSceneView extends StatefulSceneView {
         size: Vector3.all(1),
         rotation: Quaternion.identity(),
         name: 'cube2',
-        collidable: Collidable(
-          isStatic: false,
-          shouldMatchAttachedObject: true,
-        ),
+        collider: Collider(isStatic: false, shouldMatchAttachedObject: true),
         material: poGetLitMaterialWithRandomValues(),
       ),
     );
@@ -177,10 +162,7 @@ class PlaygroundSceneView extends StatefulSceneView {
         size: Vector3.all(1),
         rotation: Quaternion.identity(),
         name: 'cube3',
-        collidable: Collidable(
-          isStatic: false,
-          shouldMatchAttachedObject: true,
-        ),
+        collider: Collider(isStatic: false, shouldMatchAttachedObject: true),
         material: poGetLitMaterialWithRandomValues(),
       ),
     );
@@ -195,10 +177,7 @@ class PlaygroundSceneView extends StatefulSceneView {
         name: 'sphere1',
         stacks: 11,
         slices: 5,
-        collidable: Collidable(
-          isStatic: false,
-          shouldMatchAttachedObject: true,
-        ),
+        collider: Collider(isStatic: false, shouldMatchAttachedObject: true),
         material: poGetTexturedMaterial(),
       ),
     );
@@ -213,10 +192,7 @@ class PlaygroundSceneView extends StatefulSceneView {
         name: 'sphere2',
         stacks: 20,
         slices: 20,
-        collidable: Collidable(
-          isStatic: false,
-          shouldMatchAttachedObject: true,
-        ),
+        collider: Collider(isStatic: false, shouldMatchAttachedObject: true),
         material: poGetTexturedMaterial(),
       ),
     );
@@ -231,10 +207,7 @@ class PlaygroundSceneView extends StatefulSceneView {
         name: 'sphere3',
         stacks: 20,
         slices: 20,
-        collidable: Collidable(
-          isStatic: false,
-          shouldMatchAttachedObject: true,
-        ),
+        collider: Collider(isStatic: false, shouldMatchAttachedObject: true),
         material: poGetTexturedMaterial(),
       ),
     );
@@ -247,10 +220,7 @@ class PlaygroundSceneView extends StatefulSceneView {
         scale: Vector3.all(1),
         rotation: Quaternion(0, 0, 0, 1)..setEulerDegrees(-90, 90, 0),
         name: 'smolPlane',
-        collidable: Collidable(
-          isStatic: false,
-          shouldMatchAttachedObject: true,
-        ),
+        collider: Collider(isStatic: false, shouldMatchAttachedObject: true),
         material: poGetTexturedMaterial(),
       ),
     );
