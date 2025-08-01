@@ -157,7 +157,7 @@ class _TrainsetSceneViewState extends StatefulSceneViewState {
   void onCreate() {
     TrainsetSceneView.cameras[0].setActive();
 
-    // widget.filament.setFogOptions(true);
+    widget.filament.setFogOptions(true);
   }
 
   @override

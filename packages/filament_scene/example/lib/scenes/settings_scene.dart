@@ -407,7 +407,6 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
    */
   @override
   void onCreate() {
-    print("SettingsSceneView created!");
     _resetCamera();
 
     _animationController = BottomSheet.createAnimationController(
@@ -422,6 +421,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
 
     // Set up listeners for wheel clicks
     widget.collisionController.addListener(_onObjectTouch);
+    widget.filament.setFogOptions(true);
   }
 
   void _resetCamera({bool autoOrbit = false}) {
