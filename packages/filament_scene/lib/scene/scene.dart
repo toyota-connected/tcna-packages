@@ -1,8 +1,9 @@
 import 'package:filament_scene/filament_scene.dart';
+import 'package:filament_scene/utils/serialization.dart';
 
 /// An object that represents the scene to  be rendered with information about light, skybox and more.
 // TODO(kerberjg): separate into Scene(entities, camera) and SceneLighting(skybox, indirectLight)
-class Scene {
+class Scene with Jsonable {
   Skybox? skybox;
   IndirectLight? indirectLight;
   List<Light>? lights;
@@ -19,31 +20,12 @@ class Scene {
   /*
    *  Serialization
    */
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  @override
+  JsonObject toJson() => <String, dynamic>{
     'skybox': skybox?.toJson(),
     'lights': lights?.map((final light) => light.toJson()).toList(),
     'indirectLight': indirectLight?.toJson(),
   };
-
-  @override
-  String toString() {
-    return 'Scene(skybox: $skybox, indirectLight: $indirectLight, lights: $lights)';
-  }
-
-  @override
-  bool operator ==(final Object other) {
-    if (identical(this, other)) return true;
-
-    return other is Scene &&
-        other.skybox == skybox &&
-        other.indirectLight == indirectLight &&
-        other.lights == lights;
-  }
-
-  @override
-  int get hashCode {
-    return skybox.hashCode ^ indirectLight.hashCode ^ lights.hashCode;
-  }
 
   Scene copyWith({
     final Skybox? skybox,

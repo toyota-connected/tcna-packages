@@ -22,17 +22,8 @@ class GlbModel extends Model {
        super();
 
   @override
-  Map<String, dynamic> toJson() => <String, dynamic>{...super.toJson(), 'isGlb': true};
-
-  @override
-  // ignore: hash_and_equals
-  bool operator ==(final Object other) {
-    if (identical(this, other)) return true;
-
-    return other is GlbModel &&
-        other.assetPath == assetPath &&
-        other.scale == scale &&
-        other.position == position &&
-        other.animation == animation;
-  }
+  JsonObject toJson() => {
+    ...super.toJson(), //
+    'isGlb': true, //
+  };
 }

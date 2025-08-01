@@ -2,7 +2,6 @@ library material;
 
 import 'dart:ui';
 import 'package:filament_scene/utils/serialization.dart';
-import 'package:flutter/foundation.dart';
 
 part 'texture/texture.dart';
 part 'texture/texture_sampler.dart';
@@ -57,7 +56,7 @@ enum MaterialType {
 /// For more information about materials, see the filament material documentation
 /// * https://google.github.io/filament/Materials.html
 /// * https://google.github.io/filament/Material%20Properties.pdf
-class Material {
+class Material with Jsonable {
   /// Asset path of the .filmat material file
   String? assetPath;
 
@@ -73,33 +72,16 @@ class Material {
   /// Creates material object from the .filmat material file from url.
   Material.url(this.url, {this.parameters});
 
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  @override
+  JsonObject toJson() => <String, dynamic>{
     'assetPath': assetPath,
     'url': url,
     'parameters': parameters?.map((final param) => param.toJson()).toList(),
   };
-
-  @override
-  String toString() {
-    return 'Material(assetPath: $assetPath, url: $url, parameters: $parameters)';
-  }
-
-  @override
-  bool operator ==(final Object other) {
-    if (identical(this, other)) return true;
-
-    return other is Material &&
-        other.assetPath == assetPath &&
-        other.url == url &&
-        listEquals(other.parameters, parameters);
-  }
-
-  @override
-  int get hashCode => assetPath.hashCode ^ url.hashCode ^ parameters.hashCode;
 }
 
 /// An object that represents material parameters that are defined in the .mat file.
-class MaterialParameter {
+class MaterialParameter with Jsonable {
   /// Name of the material parameter defined in the .mat file
   String name;
 
@@ -181,7 +163,8 @@ class MaterialParameter {
     type = MaterialType.float;
   }
 
-  Map<String, dynamic> toJson() {
+  @override
+  JsonObject toJson() {
     dynamic valueJson;
 
     if (type == MaterialType.texture) {
@@ -196,24 +179,6 @@ class MaterialParameter {
       valueJson = value;
     }
 
-    return <String, dynamic>{'name': name, 'value': valueJson, 'type': type.value};
+    return {'name': name, 'value': valueJson, 'type': type.value};
   }
-
-  @override
-  String toString() {
-    return 'MaterialParameter(name: $name, value: $value, type: $type)';
-  }
-
-  @override
-  bool operator ==(final Object other) {
-    if (identical(this, other)) return true;
-
-    return other is MaterialParameter &&
-        other.name == name &&
-        other.value == value &&
-        other.type == type;
-  }
-
-  @override
-  int get hashCode => name.hashCode ^ value.hashCode ^ type.hashCode;
 }
