@@ -1,6 +1,6 @@
 library model;
 
-import 'package:filament_scene/components/collidable.dart';
+import 'package:filament_scene/components/collider.dart';
 import 'package:filament_scene/entity/entity.dart';
 
 part 'animation.dart';
@@ -34,9 +34,9 @@ abstract class Model extends TransformEntity {
   /// Default is [ModelInstancingType.none].
   ModelInstancingType instancingMode;
 
-  /// Do we have a collidable for this object (expecting to collide)
+  /// Do we have a collider for this object (expecting to collide)
   /// For now this will create a box using the extents value
-  Collidable? collidable;
+  Collider? collider;
 
   /// Controls what animation should be played by the rendered model.
   Animation? animation;
@@ -54,18 +54,18 @@ abstract class Model extends TransformEntity {
     this.instancingMode = ModelInstancingType.none,
     required super.scale,
     required super.rotation,
-    this.collidable,
+    this.collider,
     required super.position,
     this.animation,
     required this.castShadows,
     required this.receiveShadows,
   }) : assert(assetPath != null && assetPath.isNotEmpty, "path should not be empty"),
 
-       /// if [ModelInstancingType.primaryInstanceable] is true, it cannot have collidable and animation
+       /// if [ModelInstancingType.primaryInstanceable] is true, it cannot have collider and animation
        assert(
          instancingMode != ModelInstancingType.primaryInstanceable ||
-             (collidable == null && animation == null),
-         "Primary model (instance template) cannot have collidable and animation",
+             (collider == null && animation == null),
+         "Primary model (instance template) cannot have collider and animation",
        );
 
   @override
@@ -73,7 +73,7 @@ abstract class Model extends TransformEntity {
     ...super.toJson(),
     'assetPath': assetPath,
     'instancingMode': instancingMode.value,
-    'collidable': collidable?.toJson(),
+    'collider': collider?.toJson(),
     'animation': animation?.toJson(),
     'castShadows': castShadows,
     'receiveShadows': receiveShadows,

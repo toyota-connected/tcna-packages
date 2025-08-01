@@ -29,7 +29,7 @@ class ViewSettingsWidget extends StatefulWidget {
 
 class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
   bool _toggleShapes = true;
-  bool _toggleCollidableVisuals = false;
+  bool _toggleColliderVisuals = false;
 
   int _quality = 4;
 
@@ -53,16 +53,16 @@ class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
         ElevatedButton(
           onPressed: () {
             setState(() {
-              widget.filament.toggleDebugCollidableViewsInScene(
-                _toggleCollidableVisuals,
+              widget.filament.toggleDebugColliderViewsInScene(
+                _toggleColliderVisuals,
               );
-              _toggleCollidableVisuals = !_toggleCollidableVisuals;
+              _toggleColliderVisuals = !_toggleColliderVisuals;
             });
           },
           child: Text(
-            _toggleCollidableVisuals
-                ? 'Toggle Collidables: On'
-                : 'Toggle Collidables: Off',
+            _toggleColliderVisuals
+                ? 'Toggle Colliders: On'
+                : 'Toggle Colliders: Off',
           ),
         ),
         ElevatedButton(

@@ -17,7 +17,7 @@ class Cube extends Shape {
     required super.rotation,
     super.children,
     super.material,
-    super.collidable,
+    super.collider,
     super.doubleSided,
     super.castShadows,
     super.receiveShadows,

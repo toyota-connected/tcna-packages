@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:filament_scene/camera/camera.dart';
-import 'package:filament_scene/components/collidable.dart';
+import 'package:filament_scene/components/collider.dart';
 import 'package:filament_scene/math/utils.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/shapes/shapes.dart';
@@ -123,7 +123,7 @@ class SettingsSceneView extends StatefulSceneView {
         position: carOrigin,
         scale: Vector3.all(1),
         rotation: Quaternion(0, 0, 0, 1),
-        collidable: null,
+        collider: null,
         animation: null,
         receiveShadows: true,
         castShadows: true,
@@ -142,7 +142,7 @@ class SettingsSceneView extends StatefulSceneView {
         position: carOrigin + lightOffset - Vector3(0, 0, lightOffset.z * 2),
         scale: lightSize,
         rotation: Quaternion(0, 0, 0, 1),
-        collidable: null,
+        collider: null,
         animation: null,
         receiveShadows: false,
         castShadows: false,
@@ -159,7 +159,7 @@ class SettingsSceneView extends StatefulSceneView {
         position: carOrigin + lightOffset - Vector3(0, 0, lightOffset.z * 0),
         scale: lightSize,
         rotation: Quaternion(0, 0, 0, 1),
-        collidable: null,
+        collider: null,
         animation: null,
         receiveShadows: false,
         castShadows: false,
@@ -190,7 +190,7 @@ class SettingsSceneView extends StatefulSceneView {
           position: carOrigin + pos.toVector3(),
           scale: Vector3.all(1),
           rotation: Quaternion(0, 0, 0, 1),
-          collidable: null,
+          collider: null,
           animation: null,
           receiveShadows: true,
           castShadows: false,
@@ -209,10 +209,7 @@ class SettingsSceneView extends StatefulSceneView {
         scale: Vector3.all(0.75),
         // rotation: Quaternion.fromEulerAngles(0, 90, 0),
         rotation: Quaternion.identity()..setEulerDegrees(0, 90, 0),
-        collidable: Collidable(
-          isStatic: false,
-          shouldMatchAttachedObject: true,
-        ),
+        collider: Collider(isStatic: false, shouldMatchAttachedObject: true),
         animation: null,
         receiveShadows: true,
         castShadows: true,
@@ -228,10 +225,7 @@ class SettingsSceneView extends StatefulSceneView {
         position: carOrigin + Vector3(12, 3, -12),
         scale: Vector3.all(0.005),
         rotation: Quaternion.identity()..setEulerDegrees(0, 90, 0),
-        collidable: Collidable(
-          isStatic: false,
-          shouldMatchAttachedObject: true,
-        ),
+        collider: Collider(isStatic: false, shouldMatchAttachedObject: true),
         animation: null,
         receiveShadows: true,
         castShadows: true,
