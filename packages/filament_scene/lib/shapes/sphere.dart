@@ -8,9 +8,6 @@ class Sphere extends Shape {
   ///The number of slices for the sphere.
   int? slices;
 
-  // this ends up becoming the scaled size
-  Vector3 size;
-
   Sphere({
     required super.id,
     required super.position,
@@ -23,7 +20,6 @@ class Sphere extends Shape {
     required super.scale,
     required super.rotation,
     super.collider,
-    required this.size,
     super.doubleSided,
     super.castShadows,
     super.receiveShadows,
@@ -31,21 +27,12 @@ class Sphere extends Shape {
   }) : super();
 
   @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
-    ...super.toJson(),
-    'size': size.toJson(),
-    'stacks': stacks,
-    'slices': slices,
-    'shapeType': 3,
+  ShapeType get type => ShapeType.sphere;
+
+  @override
+  JsonObject toJson() => {
+    ...super.toJson(), //
+    'stacks': stacks, //
+    'slices': slices, //
   };
-
-  @override
-  bool operator ==(final Object other) {
-    if (identical(this, other)) return true;
-
-    return other is Sphere && other.stacks == stacks && other.slices == slices && super == other;
-  }
-
-  @override
-  int get hashCode => stacks.hashCode ^ slices.hashCode ^ super.hashCode;
 }

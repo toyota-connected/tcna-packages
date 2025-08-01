@@ -630,9 +630,9 @@ class FilamentViewApi {
   }
 
   /// Enable/disable debug collider visuals in the scene.
-  Future<void> toggleDebugColliderViewsInScene(bool value) async {
+  Future<void> toggleDebugCollidableViewsInScene(bool value) async {
     final String pigeonVar_channelName =
-        'dev.flutter.pigeon.filament_scene.FilamentViewApi.toggleDebugColliderViewsInScene$pigeonVar_messageChannelSuffix';
+        'dev.flutter.pigeon.filament_scene.FilamentViewApi.toggleDebugCollidableViewsInScene$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,

@@ -1,7 +1,7 @@
 part of '../material.dart';
 
 /// An object represents textures to be loaded by the material.
-class Texture {
+class Texture with Jsonable {
   /// asset path of the texture.
   String? assetPath;
 
@@ -18,29 +18,11 @@ class Texture {
 
   Texture.url(this.url, {this.type, this.sampler});
 
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  @override
+  JsonObject toJson() => <String, dynamic>{
     'assetPath': assetPath,
     'url': url,
     'type': type?.value,
     'sampler': sampler?.toJson(),
   };
-
-  @override
-  String toString() {
-    return 'Texture(assetPath: $assetPath, url: $url, type: $type, sampler: $sampler)';
-  }
-
-  @override
-  bool operator ==(final Object other) {
-    if (identical(this, other)) return true;
-
-    return other is Texture &&
-        other.assetPath == assetPath &&
-        other.url == url &&
-        other.type == type &&
-        other.sampler == sampler;
-  }
-
-  @override
-  int get hashCode => assetPath.hashCode ^ url.hashCode ^ type.hashCode ^ sampler.hashCode;
 }

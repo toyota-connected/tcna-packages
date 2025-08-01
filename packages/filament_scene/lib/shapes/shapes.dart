@@ -10,13 +10,31 @@ part 'cube.dart';
 part 'plane.dart';
 part 'sphere.dart';
 
+/// Enumeration of all shape types.
+enum ShapeType {
+  /// No shape type.
+  none(0),
+
+  /// Plane shape type.
+  plane(1),
+
+  /// Cube shape type.
+  cube(2),
+
+  /// Sphere shape type.
+  sphere(3);
+
+  final int value;
+  const ShapeType(this.value);
+}
+
 /// An object that represents shapes to be rendered on the scene.
 ///
 /// See also:
 /// [Cube]
 /// [Plane]
 /// [Sphere]
-class Shape extends TransformEntity {
+abstract class Shape extends TransformEntity {
   /// direction of the shape rotation in the world space
   Vector3? normal;
 
@@ -56,29 +74,18 @@ class Shape extends TransformEntity {
     this.receiveShadows = true,
   });
 
+  ShapeType get type;
+
   @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  JsonObject toJson() => <String, dynamic>{
     ...super.toJson(),
     'normal': normal?.toJson(),
     'collider': collider?.toJson(),
     'material': material?.toJson(),
-    'type': 0,
+    'shapeType': type.value,
     'doubleSided': doubleSided,
     'cullingEnabled': cullingEnabled,
     'receiveShadows': receiveShadows,
     'castShadows': castShadows,
   };
-
-  @override
-  bool operator ==(final Object other) {
-    if (identical(this, other)) return true;
-
-    return other is Shape &&
-        other.position == position &&
-        other.normal == normal &&
-        other.material == material;
-  }
-
-  @override
-  int get hashCode => position.hashCode ^ normal.hashCode ^ material.hashCode;
 }

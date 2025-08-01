@@ -3,19 +3,34 @@ library skybox;
 import 'dart:ui';
 import 'package:filament_scene/utils/serialization.dart';
 
-part 'colored_skybox.dart';
+part 'color_skybox.dart';
 part 'hdr_skybox.dart';
 part 'ktx_skybox.dart';
+
+/// Enumerates the types of skyboxes.
+enum SkyboxType {
+  /// Skybox created from a KTX file.
+  ktx(1),
+
+  /// Skybox created from an HDR file.
+  hdr(2),
+
+  /// Skybox created from a solid color.
+  color(3);
+
+  final int value;
+  const SkyboxType(this.value);
+}
 
 /// An object that represents the skybox to be rendered in the scene.
 ///
 /// See Also:
 /// [KtxSkybox] : creates Skybox from Ktx file.
 /// [HdrSkybox] : creates Skybox from Hdr file.
-/// [ColoredSkybox] : creates Skybox from color.
+/// [ColorSkybox] : creates Skybox from color.
 ///
 /// Defaults to transparent skybox.
-abstract class Skybox {
+abstract class Skybox with Jsonable {
   /// environment asset path used to load KTX FILE from assets.
   /// changes scene skybox from images converted to KTX FILE.
   /// Filament provides an offline tool called cmgen
@@ -34,27 +49,13 @@ abstract class Skybox {
 
   Skybox({this.color, this.assetPath, this.url});
 
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  SkyboxType get type;
+
+  @override
+  JsonObject toJson() => <String, dynamic>{
     'assetPath': assetPath,
     'url': url,
-    'color': color?.toHex,
+    'color': color?.toHex(),
+    'skyboxType': type.value,
   };
-
-  @override
-  String toString() {
-    return 'Skybox(assetPath: $assetPath, url: $url, color: $color)';
-  }
-
-  @override
-  bool operator ==(final Object other) {
-    if (identical(this, other)) return true;
-
-    return other is Skybox &&
-        other.assetPath == assetPath &&
-        other.url == url &&
-        other.color == color;
-  }
-
-  @override
-  int get hashCode => assetPath.hashCode ^ url.hashCode ^ color.hashCode;
 }

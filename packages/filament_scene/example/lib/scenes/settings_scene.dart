@@ -264,7 +264,6 @@ class SettingsSceneView extends StatefulSceneView {
         position: carOrigin + Vector3(15, 0.5, 10),
         scale: Vector3(2, 0.25, 2),
         rotation: Quaternion.identity(),
-        size: Vector3.all(1),
         material: poGetLitMaterial(Colors.green),
         children: [
           // tree trunk
@@ -274,7 +273,6 @@ class SettingsSceneView extends StatefulSceneView {
             position: Vector3(0, 2, 0), // relative to parent
             scale: Vector3(0.1, 8, 0.1),
             rotation: Quaternion.identity(),
-            size: Vector3.all(1),
             material: poGetLitMaterial(Colors.brown),
           ),
           // tree layers
@@ -284,7 +282,6 @@ class SettingsSceneView extends StatefulSceneView {
             position: Vector3(0, 2, 0), // relative to parent
             scale: Vector3(0.75, 1, 0.75),
             rotation: Quaternion.identity(),
-            size: Vector3.all(1),
             material: poGetLitMaterial(Colors.green),
             children: [
               Cube(
@@ -293,7 +290,6 @@ class SettingsSceneView extends StatefulSceneView {
                 position: Vector3(0, 2, 0), // relative to parent
                 scale: Vector3(0.75, 1, 0.75),
                 rotation: Quaternion.identity(),
-                size: Vector3.all(1),
                 material: poGetLitMaterial(Colors.green),
                 children: [
                   Cube(
@@ -302,7 +298,6 @@ class SettingsSceneView extends StatefulSceneView {
                     position: Vector3(0, 2, 0), // relative to parent
                     scale: Vector3(0.75, 1, 0.75),
                     rotation: Quaternion.identity(),
-                    size: Vector3.all(1),
                     material: poGetLitMaterial(Colors.green),
                     children: [
                       Cube(
@@ -311,7 +306,6 @@ class SettingsSceneView extends StatefulSceneView {
                         position: Vector3(0, 2, 0), // relative to parent
                         scale: Vector3(0.25, 0.25, 0.25),
                         rotation: Quaternion.identity(),
-                        size: Vector3.all(1),
                         material: poGetLitMaterial(Colors.yellow),
                       ),
                     ],
@@ -372,7 +366,6 @@ class SettingsSceneView extends StatefulSceneView {
         position: Vector3(72, 0, 68) + wiperOffset,
         scale: wiperSize,
         rotation: Quaternion.identity(),
-        size: Vector3.all(1),
         material: poGetLitMaterial(Colors.black),
       ),
     );
@@ -385,7 +378,6 @@ class SettingsSceneView extends StatefulSceneView {
             Vector3(72, 0, 68) + wiperOffset - Vector3(0, 0, wiperOffset.z * 2),
         scale: wiperSize,
         rotation: Quaternion.identity(),
-        size: Vector3.all(1),
         material: poGetLitMaterial(Colors.black),
       ),
     );
