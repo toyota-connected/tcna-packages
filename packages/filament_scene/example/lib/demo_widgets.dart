@@ -20,8 +20,7 @@ typedef StateSetter = void Function(VoidCallback fn);
 class ViewSettingsWidget extends StatefulWidget {
   final FilamentViewApi filament;
 
-  const ViewSettingsWidget({Key? key, required this.filament})
-    : super(key: key);
+  const ViewSettingsWidget({Key? key, required this.filament}) : super(key: key);
 
   @override
   _ViewSettingsWidgetState createState() => _ViewSettingsWidgetState();
@@ -46,24 +45,16 @@ class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
               widget.filament.toggleShapesInScene(_toggleShapes);
             });
           },
-          child: Text(
-            _toggleShapes ? 'Toggle Shapes: On' : 'Toggle Shapes: Off',
-          ),
+          child: Text(_toggleShapes ? 'Toggle Shapes: On' : 'Toggle Shapes: Off'),
         ),
         ElevatedButton(
           onPressed: () {
             setState(() {
-              widget.filament.toggleDebugCollidableViewsInScene(
-                _toggleColliderVisuals,
-              );
+              widget.filament.toggleDebugCollidableViewsInScene(_toggleColliderVisuals);
               _toggleColliderVisuals = !_toggleColliderVisuals;
             });
           },
-          child: Text(
-            _toggleColliderVisuals
-                ? 'Toggle Colliders: On'
-                : 'Toggle Colliders: Off',
-          ),
+          child: Text(_toggleColliderVisuals ? 'Toggle Colliders: On' : 'Toggle Colliders: Off'),
         ),
         ElevatedButton(
           onPressed: () {
@@ -82,8 +73,7 @@ class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
 class LightSettingsWidget extends StatefulWidget {
   final FilamentViewApi filament;
 
-  const LightSettingsWidget({Key? key, required this.filament})
-    : super(key: key);
+  const LightSettingsWidget({Key? key, required this.filament}) : super(key: key);
 
   @override
   _LightSettingsWidgetState createState() => _LightSettingsWidgetState();
@@ -119,9 +109,7 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
               onColorChanged: (Color color) {
                 setState(() {
                   _directLightColor = color;
-                  final String colorString = _directLightColor.toHexString(
-                    includeHashSign: true,
-                  );
+                  final String colorString = _directLightColor.toHexString(includeHashSign: true);
 
                   widget.filament.changeLightColorByGUID(
                     centerPointLightGUID,

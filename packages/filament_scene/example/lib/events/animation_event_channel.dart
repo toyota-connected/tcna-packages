@@ -2,9 +2,7 @@ import 'package:flutter/services.dart';
 import 'dart:io';
 
 class AnimationEventChannel {
-  static const EventChannel _eventChannel = EventChannel(
-    'plugin.filament_view.animation_info',
-  );
+  static const EventChannel _eventChannel = EventChannel('plugin.filament_view.animation_info');
 
   bool bWriteEventsToLog = false;
 

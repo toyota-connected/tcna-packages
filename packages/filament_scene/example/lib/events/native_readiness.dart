@@ -6,9 +6,7 @@ class NativeReadiness {
   static const MethodChannel _readinessChecker = MethodChannel(
     'plugin.filament_view.readiness_checker',
   );
-  static const EventChannel _readinessChannel = EventChannel(
-    'plugin.filament_view.readiness',
-  );
+  static const EventChannel _readinessChannel = EventChannel('plugin.filament_view.readiness');
 
   /// Adds a one-time callback to be called when the native side is ready.
   /// If a the native side is already ready, a check is scheduled immediately,
@@ -45,8 +43,7 @@ class NativeReadiness {
 
   Future<bool> isNativeReady() async {
     try {
-      final bool ready =
-          await _readinessChecker.invokeMethod<bool>('isReady') ?? false;
+      final bool ready = await _readinessChecker.invokeMethod<bool>('isReady') ?? false;
       return ready;
     } catch (e) {
       //print('Error checking native readiness: $e');
@@ -54,7 +51,6 @@ class NativeReadiness {
     }
   }
 
-  Stream<String> get readinessStream => _readinessChannel
-      .receiveBroadcastStream()
-      .map((event) => event as String);
+  Stream<String> get readinessStream =>
+      _readinessChannel.receiveBroadcastStream().map((event) => event as String);
 }

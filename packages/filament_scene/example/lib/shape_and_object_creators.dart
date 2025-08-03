@@ -75,9 +75,9 @@ List<Light> poGetSceneLightsList() {
 
   lightsWeCanChangeParamsOn.add(
     MovingDemoLight(
-      id,
-      Position(-15.0, 5.0, -15.0),
-      Direction(0.0, yDirection, 0.0),
+      id, //
+      Position(-15.0, 5.0, -15.0), //
+      Direction(0.0, yDirection, 0.0), //
     ),
   );
 
@@ -103,9 +103,9 @@ List<Light> poGetSceneLightsList() {
 
   lightsWeCanChangeParamsOn.add(
     MovingDemoLight(
-      id,
-      Position(15.0, 5.0, 15.0),
-      Direction(0.0, yDirection, 0.0),
+      id, //
+      Position(15.0, 5.0, 15.0), //
+      Direction(0.0, yDirection, 0.0), //
     ),
   );
 
@@ -131,9 +131,9 @@ List<Light> poGetSceneLightsList() {
 
   lightsWeCanChangeParamsOn.add(
     MovingDemoLight(
-      id,
-      Position(-15.0, 5.0, 15.0),
-      Direction(0.0, yDirection, 0.0),
+      id, //
+      Position(-15.0, 5.0, 15.0), //
+      Direction(0.0, yDirection, 0.0), //
     ),
   );
 
@@ -159,9 +159,9 @@ List<Light> poGetSceneLightsList() {
 
   lightsWeCanChangeParamsOn.add(
     MovingDemoLight(
-      id,
-      Position(15.0, 5.0, -15.0),
-      Direction(0.0, yDirection, 0.0),
+      id, //
+      Position(15.0, 5.0, -15.0), //
+      Direction(0.0, yDirection, 0.0), //
     ),
   );
 
@@ -196,7 +196,9 @@ List<Light> poGetSceneLightsList() {
       falloffRadius: 2,
       castShadows: false,
       castLight: true,
-      position: SettingsSceneView.carOrigin + taillightOffset,
+      position:
+          SettingsSceneView.carOrigin + //
+          taillightOffset, //
     ),
   );
 
@@ -211,9 +213,9 @@ List<Light> poGetSceneLightsList() {
       castShadows: false,
       castLight: true,
       position:
-          SettingsSceneView.carOrigin +
-          taillightOffset +
-          Vector3(0, 0, taillightOffset.z * -2),
+          SettingsSceneView.carOrigin + //
+          taillightOffset + //
+          Vector3(0, 0, taillightOffset.z * -2), //
     ),
   );
 
@@ -229,7 +231,9 @@ List<Light> poGetSceneLightsList() {
       falloffRadius: 2,
       castShadows: false,
       castLight: true,
-      position: SettingsSceneView.carOrigin + frontlightOffset,
+      position:
+          SettingsSceneView.carOrigin + //
+          frontlightOffset, //
     ),
   );
 
@@ -244,9 +248,9 @@ List<Light> poGetSceneLightsList() {
       castShadows: false,
       castLight: true,
       position:
-          SettingsSceneView.carOrigin +
-          frontlightOffset +
-          Vector3(0, 0, frontlightOffset.z * -2),
+          SettingsSceneView.carOrigin + //
+          frontlightOffset + //
+          Vector3(0, 0, frontlightOffset.z * -2), //
     ),
   );
 
@@ -261,7 +265,9 @@ List<Light> poGetSceneLightsList() {
       falloffRadius: 2,
       castShadows: false,
       castLight: true,
-      position: SettingsSceneView.carOrigin + taillightOffset,
+      position:
+          SettingsSceneView.carOrigin + //
+          taillightOffset, //
     ),
   );
 
@@ -276,9 +282,9 @@ List<Light> poGetSceneLightsList() {
       castShadows: false,
       castLight: true,
       position:
-          SettingsSceneView.carOrigin +
-          taillightOffset +
-          Vector3(0, 0, taillightOffset.z * -2),
+          SettingsSceneView.carOrigin + //
+          taillightOffset + //
+          Vector3(0, 0, taillightOffset.z * -2), //
     ),
   );
 
@@ -292,7 +298,9 @@ List<Light> poGetSceneLightsList() {
       falloffRadius: 2,
       castShadows: false,
       castLight: true,
-      position: SettingsSceneView.carOrigin + frontlightOffset,
+      position:
+          SettingsSceneView.carOrigin + //
+          frontlightOffset, //
     ),
   );
 
@@ -307,9 +315,9 @@ List<Light> poGetSceneLightsList() {
       castShadows: false,
       castLight: true,
       position:
-          SettingsSceneView.carOrigin +
-          frontlightOffset +
-          Vector3(0, 0, frontlightOffset.z * -2),
+          SettingsSceneView.carOrigin + //
+          frontlightOffset + //
+          Vector3(0, 0, frontlightOffset.z * -2), //
     ),
   );
 
@@ -343,17 +351,9 @@ DefaultIndirectLight poGetDefaultIndirectLight() {
   return DefaultIndirectLight(
     intensity: 1000000, // indirect light intensity.
     radianceBands: 1, // Number of spherical harmonics bands.
-    radianceSh: [
-      1,
-      1,
-      1,
-    ], // Array containing the spherical harmonics coefficients.
+    radianceSh: [1, 1, 1], // Array containing the spherical harmonics coefficients.
     irradianceBands: 1, // Number of spherical harmonics bands.
-    irradianceSh: [
-      1,
-      1,
-      1,
-    ], // Array containing the spherical harmonics coefficients.
+    irradianceSh: [1, 1, 1], // Array containing the spherical harmonics coefficients.
   );
 }
 

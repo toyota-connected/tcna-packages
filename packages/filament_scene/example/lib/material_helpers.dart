@@ -14,10 +14,7 @@ Material poGetLitMaterial(Color? colorOveride) {
     //but if we want to customize it we can like that.
     parameters: [
       //update base color property with color
-      MaterialParameter.color(
-        color: colorOveride ?? Colors.white,
-        name: "baseColor",
-      ),
+      MaterialParameter.color(color: colorOveride ?? Colors.white, name: "baseColor"),
       //update roughness property with it's value
       MaterialParameter.float(value: .8, name: "roughness"),
       //update metallicproperty with it's value
@@ -47,10 +44,7 @@ Material poGetLitMaterialWithRandomValues() {
 
 ////////////////////////////////////////////////////////////////////////////////
 MaterialParameter poGetRandomColorMaterialParam() {
-  return MaterialParameter.color(
-    color: getRandomPresetColor(),
-    name: "baseColor",
-  );
+  return MaterialParameter.color(color: getRandomPresetColor(), name: "baseColor");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

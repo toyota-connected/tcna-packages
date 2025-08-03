@@ -36,32 +36,24 @@ class SettingsSceneView extends StatefulSceneView {
   static final Vector3 wheelOffset = Vector3(1.75, 0.425, 0.85);
   static const double wheelBackOffset = 0.4;
   static final Map<String, Vector3> wheelPositions = {
-    'wheel_FL':
-        carOrigin + Vector3(-wheelOffset.x, wheelOffset.y, wheelOffset.z),
-    'wheel_FR':
-        carOrigin + Vector3(-wheelOffset.x, wheelOffset.y, -wheelOffset.z),
-    'wheel_BL':
-        carOrigin +
-        Vector3(wheelOffset.x - wheelBackOffset, wheelOffset.y, wheelOffset.z),
-    'wheel_BR':
-        carOrigin +
-        Vector3(wheelOffset.x - wheelBackOffset, wheelOffset.y, -wheelOffset.z),
+    'wheel_FL': carOrigin + Vector3(-wheelOffset.x, wheelOffset.y, wheelOffset.z),
+    'wheel_FR': carOrigin + Vector3(-wheelOffset.x, wheelOffset.y, -wheelOffset.z),
+    'wheel_BL': carOrigin + Vector3(wheelOffset.x - wheelBackOffset, wheelOffset.y, wheelOffset.z),
+    'wheel_BR': carOrigin + Vector3(wheelOffset.x - wheelBackOffset, wheelOffset.y, -wheelOffset.z),
   };
 
   static const double wheelCameraDistanceZ = 1;
   static const double wheelCameraDistanceY = 0;
-  static final Map<String, Vector3> wheelCameraPositions = SettingsSceneView
-      .wheelPositions
-      .map(
-        (key, value) => MapEntry(
-          key,
-          value +
-              Vector3(0, wheelCameraDistanceY, 0) +
-              (value.z > SettingsSceneView.carOrigin.z
-                  ? Vector3(0, 0, wheelCameraDistanceZ)
-                  : Vector3(0, 0, -wheelCameraDistanceZ)),
-        ),
-      );
+  static final Map<String, Vector3> wheelCameraPositions = SettingsSceneView.wheelPositions.map(
+    (key, value) => MapEntry(
+      key,
+      value +
+          Vector3(0, wheelCameraDistanceY, 0) +
+          (value.z > SettingsSceneView.carOrigin.z
+              ? Vector3(0, 0, wheelCameraDistanceZ)
+              : Vector3(0, 0, -wheelCameraDistanceZ)),
+    ),
+  );
 
   static final Map<String, EntityGUID> objectGuids = {
     'camera': generateGuid(),
@@ -374,8 +366,7 @@ class SettingsSceneView extends StatefulSceneView {
       Cube(
         id: objectGuids['wiper2']!,
         name: 'wiper2',
-        position:
-            Vector3(72, 0, 68) + wiperOffset - Vector3(0, 0, wiperOffset.z * 2),
+        position: Vector3(72, 0, 68) + wiperOffset - Vector3(0, 0, wiperOffset.z * 2),
         scale: wiperSize,
         rotation: Quaternion.identity(),
         material: poGetLitMaterial(Colors.black),
@@ -454,8 +445,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
     // Wipers
     final double wiperSpeed = _wiperSpeed.value;
     final double wiperAngle = sin(_timer * wiperSpeed) * 0.66;
-    final Quaternion wiperRotation = Quaternion.identity()
-      ..setEulerRadians(wiperAngle, 0, -0.8);
+    final Quaternion wiperRotation = Quaternion.identity()..setEulerRadians(wiperAngle, 0, -0.8);
     filament.setEntityTransformRotation(
       SettingsSceneView.objectGuids['wiper1']!,
       wiperRotation.storage64,
@@ -606,10 +596,8 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       final ballGuid = SettingsSceneView.objectGuids['bg_shape_0']!;
       final double bounce = sin(_timer * 2) * 1;
 
-      final Vector3 pos =
-          SettingsSceneView.carOrigin + Vector3(9, 2.5 + bounce, -9);
-      final Quaternion rot = Quaternion.identity()
-        ..setEulerDegrees(30, _timer * 90, 0);
+      final Vector3 pos = SettingsSceneView.carOrigin + Vector3(9, 2.5 + bounce, -9);
+      final Quaternion rot = Quaternion.identity()..setEulerDegrees(30, _timer * 90, 0);
 
       filament.setEntityTransformPosition(ballGuid, pos.storage64);
       filament.setEntityTransformRotation(
@@ -623,10 +611,8 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       final donutGuid = SettingsSceneView.objectGuids['bg_shape_1']!;
       final double bounce = sin(_timer * 2) * 1;
 
-      final Vector3 pos =
-          SettingsSceneView.carOrigin + Vector3(-10, 2 + bounce, 10);
-      final Quaternion rot = Quaternion.identity()
-        ..setEulerDegrees(30 * bounce, _timer * 90, 0);
+      final Vector3 pos = SettingsSceneView.carOrigin + Vector3(-10, 2 + bounce, 10);
+      final Quaternion rot = Quaternion.identity()..setEulerDegrees(30 * bounce, _timer * 90, 0);
 
       filament.setEntityTransformPosition(donutGuid, pos.storage64);
       filament.setEntityTransformRotation(donutGuid, rot.storage64);
@@ -640,8 +626,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
     }
 
     // Animate camera to menu position
-    const double cameraMenuDollyOffsetX =
-        SettingsSceneView.cameraMenuDollyOffsetX;
+    const double cameraMenuDollyOffsetX = SettingsSceneView.cameraMenuDollyOffsetX;
 
     // If animating, apply the offset to the camera
     if (_animationController.isAnimating) {
@@ -649,13 +634,11 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       SettingsSceneView._sceneCamera.dollyOffset = _cameraMenuOffset;
 
       // Adjust camera orbit speed based on animation progress
-      _cameraOrbitSpeed =
-          _cameraOrbitMaxSpeed * (1 - _animationController.value);
+      _cameraOrbitSpeed = _cameraOrbitMaxSpeed * (1 - _animationController.value);
     }
   }
 
-  static const double _cameraOrbitMaxSpeed =
-      30 * pi / 180; // 30 degrees per second
+  static const double _cameraOrbitMaxSpeed = 30 * pi / 180; // 30 degrees per second
   double _cameraOrbitSpeed = _cameraOrbitMaxSpeed;
 
   final Vector3 _cameraMenuOffset = Vector3.zero();
@@ -671,10 +654,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
     print('Touched object with name: $name');
 
     // If touched any of the wheels...
-    if (name == 'wheel_FL' ||
-        name == 'wheel_FR' ||
-        name == 'wheel_BL' ||
-        name == 'wheel_BR') {
+    if (const ['wheel_FL', 'wheel_FR', 'wheel_BL', 'wheel_BR'].contains(name)) {
       print('Touched wheel $name');
 
       // Change camera position to wheel
@@ -684,17 +664,13 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       _menuSelected.value = 4;
 
       // Increase tire pressure
-      _tirePressures[name]!.value = (_tirePressures[name]!.value + 0.025).clamp(
-        0,
-        1,
-      );
+      _tirePressures[name]!.value = (_tirePressures[name]!.value + 0.025).clamp(0, 1);
     }
   }
 
   void _cameraFocusOnTire(String name) {
     final Vector3 cameraLookAt = SettingsSceneView.wheelPositions[name]!;
-    final Vector3 cameraLookFrom =
-        SettingsSceneView.wheelCameraPositions[name]!;
+    final Vector3 cameraLookFrom = SettingsSceneView.wheelCameraPositions[name]!;
 
     print("Focusing on tire '$name' at $cameraLookAt from $cameraLookFrom");
 
@@ -717,9 +693,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
     //   widget.filament.setCameraRotation(pi * -0.5);
     // }
 
-    print(
-      "Set camera to tire $name, look from $cameraLookFrom at $cameraLookAt",
-    );
+    print("Set camera to tire $name, look from $cameraLookFrom at $cameraLookAt");
 
     // widget.filament.resetInertiaCameraToDefaultValues();
   }
@@ -886,8 +860,8 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
                       child: const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Icon(Icons.color_lens, size: 48),
-                          Text('Material'),
+                          Icon(Icons.color_lens, size: 48), //
+                          Text('Material'), //
                         ],
                       ),
                     ),
@@ -905,8 +879,8 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
                       child: const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Icon(Icons.lightbulb, size: 48),
-                          Text('Light'),
+                          Icon(Icons.lightbulb, size: 48), //
+                          Text('Light'), //
                         ],
                       ),
                     ),
@@ -924,8 +898,8 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
                       child: const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Icon(Icons.wb_sunny, size: 48),
-                          Text('Wiper'),
+                          Icon(Icons.wb_sunny, size: 48), //
+                          Text('Wiper'), //
                         ],
                       ),
                     ),
@@ -943,8 +917,8 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
                       child: const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Icon(Icons.directions_car, size: 48),
-                          Text('Tire'),
+                          Icon(Icons.directions_car, size: 48), //
+                          Text('Tire'), //
                         ],
                       ),
                     ),
@@ -959,9 +933,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
   }
 
   Material _customizedMaterial = poGetLitMaterialWithRandomValues();
-  MaterialParameter _paramColor = MaterialParameter.baseColor(
-    color: Colors.white,
-  );
+  MaterialParameter _paramColor = MaterialParameter.baseColor(color: Colors.white);
   MaterialParameter _paramRoughness = MaterialParameter.roughness(value: 0.8);
   MaterialParameter _paramMetalness = MaterialParameter.metallic(value: 0.0);
   HSVColor _customColor = HSVColor.fromColor(const Color(0xffff00ff));
