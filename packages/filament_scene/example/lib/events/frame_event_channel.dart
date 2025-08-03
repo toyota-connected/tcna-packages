@@ -3,16 +3,13 @@ import 'dart:io';
 import '../utils.dart';
 import 'package:filament_scene/generated/messages.g.dart';
 
-typedef UpdateCallback =
-    void Function(FilamentViewApi api, double elapsedFrameTime);
+typedef UpdateCallback = void Function(FilamentViewApi api, double elapsedFrameTime);
 typedef TriggerEventFunction = void Function(String eventName);
 
 void noopUpdate(FilamentViewApi api, double elapsedFrameTime) {}
 
 class FrameEventChannel {
-  static const EventChannel _eventChannel = EventChannel(
-    'plugin.filament_view.frame_view',
-  );
+  static const EventChannel _eventChannel = EventChannel('plugin.filament_view.frame_view');
 
   bool bWriteEventsToLog = false;
 
@@ -21,9 +18,7 @@ class FrameEventChannel {
     filamentViewApi = api;
   }
 
-  final List<UpdateCallback> _callbacks = List<UpdateCallback>.empty(
-    growable: true,
-  );
+  final List<UpdateCallback> _callbacks = List<UpdateCallback>.empty(growable: true);
   void addCallback(UpdateCallback callback) {
     _callbacks.add(callback);
   }

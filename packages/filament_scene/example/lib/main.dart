@@ -180,12 +180,8 @@ class _MyAppState extends State<MyApp> {
               right: 24,
               // Show menu with list of scenes with MenuAnchor and a FilledButton in builder
               child: MenuAnchor(
-                builder:
-                    (
-                      BuildContext context,
-                      MenuController controller,
-                      Widget? child,
-                    ) => FilledButton(
+                builder: (BuildContext context, MenuController controller, Widget? child) =>
+                    FilledButton(
                       onPressed: () {
                         if (controller.isOpen) {
                           controller.close();

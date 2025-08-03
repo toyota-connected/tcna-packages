@@ -36,10 +36,7 @@ class PlaygroundSceneView extends StatefulSceneView {
   };
 
   static final Vector3 focusPoint = Vector3(0, 0, 0);
-  static final Vector2 initialCameraRotation = Vector2(
-    radians(240),
-    radians(-15),
-  );
+  static final Vector2 initialCameraRotation = Vector2(radians(240), radians(-15));
 
   static final Camera _sceneCamera = Camera(
     id: objectGuids['playground_camera']!,
@@ -110,11 +107,7 @@ class PlaygroundSceneView extends StatefulSceneView {
         scale: Vector3(0.04, 0.04, 0.04),
         rotation: Quaternion.identity(),
         collider: Collider(isStatic: false, shouldMatchAttachedObject: true),
-        animation: Animation.byIndex(
-          1,
-          autoPlay: true,
-          notifyOfAnimationEvents: true,
-        ),
+        animation: Animation.byIndex(1, autoPlay: true, notifyOfAnimationEvents: true),
         receiveShadows: true,
         castShadows: true,
         id: objectGuids['fox2']!,
@@ -245,10 +238,8 @@ class _PlaygroundSceneViewState extends StatefulSceneViewState {
             // NOTE: exercise: try implementing a camera gesture that allows zooming in and out
             onPanUpdate: (final details) {
               // Updated camera angles based on initial touch position
-              cameraXAngle.value =
-                  (cameraXAngle.value - details.delta.dx * 0.25) % 360;
-              cameraYAngle.value =
-                  (cameraYAngle.value - details.delta.dy * 0.25).clamp(-90, -1);
+              cameraXAngle.value = (cameraXAngle.value - details.delta.dx * 0.25) % 360;
+              cameraYAngle.value = (cameraYAngle.value - details.delta.dy * 0.25).clamp(-90, -1);
 
               PlaygroundSceneView._sceneCamera.setOrbit(
                 horizontal: radians(cameraXAngle.value),
