@@ -138,9 +138,7 @@ void vRunLightLoops(FilamentViewApi filamentView) {
 
   if (currentState == LightState.crissCross) {
     // Check if all lights are done
-    bool allDone = lightsWeCanChangeParamsOn.every(
-      (light) => light.phase == 'done',
-    );
+    bool allDone = lightsWeCanChangeParamsOn.every((light) => light.phase == 'done');
     if (allDone) {
       // Reset lights for continuous crisscrossing or transition to next state
       for (var light in lightsWeCanChangeParamsOn) {
