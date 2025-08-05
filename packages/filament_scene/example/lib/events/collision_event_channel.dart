@@ -25,9 +25,7 @@ class CollisionEvent {
     final List<CollisionEventHitResult> results = <CollisionEventHitResult>[];
 
     for (int i = 0; i < resultCount; i++) {
-      final JsonObject hitResult = JsonObject.from(
-        json['collision_event_hit_result_$i'],
-      );
+      final JsonObject hitResult = JsonObject.from(json['collision_event_hit_result_$i']);
       final EntityGUID id = hitResult['guid'];
       final List<dynamic> hitPosition = hitResult['hitPosition'];
       final String name = hitResult['name'];
@@ -36,9 +34,9 @@ class CollisionEvent {
         CollisionEventHitResult(
           id,
           Vector3(
-            hitPosition[0].toDouble(),
-            hitPosition[1].toDouble(),
-            hitPosition[2].toDouble(),
+            hitPosition[0].toDouble(), //
+            hitPosition[1].toDouble(), //
+            hitPosition[2].toDouble(), //
           ),
           name,
         ),
@@ -46,9 +44,9 @@ class CollisionEvent {
     }
 
     return CollisionEvent(
-      results,
-      json['collision_event_source'],
-      json['collision_event_type'],
+      results, //
+      json['collision_event_source'], //
+      json['collision_event_type'], //
     );
   }
 
@@ -75,9 +73,7 @@ class CollisionEventHitResult {
 typedef CollisionEventHandler = void Function(CollisionEvent event);
 
 class CollisionEventChannel {
-  static const EventChannel _eventChannel = EventChannel(
-    'plugin.filament_view.collision_info',
-  );
+  static const EventChannel _eventChannel = EventChannel('plugin.filament_view.collision_info');
 
   late FilamentViewApi filamentViewApi;
 
@@ -124,9 +120,7 @@ class CollisionEventChannel {
           //Received event: {collision_event_hit_count: 1, collision_event_hit_result_0: {guid: 1682202689430419,, hitPosition: [-1.4180145263671875, 1.1819745302200317, -0.35870814323425293], name: assets/models/sequoia_ngp.glb}, collision_event_source: vOnTouch, collision_event_type: 1}
 
           if (event.containsKey("collision_event_hit_result_0")) {
-            JsonObject hitResult = JsonObject.from(
-              event["collision_event_hit_result_0"],
-            );
+            JsonObject hitResult = JsonObject.from(event["collision_event_hit_result_0"]);
             EntityGUID guid = hitResult["guid"];
 
             // Example: Change the material of the object that was touched
@@ -134,9 +128,7 @@ class CollisionEventChannel {
             filamentViewApi.changeMaterialDefinition(ourJson, guid);
 
             // Emit event
-            final CollisionEvent collisionEvent = CollisionEvent.fromJson(
-              JsonObject.from(event),
-            );
+            final CollisionEvent collisionEvent = CollisionEvent.fromJson(JsonObject.from(event));
             print(collisionEvent);
             _emitEvent(collisionEvent);
           }

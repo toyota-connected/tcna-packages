@@ -20,8 +20,7 @@ abstract class StatefulSceneView extends StatefulWidget {
   }) : super();
 }
 
-abstract class StatefulSceneViewState<T extends StatefulSceneView>
-    extends State<T> {
+abstract class StatefulSceneViewState<T extends StatefulSceneView> extends State<T> {
   /// Called when the scene view is mounted - supercedes [State.initState]
   void onCreate();
 

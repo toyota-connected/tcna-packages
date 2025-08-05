@@ -196,9 +196,7 @@ class _RadarSceneViewState extends StatefulSceneViewState<RadarSceneView> {
         break;
 
       default:
-        throw UnsupportedError(
-          "event '$eventName' is not supported by $runtimeType",
-        );
+        throw UnsupportedError("event '$eventName' is not supported by $runtimeType");
     }
   }
 
@@ -226,8 +224,7 @@ class _RadarSceneViewState extends StatefulSceneViewState<RadarSceneView> {
         scaleFactor = 0.0;
       }
 
-      double moveDistance =
-          segment.elapsedTime * 12; // Example movement distance
+      double moveDistance = segment.elapsedTime * 12; // Example movement distance
 
       // Apply the position and scale changes
       _setPositionAndScale(filamentView, segment.id, moveDistance, scaleFactor);
@@ -250,9 +247,7 @@ class SegmentData {
 List<SegmentData> inUse = [];
 
 // List of segments that are free (available to use)
-List<SegmentData> free = List.from(
-  _radarSegmentPieceGUID.map((id) => SegmentData(id, 0.0)),
-);
+List<SegmentData> free = List.from(_radarSegmentPieceGUID.map((id) => SegmentData(id, 0.0)));
 
 void vDoOneWaveSegment(FilamentViewApi filamentView) {
   if (free.isNotEmpty) {
@@ -286,9 +281,7 @@ void vDo3RadarWaveSegments(FilamentViewApi filamentView) {
 
       // Set the position and scale for this segment
       _setPositionAndScale(filamentView, segmentData.id, 0.0, 0.0);
-      filamentView.turnOnVisualForEntity(
-        segmentData.id,
-      ); // turnOnVisualForEntity
+      filamentView.turnOnVisualForEntity(segmentData.id); // turnOnVisualForEntity
 
       // Debugging: Print the current state
       //print('vDo3RadarWaveSegments: Moved GUID to inUse: ${segmentData.id}');
@@ -309,10 +302,7 @@ void _setPositionAndScale(
   // Add your custom logic for applying position and scale to the model
   //print("_setPositionAndScale: $id | positionOffset = $positionOffset, scaleFactor = $scaleFactor");
 
-  filamentView.setEntityTransformPosition(
-    id,
-    Vector3(-42.2 - positionOffset, 1, 0).storage64,
-  );
+  filamentView.setEntityTransformPosition(id, Vector3(-42.2 - positionOffset, 1, 0).storage64);
 
   /* if(scaleFactor == 0) {
     filamentView.turnOffVisualForEntity(id); // turnOnVisualForEntity
@@ -332,8 +322,7 @@ void resetSegment(FilamentViewApi filamentView, EntityGUID id) {
   // Move the segment back to the free list once it's done
   SegmentData? segmentData = inUse.firstWhere(
     (segment) => segment.id == id,
-    orElse: () =>
-        SegmentData(id, 0.0), // Provide a default object instead of null
+    orElse: () => SegmentData(id, 0.0), // Provide a default object instead of null
   );
 
   if (segmentData.id == id) {

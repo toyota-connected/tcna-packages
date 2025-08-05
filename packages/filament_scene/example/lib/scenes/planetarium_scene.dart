@@ -185,7 +185,7 @@ class PlanetariumSceneView extends StatefulSceneView {
         parentId: objectGuids['system']!,
         position: Vector3.all(0),
         scale: name == 'sun'
-            ? Vector3.all(1)
+            ? Vector3.all(1) //
             : Vector3.all(planetDistances[name]!),
         rotation: Quaternion.identity(),
         stacks: 8,
@@ -249,14 +249,10 @@ class _PlanetariumSceneViewState extends StatefulSceneViewState {
     widget.filament.setFogOptions(false);
 
     // deactivate rendering for system and orbits
-    widget.filament.turnOffVisualForEntity(
-      PlanetariumSceneView.objectGuids['system']!,
-    );
+    widget.filament.turnOffVisualForEntity(PlanetariumSceneView.objectGuids['system']!);
     for (final String name in PlanetariumSceneView.objectGuids.keys) {
       if (name.endsWith('_orbit')) {
-        widget.filament.turnOffVisualForEntity(
-          PlanetariumSceneView.objectGuids[name]!,
-        );
+        widget.filament.turnOffVisualForEntity(PlanetariumSceneView.objectGuids[name]!);
       }
     }
   }
@@ -314,10 +310,8 @@ class _PlanetariumSceneViewState extends StatefulSceneViewState {
             // NOTE: exercise: try implementing a camera gesture that allows zooming in and out
             onPanUpdate: (final details) {
               // Updated camera angles based on initial touch position
-              cameraXAngle.value =
-                  (cameraXAngle.value - details.delta.dx * 0.25) % 360;
-              cameraYAngle.value =
-                  (cameraYAngle.value - details.delta.dy * 0.25).clamp(-90, -1);
+              cameraXAngle.value = (cameraXAngle.value - details.delta.dx * 0.25) % 360;
+              cameraYAngle.value = (cameraYAngle.value - details.delta.dy * 0.25).clamp(-90, -1);
 
               PlanetariumSceneView.camera.setOrbit(
                 horizontal: radians(cameraXAngle.value),

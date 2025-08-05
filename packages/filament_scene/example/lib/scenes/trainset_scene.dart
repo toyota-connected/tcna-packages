@@ -174,8 +174,7 @@ class _TrainsetSceneViewState extends StatefulSceneViewState {
   static const double _verticalPathLength = pathHeight - 2 * pathCornerRadius;
   static const double _arcPathLengthQuarter = 0.5 * Math.pi * pathCornerRadius;
   static const double _pathLength =
-      (_horizontalPathLength + _verticalPathLength) * 2 +
-      2 * Math.pi * pathCornerRadius;
+      (_horizontalPathLength + _verticalPathLength) * 2 + 2 * Math.pi * pathCornerRadius;
 
   double speed = 4;
   List<double> traincarDistanceTraveled = List.generate(
@@ -198,9 +197,7 @@ class _TrainsetSceneViewState extends StatefulSceneViewState {
 
       Vector3 flatPos = getPointOnPath(distanceTraveled);
       if (i == 0) {
-        print(
-          'Traincar position: ${(distanceTraveled / _pathLength * 100).toStringAsFixed(0)}%',
-        );
+        print('Traincar position: ${(distanceTraveled / _pathLength * 100).toStringAsFixed(0)}%');
       }
 
       final Vector3 pos = Vector3(flatPos.x, 0, flatPos.y);
