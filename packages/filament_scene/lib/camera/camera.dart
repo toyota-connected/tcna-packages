@@ -116,9 +116,9 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
 
   void _updateRigPosition() {
     if (_dirtyOrbit) {
-      print(
-        'Updating camera($id) orbit: type=${orbitOriginType.name}, point=$orbitOriginPoint, entity=$orbitOriginEntity',
-      );
+      // print(
+      //   'Updating camera($id) orbit: type=${orbitOriginType.name}, point=$orbitOriginPoint, entity=$orbitOriginEntity',
+      // );
 
       unawaited(engine?.setCameraOrbit(id, orbitOriginEntity ?? kNullGuid, _rigRotation.storage64));
 
