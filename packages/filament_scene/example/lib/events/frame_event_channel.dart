@@ -1,9 +1,10 @@
 import 'package:flutter/services.dart';
+import 'package:my_fox_example/main.dart';
 import 'dart:io';
 import '../utils.dart';
 import 'package:filament_scene/generated/messages.g.dart';
 
-typedef UpdateCallback = void Function(FilamentViewApi api, double elapsedFrameTime);
+typedef UpdateCallback = void Function(FilamentViewApi api, double deltaTime);
 typedef TriggerEventFunction = void Function(String eventName);
 
 void noopUpdate(FilamentViewApi api, double elapsedFrameTime) {}
@@ -38,7 +39,7 @@ class FrameEventChannel {
       _eventChannel.receiveBroadcastStream().listen(
         (event) {
           // Handle incoming event
-          if (bWriteEventsToLog) stdout.write('Received event: $event\n');
+          // print('Received event: $event\n');
           const double elapsedFrameTime = 0.016;
 
           if (event is Map) {
@@ -47,10 +48,25 @@ class FrameEventChannel {
 
             // Log extracted values
             if (method == 'preRenderFrame') {
+              frameProfilingDataNotifier.value = FrameProfilingData(
+                deltaTime: elapsedFrameTime,
+                cpuFrameTime: event['cpuFt'] ?? 0.0,
+                gpuFrameTime: event['gpuFt'] ?? 0.0,
+                fps: event['fps'] ?? 60.0,
+              );
+
               vRunLightLoops(filamentViewApi);
               for (final onUpdate in _callbacks) {
                 onUpdate(filamentViewApi, elapsedFrameTime);
               }
+
+              // Send "done_updateScripts" event to native
+              // _eventChannel.binaryMessenger.send(
+              //   'plugin.filament_view.frame_view',
+              //   const StandardMessageCodec().encodeMessage(<String, dynamic>{
+              //     'method': 'done_updateScripts',
+              //   }),
+              // );
             }
           }
         },

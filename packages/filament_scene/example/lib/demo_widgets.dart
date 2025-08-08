@@ -1,6 +1,9 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:filament_scene/generated/messages.g.dart';
+import 'package:my_fox_example/main.dart';
 import 'package:my_fox_example/shape_and_object_creators.dart';
 
 const defaultTextStyle = TextStyle(
@@ -158,4 +161,97 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
       ),
     );
   }
+}
+
+class FrameProfilingOverlay extends StatefulWidget {
+  final ValueNotifier<FrameProfilingData> data;
+
+  const FrameProfilingOverlay({Key? key, required this.data}) : super(key: key);
+
+  @override
+  _FrameProfilingOverlayState createState() => _FrameProfilingOverlayState();
+}
+
+class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
+  final ListQueue<double> _fpsHistory = ListQueue<double>(60); // Store last 60 FPS values
+  final ListQueue<double> _cpuHistory = ListQueue<double>(60); // Store last 60 CPU frame times
+  final ListQueue<double> _gpuHistory = ListQueue<double>(60); // Store last 60 GPU frame times
+
+  double avgFPS = 0;
+  // Average CPU frametime in milliseconds
+  double avgCPU = 0;
+  // Average GPU frametime in milliseconds
+  double avgGPU = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.data.addListener(() {
+      setState(() {
+        // Add new values to history
+        _fpsHistory.add(widget.data.value.fps);
+        _cpuHistory.add(widget.data.value.cpuFrameTime);
+        _gpuHistory.add(widget.data.value.gpuFrameTime);
+
+        // Maintain only the last 60 values
+        if (_fpsHistory.length > 60) _fpsHistory.removeFirst();
+        if (_cpuHistory.length > 60) _cpuHistory.removeFirst();
+        if (_gpuHistory.length > 60) _gpuHistory.removeFirst();
+
+        // Update averages
+        avgFPS = _fpsHistory.reduce((a, b) => a + b) / _fpsHistory.length;
+        avgCPU = _cpuHistory.reduce((a, b) => a + b) / _cpuHistory.length;
+        avgGPU = _gpuHistory.reduce((a, b) => a + b) / _gpuHistory.length;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => IgnorePointer(
+    ignoring: true,
+    // Display the FPS and frame times as text
+    // Under, shows a graph of columns (32px tall, 8px wide) for each value
+    child: Container(
+      // height: 128,
+      color: Colors.black.withAlpha(0x80),
+      padding: const EdgeInsets.all(4),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'FPS: ${avgFPS.toStringAsFixed(2)}\n'
+            'CPU Frame Time: ${avgCPU.toStringAsFixed(2)} ms\n'
+            'GPU Frame Time: ${avgGPU.toStringAsFixed(2)} ms',
+            style: const TextStyle(color: Colors.white),
+          ),
+          const SizedBox(height: 8),
+          // white line
+          Container(height: 1, width: 60 * 6, color: Colors.white),
+          Container(
+            height: 64,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                for (int i = 0; i < _fpsHistory.length; i++)
+                  Container(
+                    width: 4,
+                    height:
+                        64 *
+                        ((_cpuHistory.elementAt(i) + _gpuHistory.elementAt(i)) /
+                            (1000 / _fpsHistory.elementAt(i))),
+                    margin: const EdgeInsets.only(right: 2),
+                    color: Colors.green,
+                  ),
+              ],
+            ),
+          ),
+          // white line
+          Container(height: 1, width: 60 * 6, color: Colors.white),
+        ],
+      ),
+    ),
+  );
 }

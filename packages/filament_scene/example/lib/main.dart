@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_fox_example/demo_widgets.dart';
 import 'package:my_fox_example/scenes/planetarium_scene.dart';
 import 'package:my_fox_example/scenes/playground_scene.dart';
 import 'package:my_fox_example/scenes/radar_scene.dart';
@@ -6,6 +7,7 @@ import 'package:my_fox_example/scenes/scene_view.dart';
 import 'package:my_fox_example/scenes/settings_scene.dart';
 import 'package:my_fox_example/scenes/trainset_scene.dart';
 import 'package:filament_scene/filament_scene.dart';
+import 'package:provider/provider.dart';
 import 'dart:async';
 import 'dart:io';
 import 'shape_and_object_creators.dart';
@@ -21,6 +23,30 @@ import 'package:filament_scene/generated/messages.g.dart';
 // filament_scene/example/assets/materials$
 // /home/tcna/dev/workspace-automation/app/filament/cmake-build-release/staging/release/bin/matc -a vulkan -o textured_pbr.filamat raw/textured_pbr.mat
 
+class FrameProfilingData {
+  final double deltaTime;
+  final double cpuFrameTime;
+  final double gpuFrameTime;
+  final double fps;
+
+  FrameProfilingData({
+    required this.deltaTime,
+    required this.cpuFrameTime,
+    required this.gpuFrameTime,
+    required this.fps,
+  });
+}
+
+final ValueNotifier<FrameProfilingData> frameProfilingDataNotifier =
+    ValueNotifier<FrameProfilingData>(
+      FrameProfilingData(
+        deltaTime: 0.0, //
+        cpuFrameTime: 0.0, //
+        gpuFrameTime: 0.0, //
+        fps: 0.0, //
+      ),
+    );
+
 ////////////////////////////////////////////////////////////////////////
 void main() {
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -29,7 +55,15 @@ void main() {
 
   runZonedGuarded<Future<void>>(
     () async {
-      runApp(const MyApp());
+      runApp(
+        MultiProvider(
+          providers: [
+            //
+            ChangeNotifierProvider.value(value: frameProfilingDataNotifier),
+          ],
+          child: const MyApp(),
+        ),
+      );
     },
     (Object error, StackTrace stack) {
       stdout.write('runZonedGuarded error caught error: $error\n$stack');
@@ -174,6 +208,12 @@ class _MyAppState extends State<MyApp> {
 
             if (_sceneView != null) _sceneView!,
 
+            // A profiling overlay
+            Positioned(
+              top: 0,
+              left: 0,
+              child: FrameProfilingOverlay(data: frameProfilingDataNotifier),
+            ),
             // A button at the top-right to switch scenes
             Positioned(
               top: 24,
