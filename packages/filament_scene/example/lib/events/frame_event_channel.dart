@@ -47,16 +47,22 @@ class FrameEventChannel {
 
             // Log extracted values
             if (method == 'preRenderFrame') {
-              frameProfilingDataNotifier.value = FrameProfilingData(
-                deltaTime: elapsedFrameTime,
-                cpuFrameTime: event['cpuFt'] ?? 0.0,
-                gpuFrameTime: event['gpuFt'] ?? 0.0,
-                fps: event['fps'] ?? 60.0,
-              );
+              final scriptTimeStart = DateTime.now().microsecondsSinceEpoch;
 
               for (final onUpdate in _callbacks) {
                 onUpdate(filamentViewApi, elapsedFrameTime);
               }
+
+              // TODO(kerberjg): this is temporary, should be dictated by the native core
+              final scriptFrameTime = DateTime.now().microsecondsSinceEpoch - scriptTimeStart;
+
+              frameProfilingDataNotifier.value = FrameProfilingData(
+                deltaTime: elapsedFrameTime,
+                cpuFrameTime: event['cpuFt'] ?? 0.0,
+                gpuFrameTime: event['gpuFt'] ?? 0.0,
+                scriptFrameTime: scriptFrameTime / 1000.0, // Convert to milliseconds
+                fps: event['fps'] ?? 60.0,
+              );
 
               // Send "done_updateScripts" event to native
               // _eventChannel.binaryMessenger.send(
