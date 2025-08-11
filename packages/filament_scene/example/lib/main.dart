@@ -27,12 +27,14 @@ class FrameProfilingData {
   final double deltaTime;
   final double cpuFrameTime;
   final double gpuFrameTime;
+  final double scriptFrameTime; // Time taken to run the Dart script
   final double fps;
 
   FrameProfilingData({
     required this.deltaTime,
     required this.cpuFrameTime,
     required this.gpuFrameTime,
+    required this.scriptFrameTime,
     required this.fps,
   });
 }
@@ -43,6 +45,7 @@ final ValueNotifier<FrameProfilingData> frameProfilingDataNotifier =
         deltaTime: 0.0, //
         cpuFrameTime: 0.0, //
         gpuFrameTime: 0.0, //
+        scriptFrameTime: 0.0, //
         fps: 0.0, //
       ),
     );

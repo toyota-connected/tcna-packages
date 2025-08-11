@@ -185,12 +185,17 @@ class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
   final ListQueue<double> _gpuHistory = ListQueue<double>(
     kExpectedFPS,
   ); // Store last 60 GPU frame times
+  final ListQueue<double> _scpHistory = ListQueue<double>(
+    kExpectedFPS,
+  ); // Store last 60 script frame times
 
   double avgFPS = 0;
   // Average CPU frametime in milliseconds
   double avgCPU = 0;
   // Average GPU frametime in milliseconds
   double avgGPU = 0;
+  // Average script frametime in milliseconds
+  double avgScp = 0;
 
   @override
   void initState() {
@@ -201,16 +206,19 @@ class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
         _fpsHistory.add(widget.data.value.fps);
         _cpuHistory.add(widget.data.value.cpuFrameTime);
         _gpuHistory.add(widget.data.value.gpuFrameTime);
+        _scpHistory.add(widget.data.value.scriptFrameTime);
 
         // Maintain only the last 60 values
         if (_fpsHistory.length > kExpectedFPS) _fpsHistory.removeFirst();
         if (_cpuHistory.length > kExpectedFPS) _cpuHistory.removeFirst();
         if (_gpuHistory.length > kExpectedFPS) _gpuHistory.removeFirst();
+        if (_scpHistory.length > kExpectedFPS) _scpHistory.removeFirst();
 
         // Update averages
         avgFPS = _fpsHistory.reduce((a, b) => a + b) / _fpsHistory.length;
         avgCPU = _cpuHistory.reduce((a, b) => a + b) / _cpuHistory.length;
         avgGPU = _gpuHistory.reduce((a, b) => a + b) / _gpuHistory.length;
+        avgScp = _scpHistory.reduce((a, b) => a + b) / _scpHistory.length;
       });
     });
   }
@@ -248,8 +256,9 @@ class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
           ),
           Text(
             'FPS: ${avgFPS.toStringAsFixed(2)}\n'
-            'CPU frametime: ${avgCPU.toStringAsFixed(2)} ms\n'
-            'GPU frametime: ${avgGPU.toStringAsFixed(2)} ms',
+            'CPU    frametime: ${avgCPU.toStringAsFixed(2)} ms\n'
+            'GPU    frametime: ${avgGPU.toStringAsFixed(2)} ms\n'
+            'Script frametime: ${avgScp.toStringAsFixed(2)} ms',
             style: const TextStyle(
               fontFamily: 'Galmuri9', //
               fontSize: 10, //
@@ -278,10 +287,13 @@ class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
                     for (int i = 0; i < _fpsHistory.length; i++)
                       Container(
                         width: kPerfBarWidth,
-                        height:
-                            kPerfBarHeight *
-                            ((_cpuHistory.elementAt(i) + _gpuHistory.elementAt(i)) /
-                                kExpectedFrameTime),
+                        // dart format off
+                        height: kPerfBarHeight * (
+                          _cpuHistory.elementAt(i) +
+                          _gpuHistory.elementAt(i) +
+                          _scpHistory.elementAt(i) //
+                        ) / kExpectedFrameTime,
+                        // dart format on
                         margin: const EdgeInsets.only(right: 1),
                         color: Colors.green,
                       ),
