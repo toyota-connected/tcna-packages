@@ -1,7 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:my_fox_example/main.dart';
 import 'dart:io';
-import '../utils.dart';
 import 'package:filament_scene/generated/messages.g.dart';
 
 typedef UpdateCallback = void Function(FilamentViewApi api, double deltaTime);
@@ -55,7 +54,6 @@ class FrameEventChannel {
                 fps: event['fps'] ?? 60.0,
               );
 
-              vRunLightLoops(filamentViewApi);
               for (final onUpdate in _callbacks) {
                 onUpdate(filamentViewApi, elapsedFrameTime);
               }

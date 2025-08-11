@@ -10,6 +10,7 @@ import 'package:my_fox_example/material_helpers.dart';
 import 'package:my_fox_example/scenes/scene_view.dart';
 import 'package:filament_scene/filament_scene.dart';
 import 'package:filament_scene/math/utils.dart';
+import 'package:my_fox_example/utils.dart';
 
 class PlaygroundSceneView extends StatefulSceneView {
   const PlaygroundSceneView({
@@ -271,5 +272,7 @@ class _PlaygroundSceneViewState extends StatefulSceneViewState {
   void onTriggerEvent(final String eventName, [final dynamic eventData]) {}
 
   @override
-  void onUpdateFrame(FilamentViewApi filament, double dt) {}
+  void onUpdateFrame(FilamentViewApi filament, double dt) {
+    vRunLightLoops(filament);
+  }
 }
