@@ -4,8 +4,8 @@ import 'package:filament_scene/engine.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:filament_scene/generated/messages.g.dart';
-import 'package:my_fox_example/main.dart';
-import 'package:my_fox_example/shape_and_object_creators.dart';
+import 'package:fluorite_examples_demo/main.dart';
+import 'package:fluorite_examples_demo/shape_and_object_creators.dart';
 
 const defaultTextStyle = TextStyle(
   fontSize: 16,

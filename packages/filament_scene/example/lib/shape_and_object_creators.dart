@@ -2,13 +2,13 @@ import 'package:filament_scene/camera/camera.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/shapes/shapes.dart';
 import 'package:flutter/material.dart' hide Animation;
-import 'package:my_fox_example/assets.dart';
-import 'package:my_fox_example/scenes/planetarium_scene.dart';
-import 'package:my_fox_example/scenes/playground_scene.dart';
-import 'package:my_fox_example/scenes/radar_scene.dart';
-import 'package:my_fox_example/scenes/settings_scene.dart';
+import 'package:fluorite_examples_demo/assets.dart';
+import 'package:fluorite_examples_demo/scenes/planetarium_scene.dart';
+import 'package:fluorite_examples_demo/scenes/playground_scene.dart';
+import 'package:fluorite_examples_demo/scenes/radar_scene.dart';
+import 'package:fluorite_examples_demo/scenes/settings_scene.dart';
 import 'package:filament_scene/filament_scene.dart';
-import 'package:my_fox_example/scenes/trainset_scene.dart';
+import 'package:fluorite_examples_demo/scenes/trainset_scene.dart';
 
 ////////////////////////////////////////////////////////////////////////////////
 // TODO(kerberjg): remove! Shapes will become components on scene entities, and this will go to init

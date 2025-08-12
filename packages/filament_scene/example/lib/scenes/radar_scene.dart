@@ -2,9 +2,9 @@ import 'package:filament_scene/camera/camera.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/shapes/shapes.dart';
 import 'package:flutter/material.dart';
-import 'package:my_fox_example/assets.dart';
+import 'package:fluorite_examples_demo/assets.dart';
 import 'package:filament_scene/generated/messages.g.dart';
-import 'package:my_fox_example/scenes/scene_view.dart';
+import 'package:fluorite_examples_demo/scenes/scene_view.dart';
 import 'package:filament_scene/filament_scene.dart';
 import 'package:filament_scene/math/utils.dart';
 
