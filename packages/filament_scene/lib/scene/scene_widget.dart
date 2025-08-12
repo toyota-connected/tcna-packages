@@ -133,12 +133,13 @@ class ModelViewerState extends State<SceneView> {
 
   @override
   void initState() {
-    _setupCreationParams();
     super.initState();
   }
 
   @override
   Widget build(final BuildContext context) {
+    _setupCreationParams();
+
     if (defaultTargetPlatform == TargetPlatform.android ||
         defaultTargetPlatform == TargetPlatform.linux) {
       return GestureDetector(
@@ -199,6 +200,7 @@ class ModelViewerState extends State<SceneView> {
 
   @override
   void didUpdateWidget(final SceneView oldWidget) {
+    print("ModelViewerState didUpdateWidget");
     super.didUpdateWidget(oldWidget);
     _updateWidget(oldWidget);
   }

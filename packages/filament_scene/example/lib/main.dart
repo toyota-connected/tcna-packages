@@ -98,9 +98,6 @@ class _MyAppState extends State<MyApp> {
 
   final filamentViewApi = FilamentViewApi();
 
-  /// field to store the scene widget so it's created only once
-  late final SceneView _filamentViewWidget;
-
   /// Scene state/overlay widget
   StatefulSceneView? _sceneView;
 
@@ -108,7 +105,6 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
-    _filamentViewWidget = poGetFilamentScene();
     _setScene(0);
 
     unawaited(initializeReadiness());
@@ -147,7 +143,7 @@ class _MyAppState extends State<MyApp> {
         collisionController: _collisionEventChannel,
         readinessController: _nativeReadiness,
       ),
-      _ => throw UnsupportedError("nothiiiing"),
+      _ => throw UnsupportedError("An unsupported scene ID has been selected: $sceneId"),
     };
   }
 
@@ -208,7 +204,7 @@ class _MyAppState extends State<MyApp> {
         body: Stack(
           fit: StackFit.expand,
           children: [
-            _filamentViewWidget,
+            poGetFilamentScene(),
 
             if (_sceneView != null) _sceneView!,
 
