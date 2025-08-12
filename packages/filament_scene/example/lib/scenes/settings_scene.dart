@@ -7,11 +7,11 @@ import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/shapes/shapes.dart';
 import 'package:filament_scene/utils/serialization.dart';
 import 'package:flutter/material.dart' hide Material;
-import 'package:my_fox_example/assets.dart';
-import 'package:my_fox_example/events/collision_event_channel.dart';
-import 'package:my_fox_example/material_helpers.dart';
+import 'package:fluorite_examples_demo/assets.dart';
+import 'package:fluorite_examples_demo/events/collision_event_channel.dart';
+import 'package:fluorite_examples_demo/material_helpers.dart';
 import 'package:filament_scene/generated/messages.g.dart';
-import 'package:my_fox_example/scenes/scene_view.dart';
+import 'package:fluorite_examples_demo/scenes/scene_view.dart';
 import 'package:filament_scene/filament_scene.dart';
 
 final Random random = Random();

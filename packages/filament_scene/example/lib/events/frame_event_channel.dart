@@ -1,6 +1,6 @@
 import 'package:filament_scene/engine.dart';
 import 'package:flutter/services.dart';
-import 'package:my_fox_example/main.dart';
+import 'package:fluorite_examples_demo/main.dart';
 import 'dart:io';
 import 'package:filament_scene/generated/messages.g.dart';
 

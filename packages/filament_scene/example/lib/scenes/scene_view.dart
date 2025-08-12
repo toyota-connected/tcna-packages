@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:my_fox_example/events/collision_event_channel.dart';
-import 'package:my_fox_example/events/frame_event_channel.dart';
-import 'package:my_fox_example/events/native_readiness.dart';
+import 'package:fluorite_examples_demo/events/collision_event_channel.dart';
+import 'package:fluorite_examples_demo/events/frame_event_channel.dart';
+import 'package:fluorite_examples_demo/events/native_readiness.dart';
 import 'package:filament_scene/generated/messages.g.dart';
 
 abstract class StatefulSceneView extends StatefulWidget {
