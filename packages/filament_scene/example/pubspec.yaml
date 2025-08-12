@@ -9,6 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_colorpicker: 1.1.0
+  provider: ^6.1.5
 
   filament_scene:
     path: ../
@@ -29,4 +30,35 @@ flutter:
     - assets/models/textures/
     - assets/materials/
     - assets/materials/texture/
-
+  fonts:
+    - family: Galmuri7
+      fonts:
+        - asset: assets/fonts/Galmuri/Galmuri7.ttf
+          weight: 400
+    - family: GalmuriMono7
+      fonts:
+        - asset: assets/fonts/Galmuri/GalmuriMono7.ttf
+          weight: 400
+    - family: Galmuri9
+      fonts:
+        - asset: assets/fonts/Galmuri/Galmuri9.ttf
+          weight: 400
+    - family: GalmuriMono9
+      fonts:
+        - asset: assets/fonts/Galmuri/GalmuriMono9.ttf
+          weight: 400
+    - family: Galmuri11
+      fonts:
+        - asset: assets/fonts/Galmuri/Galmuri11.ttf
+          weight: 400
+        - asset: assets/fonts/Galmuri/Galmuri11-Bold.ttf
+          weight: 700
+    - family: GalmuriMono11
+      fonts:
+        - asset: assets/fonts/Galmuri/GalmuriMono11.ttf
+          weight: 400
+    - family: Galmuri14
+      fonts:
+        - asset: assets/fonts/Galmuri/Galmuri14.ttf
+          weight: 400
+    

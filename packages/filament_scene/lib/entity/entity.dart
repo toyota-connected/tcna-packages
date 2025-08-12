@@ -1,9 +1,7 @@
-import 'dart:async';
-
 import 'package:collection/collection.dart';
+import 'package:filament_scene/filament_scene.dart';
 import 'package:filament_scene/generated/messages.g.dart';
 import 'package:filament_scene/math/vectors.dart';
-import 'package:filament_scene/scene/scene.dart';
 import 'package:filament_scene/utils/serialization.dart';
 import 'package:flutter/foundation.dart';
 
@@ -136,19 +134,19 @@ class TransformEntity extends Entity {
   /// Sets the local position of this entity.
   void setLocalPosition([final Position? newPosition]) {
     if (newPosition != null) position.setFrom(newPosition);
-    unawaited(engine?.setEntityTransformPosition(id, position.storage64));
+    engine?.queueFrameTask(engine?.setEntityTransformPosition(id, position.storage64));
   }
 
   /// Sets the local scale of this entity.
   void setLocalScale([final Scale? newScale]) {
     if (newScale != null) scale.setFrom(newScale);
-    unawaited(engine?.setEntityTransformScale(id, scale.storage64));
+    engine?.queueFrameTask(engine?.setEntityTransformScale(id, scale.storage64));
   }
 
   /// Sets the local rotation of this entity.
   void setLocalRotation([final Quaternion? newRotation]) {
     if (newRotation != null) rotation.setFrom(newRotation);
-    unawaited(engine?.setEntityTransformRotation(id, rotation.storage64));
+    engine?.queueFrameTask(engine?.setEntityTransformRotation(id, rotation.storage64));
   }
 
   /// Sets the local rotation of this entity from Euler angles.
@@ -160,8 +158,8 @@ class TransformEntity extends Entity {
 
   /// Flushes the current transform state to the engine
   void updateTransform() {
-    unawaited(engine?.setEntityTransformPosition(id, position.storage64));
-    unawaited(engine?.setEntityTransformScale(id, scale.storage64));
-    unawaited(engine?.setEntityTransformRotation(id, rotation.storage64));
+    engine?.queueFrameTask(engine?.setEntityTransformPosition(id, position.storage64));
+    engine?.queueFrameTask(engine?.setEntityTransformScale(id, scale.storage64));
+    engine?.queueFrameTask(engine?.setEntityTransformRotation(id, rotation.storage64));
   }
 }

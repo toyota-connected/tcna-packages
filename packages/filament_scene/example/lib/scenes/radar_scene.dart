@@ -178,7 +178,7 @@ class _RadarSceneViewState extends StatefulSceneViewState<RadarSceneView> {
   void onCreate() {
     RadarSceneView._sceneCamera.setActive();
 
-    widget.filament.setFogOptions(true);
+    widget.filament.queueFrameTask(widget.filament.setFogOptions(true));
   }
 
   @override
@@ -257,7 +257,9 @@ void vDoOneWaveSegment(FilamentViewApi filamentView) {
 
     // Set the position and scale for this segment
     _setPositionAndScale(filamentView, segmentData.id, 0.0, 0.0);
-    filamentView.turnOnVisualForEntity(segmentData.id); // turnOnVisualForEntity
+    filamentView.queueFrameTask(
+      filamentView.turnOnVisualForEntity(segmentData.id),
+    ); // turnOnVisualForEntity
 
     // if you want a specific color; note the game models i checked in dont have
     // materials on them.
@@ -281,7 +283,9 @@ void vDo3RadarWaveSegments(FilamentViewApi filamentView) {
 
       // Set the position and scale for this segment
       _setPositionAndScale(filamentView, segmentData.id, 0.0, 0.0);
-      filamentView.turnOnVisualForEntity(segmentData.id); // turnOnVisualForEntity
+      filamentView.queueFrameTask(
+        filamentView.turnOnVisualForEntity(segmentData.id),
+      ); // turnOnVisualForEntity
 
       // Debugging: Print the current state
       //print('vDo3RadarWaveSegments: Moved GUID to inUse: ${segmentData.id}');
@@ -302,7 +306,9 @@ void _setPositionAndScale(
   // Add your custom logic for applying position and scale to the model
   //print("_setPositionAndScale: $id | positionOffset = $positionOffset, scaleFactor = $scaleFactor");
 
-  filamentView.setEntityTransformPosition(id, Vector3(-42.2 - positionOffset, 1, 0).storage64);
+  filamentView.queueFrameTask(
+    filamentView.setEntityTransformPosition(id, Vector3(-42.2 - positionOffset, 1, 0).storage64),
+  );
 
   /* if(scaleFactor == 0) {
     filamentView.turnOffVisualForEntity(id); // turnOnVisualForEntity
@@ -312,9 +318,11 @@ void _setPositionAndScale(
     filamentView.turnOnVisualForEntity(id); // turnOnVisualForEntity
   }*/
 
-  filamentView.setEntityTransformScale(
-    id,
-    Vector3(scaleFactor * 6, scaleFactor, scaleFactor).storage64,
+  filamentView.queueFrameTask(
+    filamentView.setEntityTransformScale(
+      id,
+      Vector3(scaleFactor * 6, scaleFactor, scaleFactor).storage64,
+    ),
   );
 }
 
@@ -330,7 +338,7 @@ void resetSegment(FilamentViewApi filamentView, EntityGUID id) {
     inUse.remove(segmentData);
     free.add(segmentData); // Add the segment back to the free list
 
-    filamentView.turnOffVisualForEntity(id); // turnOnVisualForEntity
+    filamentView.queueFrameTask(filamentView.turnOffVisualForEntity(id)); // turnOnVisualForEntity
 
     _setPositionAndScale(filamentView, id, 0, 0);
 

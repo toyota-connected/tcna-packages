@@ -1,3 +1,4 @@
+import 'package:filament_scene/engine.dart';
 import 'package:filament_scene/entity/entity.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/utils/serialization.dart';
@@ -125,7 +126,7 @@ class CollisionEventChannel {
 
             // Example: Change the material of the object that was touched
             JsonObject ourJson = poGetLitMaterialWithRandomValues().toJson();
-            filamentViewApi.changeMaterialDefinition(ourJson, guid);
+            filamentViewApi.queueFrameTask(filamentViewApi.changeMaterialDefinition(ourJson, guid));
 
             // Emit event
             final CollisionEvent collisionEvent = CollisionEvent.fromJson(JsonObject.from(event));
