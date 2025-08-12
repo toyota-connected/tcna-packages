@@ -1,3 +1,4 @@
+import 'package:filament_scene/filament_scene.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'shape_and_object_creators.dart';
@@ -92,14 +93,16 @@ void crissCross(double deltaTime, double speed, FilamentViewApi filamentView) {
     light.origin.z = lerp(light.startZ, light.oppositeZ, light.t);
 
     // Apply the new transform
-    filamentView.changeLightTransformByGUID(
-      light.id,
-      light.origin.x,
-      light.origin.y,
-      light.origin.z,
-      0,
-      -1,
-      0,
+    filamentView.queueFrameTask(
+      filamentView.changeLightTransformByGUID(
+        light.id,
+        light.origin.x,
+        light.origin.y,
+        light.origin.z,
+        0,
+        -1,
+        0,
+      ),
     );
   }
 }

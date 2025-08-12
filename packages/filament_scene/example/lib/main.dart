@@ -56,6 +56,7 @@ void main() {
     FlutterError.presentError(details);
   };
 
+  // ignore: discarded_futures
   runZonedGuarded<Future<void>>(
     () async {
       runApp(
@@ -110,7 +111,7 @@ class _MyAppState extends State<MyApp> {
     _filamentViewWidget = poGetFilamentScene();
     _setScene(0);
 
-    initializeReadiness();
+    unawaited(initializeReadiness());
   }
 
   /// Call only from setState

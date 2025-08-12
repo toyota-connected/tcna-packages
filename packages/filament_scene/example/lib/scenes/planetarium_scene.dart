@@ -246,13 +246,17 @@ class _PlanetariumSceneViewState extends StatefulSceneViewState {
   void onCreate() {
     PlanetariumSceneView.camera.setActive();
 
-    widget.filament.setFogOptions(false);
+    widget.filament.queueFrameTask(widget.filament.setFogOptions(false));
 
     // deactivate rendering for system and orbits
-    widget.filament.turnOffVisualForEntity(PlanetariumSceneView.objectGuids['system']!);
+    widget.filament.queueFrameTask(
+      widget.filament.turnOffVisualForEntity(PlanetariumSceneView.objectGuids['system']!),
+    );
     for (final String name in PlanetariumSceneView.objectGuids.keys) {
       if (name.endsWith('_orbit')) {
-        widget.filament.turnOffVisualForEntity(PlanetariumSceneView.objectGuids[name]!);
+        widget.filament.queueFrameTask(
+          widget.filament.turnOffVisualForEntity(PlanetariumSceneView.objectGuids[name]!),
+        );
       }
     }
   }
@@ -275,9 +279,11 @@ class _PlanetariumSceneViewState extends StatefulSceneViewState {
       final double angle = _timer * speed * 2 * 3.14;
       Quaternion rot = Quaternion.euler(angle, 0, 0);
 
-      widget.filament.setEntityTransformRotation(
-        PlanetariumSceneView.objectGuids["${name}_orbit"]!,
-        rot.storage64,
+      widget.filament.queueFrameTask(
+        widget.filament.setEntityTransformRotation(
+          PlanetariumSceneView.objectGuids["${name}_orbit"]!,
+          rot.storage64,
+        ),
       );
     }
   }
