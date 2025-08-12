@@ -22,6 +22,7 @@ analyzer:
     invalid_override_of_non_virtual_member: error
     override_on_non_overriding_member: error
     must_call_super: error
+    discarded_futures: error
     unawaited_futures: error
     non_constant_identifier_names: ignore
     avoid_returning_this: ignore

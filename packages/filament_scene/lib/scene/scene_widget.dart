@@ -4,6 +4,7 @@ import 'dart:core';
 import 'package:collection/collection.dart';
 import 'package:filament_scene/camera/camera.dart';
 import 'package:filament_scene/components/camera.dart' show CameraHead, CameraRig;
+import 'package:filament_scene/engine.dart';
 import 'package:filament_scene/filament_scene.dart' show IndirectLight, Light, Skybox;
 import 'package:filament_scene/generated/messages.g.dart';
 import 'package:filament_scene/utils/serialization.dart';
@@ -142,7 +143,7 @@ class ModelViewerState extends State<SceneView> {
         defaultTargetPlatform == TargetPlatform.linux) {
       return GestureDetector(
         onTapUp: (final details) {
-          unawaited(
+          widget.filament.queueFrameTask(
             widget.filament.raycastFromTap(details.globalPosition.dx, details.globalPosition.dy),
           );
         },

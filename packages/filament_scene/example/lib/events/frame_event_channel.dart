@@ -1,9 +1,10 @@
+import 'package:filament_scene/engine.dart';
 import 'package:flutter/services.dart';
+import 'package:my_fox_example/main.dart';
 import 'dart:io';
-import '../utils.dart';
 import 'package:filament_scene/generated/messages.g.dart';
 
-typedef UpdateCallback = void Function(FilamentViewApi api, double elapsedFrameTime);
+typedef UpdateCallback = void Function(FilamentViewApi api, double deltaTime);
 typedef TriggerEventFunction = void Function(String eventName);
 
 void noopUpdate(FilamentViewApi api, double elapsedFrameTime) {}
@@ -36,9 +37,9 @@ class FrameEventChannel {
     try {
       // Listen for events from the native side
       _eventChannel.receiveBroadcastStream().listen(
-        (event) {
+        (event) async {
           // Handle incoming event
-          if (bWriteEventsToLog) stdout.write('Received event: $event\n');
+          // print('Received event: $event\n');
           const double elapsedFrameTime = 0.016;
 
           if (event is Map) {
@@ -47,10 +48,32 @@ class FrameEventChannel {
 
             // Log extracted values
             if (method == 'preRenderFrame') {
-              vRunLightLoops(filamentViewApi);
+              final scriptTimeStart = DateTime.now().microsecondsSinceEpoch;
+
               for (final onUpdate in _callbacks) {
                 onUpdate(filamentViewApi, elapsedFrameTime);
               }
+
+              await filamentViewApi.drainFrameTasks();
+
+              // TODO(kerberjg): this is temporary, should be dictated by the native core
+              final scriptFrameTime = DateTime.now().microsecondsSinceEpoch - scriptTimeStart;
+
+              frameProfilingDataNotifier.value = FrameProfilingData(
+                deltaTime: elapsedFrameTime,
+                cpuFrameTime: event['cpuFt'] ?? 0.0,
+                gpuFrameTime: event['gpuFt'] ?? 0.0,
+                scriptFrameTime: scriptFrameTime / 1000.0, // Convert to milliseconds
+                fps: event['fps'] ?? 60.0,
+              );
+
+              // Send "done_updateScripts" event to native
+              // _eventChannel.binaryMessenger.send(
+              //   'plugin.filament_view.frame_view',
+              //   const StandardMessageCodec().encodeMessage(<String, dynamic>{
+              //     'method': 'done_updateScripts',
+              //   }),
+              // );
             }
           }
         },
