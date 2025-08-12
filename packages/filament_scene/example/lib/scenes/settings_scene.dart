@@ -404,7 +404,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
 
     // Set up listeners for wheel clicks
     widget.collisionController.addListener(_onObjectTouch);
-    widget.filament.setFogOptions(true);
+    widget.filament.queueFrameTask(widget.filament.setFogOptions(true));
   }
 
   void _resetCamera({bool autoOrbit = false}) {
@@ -417,7 +417,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
     SettingsSceneView._sceneCamera.setActive();
 
     // fog
-    widget.filament.setFogOptions(false);
+    widget.filament.queueFrameTask(widget.filament.setFogOptions(false));
   }
 
   void _onObjectTouch(CollisionEvent event) {
@@ -446,23 +446,31 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
     final double wiperSpeed = _wiperSpeed.value;
     final double wiperAngle = sin(_timer * wiperSpeed) * 0.66;
     final Quaternion wiperRotation = Quaternion.identity()..setEulerRadians(wiperAngle, 0, -0.8);
-    filament.setEntityTransformRotation(
-      SettingsSceneView.objectGuids['wiper1']!,
-      wiperRotation.storage64,
+    filament.queueFrameTask(
+      filament.setEntityTransformRotation(
+        SettingsSceneView.objectGuids['wiper1']!,
+        wiperRotation.storage64,
+      ),
     );
-    filament.setEntityTransformRotation(
-      SettingsSceneView.objectGuids['wiper2']!,
-      wiperRotation.storage64,
+    filament.queueFrameTask(
+      filament.setEntityTransformRotation(
+        SettingsSceneView.objectGuids['wiper2']!,
+        wiperRotation.storage64,
+      ),
     );
 
     // show/hide wipers
-    filament.setEntityTransformScale(
-      SettingsSceneView.objectGuids['wiper1']!,
-      (SettingsSceneView.wiperSize * (_showWipers.value ? 1 : 0)).storage64,
+    filament.queueFrameTask(
+      filament.setEntityTransformScale(
+        SettingsSceneView.objectGuids['wiper1']!,
+        (SettingsSceneView.wiperSize * (_showWipers.value ? 1 : 0)).storage64,
+      ),
     );
-    filament.setEntityTransformScale(
-      SettingsSceneView.objectGuids['wiper2']!,
-      (SettingsSceneView.wiperSize * (_showWipers.value ? 1 : 0)).storage64,
+    filament.queueFrameTask(
+      filament.setEntityTransformScale(
+        SettingsSceneView.objectGuids['wiper2']!,
+        (SettingsSceneView.wiperSize * (_showWipers.value ? 1 : 0)).storage64,
+      ),
     );
 
     // Lights
@@ -470,124 +478,164 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
         .mul(Vector3(_lightLength.value, 1, _lightWidth.value))
         .mul(Vector3.all(_showLights.value ? 1 : 0));
 
-    filament.setEntityTransformScale(
-      SettingsSceneView.objectGuids['light1']!,
-      lightScale.storage64,
+    filament.queueFrameTask(
+      filament.setEntityTransformScale(
+        SettingsSceneView.objectGuids['light1']!,
+        lightScale.storage64,
+      ),
     );
-    filament.setEntityTransformScale(
-      SettingsSceneView.objectGuids['light2']!,
-      lightScale.storage64,
+    filament.queueFrameTask(
+      filament.setEntityTransformScale(
+        SettingsSceneView.objectGuids['light2']!,
+        lightScale.storage64,
+      ),
     );
     Quaternion lightRotation = Quaternion.identity()
       ..setEulerRadians(0, _lightAngleX.value + pi, _lightAngleY.value);
-    filament.setEntityTransformRotation(
-      SettingsSceneView.objectGuids['light1']!,
-      lightRotation.storage64,
+    filament.queueFrameTask(
+      filament.setEntityTransformRotation(
+        SettingsSceneView.objectGuids['light1']!,
+        lightRotation.storage64,
+      ),
     );
-    filament.setEntityTransformRotation(
-      SettingsSceneView.objectGuids['light2']!,
-      lightRotation.storage64,
+    filament.queueFrameTask(
+      filament.setEntityTransformRotation(
+        SettingsSceneView.objectGuids['light2']!,
+        lightRotation.storage64,
+      ),
     );
 
     // show/hide lights
     if (_showLights.value) {
-      filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_BL']!,
-        Colors.red.toHex(),
-        (5000000 * _lightIntensity.value).round(),
+      filament.queueFrameTask(
+        filament.changeLightColorByGUID(
+          SettingsSceneView.objectGuids['l_light_BL']!,
+          Colors.red.toHex(),
+          (5000000 * _lightIntensity.value).round(),
+        ),
       );
 
-      filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_BR']!,
-        Colors.red.toHex(),
-        (5000000 * _lightIntensity.value).round(),
+      filament.queueFrameTask(
+        filament.changeLightColorByGUID(
+          SettingsSceneView.objectGuids['l_light_BR']!,
+          Colors.red.toHex(),
+          (5000000 * _lightIntensity.value).round(),
+        ),
       );
 
-      filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_FL']!,
-        Colors.yellow.toHex(),
-        (5000000 * _lightIntensity.value).round(),
+      filament.queueFrameTask(
+        filament.changeLightColorByGUID(
+          SettingsSceneView.objectGuids['l_light_FL']!,
+          Colors.yellow.toHex(),
+          (5000000 * _lightIntensity.value).round(),
+        ),
       );
 
-      filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_FR']!,
-        Colors.yellow.toHex(),
-        (5000000 * _lightIntensity.value).round(),
+      filament.queueFrameTask(
+        filament.changeLightColorByGUID(
+          SettingsSceneView.objectGuids['l_light_FR']!,
+          Colors.yellow.toHex(),
+          (5000000 * _lightIntensity.value).round(),
+        ),
       );
     } else {
-      filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_BL']!,
-        Colors.black.toHex(),
-        0,
+      filament.queueFrameTask(
+        filament.changeLightColorByGUID(
+          SettingsSceneView.objectGuids['l_light_BL']!,
+          Colors.black.toHex(),
+          0,
+        ),
       );
 
-      filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_BR']!,
-        Colors.black.toHex(),
-        0,
+      filament.queueFrameTask(
+        filament.changeLightColorByGUID(
+          SettingsSceneView.objectGuids['l_light_BR']!,
+          Colors.black.toHex(),
+          0,
+        ),
       );
 
-      filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_FL']!,
-        Colors.black.toHex(),
-        0,
+      filament.queueFrameTask(
+        filament.changeLightColorByGUID(
+          SettingsSceneView.objectGuids['l_light_FL']!,
+          Colors.black.toHex(),
+          0,
+        ),
       );
 
-      filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_FR']!,
-        Colors.black.toHex(),
-        0,
+      filament.queueFrameTask(
+        filament.changeLightColorByGUID(
+          SettingsSceneView.objectGuids['l_light_FR']!,
+          Colors.black.toHex(),
+          0,
+        ),
       );
     }
 
     // blink turning lights
     if ((_timer * 2).floor() % 2 == 1 && _activateTurningLights.value == true) {
-      filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tBL']!,
-        Colors.orange.toHex(),
-        (5000000 * _lightIntensity.value).round(),
+      filament.queueFrameTask(
+        filament.changeLightColorByGUID(
+          SettingsSceneView.objectGuids['l_light_tBL']!,
+          Colors.orange.toHex(),
+          (5000000 * _lightIntensity.value).round(),
+        ),
       );
 
-      filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tBR']!,
-        Colors.orange.toHex(),
-        (5000000 * _lightIntensity.value).round(),
+      filament.queueFrameTask(
+        filament.changeLightColorByGUID(
+          SettingsSceneView.objectGuids['l_light_tBR']!,
+          Colors.orange.toHex(),
+          (5000000 * _lightIntensity.value).round(),
+        ),
       );
 
-      filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tFL']!,
-        Colors.orange.toHex(),
-        (5000000 * _lightIntensity.value).round(),
+      filament.queueFrameTask(
+        filament.changeLightColorByGUID(
+          SettingsSceneView.objectGuids['l_light_tFL']!,
+          Colors.orange.toHex(),
+          (5000000 * _lightIntensity.value).round(),
+        ),
       );
 
-      filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tFR']!,
-        Colors.orange.toHex(),
-        (5000000 * _lightIntensity.value).round(),
+      filament.queueFrameTask(
+        filament.changeLightColorByGUID(
+          SettingsSceneView.objectGuids['l_light_tFR']!,
+          Colors.orange.toHex(),
+          (5000000 * _lightIntensity.value).round(),
+        ),
       );
     } else {
-      filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tBL']!,
-        Colors.black.toHex(),
-        0,
+      filament.queueFrameTask(
+        filament.changeLightColorByGUID(
+          SettingsSceneView.objectGuids['l_light_tBL']!,
+          Colors.black.toHex(),
+          0,
+        ),
       );
 
-      filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tBR']!,
-        Colors.black.toHex(),
-        0,
+      filament.queueFrameTask(
+        filament.changeLightColorByGUID(
+          SettingsSceneView.objectGuids['l_light_tBR']!,
+          Colors.black.toHex(),
+          0,
+        ),
       );
 
-      filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tFL']!,
-        Colors.black.toHex(),
-        0,
+      filament.queueFrameTask(
+        filament.changeLightColorByGUID(
+          SettingsSceneView.objectGuids['l_light_tFL']!,
+          Colors.black.toHex(),
+          0,
+        ),
       );
 
-      filament.changeLightColorByGUID(
-        SettingsSceneView.objectGuids['l_light_tFR']!,
-        Colors.black.toHex(),
-        0,
+      filament.queueFrameTask(
+        filament.changeLightColorByGUID(
+          SettingsSceneView.objectGuids['l_light_tFR']!,
+          Colors.black.toHex(),
+          0,
+        ),
       );
     }
 
@@ -599,10 +647,12 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       final Vector3 pos = SettingsSceneView.carOrigin + Vector3(9, 2.5 + bounce, -9);
       final Quaternion rot = Quaternion.identity()..setEulerDegrees(30, _timer * 90, 0);
 
-      filament.setEntityTransformPosition(ballGuid, pos.storage64);
-      filament.setEntityTransformRotation(
-        SettingsSceneView.objectGuids['bg_shape_0']!,
-        rot.storage64,
+      filament.queueFrameTask(filament.setEntityTransformPosition(ballGuid, pos.storage64));
+      filament.queueFrameTask(
+        filament.setEntityTransformRotation(
+          SettingsSceneView.objectGuids['bg_shape_0']!,
+          rot.storage64,
+        ),
       );
     }
 
@@ -614,8 +664,8 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       final Vector3 pos = SettingsSceneView.carOrigin + Vector3(-10, 2 + bounce, 10);
       final Quaternion rot = Quaternion.identity()..setEulerDegrees(30 * bounce, _timer * 90, 0);
 
-      filament.setEntityTransformPosition(donutGuid, pos.storage64);
-      filament.setEntityTransformRotation(donutGuid, rot.storage64);
+      filament.queueFrameTask(filament.setEntityTransformPosition(donutGuid, pos.storage64));
+      filament.queueFrameTask(filament.setEntityTransformRotation(donutGuid, rot.storage64));
     }
 
     // Rotate camera
@@ -954,9 +1004,11 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       litMat,
       parameters: [_paramColor, _paramRoughness, _paramMetalness],
     );
-    widget.filament.changeMaterialDefinition(
-      _customizedMaterial.toJson(),
-      SettingsSceneView.objectGuids['car']!,
+    widget.filament.queueFrameTask(
+      widget.filament.changeMaterialDefinition(
+        _customizedMaterial.toJson(),
+        SettingsSceneView.objectGuids['car']!,
+      ),
     );
   }
 

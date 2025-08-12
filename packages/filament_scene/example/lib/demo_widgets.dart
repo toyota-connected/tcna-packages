@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:filament_scene/engine.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:filament_scene/generated/messages.g.dart';
@@ -45,7 +46,7 @@ class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
           onPressed: () {
             setState(() {
               _toggleShapes = !_toggleShapes;
-              widget.filament.toggleShapesInScene(_toggleShapes);
+              widget.filament.queueFrameTask(widget.filament.toggleShapesInScene(_toggleShapes));
             });
           },
           child: Text(_toggleShapes ? 'Toggle Shapes: On' : 'Toggle Shapes: Off'),
@@ -53,7 +54,9 @@ class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
         ElevatedButton(
           onPressed: () {
             setState(() {
-              widget.filament.toggleDebugCollidableViewsInScene(_toggleColliderVisuals);
+              widget.filament.queueFrameTask(
+                widget.filament.toggleDebugCollidableViewsInScene(_toggleColliderVisuals),
+              );
               _toggleColliderVisuals = !_toggleColliderVisuals;
             });
           },
@@ -63,7 +66,7 @@ class _ViewSettingsWidgetState extends State<ViewSettingsWidget> {
           onPressed: () {
             setState(() {
               _quality = (_quality + 1) % 5; // Cycle through 0-4
-              widget.filament.changeViewQualitySettings();
+              widget.filament.queueFrameTask(widget.filament.changeViewQualitySettings());
             });
           },
           child: Text('Quality ($_quality)'),
@@ -114,10 +117,12 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
                   _directLightColor = color;
                   final String colorString = _directLightColor.toHexString(includeHashSign: true);
 
-                  widget.filament.changeLightColorByGUID(
-                    centerPointLightGUID,
-                    colorString,
-                    _directIntensity.toInt(),
+                  widget.filament.queueFrameTask(
+                    widget.filament.changeLightColorByGUID(
+                      centerPointLightGUID,
+                      colorString,
+                      _directIntensity.toInt(),
+                    ),
                   );
                 });
               },
@@ -146,10 +151,12 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
                         includeHashSign: true,
                       );
 
-                      widget.filament.changeLightColorByGUID(
-                        centerPointLightGUID,
-                        colorString,
-                        _directIntensity.toInt(),
+                      widget.filament.queueFrameTask(
+                        widget.filament.changeLightColorByGUID(
+                          centerPointLightGUID,
+                          colorString,
+                          _directIntensity.toInt(),
+                        ),
                       );
                     });
                   },

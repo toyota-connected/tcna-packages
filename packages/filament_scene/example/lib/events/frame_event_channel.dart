@@ -1,3 +1,4 @@
+import 'package:filament_scene/engine.dart';
 import 'package:flutter/services.dart';
 import 'package:my_fox_example/main.dart';
 import 'dart:io';
@@ -36,7 +37,7 @@ class FrameEventChannel {
     try {
       // Listen for events from the native side
       _eventChannel.receiveBroadcastStream().listen(
-        (event) {
+        (event) async {
           // Handle incoming event
           // print('Received event: $event\n');
           const double elapsedFrameTime = 0.016;
@@ -52,6 +53,8 @@ class FrameEventChannel {
               for (final onUpdate in _callbacks) {
                 onUpdate(filamentViewApi, elapsedFrameTime);
               }
+
+              await filamentViewApi.drainFrameTasks();
 
               // TODO(kerberjg): this is temporary, should be dictated by the native core
               final scriptFrameTime = DateTime.now().microsecondsSinceEpoch - scriptTimeStart;

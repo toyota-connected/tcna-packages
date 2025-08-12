@@ -262,7 +262,7 @@ class _PlaygroundSceneViewState extends StatefulSceneViewState {
   void onCreate() {
     PlaygroundSceneView._sceneCamera.setActive();
 
-    widget.filament.setFogOptions(false);
+    widget.filament.queueFrameTask(widget.filament.setFogOptions(false));
   }
 
   @override

@@ -1,5 +1,4 @@
-import 'dart:async';
-
+import 'package:filament_scene/engine.dart';
 import 'package:filament_scene/entity/entity.dart';
 import 'package:filament_scene/components/camera.dart' as CameraComponent;
 import 'package:filament_scene/generated/messages.g.dart';
@@ -78,7 +77,7 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
 
   /// Sets the camera as active for the given view
   void setActive([final int? viewId]) {
-    unawaited(engine?.setActiveCamera(viewId, id));
+    engine?.queueFrameTask(engine?.setActiveCamera(viewId, id));
     onEnable();
   }
 
@@ -120,7 +119,9 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
       //   'Updating camera($id) orbit: type=${orbitOriginType.name}, point=$orbitOriginPoint, entity=$orbitOriginEntity',
       // );
 
-      unawaited(engine?.setCameraOrbit(id, orbitOriginEntity ?? kNullGuid, _rigRotation.storage64));
+      engine?.queueFrameTask(
+        engine?.setCameraOrbit(id, orbitOriginEntity ?? kNullGuid, _rigRotation.storage64),
+      );
 
       if (orbitOriginPoint != null) {
         setLocalPosition(orbitOriginPoint);
@@ -183,7 +184,7 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
       final Vector3 currentPosition = (orbitOriginPoint ?? position);
 
       // Set the rig's position
-      unawaited(engine?.setEntityTransformPosition(id, currentPosition.storage64));
+      engine?.queueFrameTask(engine?.setEntityTransformPosition(id, currentPosition.storage64));
     }
   }
 
@@ -203,7 +204,9 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
   }
 
   void _updateTarget() {
-    unawaited(engine?.setCameraTarget(id, targetEntity ?? kNullGuid, targetPoint?.storage64));
+    engine?.queueFrameTask(
+      engine?.setCameraTarget(id, targetEntity ?? kNullGuid, targetPoint?.storage64),
+    );
   }
 
   /*
@@ -222,7 +225,7 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
     _tmpHeadPosition.setFrom(dollyOffset);
     _tmpHeadPosition.addScaled(kOrbitDistanceAxis, orbitDistance);
 
-    unawaited(engine?.setCameraDolly(id, _tmpHeadPosition.storage64));
+    engine?.queueFrameTask(engine?.setCameraDolly(id, _tmpHeadPosition.storage64));
   }
 
   /*
