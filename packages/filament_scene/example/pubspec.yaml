@@ -1,5 +1,5 @@
-name: my_fox_example
-description: Demonstrates how to use the playx 3d Scene plugin to show 3d model.
+name: fluorite_examples_demo
+description: Collection of example scenes showcasing the features of the Fluorite Game Engine.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
