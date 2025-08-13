@@ -215,8 +215,7 @@ class CameraLinux extends CameraPlatform {
   @override
   Future<void> startVideoCapturing(VideoCaptureOptions options) async {
     if (options.streamCallback != null || options.streamOptions != null) {
-      throw UnimplementedError(
-          'Streaming is not currently supported on Linux');
+      throw UnimplementedError('Streaming is not currently supported on Linux');
     }
 
     // Currently none of `options` is supported on Linux, so it's not passed.
@@ -232,14 +231,12 @@ class CameraLinux extends CameraPlatform {
 
   @override
   Future<void> pauseVideoRecording(int cameraId) async {
-    throw UnsupportedError(
-        'pauseVideoRecording() is not implemented.');
+    throw UnsupportedError('pauseVideoRecording() is not implemented.');
   }
 
   @override
   Future<void> resumeVideoRecording(int cameraId) async {
-    throw UnsupportedError(
-        'resumeVideoRecording() is not implemented.');
+    throw UnsupportedError('resumeVideoRecording() is not implemented.');
   }
 
   @override
@@ -259,8 +256,7 @@ class CameraLinux extends CameraPlatform {
     assert(point == null || point.x >= 0 && point.x <= 1);
     assert(point == null || point.y >= 0 && point.y <= 1);
 
-    throw UnsupportedError(
-        'setExposurePoint() is not implemented.');
+    throw UnsupportedError('setExposurePoint() is not implemented.');
   }
 
   @override
@@ -301,8 +297,7 @@ class CameraLinux extends CameraPlatform {
     assert(point == null || point.x >= 0 && point.x <= 1);
     assert(point == null || point.y >= 0 && point.y <= 1);
 
-    throw UnsupportedError(
-        'setFocusPoint() is not implemented.');
+    throw UnsupportedError('setFocusPoint() is not implemented.');
   }
 
   @override
