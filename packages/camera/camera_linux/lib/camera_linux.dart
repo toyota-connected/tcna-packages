@@ -233,13 +233,13 @@ class CameraLinux extends CameraPlatform {
   @override
   Future<void> pauseVideoRecording(int cameraId) async {
     throw UnsupportedError(
-        'pauseVideoRecording() is not supported due to Win32 API limitations.');
+        'pauseVideoRecording() is not implemented.');
   }
 
   @override
   Future<void> resumeVideoRecording(int cameraId) async {
     throw UnsupportedError(
-        'resumeVideoRecording() is not supported due to Win32 API limitations.');
+        'resumeVideoRecording() is not implemented.');
   }
 
   @override
@@ -260,7 +260,7 @@ class CameraLinux extends CameraPlatform {
     assert(point == null || point.y >= 0 && point.y <= 1);
 
     throw UnsupportedError(
-        'setExposurePoint() is not supported due to Win32 API limitations.');
+        'setExposurePoint() is not implemented.');
   }
 
   @override
@@ -302,7 +302,7 @@ class CameraLinux extends CameraPlatform {
     assert(point == null || point.y >= 0 && point.y <= 1);
 
     throw UnsupportedError(
-        'setFocusPoint() is not supported due to Win32 API limitations.');
+        'setFocusPoint() is not implemented.');
   }
 
   @override
