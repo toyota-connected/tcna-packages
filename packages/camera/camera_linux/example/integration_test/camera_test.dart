@@ -30,7 +30,7 @@ void main() {
   final Map<ResolutionPreset, Size> presetExpectedSizes =
       <ResolutionPreset, Size>{
     ResolutionPreset.low:
-        Platform.Linux ? const Size(240, 320) : const Size(288, 352),
+        Platform.isLinux ? const Size(240, 320) : const Size(288, 352),
     ResolutionPreset.medium:
         Platform.isLinux ? const Size(480, 720) : const Size(480, 640),
     ResolutionPreset.high: const Size(720, 1280),
@@ -225,7 +225,7 @@ void main() {
     await videoController.dispose();
 
     expect(duration, lessThan(recordingTime - timePaused));
-  }, skip: !Platform.Linux);
+  }, skip: !Platform.isLinux);
 
   testWidgets(
     'Cef image streaming',
