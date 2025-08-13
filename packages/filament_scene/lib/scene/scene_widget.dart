@@ -36,25 +36,19 @@ class SceneController {
 
   /// Updates the current 3d scene view with the new [scene], [models], and [shapes].
   /// Returns true if the scene was updated successfully.
-  Future<Result<bool>> updateFilamentScene({
+  Future<void> updateFilamentScene({
     final Scene? scene,
     final List<Model>? models,
     final List<Shape>? shapes,
   }) async {
-    final Future<bool?> data = _channel.invokeMethod<bool>(_updateFilamentScene, <String, Object?>{
-      _updateFilamentSceneSceneKey: scene?.toJson(),
-      _updateFilamentSceneModelKey: models?.map((final e) => e.toJson()).toList(),
-      _updateFilamentSceneShapesKey: shapes?.map((final e) => e.toJson()).toList(),
-    });
-
-    return handleError(data);
+    // TODO(kerberjg): implement scene update logic
   }
 }
 
-const String _updateFilamentScene = "UPDATE_FILAMENT_SCENE";
-const String _updateFilamentSceneSceneKey = "UPDATE_FILAMENT_SCENE_SCENE_KEY";
-const String _updateFilamentSceneModelKey = "UPDATE_FILAMENT_SCENE_MODEL_KEY";
-const String _updateFilamentSceneShapesKey = "UPDATE_FILAMENT_SCENE_SHAPES_KEY";
+const List<TargetPlatform> kSupportedPlatforms = <TargetPlatform>[
+  TargetPlatform.android,
+  TargetPlatform.linux,
+];
 
 class SceneView extends StatefulWidget {
   /// FilamentViewApi instance to be used for rendering the scene.
@@ -123,24 +117,56 @@ class SceneView extends StatefulWidget {
       ..add(ObjectFlagProperty<FilamentViewApi>('filament', filament, ifNull: 'no engine'))
       ..add(ObjectFlagProperty<SceneCreatedCallback?>.has('onCreated', onCreated));
   }
+
+  bool compare(final Object other) {
+    if (other is! SceneView) {
+      return false;
+    }
+
+    return // dart format off
+      listEquals(other.models, models) &&
+      listEquals(other.shapes, shapes) &&
+      listEquals(other.cameras, cameras) &&
+      other.scene == scene //
+    ; // dart format on
+  }
 }
 
 class ModelViewerState extends State<SceneView> {
-  final JsonObject _creationParams = <String, dynamic>{};
   final Completer<SceneController> _controller = Completer<SceneController>();
+
+  int _stateHash = 0;
+  JsonObject _sceneState = <String, dynamic>{};
+
+  int _prevStateHash = -1;
+  JsonObject _prevSceneState = <String, dynamic>{};
+
+  late Widget _nativeView;
 
   ModelViewerState();
 
   @override
   void initState() {
-    _setupCreationParams();
     super.initState();
+
+    _sceneState = _serializeSceneState();
+    _stateHash = _sceneState.hashCode;
+
+    _nativeView = AndroidView(
+      viewType: _viewType,
+      creationParams: _sceneState,
+      creationParamsCodec: const StandardMessageCodec(),
+      onPlatformViewCreated: _onPlatformViewCreated,
+      // NOTE: [hitTestBehavior] is set to [PlatformViewHitTestBehavior.transparent] to allow
+      // Flutter to handle the gestures instead of passing them to the platform view directly.
+      hitTestBehavior: PlatformViewHitTestBehavior.transparent,
+      gestureRecognizers: const {},
+    );
   }
 
   @override
   Widget build(final BuildContext context) {
-    if (defaultTargetPlatform == TargetPlatform.android ||
-        defaultTargetPlatform == TargetPlatform.linux) {
+    if (kSupportedPlatforms.contains(defaultTargetPlatform)) {
       return GestureDetector(
         onTapUp: (final details) {
           widget.filament.queueFrameTask(
@@ -148,37 +174,31 @@ class ModelViewerState extends State<SceneView> {
           );
         },
         behavior: HitTestBehavior.opaque,
-        child: AndroidView(
-          viewType: _viewType,
-          creationParams: _creationParams,
-          creationParamsCodec: const StandardMessageCodec(),
-          onPlatformViewCreated: _onPlatformViewCreated,
-          // NOTE: [hitTestBehavior] is set to [PlatformViewHitTestBehavior.transparent] to allow
-          // Flutter to handle the gestures instead of passing them to the platform view directly.
-          hitTestBehavior: PlatformViewHitTestBehavior.transparent,
-          gestureRecognizers: const {},
-        ),
+        child: _nativeView, // NOTE: this might be null, be careful
       );
     }
+
     return Text('$defaultTargetPlatform is not yet supported by the plugin');
   }
 
-  void _setupCreationParams() {
+  JsonObject _serializeSceneState() {
+    final JsonObject state = <String, dynamic>{};
+
     //final model = widget.models?.toJson();
     final JsonObject? scene = widget.scene?.toJson();
-    _creationParams["models"] = widget.models?.map((final param) => param.toJson()).toList();
-    _creationParams["scene"] = scene;
+    state["models"] = widget.models?.map((final param) => param.toJson()).toList();
+    state["scene"] = scene;
     // use concatenated toFlatJson
-    _creationParams["shapes"] = widget.shapes
-        ?.map((final param) => param.toFlatJson())
-        .flattenedToList;
-    _creationParams["cameras"] = widget.cameras?.map((final param) => param.toJson()).toList();
+    state["shapes"] = widget.shapes?.map((final param) => param.toFlatJson()).flattenedToList;
+    state["cameras"] = widget.cameras?.map((final param) => param.toJson()).toList();
 
     // NOTE: use this to debug the creation params
     // pretty print json
     // JsonEncoder encoder = const JsonEncoder.withIndent('  ');
-    // final json = encoder.convert(_creationParams);
+    // final json = encoder.convert(state);
     // debugPrint(json);
+
+    return state;
   }
 
   void _onPlatformViewCreated(final int id) {
@@ -198,21 +218,36 @@ class ModelViewerState extends State<SceneView> {
   }
 
   @override
-  void didUpdateWidget(final SceneView oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _updateWidget(oldWidget);
+  void reassemble() {
+    super.reassemble();
+
+    print(" === HOT RELOAD === ");
   }
 
-  void _updateWidget(final SceneView? oldWidget) {
-    _setupCreationParams();
-    if (!listEquals(oldWidget?.models, widget.models) ||
-        oldWidget?.scene != widget.scene ||
-        !listEquals(oldWidget?.shapes, widget.shapes)) {
-      unawaited(_updateScene());
+  @override
+  void didUpdateWidget(final SceneView oldWidget) {
+    print("ModelViewerState didUpdateWidget");
+    super.didUpdateWidget(oldWidget);
+
+    // Check if the scene state has changed
+    if (widget.compare(oldWidget)) {
+      print("Scene widget changed, updating scene state");
+      unawaited(_updateSceneState());
     }
   }
 
-  Future<void> _updateScene() async {
+  Future<void> _updateSceneState() async {
+    _prevSceneState = _sceneState;
+    _prevStateHash = _stateHash;
+
+    // Serialize the new scene state
+    _sceneState = _serializeSceneState();
+    _stateHash = _sceneState.hashCode;
+
+    // Diff the states
+    JsonObject stateDiff = <String, dynamic>{};
+    // TODO(kerberjg): calculate the diff between _prevSceneState and _sceneState
+
     final SceneController controller = (await _controller.future);
     await controller.updateFilamentScene(
       models: widget.models,
@@ -222,14 +257,9 @@ class ModelViewerState extends State<SceneView> {
   }
 
   @override
-  void reassemble() {
-    super.reassemble();
-    // Update scene on hot reload for better debugging
-    _updateWidget(null);
-  }
-
-  @override
   void dispose() {
     super.dispose();
+
+    print("ModelViewerState dispose");
   }
 }
