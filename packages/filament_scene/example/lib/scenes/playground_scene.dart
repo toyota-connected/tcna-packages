@@ -273,6 +273,6 @@ class _PlaygroundSceneViewState extends StatefulSceneViewState {
 
   @override
   void onUpdateFrame(FilamentViewApi filament, double dt) {
-    vRunLightLoops(filament);
+    // vRunLightLoops(filament);
   }
 }
