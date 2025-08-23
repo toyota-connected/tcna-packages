@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:core';
+import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:filament_scene/camera/camera.dart';
@@ -133,8 +134,10 @@ class ModelViewerState extends State<SceneView> {
 
   @override
   void initState() {
-    _setupCreationParams();
     super.initState();
+    _setupCreationParams();
+
+    DartPluginRegistrant.ensureInitialized();
   }
 
   @override
