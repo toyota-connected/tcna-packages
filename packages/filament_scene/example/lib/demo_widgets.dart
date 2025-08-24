@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:filament_scene/engine.dart';
 import 'package:flutter/material.dart';
@@ -290,21 +291,35 @@ class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    for (int i = 0; i < _fpsHistory.length; i++)
-                      Container(
-                        width: kPerfBarWidth,
-                        // dart format off
-                        height: kPerfBarHeight * (
+                  children: (() {
+                    final bars = <Widget>[];
+
+                    for (int i = 0; i < _fpsHistory.length; i++) {
+                      // dart format off
+                        final double value = (
                           _cpuHistory.elementAt(i) +
                           _gpuHistory.elementAt(i) +
                           _scpHistory.elementAt(i) //
-                        ) / kExpectedFrameTime,
+                        ) / kExpectedFrameTime;
                         // dart format on
-                        margin: const EdgeInsets.only(right: 1),
-                        color: Colors.green,
-                      ),
-                  ],
+
+                      bars.add(
+                        Container(
+                          width: kPerfBarWidth,
+                          height: kPerfBarHeight * min(value, 1),
+                          margin: const EdgeInsets.only(right: 1),
+                          color: [
+                            // dart format off
+                            Colors.green,
+                            Colors.yellow,
+                            Colors.red
+                          ][(min(value, 1) * 2).floor()] // dart format on
+                        ),
+                      );
+                    }
+
+                    return bars;
+                  })(),
                 ),
                 // Chart labels
                 Column(
