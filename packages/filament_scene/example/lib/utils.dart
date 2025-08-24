@@ -128,11 +128,10 @@ void transitionState(LightState newState) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void vRunLightLoops(FilamentViewApi filamentView) {
-  const double frameTime = 1 / 60.0; // Simulate 60 FPS
-  updateLights(frameTime, filamentView);
+void vRunLightLoops(FilamentViewApi filamentView, double deltaTime) {
+  updateLights(deltaTime, filamentView);
 
-  currentTimeInState += frameTime;
+  currentTimeInState += deltaTime;
 
   // add time check here.
   if (currentState == LightState.stationary) {
