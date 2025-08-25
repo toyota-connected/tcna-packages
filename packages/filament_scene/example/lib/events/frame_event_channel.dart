@@ -7,7 +7,7 @@ import 'package:filament_scene/generated/messages.g.dart';
 typedef UpdateCallback = void Function(FilamentViewApi api, double deltaTime);
 typedef TriggerEventFunction = void Function(String eventName);
 
-void noopUpdate(FilamentViewApi api, double elapsedFrameTime) {}
+void noopUpdate(FilamentViewApi api, double deltaTime) {}
 
 class FrameEventChannel {
   static const EventChannel _eventChannel = EventChannel('plugin.filament_view.frame_view');
@@ -40,10 +40,10 @@ class FrameEventChannel {
         (event) async {
           // Handle incoming event
           // print('Received event: $event\n');
-          const double elapsedFrameTime = 0.016;
+          // const double deltaTime = 0.016;
 
           if (event is Map) {
-            //final elapsedFrameTime = event['elapsedFrameTime'];
+            final deltaTime = event['deltaTime'];
             final method = event['method'];
 
             // Log extracted values
@@ -51,7 +51,7 @@ class FrameEventChannel {
               final scriptTimeStart = DateTime.now().microsecondsSinceEpoch;
 
               for (final onUpdate in _callbacks) {
-                onUpdate(filamentViewApi, elapsedFrameTime);
+                onUpdate(filamentViewApi, deltaTime);
               }
 
               await filamentViewApi.drainFrameTasks();
@@ -60,7 +60,7 @@ class FrameEventChannel {
               final scriptFrameTime = DateTime.now().microsecondsSinceEpoch - scriptTimeStart;
 
               frameProfilingDataNotifier.value = FrameProfilingData(
-                deltaTime: elapsedFrameTime,
+                deltaTime: deltaTime,
                 cpuFrameTime: event['cpuFt'] ?? 0.0,
                 gpuFrameTime: event['gpuFt'] ?? 0.0,
                 scriptFrameTime: scriptFrameTime / 1000.0, // Convert to milliseconds
