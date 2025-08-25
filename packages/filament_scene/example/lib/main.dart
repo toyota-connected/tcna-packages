@@ -109,9 +109,16 @@ class _MyAppState extends State<MyApp> {
     super.initState();
 
     _filamentViewWidget = poGetFilamentScene();
-    _setScene(0);
 
-    unawaited(initializeReadiness());
+    unawaited(
+      initializeReadiness().then((isReady) {
+        if (isReady) {
+          setState(() {
+            _setScene(0);
+          });
+        }
+      }),
+    );
   }
 
   /// Call only from setState
@@ -151,7 +158,7 @@ class _MyAppState extends State<MyApp> {
     };
   }
 
-  Future<void> initializeReadiness() async {
+  Future<bool> initializeReadiness() async {
     const int maxRetries = 30;
     const Duration retryInterval = Duration(seconds: 1);
 
@@ -163,18 +170,20 @@ class _MyAppState extends State<MyApp> {
         if (nativeReady) {
           print('Native is ready. Proceeding...');
           startListeningForEvents();
-          return;
+          return true;
         } else {
           print('Native is not ready. Retrying...');
         }
       } catch (e) {
         print('Error checking readiness: $e');
+        return false;
       }
 
       await Future.delayed(retryInterval);
     }
 
     print('Failed to confirm native readiness after $maxRetries attempts.');
+    return false;
   }
 
   ////////////////////////////////////////////////////////////////////////
