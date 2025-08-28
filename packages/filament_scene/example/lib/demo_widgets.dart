@@ -182,51 +182,79 @@ class FrameProfilingOverlay extends StatefulWidget {
 }
 
 class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
-  static const int kExpectedFPS = 60; // Expected FPS for the graph
-  static const double kExpectedFrameTime =
-      1000 / kExpectedFPS; // Expected frame time in milliseconds
+  static int expectedFPS = 60; // Expected FPS for the graph
+  double get expectedFrameTime => 1000 / expectedFPS; // Expected frame time in milliseconds
 
-  final ListQueue<double> _fpsHistory = ListQueue<double>(kExpectedFPS); // Store last 60 FPS values
-  final ListQueue<double> _cpuHistory = ListQueue<double>(
-    kExpectedFPS,
-  ); // Store last 60 CPU frame times
-  final ListQueue<double> _gpuHistory = ListQueue<double>(
-    kExpectedFPS,
-  ); // Store last 60 GPU frame times
-  final ListQueue<double> _scpHistory = ListQueue<double>(
-    kExpectedFPS,
-  ); // Store last 60 script frame times
+  late final ListQueue<double> _fpsHistory;
+  late final ListQueue<double> _totHistory;
+  late final ListQueue<double> _cpuHistory;
+  late final ListQueue<double> _gpuHistory;
+  late final ListQueue<double> _scpHistory;
+  late final ListQueue<double> _sysHistory;
 
   double avgFPS = 0;
-  // Average CPU frametime in milliseconds
-  double avgCPU = 0;
-  // Average GPU frametime in milliseconds
-  double avgGPU = 0;
-  // Average script frametime in milliseconds
-  double avgScp = 0;
+  // Average frametime in milliseconds
+  double avgTot = 0, avgCPU = 0, avgGPU = 0, avgScp = 0, avgSys = 0;
+  // Max deviance from average
+  double maxDevFPS = 0, maxDevTot = 0, maxDevCPU = 0, maxDevGPU = 0, maxDevScp = 0, maxDevSys = 0;
 
   @override
   void initState() {
     super.initState();
-    widget.data.addListener(() {
+
+    // Set the expected FPS to the maximum refresh rate found
+    double maxRefreshRate = -1;
+    for (var display in WidgetsBinding.instance.platformDispatcher.displays) {
+      maxRefreshRate = max(maxRefreshRate, display.refreshRate);
+    }
+
+    expectedFPS = maxRefreshRate.round();
+
+    // Recreate queues
+    _fpsHistory = ListQueue<double>(expectedFPS);
+    _totHistory = ListQueue<double>(expectedFPS);
+    _cpuHistory = ListQueue<double>(expectedFPS);
+    _gpuHistory = ListQueue<double>(expectedFPS);
+    _scpHistory = ListQueue<double>(expectedFPS);
+    _sysHistory = ListQueue<double>(expectedFPS);
+
+    // Add listener for profiling changes
+    widget.data.addListener(() async {
       setState(() {
+        // ignore: unnecessary_null_comparison
+        if (_fpsHistory == null) return;
+
         // Add new values to history
         _fpsHistory.add(widget.data.value.fps);
         _cpuHistory.add(widget.data.value.cpuFrameTime);
         _gpuHistory.add(widget.data.value.gpuFrameTime);
         _scpHistory.add(widget.data.value.scriptFrameTime);
+        _totHistory.add(_cpuHistory.last + _gpuHistory.last + _scpHistory.last);
+        _sysHistory.add(widget.data.value.deltaTime * 1000 - _totHistory.last);
 
         // Maintain only the last 60 values
-        if (_fpsHistory.length > kExpectedFPS) _fpsHistory.removeFirst();
-        if (_cpuHistory.length > kExpectedFPS) _cpuHistory.removeFirst();
-        if (_gpuHistory.length > kExpectedFPS) _gpuHistory.removeFirst();
-        if (_scpHistory.length > kExpectedFPS) _scpHistory.removeFirst();
+        if (_fpsHistory.length > expectedFPS) _fpsHistory.removeFirst();
+        if (_totHistory.length > expectedFPS) _totHistory.removeFirst();
+        if (_cpuHistory.length > expectedFPS) _cpuHistory.removeFirst();
+        if (_gpuHistory.length > expectedFPS) _gpuHistory.removeFirst();
+        if (_scpHistory.length > expectedFPS) _scpHistory.removeFirst();
+        if (_sysHistory.length > expectedFPS) _sysHistory.removeFirst();
 
         // Update averages
         avgFPS = _fpsHistory.reduce((a, b) => a + b) / _fpsHistory.length;
+        avgTot = _totHistory.reduce((a, b) => a + b) / _totHistory.length;
         avgCPU = _cpuHistory.reduce((a, b) => a + b) / _cpuHistory.length;
         avgGPU = _gpuHistory.reduce((a, b) => a + b) / _gpuHistory.length;
         avgScp = _scpHistory.reduce((a, b) => a + b) / _scpHistory.length;
+        avgSys = _sysHistory.reduce((a, b) => a + b) / _sysHistory.length;
+
+        // Update max deviance
+        maxDevFPS = _fpsHistory.map((e) => (e - avgFPS).abs()).reduce(max);
+        maxDevTot = _totHistory.map((e) => (e - avgTot).abs()).reduce(max);
+        maxDevCPU = _cpuHistory.map((e) => (e - avgCPU).abs()).reduce(max);
+        maxDevGPU = _gpuHistory.map((e) => (e - avgGPU).abs()).reduce(max);
+        maxDevScp = _scpHistory.map((e) => (e - avgScp).abs()).reduce(max);
+        maxDevSys = _sysHistory.map((e) => (e - avgSys).abs()).reduce(max);
       });
     });
   }
@@ -235,7 +263,7 @@ class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
   static const double kPerfBarHeight = 64; // Height of the graph
   static const double kPerfBarSpacing = 1; // Spacing between bars
 
-  static const double kPerfGraphWidth = kExpectedFPS * (kPerfBarWidth + kPerfBarSpacing);
+  double get perfGraphWidth => expectedFPS * (kPerfBarWidth + kPerfBarSpacing);
 
   static const Color kColorTransparentWhite = Color(0x80FFFFFF);
 
@@ -252,132 +280,158 @@ class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Fluorite Game Engine',
-            style: TextStyle(
-              fontFamily: 'Galmuri11', //
-              fontSize: 12, //
-              fontWeight: FontWeight.bold, //
-              color: Colors.white, //
-            ),
-          ),
-          Text(
-            'FPS: ${avgFPS.toStringAsFixed(2)}\n'
-            'CPU    frametime: ${avgCPU.toStringAsFixed(2)} ms\n'
-            'GPU    frametime: ${avgGPU.toStringAsFixed(2)} ms\n'
-            'Script frametime: ${avgScp.toStringAsFixed(2)} ms',
-            style: const TextStyle(
-              fontFamily: 'Galmuri9', //
-              fontSize: 10, //
-              color: Colors.white, //
-            ),
-          ),
-          const SizedBox(height: 8),
-          // white line
-          const SizedBox(
-            height: 1,
-            width: kPerfGraphWidth,
-            child: ColoredBox(color: Colors.white),
-          ),
-          SizedBox(
-            height: kPerfBarHeight,
-            width: kPerfGraphWidth,
-            child: Stack(
-              alignment: Alignment.topLeft,
-              fit: StackFit.passthrough,
-              children: [
-                // Combined frametime bar chart
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: (() {
-                    final bars = <Widget>[];
+        // ignore: unnecessary_null_comparison
+        children: _fpsHistory == null
+            ? <Widget>[
+                const Text(
+                  'Loading profiling data...',
+                  style: TextStyle(fontFamily: 'Galmuri9', fontSize: 10, color: Colors.white),
+                ),
+              ]
+            : [
+                const Text(
+                  'Fluorite Game Engine',
+                  style: TextStyle(
+                    fontFamily: 'Galmuri11', //
+                    fontSize: 12, //
+                    fontWeight: FontWeight.bold, //
+                    color: Colors.white, //
+                  ),
+                ),
+                Text(
+                  'FPS: ${_fpsHistory.lastOrNull?.round() ?? 0} / $expectedFPS (±${maxDevFPS.toStringAsFixed(1)})\n'
+                  '\n'
+                  'Frametime: ${avgTot.toStringAsFixed(2)} ms (±${maxDevTot.toStringAsFixed(2)})\n'
+                  'CPU      : ${avgCPU.toStringAsFixed(2)} ms (±${maxDevCPU.toStringAsFixed(2)})\n'
+                  'GPU      : ${avgGPU.toStringAsFixed(2)} ms (±${maxDevGPU.toStringAsFixed(2)})\n'
+                  'Script   : ${avgScp.toStringAsFixed(2)} ms (±${maxDevScp.toStringAsFixed(2)})',
+                  style: const TextStyle(
+                    fontFamily: 'Galmuri9', //
+                    fontSize: 10, //
+                    color: Colors.white, //
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // white line
+                SizedBox(
+                  height: 1,
+                  width: perfGraphWidth,
+                  child: const ColoredBox(color: Colors.white),
+                ),
+                SizedBox(
+                  height: kPerfBarHeight,
+                  width: perfGraphWidth,
+                  child: Stack(
+                    alignment: Alignment.topLeft,
+                    fit: StackFit.passthrough,
+                    children: [
+                      // Combined frametime bar chart
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: (() {
+                          final bars = <Widget>[];
 
-                    for (int i = 0; i < _fpsHistory.length; i++) {
-                      // dart format off
-                        final double value = (
-                          _cpuHistory.elementAt(i) +
-                          _gpuHistory.elementAt(i) +
-                          _scpHistory.elementAt(i) //
-                        ) / kExpectedFrameTime;
-                        // dart format on
-
-                      bars.add(
-                        Container(
-                          width: kPerfBarWidth,
-                          height: kPerfBarHeight * min(value, 1),
-                          margin: const EdgeInsets.only(right: 1),
-                          color: [
+                          for (int i = 0; i < _fpsHistory.length; i++) {
                             // dart format off
+                            final double value = (
+                              _cpuHistory.elementAt(i) +
+                              _gpuHistory.elementAt(i) +
+                              _scpHistory.elementAt(i)
+                            ) / expectedFrameTime;
+                            // dart format on
+
+                            bars.add(
+                              Container(
+                                width: kPerfBarWidth,
+                                height: kPerfBarHeight * min(value, 1),
+                                margin: const EdgeInsets.only(right: 1),
+                                color: [
+                                  // dart format off
                             Colors.green,
                             Colors.yellow,
                             Colors.red
                           ][(min(value, 1) * 2).floor()] // dart format on
-                        ),
-                      );
-                    }
+                              ),
+                            );
+                          }
 
-                    return bars;
-                  })(),
+                          return bars;
+                        })(),
+                      ),
+                      // Chart labels
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // (100% marker)
+                          Text(
+                            "${expectedFrameTime.toStringAsFixed(1)}ms",
+                            style: const TextStyle(
+                              fontFamily: 'Galmuri7',
+                              fontSize: 8,
+                              height: 1,
+                              color: kColorTransparentWhite,
+                            ),
+                          ),
+                          // spacing height / 2 - 8
+                          const SizedBox(height: kPerfBarHeight / 2 - 8 - 1),
+                          // line
+                          SizedBox(
+                            height: 1,
+                            width: perfGraphWidth,
+                            child: const ColoredBox(color: kColorTransparentWhite),
+                          ),
+                          // (50% marker)
+                          Text(
+                            "${(expectedFrameTime / 2).toStringAsFixed(1)}ms",
+                            style: const TextStyle(
+                              fontFamily: 'Galmuri7',
+                              fontSize: 8,
+                              height: 1,
+                              color: kColorTransparentWhite,
+                            ),
+                          ),
+                          // spacing height / 2 - 8
+                          const SizedBox(height: kPerfBarHeight / 2 - 8 - 8 - 1),
+                          // (0% marker)
+                          const Text(
+                            "0ms",
+                            style: TextStyle(
+                              fontFamily: 'Galmuri7',
+                              fontSize: 8,
+                              height: 1,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                // Chart labels
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // (16.6ms marker)
-                    Text(
-                      "${kExpectedFrameTime.toStringAsFixed(1)}ms",
-                      style: const TextStyle(
-                        fontFamily: 'Galmuri7',
-                        fontSize: 8,
-                        height: 1,
-                        color: kColorTransparentWhite,
-                      ),
-                    ),
-                    // spacing height / 2 - 8
-                    const SizedBox(height: kPerfBarHeight / 2 - 8 - 1),
-                    // line
-                    const SizedBox(
-                      height: 1,
-                      width: kPerfGraphWidth,
-                      child: ColoredBox(color: kColorTransparentWhite),
-                    ),
-                    // (8.3ms marker)
-                    Text(
-                      "${(kExpectedFrameTime / 2).toStringAsFixed(1)}ms",
-                      style: const TextStyle(
-                        fontFamily: 'Galmuri7',
-                        fontSize: 8,
-                        height: 1,
-                        color: kColorTransparentWhite,
-                      ),
-                    ),
-                    // spacing height / 2 - 8
-                    const SizedBox(height: kPerfBarHeight / 2 - 8 - 8 - 1),
-                    // (0ms marker)
-                    const Text(
-                      "0ms",
-                      style: TextStyle(
-                        fontFamily: 'Galmuri7',
-                        fontSize: 8,
-                        height: 1,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
+                // white line
+                SizedBox(
+                  height: 1,
+                  width: perfGraphWidth,
+                  child: const ColoredBox(color: Colors.white),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'System delay: ${avgSys.toStringAsFixed(2)} ms (±${maxDevSys.toStringAsFixed(2)})',
+                  style: TextStyle(
+                    fontFamily: 'Galmuri9',
+                    fontSize: 10,
+                    // Glow red if delay causes low FPS
+                    // dart format off
+                    color:
+                        (_sysHistory.lastOrNull ?? 0) >
+                        (expectedFrameTime - (_totHistory.lastOrNull ?? 0))
+                          ? Colors.redAccent
+                          : Colors.white,
+                    // dart format on
+                  ),
                 ),
               ],
-            ),
-          ),
-          // white line
-          const SizedBox(
-            height: 1,
-            width: kPerfGraphWidth,
-            child: ColoredBox(color: Colors.white),
-          ),
-        ],
       ),
     ),
   );
