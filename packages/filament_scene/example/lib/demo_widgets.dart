@@ -186,17 +186,17 @@ class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
   double get expectedFrameTime => 1000 / expectedFPS; // Expected frame time in milliseconds
 
   late final ListQueue<double> _fpsHistory;
+  late final ListQueue<double> _totHistory;
   late final ListQueue<double> _cpuHistory;
   late final ListQueue<double> _gpuHistory;
   late final ListQueue<double> _scpHistory;
+  late final ListQueue<double> _sysHistory;
 
   double avgFPS = 0;
-  // Average CPU frametime in milliseconds
-  double avgCPU = 0;
-  // Average GPU frametime in milliseconds
-  double avgGPU = 0;
-  // Average script frametime in milliseconds
-  double avgScp = 0;
+  // Average frametime in milliseconds
+  double avgTot = 0, avgCPU = 0, avgGPU = 0, avgScp = 0, avgSys = 0;
+  // Max deviance from average
+  double maxDevFPS = 0, maxDevTot = 0, maxDevCPU = 0, maxDevGPU = 0, maxDevScp = 0, maxDevSys = 0;
 
   @override
   void initState() {
@@ -212,9 +212,11 @@ class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
 
     // Recreate queues
     _fpsHistory = ListQueue<double>(expectedFPS);
+    _totHistory = ListQueue<double>(expectedFPS);
     _cpuHistory = ListQueue<double>(expectedFPS);
     _gpuHistory = ListQueue<double>(expectedFPS);
     _scpHistory = ListQueue<double>(expectedFPS);
+    _sysHistory = ListQueue<double>(expectedFPS);
 
     // Add listener for profiling changes
     widget.data.addListener(() async {
@@ -227,18 +229,32 @@ class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
         _cpuHistory.add(widget.data.value.cpuFrameTime);
         _gpuHistory.add(widget.data.value.gpuFrameTime);
         _scpHistory.add(widget.data.value.scriptFrameTime);
+        _totHistory.add(_cpuHistory.last + _gpuHistory.last + _scpHistory.last);
+        _sysHistory.add(widget.data.value.deltaTime * 1000 - _totHistory.last);
 
         // Maintain only the last 60 values
         if (_fpsHistory.length > expectedFPS) _fpsHistory.removeFirst();
+        if (_totHistory.length > expectedFPS) _totHistory.removeFirst();
         if (_cpuHistory.length > expectedFPS) _cpuHistory.removeFirst();
         if (_gpuHistory.length > expectedFPS) _gpuHistory.removeFirst();
         if (_scpHistory.length > expectedFPS) _scpHistory.removeFirst();
+        if (_sysHistory.length > expectedFPS) _sysHistory.removeFirst();
 
         // Update averages
         avgFPS = _fpsHistory.reduce((a, b) => a + b) / _fpsHistory.length;
+        avgTot = _totHistory.reduce((a, b) => a + b) / _totHistory.length;
         avgCPU = _cpuHistory.reduce((a, b) => a + b) / _cpuHistory.length;
         avgGPU = _gpuHistory.reduce((a, b) => a + b) / _gpuHistory.length;
         avgScp = _scpHistory.reduce((a, b) => a + b) / _scpHistory.length;
+        avgSys = _sysHistory.reduce((a, b) => a + b) / _sysHistory.length;
+
+        // Update max deviance
+        maxDevFPS = _fpsHistory.map((e) => (e - avgFPS).abs()).reduce(max);
+        maxDevTot = _totHistory.map((e) => (e - avgTot).abs()).reduce(max);
+        maxDevCPU = _cpuHistory.map((e) => (e - avgCPU).abs()).reduce(max);
+        maxDevGPU = _gpuHistory.map((e) => (e - avgGPU).abs()).reduce(max);
+        maxDevScp = _scpHistory.map((e) => (e - avgScp).abs()).reduce(max);
+        maxDevSys = _sysHistory.map((e) => (e - avgSys).abs()).reduce(max);
       });
     });
   }
@@ -264,6 +280,7 @@ class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
+        // ignore: unnecessary_null_comparison
         children: _fpsHistory == null
             ? <Widget>[
                 const Text(
@@ -282,10 +299,12 @@ class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
                   ),
                 ),
                 Text(
-                  'FPS: ${avgFPS.round()} / $expectedFPS\n'
-                  'CPU    frametime: ${avgCPU.toStringAsFixed(2)} ms\n'
-                  'GPU    frametime: ${avgGPU.toStringAsFixed(2)} ms\n'
-                  'Script frametime: ${avgScp.toStringAsFixed(2)} ms',
+                  'FPS: ${_fpsHistory.lastOrNull?.round() ?? 0} / $expectedFPS (±${maxDevFPS.toStringAsFixed(1)})\n'
+                  '\n'
+                  'Frametime: ${avgTot.toStringAsFixed(2)} ms (±${maxDevTot.toStringAsFixed(2)})\n'
+                  'CPU      : ${avgCPU.toStringAsFixed(2)} ms (±${maxDevCPU.toStringAsFixed(2)})\n'
+                  'GPU      : ${avgGPU.toStringAsFixed(2)} ms (±${maxDevGPU.toStringAsFixed(2)})\n'
+                  'Script   : ${avgScp.toStringAsFixed(2)} ms (±${maxDevScp.toStringAsFixed(2)})',
                   style: const TextStyle(
                     fontFamily: 'Galmuri9', //
                     fontSize: 10, //
@@ -318,7 +337,7 @@ class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
                             final double value = (
                               _cpuHistory.elementAt(i) +
                               _gpuHistory.elementAt(i) +
-                              _scpHistory.elementAt(i) //
+                              _scpHistory.elementAt(i)
                             ) / expectedFrameTime;
                             // dart format on
 
@@ -395,6 +414,22 @@ class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
                   height: 1,
                   width: perfGraphWidth,
                   child: const ColoredBox(color: Colors.white),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'System delay: ${avgSys.toStringAsFixed(2)} ms (±${maxDevSys.toStringAsFixed(2)})',
+                  style: TextStyle(
+                    fontFamily: 'Galmuri9',
+                    fontSize: 10,
+                    // Glow red if delay causes low FPS
+                    // dart format off
+                    color:
+                        (_sysHistory.lastOrNull ?? 0) >
+                        (expectedFrameTime - (_totHistory.lastOrNull ?? 0))
+                          ? Colors.redAccent
+                          : Colors.white,
+                    // dart format on
+                  ),
                 ),
               ],
       ),
