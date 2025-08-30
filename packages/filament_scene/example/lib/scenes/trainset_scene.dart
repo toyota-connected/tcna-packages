@@ -185,6 +185,8 @@ class _TrainsetSceneViewState extends StatefulSceneViewState {
   /// How far back each traincar is from the front one
   static const double _traincarPathDistanceOffset = 2.5;
 
+  final Vector3 _tmpFlatPos = Vector3.zero();
+
   @override
   void onUpdateFrame(FilamentViewApi filament, double dt) {
     for (int i = 0; i < TrainsetSceneView.traincarCount; i++) {
@@ -195,31 +197,33 @@ class _TrainsetSceneViewState extends StatefulSceneViewState {
       distanceTraveled = distanceTraveled % _pathLength;
       distanceTraveled += distanceTraveled < 0 ? _pathLength : 0;
 
-      Vector3 flatPos = getPointOnPath(distanceTraveled);
+      getPointOnPath(distanceTraveled, TrainsetSceneView.sceneOrigin, _tmpFlatPos);
       if (i == 0) {
         // print('Traincar position: ${(distanceTraveled / _pathLength * 100).toStringAsFixed(0)}%');
       }
 
-      final Vector3 pos = Vector3(flatPos.x, 0, flatPos.y);
-      traincar.setLocalPosition(pos);
-      traincar.setLocalRotation(Quaternion.euler(flatPos.z, 0, 0));
+      traincar.position.setValues(_tmpFlatPos.x, 0, _tmpFlatPos.y);
+      traincar.rotation.setEuler(_tmpFlatPos.z, 0, 0);
+      traincar.updateTransform();
 
       traincarDistanceTraveled[i] = distanceTraveled;
     }
   }
 
+  static final Vector2 _tmpArcCenter = Vector2.zero();
+
   /// Get the position on the path at a given distance
   /// Returns a Vector3: x,y are flat plane coordinates, z is the angle around the Y axis
-  Vector3 getPointOnPath(double dist) {
+  static void getPointOnPath(double dist, Vector3 center, Vector3 out) {
     double d = dist;
-    Vector3 center = TrainsetSceneView.sceneOrigin;
 
     // 1) Right vertical segment (going down)
     if (d < _verticalPathLength) {
       double x = center.x + pathWidth / 2;
       double z = center.z + pathHeight / 2 - pathCornerRadius - d;
       double angle = radians(-90);
-      return Vector3(x, z, angle);
+      out.setValues(x, z, angle);
+      return;
     }
     d -= _verticalPathLength;
 
@@ -227,16 +231,17 @@ class _TrainsetSceneViewState extends StatefulSceneViewState {
     if (d < _arcPathLengthQuarter) {
       double t = d / _arcPathLengthQuarter;
       double angle = lerp(0, -Math.pi / 2, t);
-      Vector2 arcCenter = Vector2(
+      _tmpArcCenter.setValues(
         center.x + pathWidth / 2 - pathCornerRadius,
         center.z - pathHeight / 2 + pathCornerRadius,
       );
-      double x = arcCenter.x + Math.cos(angle) * pathCornerRadius;
-      double z = arcCenter.y + Math.sin(angle) * pathCornerRadius;
+      double x = _tmpArcCenter.x + Math.cos(angle) * pathCornerRadius;
+      double z = _tmpArcCenter.y + Math.sin(angle) * pathCornerRadius;
 
       // lerp between right angle and down angle
       double zAngle = lerp(radians(-90), radians(0), t);
-      return Vector3(x, z, zAngle);
+      out.setValues(x, z, zAngle);
+      return;
     }
     d -= _arcPathLengthQuarter;
 
@@ -245,7 +250,8 @@ class _TrainsetSceneViewState extends StatefulSceneViewState {
       double x = center.x + pathWidth / 2 - pathCornerRadius - d;
       double z = center.z - pathHeight / 2;
       double angle = radians(0);
-      return Vector3(x, z, angle);
+      out.setValues(x, z, angle);
+      return;
     }
     d -= _horizontalPathLength;
 
@@ -253,16 +259,17 @@ class _TrainsetSceneViewState extends StatefulSceneViewState {
     if (d < _arcPathLengthQuarter) {
       double t = d / _arcPathLengthQuarter;
       double angle = lerp(-Math.pi / 2, -Math.pi, t);
-      Vector2 arcCenter = Vector2(
+      _tmpArcCenter.setValues(
         center.x - pathWidth / 2 + pathCornerRadius,
         center.z - pathHeight / 2 + pathCornerRadius,
       );
-      double x = arcCenter.x + Math.cos(angle) * pathCornerRadius;
-      double z = arcCenter.y + Math.sin(angle) * pathCornerRadius;
+      double x = _tmpArcCenter.x + Math.cos(angle) * pathCornerRadius;
+      double z = _tmpArcCenter.y + Math.sin(angle) * pathCornerRadius;
 
       // lerp between bottom angle and left angle
       double zAngle = lerp(radians(0), radians(90), t);
-      return Vector3(x, z, zAngle);
+      out.setValues(x, z, zAngle);
+      return;
     }
     d -= _arcPathLengthQuarter;
 
@@ -271,7 +278,8 @@ class _TrainsetSceneViewState extends StatefulSceneViewState {
       double x = center.x - pathWidth / 2;
       double z = center.z - pathHeight / 2 + pathCornerRadius + d;
       double angle = radians(90);
-      return Vector3(x, z, angle);
+      out.setValues(x, z, angle);
+      return;
     }
     d -= _verticalPathLength;
 
@@ -279,16 +287,17 @@ class _TrainsetSceneViewState extends StatefulSceneViewState {
     if (d < _arcPathLengthQuarter) {
       double t = d / _arcPathLengthQuarter;
       double angle = lerp(-Math.pi, -3 * Math.pi / 2, t);
-      Vector2 arcCenter = Vector2(
+      _tmpArcCenter.setValues(
         center.x - pathWidth / 2 + pathCornerRadius,
         center.z + pathHeight / 2 - pathCornerRadius,
       );
-      double x = arcCenter.x + Math.cos(angle) * pathCornerRadius;
-      double z = arcCenter.y + Math.sin(angle) * pathCornerRadius;
+      double x = _tmpArcCenter.x + Math.cos(angle) * pathCornerRadius;
+      double z = _tmpArcCenter.y + Math.sin(angle) * pathCornerRadius;
 
       // lerp between left angle and top angle
       double zAngle = lerp(radians(90), radians(180), t);
-      return Vector3(x, z, zAngle);
+      out.setValues(x, z, zAngle);
+      return;
     }
     d -= _arcPathLengthQuarter;
 
@@ -297,7 +306,8 @@ class _TrainsetSceneViewState extends StatefulSceneViewState {
       double x = center.x - pathWidth / 2 + pathCornerRadius + d;
       double z = center.z + pathHeight / 2;
       double angle = radians(180);
-      return Vector3(x, z, angle);
+      out.setValues(x, z, angle);
+      return;
     }
     d -= _horizontalPathLength;
 
@@ -305,23 +315,25 @@ class _TrainsetSceneViewState extends StatefulSceneViewState {
     if (d < _arcPathLengthQuarter) {
       double t = d / _arcPathLengthQuarter;
       double angle = lerp(-3 * Math.pi / 2, -2 * Math.pi, t);
-      Vector2 arcCenter = Vector2(
+      _tmpArcCenter.setValues(
         center.x + pathWidth / 2 - pathCornerRadius,
         center.z + pathHeight / 2 - pathCornerRadius,
       );
-      double x = arcCenter.x + Math.cos(angle) * pathCornerRadius;
-      double z = arcCenter.y + Math.sin(angle) * pathCornerRadius;
+      double x = _tmpArcCenter.x + Math.cos(angle) * pathCornerRadius;
+      double z = _tmpArcCenter.y + Math.sin(angle) * pathCornerRadius;
 
       // lerp between top angle and right angle
       double zAngle = lerp(radians(-180), radians(-90), t);
-      return Vector3(x, z, zAngle);
+      out.setValues(x, z, zAngle);
+      return;
     }
 
     // Fallback: wrap to start position
-    return Vector3(
+    out.setValues(
       center.x + pathWidth / 2,
       center.z + pathHeight / 2 - pathCornerRadius,
       radians(90),
     );
+    return;
   }
 }
