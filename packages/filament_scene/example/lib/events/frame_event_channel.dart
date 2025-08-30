@@ -1,4 +1,5 @@
 import 'package:filament_scene/engine.dart';
+import 'package:filament_scene/utils/serialization.dart';
 import 'package:flutter/services.dart';
 import 'package:fluorite_examples_demo/main.dart';
 import 'dart:io';
@@ -11,10 +12,53 @@ void noopUpdate(FilamentViewApi api, double deltaTime) {}
 
 class FrameEventChannel {
   static const EventChannel _eventChannel = EventChannel('plugin.filament_view.frame_view');
+  static const MethodChannel _eventBus = MethodChannel('plugin.filament_view.event_bus');
+  late FilamentViewApi filamentViewApi;
 
   bool bWriteEventsToLog = false;
 
-  late FilamentViewApi filamentViewApi;
+  static FrameEventChannel? _instance;
+
+  FrameEventChannel._internal() {
+    _eventBus.setMethodCallHandler(_handleNativeCall);
+  }
+
+  factory FrameEventChannel() {
+    // ignore: dead_null_aware_expression
+    return _instance ??= FrameEventChannel._internal();
+  }
+
+  static Future<int> _handleNativeCall(MethodCall call) async {
+    // print("FrameEventChannel: Handling native call");
+    String method = call.method;
+    final JsonObject args = (call.arguments as Map<dynamic, dynamic>).map<String, dynamic>((
+      key,
+      value,
+    ) {
+      return MapEntry(key.toString(), value);
+    });
+
+    // print('FrameEventChannel: Received method call: $method with args: $args');
+
+    // Handle method calls from the native side
+    if (method.startsWith("call_")) {
+      method = method.substring(5);
+    } else {
+      throw MissingPluginException('No handler for method: ${call.method}');
+    }
+
+    switch (method) {
+      case 'preRenderFrame':
+        await _instance!._onPreRenderFrame(args);
+        break;
+      default:
+        throw MissingPluginException('No handler for method: ${call.method}');
+    }
+
+    // print("FrameEventChannel: Callback completed for method: $method");
+    return 0;
+  }
+
   void setController(FilamentViewApi api) {
     filamentViewApi = api;
   }
@@ -43,37 +87,11 @@ class FrameEventChannel {
           // const double deltaTime = 0.016;
 
           if (event is Map) {
-            final deltaTime = event['deltaTime'];
             final method = event['method'];
 
             // Log extracted values
             if (method == 'preRenderFrame') {
-              final scriptTimeStart = DateTime.now().microsecondsSinceEpoch;
-
-              for (final onUpdate in _callbacks) {
-                onUpdate(filamentViewApi, deltaTime);
-              }
-
-              await filamentViewApi.drainFrameTasks();
-
-              // TODO(kerberjg): this is temporary, should be dictated by the native core
-              final scriptFrameTime = DateTime.now().microsecondsSinceEpoch - scriptTimeStart;
-
-              frameProfilingDataNotifier.value = FrameProfilingData(
-                deltaTime: deltaTime,
-                cpuFrameTime: event['cpuFt'] ?? 0.0,
-                gpuFrameTime: event['gpuFt'] ?? 0.0,
-                scriptFrameTime: scriptFrameTime / 1000.0, // Convert to milliseconds
-                fps: event['fps'] ?? 60.0,
-              );
-
-              // Send "done_updateScripts" event to native
-              // _eventChannel.binaryMessenger.send(
-              //   'plugin.filament_view.frame_view',
-              //   const StandardMessageCodec().encodeMessage(<String, dynamic>{
-              //     'method': 'done_updateScripts',
-              //   }),
-              // );
+              await _onPreRenderFrame(event as JsonObject);
             }
           }
         },
@@ -98,5 +116,32 @@ class FrameEventChannel {
         stdout.write('Unexpected Error: $e\nStack Trace:\n$stackTrace\n');
       }
     }
+  }
+
+  Future<void> _onPreRenderFrame(JsonObject event) async {
+    // Handle preRenderFrame event
+    final deltaTime = event['deltaTime'];
+
+    //
+    final scriptTimeStart = DateTime.now().microsecondsSinceEpoch;
+
+    for (final onUpdate in _callbacks) {
+      onUpdate(filamentViewApi, deltaTime);
+    }
+    await filamentViewApi.drainFrameTasks();
+
+    // TODO(kerberjg): this is temporary, should be dictated by the native core
+    final scriptFrameTime = DateTime.now().microsecondsSinceEpoch - scriptTimeStart;
+
+    frameProfilingDataNotifier.value = FrameProfilingData(
+      deltaTime: deltaTime,
+      cpuFrameTime: event['cpuFt'] ?? 0.0,
+      gpuFrameTime: event['gpuFt'] ?? 0.0,
+      scriptFrameTime: scriptFrameTime / 1000.0, // Convert to milliseconds
+      fps: event['fps'] ?? 60.0,
+    );
+
+    // Sends "done" signal to native
+    return;
   }
 }

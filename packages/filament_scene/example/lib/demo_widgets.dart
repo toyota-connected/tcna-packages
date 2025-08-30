@@ -183,7 +183,7 @@ class FrameProfilingOverlay extends StatefulWidget {
 
 class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
   static int expectedFPS = 60; // Expected FPS for the graph
-  double get expectedFrameTime => 1000 / expectedFPS; // Expected frame time in milliseconds
+  double get expectedFrameTime => 1000.0 / expectedFPS; // Expected frame time in milliseconds
 
   late final ListQueue<double> _fpsHistory;
   late final ListQueue<double> _totHistory;
@@ -333,25 +333,28 @@ class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
                           final bars = <Widget>[];
 
                           for (int i = 0; i < _fpsHistory.length; i++) {
-                            // dart format off
-                            final double value = (
-                              _cpuHistory.elementAt(i) +
-                              _gpuHistory.elementAt(i) +
-                              _scpHistory.elementAt(i)
-                            ) / expectedFrameTime;
-                            // dart format on
+                            final double value = (_totHistory.elementAt(i)) / expectedFrameTime;
+
+                            final sysDelay =
+                                (_sysHistory.elementAt(i) - 1) >
+                                (expectedFrameTime - _totHistory.elementAt(i));
 
                             bars.add(
                               Container(
+                                key: ValueKey('perf_bar_$i'),
                                 width: kPerfBarWidth,
                                 height: kPerfBarHeight * min(value, 1),
                                 margin: const EdgeInsets.only(right: 1),
-                                color: [
-                                  // dart format off
-                            Colors.green,
-                            Colors.yellow,
-                            Colors.red
-                          ][(min(value, 1) * 2).floor()] // dart format on
+                                color: // dart format off
+                                  // Red if value > 1
+                                  value > 1 ? Colors.red :
+                                  // Orange if sysDelay
+                                  sysDelay ? Colors.orangeAccent :
+                                  // Yellow if value > 0.5
+                                  value > 0.5 ? Colors.yellow :
+                                  // Green otherwise
+                                  Colors.green,
+                                // dart format on
                               ),
                             );
                           }
@@ -424,9 +427,9 @@ class _FrameProfilingOverlayState extends State<FrameProfilingOverlay> {
                     // Glow red if delay causes low FPS
                     // dart format off
                     color:
-                        (_sysHistory.lastOrNull ?? 0) >
+                        ((_sysHistory.lastOrNull ?? 0) - 1) >
                         (expectedFrameTime - (_totHistory.lastOrNull ?? 0))
-                          ? Colors.redAccent
+                          ? Colors.orangeAccent
                           : Colors.white,
                     // dart format on
                   ),
