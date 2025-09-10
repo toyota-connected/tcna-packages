@@ -1,5 +1,5 @@
 import 'package:filament_scene/engine.dart';
-import 'package:filament_scene/entity/entity.dart';
+import 'package:filament_scene/ecs/entity.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/utils/serialization.dart';
 import 'package:flutter/foundation.dart';

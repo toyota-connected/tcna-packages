@@ -1,7 +1,7 @@
 library model;
 
 import 'package:filament_scene/components/collider.dart';
-import 'package:filament_scene/entity/entity.dart';
+import 'package:filament_scene/ecs/entity.dart';
 import 'package:filament_scene/utils/serialization.dart';
 
 part 'animation.dart';

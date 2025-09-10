@@ -1,6 +1,9 @@
 import 'package:collection/collection.dart';
+import 'package:filament_scene/ecs/component.dart';
+import 'package:filament_scene/ecs/components/transform.dart';
 import 'package:filament_scene/filament_scene.dart';
 import 'package:filament_scene/generated/messages.g.dart';
+import 'package:filament_scene/scene/scene.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/utils/serialization.dart';
 import 'package:flutter/foundation.dart';
@@ -11,10 +14,16 @@ class Entity with Jsonable {
   final EntityGUID id;
   final String? name;
 
+  /// Internal list of components, access exposed via ECS API.
+  final List<Component> _components;
+
+  /// Explicit reference to the transform component as stored in [_components].
+  // NOTE: This is not a getter to avoid unnecessary lookups.
+  final Transform transform;
+
   late final Scene scene;
 
   FilamentViewApi? _engine;
-  @protected
   FilamentViewApi? get engine => _engine;
 
   final EntityGUID? _parentId;
@@ -29,11 +38,20 @@ class Entity with Jsonable {
   Entity({
     required this.id,
     this.name,
+    final Iterable<Component> components = const <Component>[],
+    final Transform? transform,
     final EntityGUID? parentId,
     final Iterable<Entity> children = const <Entity>[],
   })
     // ;
-    : _parentId = parentId,
+    : _components = components.toList(growable: true),
+       // Explicitly set the transform component if not provided either directly or via components.
+       transform =
+           transform ?? //
+           components.firstWhereOrNull((final c) => c is Transform) as Transform? ?? //
+           Transform(),
+       // Parenting
+       _parentId = parentId,
        tmpChildren = children {
     // Make sure that direct children don't directly define a parentId
     assert(
@@ -68,10 +86,12 @@ class Entity with Jsonable {
   JsonObject toJson() => <String, dynamic>{
     'guid': id,
     'name': name,
+    'components': _components.map<JsonObject>((final component) => component.toJson()).toList(),
     'children': tmpChildren.map<JsonObject>((final child) => child.toJson()).toList(),
     'parentId': _parentId,
   };
 
+  // TODO(kerberjg): move to a serializer utility and out of here
   @nonVirtual
   /// Flattens its children tree into a single list of entities.
   List<JsonObject> toFlatJson({final bool isParent = true}) {

@@ -1,7 +1,7 @@
 library shapes;
 
 import 'package:filament_scene/components/collider.dart';
-import 'package:filament_scene/entity/entity.dart';
+import 'package:filament_scene/ecs/entity.dart';
 import 'package:filament_scene/material/material.dart';
 import 'package:filament_scene/utils/serialization.dart';
 import 'package:vector_math/vector_math.dart';

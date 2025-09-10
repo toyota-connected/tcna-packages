@@ -1,4 +1,4 @@
-import 'package:filament_scene/entity/entity.dart' show EntityGUID;
+import 'package:filament_scene/ecs/entity.dart' show EntityGUID;
 
 /*
  *  GUID generator

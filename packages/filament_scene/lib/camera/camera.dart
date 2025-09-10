@@ -1,5 +1,7 @@
+import 'dart:async';
+
+import 'package:filament_scene/ecs/entity.dart';
 import 'package:filament_scene/engine.dart';
-import 'package:filament_scene/entity/entity.dart';
 import 'package:filament_scene/components/camera.dart' as CameraComponent;
 import 'package:filament_scene/generated/messages.g.dart';
 import 'package:filament_scene/math/vectors.dart';
