@@ -82,7 +82,7 @@ abstract class Shape extends TransformEntity {
     'normal': normal?.toJson(),
     'collider': collider?.toJson(),
     'material': material?.toJson(),
-    'shapeType': type.value,
+    'type': type.value,
     'doubleSided': doubleSided,
     'cullingEnabled': cullingEnabled,
     'receiveShadows': receiveShadows,
