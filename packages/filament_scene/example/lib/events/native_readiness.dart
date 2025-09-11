@@ -6,7 +6,6 @@ class NativeReadiness {
   static const MethodChannel _readinessChecker = MethodChannel(
     'plugin.filament_view.readiness_checker',
   );
-  static const EventChannel _readinessChannel = EventChannel('plugin.filament_view.readiness');
 
   /// Adds a one-time callback to be called when the native side is ready.
   /// If a the native side is already ready, a check is scheduled immediately,
@@ -50,7 +49,4 @@ class NativeReadiness {
       return false;
     }
   }
-
-  Stream<String> get readinessStream =>
-      _readinessChannel.receiveBroadcastStream().map((event) => event as String);
 }
