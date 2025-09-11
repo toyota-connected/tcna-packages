@@ -188,24 +188,11 @@ class _MyAppState extends State<MyApp> {
 
   ////////////////////////////////////////////////////////////////////////
   void startListeningForEvents() {
-    _nativeReadiness.readinessStream.listen(
-      (event) {
-        if (event == "ready") {
-          print('Received ready event from native side.');
-          setState(() {
-            print('Creating Event Channels');
-            _animEventChannel.initEventChannel();
-            _collisionEventChannel.initEventChannel();
-            _frameEventChannel.initEventChannel();
-            print('Event Channels created.');
-            isReady = true;
-          });
-        }
-      },
-      onError: (error) {
-        print('Error listening for readiness events: $error');
-      },
-    );
+    print('Creating Event Channels');
+    _animEventChannel.initEventChannel();
+    _collisionEventChannel.initEventChannel();
+    _frameEventChannel.initEventChannel();
+    print('Event Channels created.');
   }
 
   ////////////////////////////////////////////////////////////////////////
