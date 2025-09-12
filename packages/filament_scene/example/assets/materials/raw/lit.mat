@@ -37,6 +37,10 @@ material {
         {
             type : float,
             name : metallic
+        },
+        {
+            type : float,
+            name: reflectance
         }
     ],
 }
@@ -49,5 +53,6 @@ fragment {
         material.baseColor.rgb = materialParams.baseColor;
         material.roughness = materialParams.roughness;
         material.metallic = materialParams.metallic;
+        material.reflectance = materialParams.reflectance;
     }
 }

@@ -7,7 +7,12 @@ const String litMat = "assets/materials/lit.filamat";
 const String texturedMat = "assets/materials/textured_pbr.filamat";
 
 ////////////////////////////////////////////////////////////////////////
-Material poGetLitMaterial(Color? colorOveride) {
+Material poGetLitMaterial(
+  Color? colorOveride, {
+  double roughness = 0.8,
+  double metallic = 0.0,
+  double reflectance = 0.5,
+}) {
   return Material.asset(
     litMat,
     //usually the material file contains values for these properties,
@@ -16,9 +21,11 @@ Material poGetLitMaterial(Color? colorOveride) {
       //update base color property with color
       MaterialParameter.color(color: colorOveride ?? Colors.white, name: "baseColor"),
       //update roughness property with it's value
-      MaterialParameter.float(value: .8, name: "roughness"),
+      MaterialParameter.float(value: roughness, name: "roughness"),
       //update metallicproperty with it's value
-      MaterialParameter.float(value: .0, name: "metallic"),
+      MaterialParameter.float(value: metallic, name: "metallic"),
+      //update reflectance property with it's value
+      MaterialParameter.float(value: reflectance, name: "reflectance"),
     ],
   );
 }
