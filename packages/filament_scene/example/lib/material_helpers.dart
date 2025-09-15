@@ -9,9 +9,12 @@ const String texturedMat = "assets/materials/textured_pbr.filamat";
 ////////////////////////////////////////////////////////////////////////
 Material poGetLitMaterial(
   Color? colorOveride, {
+  double alpha = 1.0,
   double roughness = 0.8,
   double metallic = 0.0,
   double reflectance = 0.5,
+  Color emissiveColor = Colors.black,
+  double emissiveIntensity = 1.0,
 }) {
   return Material.asset(
     litMat,
@@ -19,7 +22,14 @@ Material poGetLitMaterial(
     //but if we want to customize it we can like that.
     parameters: [
       //update base color property with color
-      MaterialParameter.color(color: colorOveride ?? Colors.white, name: "baseColor"),
+      MaterialParameter.color(
+        color: colorOveride?.withAlpha((alpha * 255).clamp(0, 255).round()) ?? Colors.white,
+        name: "baseColor",
+      ),
+      MaterialParameter.color(
+        color: emissiveColor.withAlpha((emissiveIntensity * 255).clamp(0, 255).round()),
+        name: "emissive",
+      ),
       //update roughness property with it's value
       MaterialParameter.float(value: roughness, name: "roughness"),
       //update metallicproperty with it's value

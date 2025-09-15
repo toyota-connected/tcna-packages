@@ -27,8 +27,14 @@ material {
     parameters : [
         // The color must be passed in linear space, not sRGB
         {
-            type : float3,
-            name : baseColor
+            type : float4,
+            name : baseColor,
+            default : [1.0, 1.0, 1.0, 1.0]
+        },
+        {
+            type : float4,
+            name : emissive,
+            default : [0.0, 0.0, 0.0, 1.0]
         },
         {
             type : float,
@@ -49,8 +55,8 @@ fragment {
     void material(inout MaterialInputs material) {
         prepareMaterial(material);
 
-        // Nothing fancy here, we simply copy the parameters
-        material.baseColor.rgb = materialParams.baseColor;
+        material.baseColor.rgba = materialParams.baseColor;
+        material.emissive = materialParams.emissive;
         material.roughness = materialParams.roughness;
         material.metallic = materialParams.metallic;
         material.reflectance = materialParams.reflectance;
