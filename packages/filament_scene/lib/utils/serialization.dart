@@ -67,6 +67,6 @@ extension QuaternionSerializable on Quaternion {
 extension ColorsExt on Color {
   /// Returns the RGBA representation of the color in hexadecimal format.
   String toHex() {
-    return "#${toARGB32().toRadixString(16)}";
+    return "#${toARGB32().toRadixString(16).padLeft(8, '0')}";
   }
 }
