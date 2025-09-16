@@ -1,9 +1,12 @@
+import 'package:filament_scene/math/vectors.dart';
 import 'package:flutter/material.dart' hide Material, Texture;
 import 'package:filament_scene/filament_scene.dart';
 import 'dart:math';
 import 'utils.dart';
 
 const String litMat = "assets/materials/lit.filamat";
+const String unlitMat = "assets/materials/unlit.filamat";
+const String unlitUVMat = "assets/materials/unlitUV.filamat";
 const String texturedMat = "assets/materials/textured_pbr.filamat";
 
 ////////////////////////////////////////////////////////////////////////
@@ -36,6 +39,44 @@ Material poGetLitMaterial(
       MaterialParameter.float(value: metallic, name: "metallic"),
       //update reflectance property with it's value
       MaterialParameter.float(value: reflectance, name: "reflectance"),
+    ],
+  );
+}
+
+Material poGetUnlitMaterial(Color? color, {double alpha = 1.0}) {
+  return Material.asset(
+    unlitMat,
+    parameters: [
+      MaterialParameter.color(
+        color: color?.withAlpha((alpha * 255).clamp(0, 255).round()) ?? Colors.white,
+        name: "baseColor",
+      ),
+    ],
+  );
+}
+
+Material poGetUnlitTexturedMaterial(
+  String textureAssetPath, {
+  Color? color,
+  Vector2? uvOffset,
+  Vector2? uvScale,
+}) {
+  return Material.asset(
+    unlitUVMat,
+    parameters: [
+      MaterialParameter.texture(
+        value: Texture.asset(
+          textureAssetPath,
+          type: TextureType.color,
+          sampler: TextureSampler(anisotropy: 8),
+        ),
+        name: "baseMap",
+      ),
+      MaterialParameter.color(color: color ?? Colors.white, name: "baseColor"),
+      if (uvOffset != null)
+        MaterialParameter.floatVector(value: uvOffset.storage.toList(), name: "uvOffset"),
+      if (uvScale != null)
+        MaterialParameter.floatVector(value: uvScale.storage.toList(), name: "uvScale"),
     ],
   );
 }

@@ -1,0 +1,57 @@
+material {
+    name : unlit,
+    
+    // Dynamic lighting is disabled on this material
+    shadingModel : unlit,
+
+    blending : transparent,
+
+    // We don't need to declare a "requires" array, unlit materials
+    // only requires the "position" and "normal" vertex attributes
+
+    // List of parameters exposed by this material
+    parameters : [
+        // Base color sRGB texture
+        {
+            type : sampler2d,
+            name : baseMap,
+        },
+        {
+            type : float4,
+            name : baseColor,
+            default : [1.0, 1.0, 1.0, 1.0]
+        },
+        {
+            type : float2,
+            name : uvOffset,
+            default : [0.0, 0.0]
+        },
+        {
+            type : float2,
+            name : uvScale,
+            default : [1.0, 1.0]
+        }
+    ],
+
+    requires : [
+        uv0
+    ]
+}
+
+vertex {
+    void materialVertex(inout MaterialVertexInputs vertex) {
+        // Apply UV scale and offset
+        // vertex.uv0 = vertex.uv0 * materialParams.uvScale + materialParams.uvOffset;
+    }
+}
+
+fragment {
+    void material(inout MaterialInputs material) {
+        prepareMaterial(material);
+
+        vec4 tex = texture(materialParams_baseMap, getUV0());
+        // premultiply alpha
+        tex.rgb *= tex.a;
+        material.baseColor.rgba = tex * materialParams.baseColor;
+    }
+}
