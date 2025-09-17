@@ -16,6 +16,12 @@ extension Vector3WithExtras on Vector3 {
     return q;
   }
 
+  /// Linearly interpolate between two vectors.
+  static Vector3 lerp(Vector3 a, Vector3 b, double t) {
+    t = t.clamp(0.0, 1.0);
+    return Vector3(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t);
+  }
+
   /// Multiply each component of the vector by the corresponding component of the other vector.
   Vector3 mul(final Vector3 other) => Vector3(x * other.x, y * other.y, z * other.z);
 
