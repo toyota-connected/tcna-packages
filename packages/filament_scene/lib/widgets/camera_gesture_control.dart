@@ -7,8 +7,23 @@ import 'package:flutter/widgets.dart';
 class CameraGestureControl extends StatelessWidget {
   final ValueNotifier<Vector2> cameraAngle;
   final Camera camera;
+  Vector2 minAngle = Vector2(0, -90);
+  Vector2 maxAngle = Vector2(360, -15);
 
-  const CameraGestureControl({super.key, required this.cameraAngle, required this.camera});
+  CameraGestureControl({
+    super.key,
+    required this.cameraAngle,
+    required this.camera,
+    final Vector2? minAngle,
+    final Vector2? maxAngle,
+  }) {
+    if (minAngle != null) {
+      this.minAngle = minAngle;
+    }
+    if (maxAngle != null) {
+      this.maxAngle = maxAngle;
+    }
+  }
 
   @override
   Widget build(final BuildContext context) {
@@ -18,8 +33,8 @@ class CameraGestureControl extends StatelessWidget {
       onPanUpdate: (final details) {
         // Updated camera angles based on initial touch position
         cameraAngle.value = Vector2(
-          (cameraAngle.value.x - details.delta.dx * 0.25) % 360,
-          (cameraAngle.value.y - details.delta.dy * 0.25).clamp(-90, -15),
+          (cameraAngle.value.x - details.delta.dx * 0.25).clamp(minAngle.x, maxAngle.x) % 360,
+          (cameraAngle.value.y - details.delta.dy * 0.25).clamp(minAngle.y, maxAngle.y), // % 360,
         );
 
         camera.setOrbit(
