@@ -295,7 +295,7 @@ class FilamentViewApi {
   }
 
   /// Set a light's color and intensity by GUID.
-  Future<void> changeLightColorByGUID(int id, String color, int intensity) async {
+  Future<void> changeLightColorByGUID(int id, String color, double intensity) async {
     final String pigeonVar_channelName =
         'dev.flutter.pigeon.filament_scene.FilamentViewApi.changeLightColorByGUID$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(

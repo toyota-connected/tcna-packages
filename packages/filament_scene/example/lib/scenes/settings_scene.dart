@@ -511,7 +511,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_BL']!,
           Colors.red.toHex(),
-          (5000000 * _lightIntensity.value).round(),
+          (5000000 * _lightIntensity.value),
         ),
       );
 
@@ -519,7 +519,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_BR']!,
           Colors.red.toHex(),
-          (5000000 * _lightIntensity.value).round(),
+          (5000000 * _lightIntensity.value),
         ),
       );
 
@@ -527,7 +527,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_FL']!,
           Colors.yellow.toHex(),
-          (5000000 * _lightIntensity.value).round(),
+          (5000000 * _lightIntensity.value),
         ),
       );
 
@@ -535,7 +535,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_FR']!,
           Colors.yellow.toHex(),
-          (5000000 * _lightIntensity.value).round(),
+          (5000000 * _lightIntensity.value),
         ),
       );
     } else {
@@ -578,7 +578,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_tBL']!,
           Colors.orange.toHex(),
-          (5000000 * _lightIntensity.value).round(),
+          (5000000 * _lightIntensity.value),
         ),
       );
 
@@ -586,7 +586,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_tBR']!,
           Colors.orange.toHex(),
-          (5000000 * _lightIntensity.value).round(),
+          (5000000 * _lightIntensity.value),
         ),
       );
 
@@ -594,7 +594,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_tFL']!,
           Colors.orange.toHex(),
-          (5000000 * _lightIntensity.value).round(),
+          (5000000 * _lightIntensity.value),
         ),
       );
 
@@ -602,7 +602,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_tFR']!,
           Colors.orange.toHex(),
-          (5000000 * _lightIntensity.value).round(),
+          (5000000 * _lightIntensity.value),
         ),
       );
     } else {
