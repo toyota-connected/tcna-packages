@@ -3,6 +3,9 @@ import 'package:filament_scene/entity/entity.dart';
 import 'package:filament_scene/components/camera.dart' as CameraComponent;
 import 'package:filament_scene/generated/messages.g.dart';
 import 'package:filament_scene/math/vectors.dart';
+import 'package:filament_scene/scene/camera/exposure.dart';
+import 'package:filament_scene/scene/camera/lens_projection.dart';
+import 'package:filament_scene/scene/camera/projection.dart';
 import 'package:filament_scene/utils/guid.dart';
 import 'package:filament_scene/utils/serialization.dart';
 
@@ -16,6 +19,8 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
     required super.id,
     super.name,
     final Vector3? dollyOffset,
+    final Projection projection = CameraComponent.kDefaultProjection,
+    final Exposure exposure = CameraComponent.kDefaultExposure,
     // Orbit
     final Vector3? orbitOriginPoint,
     final EntityGUID? orbitOriginEntity,
@@ -28,8 +33,8 @@ class Camera extends TransformEntity with CameraComponent.Camera, CameraComponen
     final Vector3? targetPoint,
   }) : super(position: Vector3.zero(), scale: Vector3.all(1), rotation: Quaternion.identity()) {
     // Set default projection
-    setProjection(projection: CameraComponent.kDefaultProjection);
-    exposure = CameraComponent.kDefaultExposure;
+    setProjection(projection: projection);
+    this.exposure = exposure;
 
     super.dollyOffset = dollyOffset ?? Vector3.zero();
 
