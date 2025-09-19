@@ -3,6 +3,15 @@ import 'package:filament_scene/entity/entity.dart';
 import 'package:filament_scene/utils/serialization.dart';
 import 'package:vector_math/vector_math.dart';
 
+const double kLuxToIntensity = 0.7 / 80000.0;
+const double kIntensityToLux = 1.0 / kLuxToIntensity;
+
+const double kPointLumenToIntensity = 0.01 / 40000.0;
+const double kIntensityToPointLumen = 1.0 / kPointLumenToIntensity;
+
+const double kSpotLumenToIntensity = 0.38 / 10000.0;
+const double kIntensityToSpotLumen = 1.0 / kSpotLumenToIntensity;
+
 /// Type of the direct that will be used in the scene.
 enum LightType {
   /// Directional light that also draws a sun's disk in the sky.
@@ -144,7 +153,14 @@ class Light extends Entity {
     this.type = LightType.directional,
     this.color,
     this.colorTemperature,
-    this.intensity,
+
+    /// Light intensity in lux for directional lights, and in lumen for point and spot lights.
+    /// Either [intensity] or [realIntensity] has to be specified, but not both.
+    final double? realIntensity,
+
+    /// Light intensity in perceived brightness units.
+    /// Either [intensity] or [realIntensity] has to be specified, but not both.
+    final double? intensity,
     this.position,
     this.direction,
     this.castLight,
@@ -163,7 +179,22 @@ class Light extends Entity {
        assert(
          type != LightType.spot || direction != null,
          "Direction must be specified for spot lights",
-       );
+       ),
+       // Either intensity or realIntensity has to be specified, but not both
+       assert(
+         intensity == null || realIntensity == null,
+         "Either intensity or realIntensity must be specified, not both",
+       ),
+       this.intensity =
+           realIntensity ??
+           switch (type) {
+             LightType.directional || LightType.sun => //
+             intensity! * kIntensityToLux,
+             LightType.point => //
+             intensity! * kIntensityToPointLumen,
+             LightType.spot || LightType.focusedSpot => //
+             intensity! * kIntensityToPointLumen,
+           };
 
   @override
   JsonObject toJson() => <String, dynamic>{
