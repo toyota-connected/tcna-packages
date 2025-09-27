@@ -122,7 +122,7 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
                     widget.filament.changeLightColorByGUID(
                       centerPointLightGUID,
                       colorString,
-                      _directIntensity.toInt(),
+                      _directIntensity,
                     ),
                   );
                 });
@@ -156,7 +156,7 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
                         widget.filament.changeLightColorByGUID(
                           centerPointLightGUID,
                           colorString,
-                          _directIntensity.toInt(),
+                          _directIntensity,
                         ),
                       );
                     });

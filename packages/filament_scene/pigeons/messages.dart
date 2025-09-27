@@ -84,7 +84,7 @@ abstract class FilamentViewApi {
    *  Lights
    */
   /// Set a light's color and intensity by GUID.
-  void changeLightColorByGUID(final int id, final String color, final int intensity);
+  void changeLightColorByGUID(final int id, final String color, final double intensity);
 
   /// Set a light's transform by GUID. Deprecated.
   @Deprecated('Use changeTranslationByGUID and changeRotationByGUID instead')

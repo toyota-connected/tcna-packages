@@ -62,7 +62,7 @@ final EntityGUID centerPointLightGUID = generateGuid();
 List<Light> poGetSceneLightsList() {
   List<Light> itemsToReturn = [];
 
-  itemsToReturn.add(poGetDefaultPointLight(Colors.white, 10000000));
+  itemsToReturn.add(poGetDefaultPointLight(Colors.white, 6));
 
   double yDirection = -1;
   double fallOffRadius = 10;
@@ -87,7 +87,7 @@ List<Light> poGetSceneLightsList() {
       type: lType,
       colorTemperature: 36500,
       color: Colors.red,
-      intensity: 100000000,
+      intensity: 12,
       castShadows: true,
       castLight: true,
       spotLightConeInner: spotLightConeInnter,
@@ -115,7 +115,7 @@ List<Light> poGetSceneLightsList() {
       type: lType,
       colorTemperature: 36500,
       color: Colors.blue,
-      intensity: 100000000,
+      intensity: 12,
       castShadows: true,
       castLight: true,
       spotLightConeInner: spotLightConeInnter,
@@ -143,7 +143,7 @@ List<Light> poGetSceneLightsList() {
       type: lType,
       colorTemperature: 36500,
       color: Colors.green,
-      intensity: 100000000,
+      intensity: 12,
       castShadows: true,
       castLight: true,
       spotLightConeInner: spotLightConeInnter,
@@ -171,7 +171,7 @@ List<Light> poGetSceneLightsList() {
       type: lType,
       colorTemperature: 36500,
       color: Colors.orange,
-      intensity: 100000000,
+      intensity: 12,
       castShadows: true,
       castLight: true,
       spotLightConeInner: spotLightConeInnter,
@@ -192,7 +192,7 @@ List<Light> poGetSceneLightsList() {
       id: SettingsSceneView.objectGuids['l_light_BL']!,
       type: LightType.point,
       color: Colors.red,
-      intensity: 100000000 * 0.05,
+      intensity: 12 * 0.05,
       falloffRadius: 2,
       castShadows: false,
       castLight: true,
@@ -208,7 +208,7 @@ List<Light> poGetSceneLightsList() {
       id: SettingsSceneView.objectGuids['l_light_BR']!,
       type: LightType.point,
       color: Colors.red,
-      intensity: 100000000 * 0.05,
+      intensity: 12 * 0.05,
       falloffRadius: 2,
       castShadows: false,
       castLight: true,
@@ -227,7 +227,7 @@ List<Light> poGetSceneLightsList() {
       id: SettingsSceneView.objectGuids['l_light_FL']!,
       type: LightType.point,
       color: Colors.yellow,
-      intensity: 100000000 * 0.05,
+      intensity: 12 * 0.05,
       falloffRadius: 2,
       castShadows: false,
       castLight: true,
@@ -243,7 +243,7 @@ List<Light> poGetSceneLightsList() {
       id: SettingsSceneView.objectGuids['l_light_FR']!,
       type: LightType.point,
       color: Colors.yellow,
-      intensity: 100000000 * 0.05,
+      intensity: 12 * 0.05,
       falloffRadius: 2,
       castShadows: false,
       castLight: true,
@@ -261,7 +261,7 @@ List<Light> poGetSceneLightsList() {
       id: SettingsSceneView.objectGuids['l_light_tBL']!,
       type: LightType.point,
       color: Colors.orange,
-      intensity: 100000000 * 0.05,
+      intensity: 12 * 0.05,
       falloffRadius: 2,
       castShadows: false,
       castLight: true,
@@ -277,7 +277,7 @@ List<Light> poGetSceneLightsList() {
       id: SettingsSceneView.objectGuids['l_light_tBR']!,
       type: LightType.point,
       color: Colors.orange,
-      intensity: 100000000 * 0.05,
+      intensity: 12 * 0.05,
       falloffRadius: 2,
       castShadows: false,
       castLight: true,
@@ -294,7 +294,7 @@ List<Light> poGetSceneLightsList() {
       id: SettingsSceneView.objectGuids['l_light_tFL']!,
       type: LightType.point,
       color: Colors.orange,
-      intensity: 100000000 * 0.05,
+      intensity: 12 * 0.05,
       falloffRadius: 2,
       castShadows: false,
       castLight: true,
@@ -310,7 +310,7 @@ List<Light> poGetSceneLightsList() {
       id: SettingsSceneView.objectGuids['l_light_tFR']!,
       type: LightType.point,
       color: Colors.orange,
-      intensity: 100000000 * 0.05,
+      intensity: 12 * 0.05,
       falloffRadius: 2,
       castShadows: false,
       castLight: true,
@@ -349,7 +349,7 @@ List<Model> poGetModelList() {
 // TODO(kerberjg): refactor as `DefaultIndirectLight.default`
 DefaultIndirectLight poGetDefaultIndirectLight() {
   return DefaultIndirectLight(
-    intensity: 1000000, // indirect light intensity.
+    intensity: 120000, // indirect light intensity.
     radianceBands: 1, // Number of spherical harmonics bands.
     radianceSh: [1, 1, 1], // Array containing the spherical harmonics coefficients.
     irradianceBands: 1, // Number of spherical harmonics bands.

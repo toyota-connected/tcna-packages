@@ -2,6 +2,7 @@ import 'package:filament_scene/camera/camera.dart';
 import 'package:filament_scene/components/collider.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/shapes/shapes.dart';
+import 'package:filament_scene/widgets.dart';
 import 'package:flutter/material.dart' hide Animation;
 import 'package:fluorite_examples_demo/assets.dart';
 import 'package:fluorite_examples_demo/demo_widgets.dart';
@@ -217,11 +218,11 @@ class PlaygroundSceneView extends StatefulSceneView {
 }
 
 class _PlaygroundSceneViewState extends StatefulSceneViewState {
-  ValueNotifier<double> cameraXAngle = ValueNotifier<double>(
-    PlaygroundSceneView.initialCameraRotation.x,
-  );
-  ValueNotifier<double> cameraYAngle = ValueNotifier<double>(
-    PlaygroundSceneView.initialCameraRotation.y,
+  ValueNotifier<Vector2> cameraAngle = ValueNotifier<Vector2>(
+    Vector2(
+      PlaygroundSceneView.initialCameraRotation.x,
+      PlaygroundSceneView.initialCameraRotation.y,
+    ),
   );
 
   @override
@@ -234,19 +235,9 @@ class _PlaygroundSceneViewState extends StatefulSceneViewState {
       children: [
         // Gesture for camera control
         Expanded(
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent, // allow taps to pass through
-            // NOTE: exercise: try implementing a camera gesture that allows zooming in and out
-            onPanUpdate: (final details) {
-              // Updated camera angles based on initial touch position
-              cameraXAngle.value = (cameraXAngle.value - details.delta.dx * 0.25) % 360;
-              cameraYAngle.value = (cameraYAngle.value - details.delta.dy * 0.25).clamp(-90, -1);
-
-              PlaygroundSceneView._sceneCamera.setOrbit(
-                horizontal: radians(cameraXAngle.value),
-                vertical: radians(cameraYAngle.value),
-              );
-            },
+          child: CameraGestureControl(
+            cameraAngle: cameraAngle,
+            camera: PlaygroundSceneView._sceneCamera,
           ),
         ),
 

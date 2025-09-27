@@ -1,7 +1,8 @@
-// Simple lit material that defines 3 parameters:
+// Lit material with specularity that defines 5 parameters:
 // - baseColor
 // - roughness
-// - metallic
+// - specularColor
+// - glossiness
 //
 // These parameters can be used by the application to change the appearance of the material.
 //
@@ -13,40 +14,32 @@
 // Please refer to the documentation for more information about matc and the materials system.
 
 material {
-    name : lit,
+    name : specular,
 
     // Dynamic lighting is enabled on this material
-    shadingModel : lit,
+    shadingModel : specularGlossiness,
 
-    // We don't need to declare a "requires" array, lit materials
-    // always requires the "tangents" vertex attribute (the normal
-    // is required for lighting, tangent/bitangent for normal mapping
-    // and anisotropy)
+    reflections : screenspace,
+    shadowReceiver : true,
 
     // List of parameters exposed by this material
     parameters : [
         // The color must be passed in linear space, not sRGB
         {
-            type : float4,
-            name : baseColor,
-            default : [1.0, 1.0, 1.0, 1.0]
+            type : float3,
+            name : baseColor
         },
         {
-            type : float4,
-            name : emissive,
-            default : [0.0, 0.0, 0.0, 1.0]
-        },
-        {
-            type : float,
-            name : roughness
+            type : float3,
+            name : specularColor
         },
         {
             type : float,
-            name : metallic
+            name : glossiness
         },
         {
             type : float,
-            name: reflectance
+            name : ambientOcclusion
         }
     ],
 }
@@ -55,10 +48,10 @@ fragment {
     void material(inout MaterialInputs material) {
         prepareMaterial(material);
 
-        material.baseColor.rgba = materialParams.baseColor;
-        material.emissive = materialParams.emissive;
-        material.roughness = materialParams.roughness;
-        material.metallic = materialParams.metallic;
-        material.reflectance = materialParams.reflectance;
+        // Nothing fancy here, we simply copy the parameters
+        material.baseColor.rgb = materialParams.baseColor;
+        material.specularColor = materialParams.specularColor;
+        material.glossiness = materialParams.glossiness;
+        material.ambientOcclusion = materialParams.ambientOcclusion;
     }
 }
