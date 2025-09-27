@@ -17,7 +17,7 @@ extension Vector3WithExtras on Vector3 {
   }
 
   /// Linearly interpolate between two vectors.
-  static Vector3 lerp(Vector3 a, Vector3 b, double t) {
+  static Vector3 lerp(final Vector3 a, final Vector3 b, double t) {
     t = t.clamp(0.0, 1.0);
     return Vector3(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t);
   }
@@ -35,7 +35,7 @@ extension Vector2WithExtras on Vector2 {
   Vector2 operator *(final Vector2 other) => mul(other);
 
   /// Linearly interpolate between two vectors.
-  static Vector2 lerp(Vector2 a, Vector2 b, double t) {
+  static Vector2 lerp(final Vector2 a, final Vector2 b, double t) {
     t = t.clamp(0.0, 1.0);
     return Vector2(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t);
   }

@@ -7,8 +7,8 @@ import 'package:flutter/widgets.dart';
 class CameraGestureControl extends StatelessWidget {
   final ValueNotifier<Vector2> cameraAngle;
   final Camera camera;
-  Vector2 minAngle = Vector2(0, -90);
-  Vector2 maxAngle = Vector2(360, -15);
+  final Vector2 minAngle = Vector2(0, -90);
+  final Vector2 maxAngle = Vector2(360, -15);
 
   CameraGestureControl({
     super.key,
@@ -18,10 +18,10 @@ class CameraGestureControl extends StatelessWidget {
     final Vector2? maxAngle,
   }) {
     if (minAngle != null) {
-      this.minAngle = minAngle;
+      this.minAngle.setFrom(minAngle);
     }
     if (maxAngle != null) {
-      this.maxAngle = maxAngle;
+      this.maxAngle.setFrom(maxAngle);
     }
   }
 
@@ -50,5 +50,7 @@ class CameraGestureControl extends StatelessWidget {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<ValueNotifier<Vector2>>('cameraAngle', cameraAngle));
     properties.add(DiagnosticsProperty<Camera>('camera', camera));
+    properties.add(DiagnosticsProperty<Vector2>('minAngle', minAngle));
+    properties.add(DiagnosticsProperty<Vector2>('maxAngle', maxAngle));
   }
 }

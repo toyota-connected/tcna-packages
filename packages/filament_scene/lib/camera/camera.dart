@@ -4,7 +4,6 @@ import 'package:filament_scene/components/camera.dart' as CameraComponent;
 import 'package:filament_scene/generated/messages.g.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/scene/camera/exposure.dart';
-import 'package:filament_scene/scene/camera/lens_projection.dart';
 import 'package:filament_scene/scene/camera/projection.dart';
 import 'package:filament_scene/utils/guid.dart';
 import 'package:filament_scene/utils/serialization.dart';
