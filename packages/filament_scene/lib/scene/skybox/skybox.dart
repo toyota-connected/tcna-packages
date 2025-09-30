@@ -1,6 +1,7 @@
 library skybox;
 
 import 'dart:ui';
+import 'package:filament_scene/math/color.dart' show ColorExtras;
 import 'package:filament_scene/utils/serialization.dart';
 
 part 'color_skybox.dart';
@@ -55,7 +56,7 @@ abstract class Skybox with Jsonable {
   JsonObject toJson() => <String, dynamic>{
     'assetPath': assetPath,
     'url': url,
-    'color': color?.toHex(),
+    'color': color?.storage64,
     'skyboxType': type.value,
   };
 }
