@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:math';
 
 import 'package:filament_scene/engine.dart';
+import 'package:filament_scene/math/color.dart' show ColorExtras;
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:filament_scene/generated/messages.g.dart';
@@ -116,12 +117,10 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
               onColorChanged: (Color color) {
                 setState(() {
                   _directLightColor = color;
-                  final String colorString = _directLightColor.toHexString(includeHashSign: true);
-
                   widget.filament.queueFrameTask(
                     widget.filament.changeLightColorByGUID(
                       centerPointLightGUID,
-                      colorString,
+                      _directLightColor.storage64,
                       _directIntensity,
                     ),
                   );
@@ -148,14 +147,11 @@ class _LightSettingsWidgetState extends State<LightSettingsWidget> {
                   onChanged: (double value) {
                     setState(() {
                       _directIntensity = value;
-                      final String colorString = _directLightColor.toHexString(
-                        includeHashSign: true,
-                      );
 
                       widget.filament.queueFrameTask(
                         widget.filament.changeLightColorByGUID(
                           centerPointLightGUID,
-                          colorString,
+                          _directLightColor.storage64,
                           _directIntensity,
                         ),
                       );

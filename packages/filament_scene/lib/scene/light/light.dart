@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:filament_scene/entity/entity.dart';
+import 'package:filament_scene/math/color.dart' show ColorExtras;
 import 'package:filament_scene/utils/serialization.dart';
 import 'package:vector_math/vector_math.dart';
 
@@ -200,7 +201,7 @@ class Light extends Entity {
   JsonObject toJson() => <String, dynamic>{
     ...super.toJson(),
     'type': type.value,
-    'color': color?.toHex(),
+    'color': color?.storage64,
     'colorTemperature': colorTemperature,
     'intensity': intensity,
     'position': position?.toJson(),

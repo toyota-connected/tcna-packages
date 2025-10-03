@@ -24,8 +24,14 @@ enum MaterialType {
   /// Material value presented as float.
   float("FLOAT"),
 
-  /// Material value presented as Vector of 2 to 4 booleans.
-  floatVector("FLOAT_VECTOR"),
+  /// Material value presented as Vector 2 floats.
+  float2("FLOAT2"),
+
+  /// Material value presented as Vector 3 floats.
+  float3("FLOAT3"),
+
+  /// Material value presented as Vector 4 floats.
+  float4("FLOAT4"),
 
   /// Material value presented as int.
   int("INT"),
@@ -93,7 +99,7 @@ class MaterialParameter with Jsonable {
 
   /// create a material parameter of color type.
   MaterialParameter.color({required final Color color, required this.name}) {
-    value = color.toHex();
+    value = [color.r, color.g, color.b, color.a];
     type = MaterialType.color;
   }
 
@@ -105,7 +111,16 @@ class MaterialParameter with Jsonable {
   /// create a material parameter of float Vector type.
   /// It takes list of max 4 double elements as parameter.
   MaterialParameter.floatVector({required List<double> this.value, required this.name}) {
-    type = MaterialType.floatVector;
+    type = switch ((value as List<double>).length) {
+      2 => MaterialType.float2,
+      3 => MaterialType.float3,
+      4 => MaterialType.float4,
+      _ => throw ArgumentError.value(
+        value,
+        'value',
+        'List must have 2, 3, or 4 elements for float vector types.',
+      ),
+    };
   }
 
   /// create a material parameter of bool type.
@@ -149,7 +164,8 @@ class MaterialParameter with Jsonable {
 
   /// create a material parameter of color type with baseColor parameter name.
   MaterialParameter.baseColor({required final Color color, this.name = 'baseColor'}) {
-    value = color.toHex();
+    // color as float array
+    value = [color.r, color.g, color.b, color.a];
     type = MaterialType.color;
   }
 

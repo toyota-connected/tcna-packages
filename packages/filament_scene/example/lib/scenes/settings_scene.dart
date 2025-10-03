@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:filament_scene/camera/camera.dart';
 import 'package:filament_scene/components/collider.dart';
+import 'package:filament_scene/math/color.dart' show ColorExtras;
 import 'package:filament_scene/math/utils.dart';
 import 'package:filament_scene/math/vectors.dart';
 import 'package:filament_scene/shapes/shapes.dart';
-import 'package:filament_scene/utils/serialization.dart';
 import 'package:flutter/material.dart' hide Material;
 import 'package:fluorite_examples_demo/assets.dart';
 import 'package:fluorite_examples_demo/events/collision_event_channel.dart';
@@ -510,7 +510,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       filament.queueFrameTask(
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_BL']!,
-          Colors.red.toHex(),
+          Colors.red.storage64,
           (5000000 * _lightIntensity.value),
         ),
       );
@@ -518,7 +518,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       filament.queueFrameTask(
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_BR']!,
-          Colors.red.toHex(),
+          Colors.red.storage64,
           (5000000 * _lightIntensity.value),
         ),
       );
@@ -526,7 +526,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       filament.queueFrameTask(
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_FL']!,
-          Colors.yellow.toHex(),
+          Colors.yellow.storage64,
           (5000000 * _lightIntensity.value),
         ),
       );
@@ -534,7 +534,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       filament.queueFrameTask(
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_FR']!,
-          Colors.yellow.toHex(),
+          Colors.yellow.storage64,
           (5000000 * _lightIntensity.value),
         ),
       );
@@ -542,7 +542,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       filament.queueFrameTask(
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_BL']!,
-          Colors.black.toHex(),
+          Colors.black.storage64,
           0,
         ),
       );
@@ -550,7 +550,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       filament.queueFrameTask(
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_BR']!,
-          Colors.black.toHex(),
+          Colors.black.storage64,
           0,
         ),
       );
@@ -558,7 +558,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       filament.queueFrameTask(
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_FL']!,
-          Colors.black.toHex(),
+          Colors.black.storage64,
           0,
         ),
       );
@@ -566,7 +566,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       filament.queueFrameTask(
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_FR']!,
-          Colors.black.toHex(),
+          Colors.black.storage64,
           0,
         ),
       );
@@ -577,7 +577,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       filament.queueFrameTask(
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_tBL']!,
-          Colors.orange.toHex(),
+          Colors.orange.storage64,
           (5000000 * _lightIntensity.value),
         ),
       );
@@ -585,7 +585,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       filament.queueFrameTask(
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_tBR']!,
-          Colors.orange.toHex(),
+          Colors.orange.storage64,
           (5000000 * _lightIntensity.value),
         ),
       );
@@ -593,7 +593,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       filament.queueFrameTask(
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_tFL']!,
-          Colors.orange.toHex(),
+          Colors.orange.storage64,
           (5000000 * _lightIntensity.value),
         ),
       );
@@ -601,7 +601,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       filament.queueFrameTask(
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_tFR']!,
-          Colors.orange.toHex(),
+          Colors.orange.storage64,
           (5000000 * _lightIntensity.value),
         ),
       );
@@ -609,7 +609,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       filament.queueFrameTask(
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_tBL']!,
-          Colors.black.toHex(),
+          Colors.black.storage64,
           0,
         ),
       );
@@ -617,7 +617,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       filament.queueFrameTask(
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_tBR']!,
-          Colors.black.toHex(),
+          Colors.black.storage64,
           0,
         ),
       );
@@ -625,7 +625,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       filament.queueFrameTask(
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_tFL']!,
-          Colors.black.toHex(),
+          Colors.black.storage64,
           0,
         ),
       );
@@ -633,7 +633,7 @@ class _SettingsSceneViewState extends StatefulSceneViewState<SettingsSceneView>
       filament.queueFrameTask(
         filament.changeLightColorByGUID(
           SettingsSceneView.objectGuids['l_light_tFR']!,
-          Colors.black.toHex(),
+          Colors.black.storage64,
           0,
         ),
       );
