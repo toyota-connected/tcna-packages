@@ -161,14 +161,23 @@ abstract class FlatpakApi {
   /// Get a list of applications installed on machine.
   List<Application> getApplicationsInstalled();
 
+  /// Get a list of applications needing update on machine.
+  List<Application> getApplicationsUpdate();
+
   /// Get list of applications hosted on a remote.
   List<Application> getApplicationsRemote(String id);
 
   /// Install application of given id.
+  @async
   bool applicationInstall(String id);
 
   /// Uninstall application with specified id.
+  @async
   bool applicationUninstall(String id);
+
+  /// Update application with specified id.
+  @async
+  bool applicationUpdate(String id);
 
   /// Start application using specified configuration.
   bool applicationStart(String id);

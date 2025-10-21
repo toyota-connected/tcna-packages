@@ -586,6 +586,34 @@ class FlatpakApi {
     }
   }
 
+  /// Get a list of applications need to update on machine.
+  Future<List<Application>> getApplicationsUpdate() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.flatpak_flutter.FlatpakApi.getApplicationsUpdate$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(null) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as List<Object?>?)!.cast<Application>();
+    }
+  }
+
   /// Get list of applications hosted on a remote.
   Future<List<Application>> getApplicationsRemote(String id) async {
     final String pigeonVar_channelName = 'dev.flutter.pigeon.flatpak_flutter.FlatpakApi.getApplicationsRemote$pigeonVar_messageChannelSuffix';
@@ -645,6 +673,34 @@ class FlatpakApi {
   /// Uninstall application with specified id.
   Future<bool> applicationUninstall(String id) async {
     final String pigeonVar_channelName = 'dev.flutter.pigeon.flatpak_flutter.FlatpakApi.applicationUninstall$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[id]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as bool?)!;
+    }
+  }
+
+  /// Update application with specified id.
+  Future<bool> applicationUpdate(String id) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.flatpak_flutter.FlatpakApi.applicationUpdate$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
