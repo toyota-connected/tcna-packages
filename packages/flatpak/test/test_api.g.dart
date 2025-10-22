@@ -89,14 +89,20 @@ abstract class TestHostFlatpakApi {
   /// Get a list of applications installed on machine.
   List<Application> getApplicationsInstalled();
 
+  /// Get a list of applications needing update on machine.
+  List<Application> getApplicationsUpdate();
+
   /// Get list of applications hosted on a remote.
   List<Application> getApplicationsRemote(String id);
 
   /// Install application of given id.
-  bool applicationInstall(String id);
+  Future<bool> applicationInstall(String id);
 
   /// Uninstall application with specified id.
-  bool applicationUninstall(String id);
+  Future<bool> applicationUninstall(String id);
+
+  /// Update application with specified id.
+  Future<bool> applicationUpdate(String id);
 
   /// Start application using specified configuration.
   bool applicationStart(String id);
@@ -272,6 +278,25 @@ abstract class TestHostFlatpakApi {
     }
     {
       final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.flatpak_flutter.FlatpakApi.getApplicationsUpdate$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(pigeonVar_channel, null);
+      } else {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(pigeonVar_channel, (Object? message) async {
+          try {
+            final List<Application> output = api.getApplicationsUpdate();
+            return <Object?>[output];
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
           'dev.flutter.pigeon.flatpak_flutter.FlatpakApi.getApplicationsRemote$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
@@ -310,7 +335,7 @@ abstract class TestHostFlatpakApi {
           assert(arg_id != null,
               'Argument for dev.flutter.pigeon.flatpak_flutter.FlatpakApi.applicationInstall was null, expected non-null String.');
           try {
-            final bool output = api.applicationInstall(arg_id!);
+            final bool output = await api.applicationInstall(arg_id!);
             return <Object?>[output];
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
@@ -335,7 +360,32 @@ abstract class TestHostFlatpakApi {
           assert(arg_id != null,
               'Argument for dev.flutter.pigeon.flatpak_flutter.FlatpakApi.applicationUninstall was null, expected non-null String.');
           try {
-            final bool output = api.applicationUninstall(arg_id!);
+            final bool output = await api.applicationUninstall(arg_id!);
+            return <Object?>[output];
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.flatpak_flutter.FlatpakApi.applicationUpdate$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(pigeonVar_channel, null);
+      } else {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(pigeonVar_channel, (Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.flatpak_flutter.FlatpakApi.applicationUpdate was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final String? arg_id = (args[0] as String?);
+          assert(arg_id != null,
+              'Argument for dev.flutter.pigeon.flatpak_flutter.FlatpakApi.applicationUpdate was null, expected non-null String.');
+          try {
+            final bool output = await api.applicationUpdate(arg_id!);
             return <Object?>[output];
           } on PlatformException catch (e) {
             return wrapResponse(error: e);

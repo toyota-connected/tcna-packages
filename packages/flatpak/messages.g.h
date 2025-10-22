@@ -385,12 +385,22 @@ class FlatpakApi {
   virtual ErrorOr<bool> RemoteRemove(const std::string& id) = 0;
   // Get a list of applications installed on machine.
   virtual ErrorOr<flutter::EncodableList> GetApplicationsInstalled() = 0;
+  // Get a list of applications need to update on machine.
+  virtual ErrorOr<flutter::EncodableList> GetApplicationsUpdate() = 0;
   // Get list of applications hosted on a remote.
   virtual ErrorOr<flutter::EncodableList> GetApplicationsRemote(const std::string& id) = 0;
   // Install application of given id.
-  virtual ErrorOr<bool> ApplicationInstall(const std::string& id) = 0;
+  virtual void ApplicationInstall(
+    const std::string& id,
+    std::function<void(ErrorOr<bool> reply)> result) = 0;
   // Uninstall application with specified id.
-  virtual ErrorOr<bool> ApplicationUninstall(const std::string& id) = 0;
+  virtual void ApplicationUninstall(
+    const std::string& id,
+    std::function<void(ErrorOr<bool> reply)> result) = 0;
+  // Update application with specified id.
+  virtual void ApplicationUpdate(
+    const std::string& id,
+    std::function<void(ErrorOr<bool> reply)> result) = 0;
   // Start application using specified configuration.
   virtual ErrorOr<bool> ApplicationStart(const std::string& id) = 0;
   // Stop application with given id.
