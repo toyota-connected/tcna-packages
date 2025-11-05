@@ -180,6 +180,7 @@ abstract class FlatpakApi {
   bool applicationUpdate(String id);
 
   /// Start application using specified configuration.
+  @async
   bool applicationStart(String id);
 
   /// Stop application with given id.

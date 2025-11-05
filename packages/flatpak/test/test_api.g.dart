@@ -105,7 +105,7 @@ abstract class TestHostFlatpakApi {
   Future<bool> applicationUpdate(String id);
 
   /// Start application using specified configuration.
-  bool applicationStart(String id);
+  Future<bool> applicationStart(String id);
 
   /// Stop application with given id.
   bool applicationStop(String id);
@@ -410,7 +410,7 @@ abstract class TestHostFlatpakApi {
           assert(arg_id != null,
               'Argument for dev.flutter.pigeon.flatpak_flutter.FlatpakApi.applicationStart was null, expected non-null String.');
           try {
-            final bool output = api.applicationStart(arg_id!);
+            final bool output = await api.applicationStart(arg_id!);
             return <Object?>[output];
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
