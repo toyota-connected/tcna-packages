@@ -45,6 +45,9 @@ class CameraLinux extends CameraPlatform {
           .where((CameraEvent event) => event.cameraId == cameraId);
 
   @override
+  bool supportsImageStreaming() => true;
+
+  @override
   Future<List<CameraDescription>> availableCameras() async {
     try {
       final List<String?> cameras = await _hostApi.getAvailableCameras();
