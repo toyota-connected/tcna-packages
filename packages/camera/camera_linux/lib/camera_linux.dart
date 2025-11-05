@@ -16,7 +16,7 @@ import 'src/messages.g.dart';
 class CameraLinux extends CameraPlatform {
   /// Creates a new Linux [CameraPlatform] implementation instance.
   CameraLinux({@visibleForTesting CameraApi? api})
-      : _hostApi = api ?? CameraApi();
+    : _hostApi = api ?? CameraApi();
 
   /// Registers the Linux implementation of CameraPlatform.
   static void registerWith() {
@@ -40,9 +40,9 @@ class CameraLinux extends CameraPlatform {
       StreamController<CameraEvent>.broadcast();
 
   /// Returns a stream of camera events for the given [cameraId].
-  Stream<CameraEvent> _cameraEvents(int cameraId) =>
-      cameraEventStreamController.stream
-          .where((CameraEvent event) => event.cameraId == cameraId);
+  Stream<CameraEvent> _cameraEvents(int cameraId) => cameraEventStreamController
+      .stream
+      .where((CameraEvent event) => event.cameraId == cameraId);
 
   @override
   bool supportsImageStreaming() => true;
@@ -54,9 +54,9 @@ class CameraLinux extends CameraPlatform {
     int cameraId, {
     CameraImageStreamOptions? options,
   }) {
-  return _channel
-      .receiveBroadcastStream({'cameraId': cameraId})
-      .map<CameraImageData>(_decodeCameraImageData);
+    return _channel
+        .receiveBroadcastStream({'cameraId': cameraId})
+        .map<CameraImageData>(_decodeCameraImageData);
   }
 
   CameraImageData _decodeCameraImageData(dynamic event) {
@@ -124,13 +124,10 @@ class CameraLinux extends CameraPlatform {
     CameraDescription cameraDescription,
     ResolutionPreset? resolutionPreset, {
     bool enableAudio = false,
-  }) =>
-      createCameraWithSettings(
-          cameraDescription,
-          MediaSettings(
-            resolutionPreset: resolutionPreset,
-            enableAudio: enableAudio,
-          ));
+  }) => createCameraWithSettings(
+    cameraDescription,
+    MediaSettings(resolutionPreset: resolutionPreset, enableAudio: enableAudio),
+  );
 
   @override
   Future<int> createCameraWithSettings(
@@ -140,7 +137,9 @@ class CameraLinux extends CameraPlatform {
     try {
       // If resolutionPreset is not specified, plugin selects the highest resolution possible.
       return await _hostApi.create(
-          cameraDescription.name, _pigeonMediaSettings(mediaSettings));
+        cameraDescription.name,
+        _pigeonMediaSettings(mediaSettings),
+      );
     } on PlatformException catch (e) {
       throw CameraException(e.code, e.message);
     }
@@ -153,8 +152,9 @@ class CameraLinux extends CameraPlatform {
   }) async {
     /// Creates channel for camera events.
     _cameraChannels.putIfAbsent(cameraId, () {
-      final MethodChannel channel =
-          MethodChannel('plugins.flutter.io/camera_linux/camera$cameraId');
+      final MethodChannel channel = MethodChannel(
+        'plugins.flutter.io/camera_linux/camera$cameraId',
+      );
       channel.setMethodCallHandler(
         (MethodCall call) => handleCameraMethodCall(call, cameraId),
       );
@@ -259,8 +259,10 @@ class CameraLinux extends CameraPlatform {
   }
 
   @override
-  Future<void> startVideoRecording(int cameraId,
-      {Duration? maxVideoDuration}) async {
+  Future<void> startVideoRecording(
+    int cameraId, {
+    Duration? maxVideoDuration,
+  }) async {
     // Ignore maxVideoDuration, as it is unimplemented and deprecated.
     return startVideoCapturing(VideoCaptureOptions(cameraId));
   }
@@ -396,19 +398,12 @@ class CameraLinux extends CameraPlatform {
   Future<dynamic> handleCameraMethodCall(MethodCall call, int cameraId) async {
     switch (call.method) {
       case 'camera_closing':
-        cameraEventStreamController.add(
-          CameraClosingEvent(
-            cameraId,
-          ),
-        );
+        cameraEventStreamController.add(CameraClosingEvent(cameraId));
       case 'error':
         final Map<String, Object?> arguments =
             (call.arguments as Map<Object?, Object?>).cast<String, Object?>();
         cameraEventStreamController.add(
-          CameraErrorEvent(
-            cameraId,
-            arguments['description']! as String,
-          ),
+          CameraErrorEvent(cameraId, arguments['description']! as String),
         );
       default:
         throw UnimplementedError();
@@ -428,7 +423,8 @@ class CameraLinux extends CameraPlatform {
 
   /// Returns a [ResolutionPreset]'s Pigeon representation.
   PlatformResolutionPreset _pigeonResolutionPreset(
-      ResolutionPreset? resolutionPreset) {
+    ResolutionPreset? resolutionPreset,
+  ) {
     if (resolutionPreset == null) {
       // Provide a default if one isn't provided, since the native side needs
       // to set something.
