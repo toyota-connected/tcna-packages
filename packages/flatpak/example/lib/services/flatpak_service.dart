@@ -41,7 +41,7 @@ class FlatpakService {
   }
 
   Future<bool> ApplicationStart(String id) async{
-    return _api.applicationStart(id);
+    return await _api.applicationStart(id);
   }
 
   Future<bool> ApplicationStop(String id) async{
