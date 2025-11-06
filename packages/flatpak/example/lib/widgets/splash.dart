@@ -1,11 +1,14 @@
 import 'package:flatpak_flutter_example/services/AppProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../business_logic/discovery/dicovery_cubit.dart';
+import '../business_logic/installed_apps/installed_apps_cubit.dart';
 import '../responsive.dart';
 import 'navigation_menu.dart';
 
-class SplashScreen extends StatefulWidget{
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
@@ -23,6 +26,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   late Animation<double> _fadeToGradientAnimation;
   late Animation<Offset> _subtitleSlideAnimation;
   late Animation<double> _subtitleFadeAnimation;
+
+  String _loadingMessage = 'Initializing...';
+  bool _hasError = false;
+  String _errorMessage = '';
 
   static const Map<String, List<String>> categories = {
     'Popular Apps': [
@@ -86,7 +93,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     super.initState();
 
     _animationController = AnimationController(
-      duration: Duration(seconds: 3),
+      duration: const Duration(seconds: 3),
       vsync: this,
     );
 
@@ -95,19 +102,24 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       vsync: this,
     );
 
+    _subtitleController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
     ).animate(CurvedAnimation(
         parent: _animationController,
-        curve: const Interval(0.2, 0.8,curve: Curves.easeInOut)));
+        curve: const Interval(0.2, 0.8, curve: Curves.easeInOut)));
 
     _scaleAnimation = Tween<double>(
       begin: 0.8,
       end: 1.0,
     ).animate(CurvedAnimation(
         parent: _animationController,
-        curve: const Interval(0.0, 0.6,curve: Curves.elasticOut)));
+        curve: const Interval(0.0, 0.6, curve: Curves.elasticOut)));
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(-1.0, 0.0),
@@ -115,11 +127,6 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     ).animate(CurvedAnimation(
         parent: _animationController,
         curve: const Interval(0.4, 1.0, curve: Curves.fastEaseInToSlowEaseOut)));
-
-    _subtitleController = AnimationController(
-      duration: const Duration(milliseconds: 400),
-      vsync: this,
-    );
 
     _subtitleSlideAnimation = Tween<Offset>(
       begin: const Offset(-1.0, 0.0),
@@ -148,182 +155,234 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _splashInit();
     });
-
   }
-
 
   Future<void> _splashInit() async {
     try {
-      final appStateProvider = Provider.of<AppStateProvider>(context, listen: false);
-      final appsProvider = Provider.of<AppsProvider>(context, listen: false);
+      setState(() {
+        _hasError = false;
+        _errorMessage = '';
+        _loadingMessage = 'Starting...';
+      });
 
-      appStateProvider.clearError();
-      appStateProvider.setInitialize(true);
       _animationController.forward();
 
-      await appsProvider.initialize();
+      setState(() => _loadingMessage = 'Connecting to Flatpak...');
+      await Future.delayed(const Duration(seconds: 1));
 
-      await Future.delayed(const Duration(seconds: 2));
+      setState(() => _loadingMessage = 'Loading remotes...');
+      await context.read<DiscoveryCubit>().initialize();
+
+      setState(() => _loadingMessage = 'Loading installed apps...');
+      await context.read<InstalledAppsCubit>().loadInstalledApps();
+
+      await Future.delayed(const Duration(milliseconds: 500));
       _subtitleController.forward();
-      await _loadAllCategories(appsProvider);
-      appStateProvider.setInitialize(false);
+
+      setState(() => _loadingMessage = 'Loading apps from remotes...');
+      await context.read<DiscoveryCubit>().loadAllApps();
+
+      setState(() => _loadingMessage = 'Organizing categories...');
+      await _loadAllCategories();
+
       await Future.delayed(const Duration(milliseconds: 500));
       await _fadeController.forward();
 
-
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => NavigationMenu()),
-        );
+        context.go('/home');
       }
+    } catch (e, stackTrace) {
+      print('[SplashScreen] Error during initialization: $e');
+      print('[SplashScreen] Stack trace: $stackTrace');
 
-    } catch (e) {
-      final appStateProvider = Provider.of<AppStateProvider>(context, listen: false);
-      appStateProvider.setInitialize(false);
-      appStateProvider.setError(e.toString());
+      setState(() {
+        _hasError = true;
+        _errorMessage = e.toString();
+        _loadingMessage = 'Error occurred';
+      });
+
+      await Future.delayed(const Duration(seconds: 3));
+      if (mounted) {
+        _splashInit();
+      }
     }
   }
 
-  Future<void> _loadAllCategories(AppsProvider appsProvider) async {
+  Future<void> _loadAllCategories() async {
+    final discoveryCubit = context.read<DiscoveryCubit>();
+
     for (final entry in categories.entries) {
       try {
-        await appsProvider.loadCategoryApps(entry.key, entry.value);
+        setState(() => _loadingMessage = 'Loading ${entry.key}...');
+        await discoveryCubit.loadCategoryApps(entry.key, entry.value);
+        await Future.delayed(const Duration(milliseconds: 100));
       } catch (e) {
-        print('Error loading category ${entry.key}: $e');
+        print('[SplashScreen] Error loading category ${entry.key}: $e');
       }
+    }
+
+    print('[SplashScreen] Categories loaded:');
+    for (final entry in categories.entries) {
+      final apps = discoveryCubit.getCategoryApps(entry.key);
+      print('[SplashScreen] ${entry.key}: ${apps.length} apps');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<AppStateProvider>(
-          builder: (context, appStateProvider, child) {
-            return Center(
-              child: AnimatedBuilder(
-                animation: Listenable.merge([
-                  _animationController,
-                  _fadeController,
-                ]),
-                builder: (context,child) {
-                  return Stack(
-                    children:[
-                      Container(
-                        width: double.infinity,
-                        height: double.infinity,
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: <Widget>[
-
-                                  Transform.scale(
-                                    scale: _scaleAnimation.value,
-                                    child: FadeTransition(
-                                      opacity: _fadeAnimation,
-                                      child: SvgPicture.asset(
-                                        'assets/logos/AGL.svg',
-                                        width: 168,
-                                        height: 36,
-                                      ),
-                                    ),
-                                  ),
-
-                                  const SizedBox(width: 12),
-
-                                  SlideTransition(
-                                    position: _slideAnimation,
-                                    child: FadeTransition(
-                                      opacity: _fadeAnimation,
-                                      child: ShaderMask(
-                                        shaderCallback: (bounds) =>
-                                            const LinearGradient(
-                                              colors: [Color(0x00000000), Color(0xFF33D17A)],
-                                              begin: Alignment.bottomRight,
-                                              end: Alignment.topLeft,
-                                            ).createShader(bounds),
-                                        child: Text(
-                                          'Store',
-                                          style: TextStyle(
-                                            fontSize: Responsive.scaleWithConstraints(
-                                              context,
-                                              40,
-                                              minSize: 36,
-                                              maxSize: 72,
-                                            ),
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.white,
-
-                                            letterSpacing: -0.5,
-                                            height: 1.0,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-
-                                ],
-
+      body: Center(
+        child: AnimatedBuilder(
+          animation: Listenable.merge([
+            _animationController,
+            _fadeController,
+          ]),
+          builder: (context, child) {
+            return Stack(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Transform.scale(
+                              scale: _scaleAnimation.value,
+                              child: FadeTransition(
+                                opacity: _fadeAnimation,
+                                child: SvgPicture.asset(
+                                  'assets/logos/AGL.svg',
+                                  width: 168,
+                                  height: 36,
+                                ),
                               ),
-
-                              const SizedBox(height: 16),
-                              AnimatedBuilder(
-                                  animation: Listenable.merge([
-                                    _subtitleSlideAnimation,
-                                    _subtitleFadeAnimation
-                                  ]),
-                                  builder: (context,child) {
-                                    return SlideTransition(
-                                        position: _subtitleSlideAnimation,
-                                      child: Opacity(
-                                          opacity:_subtitleFadeAnimation.value,
-                                        child: Text(
-                                          'AGL Store powered by Automotive Grade Linux',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.black.withValues(alpha: 0.7),
-                                            fontWeight: FontWeight.w300,
-                                            letterSpacing: 0.5,
-                                          ),
-                                        ),
+                            ),
+                            const SizedBox(width: 12),
+                            SlideTransition(
+                              position: _slideAnimation,
+                              child: FadeTransition(
+                                opacity: _fadeAnimation,
+                                child: ShaderMask(
+                                  shaderCallback: (bounds) =>
+                                      const LinearGradient(
+                                        colors: [
+                                          Color(0x00000000),
+                                          Color(0xFF33D17A)
+                                        ],
+                                        begin: Alignment.bottomRight,
+                                        end: Alignment.topLeft,
+                                      ).createShader(bounds),
+                                  child: Text(
+                                    'Store',
+                                    style: TextStyle(
+                                      fontSize:
+                                      Responsive.scaleWithConstraints(
+                                        context,
+                                        40,
+                                        minSize: 36,
+                                        maxSize: 72,
                                       ),
-                                    );
-                                  }
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                      letterSpacing: -0.5,
+                                      height: 1.0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Subtitle
+                        AnimatedBuilder(
+                          animation: Listenable.merge([
+                            _subtitleSlideAnimation,
+                            _subtitleFadeAnimation
+                          ]),
+                          builder: (context, child) {
+                            return SlideTransition(
+                              position: _subtitleSlideAnimation,
+                              child: Opacity(
+                                opacity: _subtitleFadeAnimation.value,
+                                child: Text(
+                                  'AGL Store powered by Automotive Grade Linux',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black.withValues(alpha: 0.7),
+                                    fontWeight: FontWeight.w300,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                width: 200,
+                                child: LinearProgressIndicator(
+                                  backgroundColor: Colors.grey[200],
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    _hasError ? Colors.red : const Color(0xFF33D17A),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                _hasError ? _errorMessage : _loadingMessage,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: _hasError
+                                      ? Colors.red
+                                      : Colors.black.withValues(alpha: 0.5),
+                                  fontWeight: FontWeight.w300,
+                                ),
                               ),
                             ],
                           ),
                         ),
+                      ],
                     ),
-                    Opacity(
-                      opacity: _fadeToGradientAnimation.value,
-                      child: Container(
-                        width: double.infinity,
-                        height: double.infinity,
-                        decoration: const BoxDecoration(
-                        gradient: LinearGradient(
+                  ),
+                ),
+
+                Opacity(
+                  opacity: _fadeToGradientAnimation.value,
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
                           Color(0xFF070E20),
                           Color(0xFF1E3B86),
-                          ],
-                          ),
-                          ),
+                        ],
                       ),
                     ),
-                  ],
-                  );
-                }
-              ),
+                  ),
+                ),
+              ],
             );
           },
         ),
+      ),
     );
   }
-
 
   @override
   void dispose() {

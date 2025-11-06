@@ -1,20 +1,20 @@
-import 'dart:core';
-import 'package:flatpak_flutter_example/screens/apps_screen.dart';
-import 'package:flatpak_flutter_example/widgets/cateogry_section.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../../data/models/application_model.dart';
+import '../business_logic/app_launch/app_launch_cubit.dart';
+import '../business_logic/discovery/dicovery_cubit.dart';
+import '../business_logic/discovery/discovery_state.dart';
+import '../business_logic/event_listener/event_listener_bloc.dart';
+import '../business_logic/event_listener/event_listener_state.dart';
+import '../business_logic/installation/installation_cubit.dart';
+import '../business_logic/installed_apps/installed_apps_cubit.dart';
+import '../widgets/cateogry_section.dart';
 import '../widgets/top_bar.dart';
-import 'package:flatpak_flutter/src/messages.g.dart';
-import 'package:flatpak_flutter_example/services/AppProvider.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
   static const List<String> categoryOrder = [
     'Popular Apps',
     'Productivity',
@@ -28,94 +28,111 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const AppTopBar(),
-      body: Consumer<AppsProvider>(
-        builder: (context, appsProvider, child) {
-          return RefreshIndicator(
-              onRefresh: () async {
-                await appsProvider.loadInstalled();
-                await appsProvider.loadRemotes();
-        },
-        child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 32),
-
-                    ...categoryOrder.map((categoryName) {
-                      final apps = appsProvider.getCategoryApps(categoryName);
-                      final isLoading = appsProvider.isCategoryLoading(categoryName);
-
-                      return Column(
-                        children: [
-                          CategorySection(
-                            category_heading: categoryName,
-                            apps: apps,
-                            isLoading: isLoading,
-                            onTap: _navigateToApp,
-                            onInstall: _handleInstall,
-                          ),
-                          const SizedBox(height: 32),
-                        ],
-                      );
-                    }).toList(),
-                  ],
-                ),
-              ),
-            );
-          },
-      ),
-    );
-  }
-
-
-  void _navigateToApp(Application app) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AppsScreen(application: app),
-      ),
-    );
-  }
-
-  Future<void> _handleInstall(Application app) async {
-    final appsProvider = context.read<AppsProvider>();
-
-    if (appsProvider.isAppInstalled(app.id)) {
-      _openApp(app);
-    } else if (appsProvider.isAppInstalling(app.id)) {
-      return;
-    } else {
-      final success = await appsProvider.installApp(app.id);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              success
-                  ? '${app.name} installed successfully!'
-                  : 'Failed to install ${app.name}',
-            ),
-            backgroundColor: success ? Colors.green : Colors.red,
-            duration: const Duration(seconds: 2),
+      body: Column(
+        children: [
+          // Connection status indicator
+          BlocBuilder<EventListenerBloc, EventListenerState>(
+            builder: (context, state) {
+              if (state is EventListenerListening) {
+                return Container(
+                  padding: const EdgeInsets.all(8),
+                  color: Colors.green.withOpacity(0.2),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.green, size: 16),
+                      SizedBox(width: 8),
+                      Text('Connected to Flatpak'),
+                    ],
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
           ),
-        );
-      }
+
+          // Category sections
+          Expanded(
+            child: BlocBuilder<DiscoveryCubit, DiscoveryState>(
+              builder: (context, state) {
+                if (state is DiscoveryLoading && state.category == null) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (state is DiscoveryError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error, size: 64, color: Colors.red),
+                        const SizedBox(height: 16),
+                        Text('Error: ${state.message}'),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            context.read<DiscoveryCubit>().initialize();
+                          },
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                if (state is DiscoveryLoaded) {
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      await context.read<DiscoveryCubit>().initialize();
+                    },
+                    child: ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: categoryOrder.length,
+                      itemBuilder: (context, index) {
+                        final categoryName = categoryOrder[index];
+                        final apps = state.categoryApps[categoryName] ?? [];
+                        final isLoading =
+                        context.read<DiscoveryCubit>().isCategoryLoading(categoryName);
+
+                        return Column(
+                          children: [
+                            CategorySection(
+                              category_heading: categoryName,
+                              apps: apps,
+                              isLoading: isLoading,
+                              onTap: (app) => _navigateToApp(app, context),
+                              onInstall: (app) => _handleInstall(app, context),
+                            ),
+                            const SizedBox(height: 32),
+                          ],
+                        );
+                      },
+                    ),
+                  );
+                }
+
+                return const Center(child: Text('Initializing...'));
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToApp(Application app, BuildContext context) {
+    context.push('/app/${app.shortId}');
+  }
+
+  Future<void> _handleInstall(Application app, BuildContext context) async {
+    final installationCubit = context.read<InstallationCubit>();
+    final launchCubit = context.read<AppLaunchCubit>();
+
+    final isInstalled = context.read<InstalledAppsCubit>().isInstalled(app.id);
+
+    if (isInstalled) {
+      await launchCubit.launchApp(app.id);
+    } else if (!installationCubit.isOperationInProgress(app.id)) {
+      await installationCubit.installApp(app.id);
     }
   }
-
-  void _openApp(Application app) {
-    // TODO: Implement app opening logic
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Opening ${app.name}...'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  /// TODO : Get Button
-  /// Should make a modern dragger widget to get app bottom sheet when pressing "Get" button
-  /// If Application is Already installed "Get" button => "open" button
-
-
 }

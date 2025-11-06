@@ -1,12 +1,10 @@
 import 'package:flatpak_flutter_example/responsive.dart';
 import 'package:flatpak_flutter_example/screens/category_screen.dart';
-import 'package:flatpak_flutter_example/services/AppProvider.dart';
 import 'package:flatpak_flutter_example/widgets/app_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flatpak_flutter/src/messages.g.dart';
-import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
-import '../services/flatpak_service.dart';
+import '../data/models/application_model.dart';
 
 class CategorySection extends StatelessWidget {
   const CategorySection({
@@ -42,14 +40,7 @@ class CategorySection extends StatelessWidget {
                 ),
               ),
               GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CategoryScreen(
-                      category: category_heading,
-                    ),
-                  ),
-                ),
+                onTap: () => context.push('/category/$category_heading'),
                 child: Text(
                   "See All",
                   style: TextStyle(
@@ -80,29 +71,25 @@ class CategorySection extends StatelessWidget {
       return _buildEmptyState();
     }
 
-    return Consumer<AppsProvider>(
-      builder: (context, appsProvider, _) {
-        return ListView.builder(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: apps.length + (isLoading ? 1 : 0),
-          itemBuilder: (context, index) {
-            if (index >= apps.length) {
-              return _buildLoadingCard();
-            }
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: apps.length + (isLoading ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index >= apps.length) {
+          return _buildLoadingCard();
+        }
 
-            final app = apps[index];
+        final app = apps[index];
 
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: AppCard(
-                application: app,
-                onTap: () => onTap(app),
-                onInstall: () => onInstall(app),
-              ),
-            );
-          },
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: AppCard(
+            application: app,
+            onTap: () => onTap(app),
+            onInstall: () => onInstall(app),
+          ),
         );
       },
     );

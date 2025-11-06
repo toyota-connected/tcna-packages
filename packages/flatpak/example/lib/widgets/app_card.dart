@@ -2,10 +2,17 @@ import 'dart:io';
 import 'dart:ui';
 import 'dart:convert';
 import 'package:flatpak_flutter_example/responsive.dart';
-import 'package:flatpak_flutter_example/services/AppProvider.dart';
 import 'package:flutter/material.dart';
-import 'package:flatpak_flutter/src/messages.g.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+
+import '../business_logic/app_launch/app_launch_cubit.dart';
+import '../business_logic/app_launch/app_launch_state.dart';
+import '../business_logic/installation/installation_cubit.dart';
+import '../business_logic/installation/installation_state.dart';
+import '../business_logic/installed_apps/installed_apps_cubit.dart';
+import '../business_logic/installed_apps/installed_apps_state.dart';
+import '../data/models/application_model.dart';
 
 class AppCard extends StatefulWidget {
   final Application application;
@@ -277,102 +284,129 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
   }
 
   Widget _buildGetButton(BuildContext context) {
+    return BlocBuilder<InstalledAppsCubit, InstalledAppsState>(
+      builder: (context, installedState) {
+        return BlocBuilder<InstallationCubit, InstallationState>(
+          builder: (context, installState) {
+            return BlocBuilder<AppLaunchCubit, AppLaunchState>(
+              builder: (context, launchState) {
+                // Determine app states
+                final isInstalled = installedState is InstalledAppsLoaded &&
+                    installedState.installedIds.contains(widget.application.id);
 
+                final isInstalling =
+                context.read<InstallationCubit>().isOperationInProgress(widget.application.id);
 
-    return Consumer<AppsProvider>(
-      builder: (context, appsProvider, child) {
-        final isInstalling = appsProvider.isAppInstalling(widget.application.id);
-        final isInstalled = appsProvider.isAppInstalled(widget.application.id);
+                final isLaunching =
+                context.read<AppLaunchCubit>().isLaunching(widget.application.id);
 
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (isInstalling && !_loadingController.isAnimating) {
-            _loadingController.repeat();
-          } else if (!isInstalling && _loadingController.isAnimating) {
-            _loadingController.stop();
-            _loadingController.reset();
-          }
-        });
-        return GestureDetector(
-          onTap: () async {
-            if (isInstalled || isInstalling) {
-              await appsProvider.openApp(widget.application.id);
-            } else {
-              final provider = Provider.of<AppsProvider>(context, listen: false);
-              final success = await provider.installApp(widget.application.id);
+                final isLoading = isInstalling || isLaunching;
 
-              if (mounted && !success) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Failed to install ${widget.application.name}'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            }
-          },
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(
-                sigmaX: 10,
-                sigmaY: 10,
-              ),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 24, vertical: 8),
-                decoration: BoxDecoration(
-                  color: isInstalling
-                      ? Colors.grey.withValues(alpha: 0.8)
-                      : Colors.black87,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    width: 1.5,
-                    color: Colors.white.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (isInstalling)
-                      AnimatedBuilder(
-                        animation: _rotationAnimation,
-                        builder: (context, child) {
-                          return Transform.rotate(
-                            angle: _rotationAnimation.value * 2.0 *
-                                3.141592653589793,
-                            child: const SizedBox(
-                              width: 14,
-                              height: 14,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white),
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (isLoading && !_loadingController.isAnimating) {
+                    _loadingController.repeat();
+                  } else if (!isLoading && _loadingController.isAnimating) {
+                    _loadingController.stop();
+                    _loadingController.reset();
+                  }
+                });
+
+                String buttonText;
+                double? progress;
+
+                if (isInstalling && installState is InstallationInProgress) {
+                  if (installState.appId == widget.application.id) {
+                    buttonText = "Installing...";
+                    progress = installState.progress;
+                  } else {
+                    buttonText = "Installing...";
+                  }
+                } else if (isLaunching) {
+                  buttonText = "Opening...";
+                } else if (isInstalled) {
+                  buttonText = "Open";
+                } else {
+                  buttonText = "Get";
+                }
+
+                return GestureDetector(
+                  onTap: isLoading ? null : () async {
+                    if (isInstalled) {
+                      await context.read<AppLaunchCubit>()
+                          .launchApp(widget.application.id);
+                    } else if (!isInstalling) {
+                      await context.read<InstallationCubit>()
+                          .installApp(widget.application.id);
+                    }
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(
+                        sigmaX: 10,
+                        sigmaY: 10,
+                      ),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isLoading
+                              ? Colors.grey.withValues(alpha: 0.8)
+                              : Colors.black87,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            width: 1.5,
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (isLoading)
+                              AnimatedBuilder(
+                                animation: _rotationAnimation,
+                                builder: (context, child) {
+                                  return Transform.rotate(
+                                    angle: _rotationAnimation.value * 2.0 *
+                                        3.141592653589793,
+                                    child: SizedBox(
+                                      width: 14,
+                                      height: 14,
+                                      child: CircularProgressIndicator(
+                                        value: progress != null && progress > 0
+                                            ? progress
+                                            : null,
+                                        strokeWidth: 2,
+                                        valueColor: const AlwaysStoppedAnimation<Color>(
+                                            Colors.white),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            if (isLoading) const SizedBox(width: 8),
+                            Text(
+                              buttonText,
+                              style: TextStyle(
+                                color: isLoading
+                                    ? Colors.white.withValues(alpha: 0.7)
+                                    : Colors.white,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
                               ),
                             ),
-                          );
-                        },
-                      ),
-                    if (isInstalling) const SizedBox(width: 8),
-                    Text(
-                      isInstalling
-                          ? "Installing..."
-                          : (isInstalled ? "Open" : "Get"),
-                      style: TextStyle(
-                        color: isInstalling
-                            ? Colors.white.withValues(alpha: 0.7)
-                            : Colors.white,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14,
+                          ],
+                        ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+                  ),
+                );
+              },
+            );
+          },
         );
-      }
+      },
     );
   }
 
