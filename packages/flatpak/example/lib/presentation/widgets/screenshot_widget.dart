@@ -2,7 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../responsive.dart';
+import '../../responsive.dart';
 
 class Screenshot extends StatefulWidget {
   final List<String> images;

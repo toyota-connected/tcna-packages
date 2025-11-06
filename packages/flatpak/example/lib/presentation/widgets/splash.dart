@@ -1,12 +1,11 @@
-import 'package:flatpak_flutter_example/services/AppProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../business_logic/discovery/dicovery_cubit.dart';
-import '../business_logic/installed_apps/installed_apps_cubit.dart';
-import '../responsive.dart';
-import 'navigation_menu.dart';
+import '../../business_logic/discovery/dicovery_cubit.dart';
+import '../../business_logic/installed_apps/installed_apps_cubit.dart';
+import '../../responsive.dart';
+import '../screens/navigation_menu.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -33,7 +32,6 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
   static const Map<String, List<String>> categories = {
     'Popular Apps': [
-      'org.mozilla.firefox',
       'com.google.Chrome',
       'com.visualstudio.code',
       'com.spotify.Client',

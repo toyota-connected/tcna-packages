@@ -9,7 +9,7 @@ abstract class InstallationState extends Equatable {
 class InstallationIdle extends InstallationState {}
 
 class InstallationInProgress extends InstallationState {
-  final String appId;
+  final String? appId;
   final InstallationStatus status;
   final double progress;
   final String? message;
@@ -26,7 +26,7 @@ class InstallationInProgress extends InstallationState {
 }
 
 class InstallationSuccess extends InstallationState {
-  final String appId;
+  final String? appId;
   final String operation;
 
   InstallationSuccess({required this.appId, required this.operation});
@@ -36,7 +36,7 @@ class InstallationSuccess extends InstallationState {
 }
 
 class InstallationFailure extends InstallationState {
-  final String appId;
+  final String? appId;
   final String error;
   final String operation;
 

@@ -1,10 +1,9 @@
 import 'package:flatpak_flutter_example/responsive.dart';
-import 'package:flatpak_flutter_example/screens/category_screen.dart';
-import 'package:flatpak_flutter_example/widgets/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../data/models/application_model.dart';
+import '../../data/models/application_model.dart';
+import 'app_card.dart';
 
 class CategorySection extends StatelessWidget {
   const CategorySection({
@@ -37,6 +36,7 @@ class CategorySection extends StatelessWidget {
                   color: const Color(0xFF111827),
                   fontSize: Responsive.scale(context, 24).clamp(16, 28),
                   fontWeight: FontWeight.bold,
+                  fontFamily: 'khand',
                 ),
               ),
               GestureDetector(
@@ -47,6 +47,7 @@ class CategorySection extends StatelessWidget {
                     color: const Color(0xFF2563EB),
                     fontSize: Responsive.scale(context, 20).clamp(14, 24),
                     fontWeight: FontWeight.normal,
+                    fontFamily: 'general-sans',
                   ),
                 ),
               )

@@ -43,6 +43,7 @@ class AppInfo extends StatelessWidget{
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                           fontWeight: FontWeight.w500,
+                          fontFamily: 'general-sans',
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -50,6 +51,7 @@ class AppInfo extends StatelessWidget{
                         version,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w500,
+                          fontFamily: 'general-sans',
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -67,6 +69,7 @@ class AppInfo extends StatelessWidget{
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                           fontWeight: FontWeight.w500,
+                          fontFamily: 'general-sans',
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -74,6 +77,7 @@ class AppInfo extends StatelessWidget{
                         size,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w500,
+                          fontFamily: 'general-sans',
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -91,6 +95,7 @@ class AppInfo extends StatelessWidget{
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                           fontWeight: FontWeight.w500,
+                          fontFamily: 'general-sans',
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -98,6 +103,7 @@ class AppInfo extends StatelessWidget{
                         last_upadate,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w500,
+                          fontFamily: 'general-sans',
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -131,6 +137,7 @@ class AppInfo extends StatelessWidget{
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                           fontWeight: FontWeight.w500,
+                          fontFamily: 'general-sans',
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -138,6 +145,7 @@ class AppInfo extends StatelessWidget{
                         License,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w500,
+                          fontFamily: 'general-sans',
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -156,6 +164,7 @@ class AppInfo extends StatelessWidget{
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                           fontWeight: FontWeight.w500,
+                          fontFamily: 'general-sans',
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -167,6 +176,7 @@ class AppInfo extends StatelessWidget{
                             color: Colors.blue,
                             decoration: TextDecoration.underline,
                             fontWeight: FontWeight.w500,
+                            fontFamily: 'general-sans',
                         ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -184,6 +194,7 @@ class AppInfo extends StatelessWidget{
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                           fontWeight: FontWeight.w500,
+                          fontFamily: 'general-sans',
                         ),
                       ),
                       const SizedBox(height: 4),

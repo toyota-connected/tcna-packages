@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../business_logic/app_launch/app_launch_cubit.dart';
-import '../business_logic/app_launch/app_launch_state.dart';
-import '../business_logic/installation/installation_cubit.dart';
-import '../business_logic/installation/installation_state.dart';
+import '../../business_logic/app_launch/app_launch_cubit.dart';
+import '../../business_logic/app_launch/app_launch_state.dart';
+import '../../business_logic/installation/installation_cubit.dart';
+import '../../business_logic/installation/installation_state.dart';
 
 class SnackbarListener extends StatelessWidget {
   final Widget child;

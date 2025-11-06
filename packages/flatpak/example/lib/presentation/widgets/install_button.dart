@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../business_logic/installation/installation_cubit.dart';
-import '../business_logic/installation/installation_state.dart';
-import '../business_logic/installed_apps/installed_apps_cubit.dart';
-import '../business_logic/installed_apps/installed_apps_state.dart';
-import '../data/models/application_model.dart';
+import '../../business_logic/installation/installation_cubit.dart';
+import '../../business_logic/installation/installation_state.dart';
+import '../../business_logic/installed_apps/installed_apps_cubit.dart';
+import '../../business_logic/installed_apps/installed_apps_state.dart';
+import '../../data/models/application_model.dart';
 
 class InstallButton extends StatelessWidget {
   final Application app;

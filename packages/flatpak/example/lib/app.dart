@@ -1,5 +1,5 @@
-import 'package:flatpak_flutter_example/widgets/installation_status_listener.dart';
-import 'package:flatpak_flutter_example/widgets/snackbar_listener.dart';
+import 'package:flatpak_flutter_example/presentation/widgets/installation_status_listener.dart';
+import 'package:flatpak_flutter_example/presentation/widgets/snackbar_listener.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'app_router.dart';
@@ -19,16 +19,14 @@ class FlatpakApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // EventListenerBloc MUST be first - it receives all events
         BlocProvider<EventListenerBloc>(
           create: (context) => sl<EventListenerBloc>()..add(StartListening()),
           lazy: false,
         ),
 
-        // InstallationCubit MUST be non-lazy so it can listen to events immediately
         BlocProvider<InstallationCubit>(
           create: (context) => sl<InstallationCubit>(),
-          lazy: false,  // CRITICAL: Changed from default lazy=true to lazy=false
+          lazy: false,
         ),
 
         BlocProvider<InstalledAppsCubit>(

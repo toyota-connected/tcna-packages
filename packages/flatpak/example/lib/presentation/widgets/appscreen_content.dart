@@ -1,179 +1,99 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
-
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../business_logic/app_launch/app_launch_cubit.dart';
-import '../business_logic/app_launch/app_launch_state.dart';
-import '../business_logic/discovery/dicovery_cubit.dart';
-import '../business_logic/discovery/discovery_state.dart';
-import '../business_logic/installation/installation_cubit.dart';
-import '../business_logic/installation/installation_state.dart';
-import '../business_logic/installed_apps/installed_apps_cubit.dart';
-import '../business_logic/installed_apps/installed_apps_state.dart';
-import '../data/models/application_model.dart';
-import '../responsive.dart';
-import '../widgets/app_info.dart';
-import '../widgets/screenshot_widget.dart';
+import 'package:flatpak_flutter_example/presentation/widgets/screenshot_widget.dart';
+import 'package:flatpak_flutter_example/responsive.dart';
+import '../../business_logic/app_launch/app_launch_cubit.dart';
+import '../../business_logic/app_launch/app_launch_state.dart';
+import '../../business_logic/installation/installation_cubit.dart';
+import '../../business_logic/installation/installation_state.dart';
+import '../../business_logic/installed_apps/installed_apps_cubit.dart';
+import '../../business_logic/installed_apps/installed_apps_state.dart';
+import '../../data/models/application_model.dart';
+import 'app_info.dart';
 
-class AppDetailScreen extends StatefulWidget {
-  final String appId;
+class AppscreenContent extends StatelessWidget {
+  const AppscreenContent({
+    super.key,
+    required this.app,
+    required this.installedAppsCubit,
+    required this.installationCubit,
+    required this.appLaunchCubit,
+  });
 
-  const AppDetailScreen({super.key, required this.appId});
-
-  @override
-  State<AppDetailScreen> createState() => _AppDetailScreenState();
-}
-
-class _AppDetailScreenState extends State<AppDetailScreen> {
-  Application? _app;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadAppDetails();
-  }
-
-  Future<void> _loadAppDetails() async {
-    final installedCubit = context.read<InstalledAppsCubit>();
-    final installedState = installedCubit.state;
-
-    if (installedState is InstalledAppsLoaded) {
-      try {
-        final app = installedState.apps.firstWhere(
-              (a) => a.shortId == widget.appId || a.id == widget.appId,
-        );
-        if (mounted) {
-          setState(() {
-            _app = app;
-            _isLoading = false;
-          });
-        }
-        return;
-      } catch (_) {}
-    }
-
-    // If not installed, search in discovery
-    final discoveryCubit = context.read<DiscoveryCubit>();
-    final discoveryState = discoveryCubit.state;
-
-    if (discoveryState is DiscoveryLoaded) {
-      for (final apps in discoveryState.categoryApps.values) {
-        try {
-          final app = apps.firstWhere(
-                (a) => a.shortId == widget.appId || a.id == widget.appId,
-          );
-          if (mounted) {
-            setState(() {
-              _app = app;
-              _isLoading = false;
-            });
-          }
-          return;
-        } catch (_) {}
-      }
-    }
-
-    // App not found
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
+  final Application app;
+  final InstalledAppsCubit installedAppsCubit;
+  final InstallationCubit installationCubit;
+  final AppLaunchCubit appLaunchCubit;
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Loading...')),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (_app == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('App Not Found')),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.grey),
-              const SizedBox(height: 16),
-              Text('App ${widget.appId} not found'),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Go Back'),
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.25),
+            border: Border(
+              bottom: BorderSide(
+                color: Colors.white.withValues(alpha: 0.2),
+                width: 1.0,
+              ),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10.0,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
-        ),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_app!.name),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildAppHeader(context, _app!),
-            const SizedBox(height: 18),
-            _buildScreenshots(context, _app!),
-            const SizedBox(height: 18),
-            _buildInfo(context, _app!),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAppHeader(BuildContext context, Application app) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.25),
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.white.withValues(alpha: 0.2),
-            width: 1.0,
-          ),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10.0,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 54, vertical: 15),
-            child: Row(
-              children: [
-                Expanded(child: _buildAppInfo(context, app)),
-                const Spacer(),
-                _buildInstallButton(context, app),
-              ],
+          child: ClipRRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: 10.0,
+                sigmaY: 10.0,
+              ),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 54,
+                  vertical: 15,
+                ),
+                child: Row(
+                  children: [
+                    _buildApp(context),
+                    const Spacer(),
+                    _buildInstallButton(context),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
+        const SizedBox(height: 18),
+        _buildScreenshot(context),
+        const SizedBox(height: 18),
+        _buildInfo(context),
+      ],
+    );
+  }
+
+  Widget _buildApp(BuildContext context) {
+    return Expanded(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildAppinfo(context, app),
+        ],
       ),
     );
   }
 
-  Widget _buildAppInfo(BuildContext context, Application app) {
+  Widget _buildAppinfo(BuildContext context, Application app) {
     final String developerName = _getDeveloper(app);
     final List<Widget> categories = _getCategories(context, app);
 
@@ -194,8 +114,9 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
                   app.name,
                   style: TextStyle(
                     color: Colors.black87,
-                    fontSize: Responsive.scale(context, 16.0).clamp(15.0, 18.0),
+                    fontSize: Responsive.scale(context, 18.0).clamp(15.0, 20.0),
                     fontWeight: FontWeight.w600,
+                    fontFamily: 'khand',
                     height: 1.2,
                   ),
                   maxLines: 2,
@@ -254,13 +175,13 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
       child: Center(
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
-          child: _buildIcon(iconSize, app),
+          child: _buildIcon(iconSize),
         ),
       ),
     );
   }
 
-  Widget _buildIcon(double size, Application app) {
+  Widget _buildIcon(double size) {
     final iconPath = _getIconPath(app);
     if (iconPath != null) {
       if (iconPath.startsWith('http')) {
@@ -285,115 +206,7 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
     );
   }
 
-  Widget _buildInstallButton(BuildContext context, Application app) {
-    final buttonW = Responsive.scaleWithConstraints(
-      context,
-      120,
-      minSize: 100,
-      maxSize: 140,
-    );
-    final buttonH = Responsive.scaleWithConstraints(
-      context,
-      60,
-      minSize: 50,
-      maxSize: 70,
-    );
-
-    return BlocBuilder<InstalledAppsCubit, InstalledAppsState>(
-      builder: (context, installedState) {
-        return BlocBuilder<InstallationCubit, InstallationState>(
-          builder: (context, installState) {
-            return BlocBuilder<AppLaunchCubit, AppLaunchState>(
-              builder: (context, launchState) {
-                final isInstalled = installedState is InstalledAppsLoaded &&
-                    installedState.installedIds.contains(app.id);
-
-                final isInstalling =
-                context.read<InstallationCubit>().isOperationInProgress(app.id);
-
-                final isLaunching =
-                context.read<AppLaunchCubit>().isLaunching(app.id);
-
-                String buttonText;
-                if (isInstalling) {
-                  buttonText = "Installing...";
-                } else if (isLaunching) {
-                  buttonText = "Opening...";
-                } else if (isInstalled) {
-                  buttonText = "Open";
-                } else {
-                  buttonText = "Install";
-                }
-
-                final canTap = !isInstalling && !isLaunching;
-
-                return GestureDetector(
-                  onTap: canTap
-                      ? () async {
-                    if (isInstalled) {
-                      await context.read<AppLaunchCubit>().launchApp(app.id);
-                    } else {
-                      await context.read<InstallationCubit>().installApp(app.id);
-                    }
-                  }
-                      : null,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(9999),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                      child: Container(
-                        width: buttonW,
-                        height: buttonH,
-                        decoration: BoxDecoration(
-                          color: canTap
-                              ? const Color(0xFF2563EB)
-                              : Colors.grey,
-                          borderRadius: BorderRadius.circular(9999),
-                          border: Border.all(
-                            width: 1.5,
-                            color: Colors.white.withValues(alpha: 0.3),
-                          ),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (isInstalling || isLaunching)
-                                const SizedBox(
-                                  width: 14,
-                                  height: 14,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white),
-                                  ),
-                                ),
-                              if (isInstalling || isLaunching)
-                                const SizedBox(width: 8),
-                              Text(
-                                buttonText,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildScreenshots(BuildContext context, Application app) {
+  Widget _buildScreenshot(BuildContext context) {
     List<String>? images = _getScreenshotsimage(app);
     List<String>? captions = _getScreenshotsCaption(app);
 
@@ -430,7 +243,155 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
     );
   }
 
-  Widget _buildInfo(BuildContext context, Application app) {
+  Widget _buildInstallButton(BuildContext context) {
+    final buttonW = Responsive.scaleWithConstraints(
+      context,
+      112,
+      minSize: 100,
+      maxSize: 120,
+    );
+    final buttonH = Responsive.scaleWithConstraints(
+      context,
+      48,
+      minSize: 40,
+      maxSize: 56,
+    );
+
+    return BlocBuilder<InstalledAppsCubit, InstalledAppsState>(
+      bloc: installedAppsCubit,
+      builder: (context, installedState) {
+        return BlocBuilder<InstallationCubit, InstallationState>(
+          bloc: installationCubit,
+          builder: (context, installState) {
+            return BlocBuilder<AppLaunchCubit, AppLaunchState>(
+              bloc: appLaunchCubit,
+              builder: (context, launchState) {
+                final isInstalled = installedState is InstalledAppsLoaded &&
+                    installedState.installedIds.contains(app.id);
+
+                final isInstalling = installationCubit.isOperationInProgress(app.id);
+                final isLaunching = appLaunchCubit.isLaunching(app.id);
+
+                // Get progress
+                double? progress;
+                if (isInstalling && installState is InstallationInProgress) {
+                  if (installState.appId == app.id) {
+                    progress = installState.progress;
+                  }
+                }
+
+                String buttonText;
+                if (isInstalling) {
+                  buttonText = "Installing...";
+                } else if (isLaunching) {
+                  buttonText = "Opening...";
+                } else if (isInstalled) {
+                  buttonText = "Open";
+                } else {
+                  buttonText = "Install";
+                }
+
+                final canTap = !isInstalling && !isLaunching;
+
+                return GestureDetector(
+                  onTap: canTap
+                      ? () async {
+                    if (isInstalled) {
+                      await appLaunchCubit.launchApp(app.id);
+                    } else {
+                      await installationCubit.installApp(app.id);
+                    }
+                  }
+                      : null,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(9999),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(
+                        sigmaX: 10,
+                        sigmaY: 10,
+                      ),
+                      child: Container(
+                        width: buttonW,
+                        height: buttonH,
+                        decoration: BoxDecoration(
+                          color: canTap ? const Color(0xFF2563EB) : Colors.grey,
+                          borderRadius: BorderRadius.circular(9999),
+                          border: Border.all(
+                            width: 1.5,
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Center(
+                          child: isInstalling && progress != null
+                              ? _buildProgressIndicator(progress, buttonH)
+                              : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (isLaunching)
+                                const SizedBox(
+                                  width: 14,
+                                  height: 14,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white),
+                                  ),
+                                ),
+                              if (isLaunching) const SizedBox(width: 8),
+                              Text(
+                                buttonText,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: 16,
+                                  fontFamily: 'general-sans',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildProgressIndicator(double progress, double buttonHeight) {
+    final size = buttonHeight * 0.6;
+    final percentage = (progress * 100).toInt();
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        SizedBox(
+          width: size,
+          height: size,
+          child: CircularProgressIndicator(
+            value: progress,
+            strokeWidth: 3,
+            backgroundColor: Colors.white.withValues(alpha: 0.3),
+            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+          ),
+        ),
+        Text(
+          '$percentage%',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 8,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfo(BuildContext context) {
     final String description = _getDescription(app);
     final String url = _getUrl(app);
     final String contentRating = _getContentRating(app);
@@ -460,7 +421,10 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
       ),
       child: ClipRRect(
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaY: 10, sigmaX: 10),
+          filter: ImageFilter.blur(
+            sigmaY: 10,
+            sigmaX: 10,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -470,6 +434,7 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
                   color: Colors.black87,
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
+                  fontFamily: 'general-sans',
                 ),
               ),
               const SizedBox(height: 30),
@@ -479,6 +444,7 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
                   color: Color(0xFF4B5563),
                   fontSize: 16,
                   fontWeight: FontWeight.normal,
+                  fontFamily: 'general-sans',
                 ),
               ),
               const SizedBox(height: 30),
@@ -498,15 +464,17 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
                     color: Colors.black87,
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
+                    fontFamily: 'general-sans',
                   ),
                 ),
               ),
               AppInfo(
                 version: version,
                 License: app.license,
+                last_upadate: lastUpdate,
                 url: url,
                 content_rating: contentRating,
-                size: size, last_upadate: lastUpdate,
+                size: size,
               ),
             ],
           ),
@@ -621,7 +589,9 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
       final metadata = jsonDecode(app.metadata) as Map<String, dynamic>;
       final dev = metadata['developer'];
       if (dev != null) {
-        String devString = dev is List && dev.isNotEmpty ? dev.first.toString() : dev.toString();
+        String devString = dev is List && dev.isNotEmpty
+            ? dev.first.toString()
+            : dev.toString();
         return "by ${devString.trim()}";
       }
       return '';
@@ -636,7 +606,8 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
       final metadata = jsonDecode(app.metadata) as Map<String, dynamic>;
       final categoriesData = metadata['categories'];
       if (categoriesData == null) return [];
-      List<dynamic> categories = categoriesData is List ? categoriesData : [categoriesData];
+      List<dynamic> categories =
+      categoriesData is List ? categoriesData : [categoriesData];
       return categories.take(3).where((c) => c != null).map((category) {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -703,7 +674,7 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
               if (url != null && width != null) {
                 try {
                   final widthInt = int.parse(width);
-                  if (widthInt >= 900 && widthInt > maxWidth) {
+                  if (widthInt >= 700 && widthInt > maxWidth) {
                     maxWidth = widthInt;
                     bestUrl = url;
                   }

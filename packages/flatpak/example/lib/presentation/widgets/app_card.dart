@@ -4,15 +4,14 @@ import 'dart:convert';
 import 'package:flatpak_flutter_example/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 
-import '../business_logic/app_launch/app_launch_cubit.dart';
-import '../business_logic/app_launch/app_launch_state.dart';
-import '../business_logic/installation/installation_cubit.dart';
-import '../business_logic/installation/installation_state.dart';
-import '../business_logic/installed_apps/installed_apps_cubit.dart';
-import '../business_logic/installed_apps/installed_apps_state.dart';
-import '../data/models/application_model.dart';
+import '../../business_logic/app_launch/app_launch_cubit.dart';
+import '../../business_logic/app_launch/app_launch_state.dart';
+import '../../business_logic/installation/installation_cubit.dart';
+import '../../business_logic/installation/installation_state.dart';
+import '../../business_logic/installed_apps/installed_apps_cubit.dart';
+import '../../business_logic/installed_apps/installed_apps_state.dart';
+import '../../data/models/application_model.dart';
 
 class AppCard extends StatefulWidget {
   final Application application;
@@ -251,6 +250,7 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
             fontSize: Responsive.scale(context, 20.0).clamp(16.0, 24.0),
+            fontFamily: 'khand',
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -270,6 +270,7 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
                       ?.color
                       ?.withValues(alpha: 0.7),
                   fontSize: Responsive.scale(context, 12.0).clamp(10.0, 14.0),
+                  fontFamily: 'general-sans',
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -393,6 +394,7 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
                                     ? Colors.white.withValues(alpha: 0.7)
                                     : Colors.white,
                                 fontWeight: FontWeight.w500,
+                                fontFamily: 'general-sans',
                                 fontSize: 14,
                               ),
                             ),

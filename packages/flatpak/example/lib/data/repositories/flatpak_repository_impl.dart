@@ -93,6 +93,16 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
   }
 
   @override
+  Future<Either<Failure, List<Application>>> getApplicationsUpdate() async {
+    try {
+      final apps = await localDataSource.getApplicationsUpdate();
+      return Right(apps);
+    } on PlatformException catch (e) {
+      return Left(PlatformFailure(e.message ?? 'Platform error'));
+    }
+  }
+
+  @override
   Future<Either<Failure, bool>> installApplication(String appId) async {
     try {
       final result = await localDataSource.applicationInstall(appId);

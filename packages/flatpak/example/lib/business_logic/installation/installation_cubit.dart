@@ -1,15 +1,16 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/models/flatpak_event_model.dart';
+import '../../data/models/install_progress_model.dart';
 import '../../data/repositories/flatpak_repository.dart';
 import '../../helpers/id_utils.dart';
 import 'installation_state.dart';
-import '../../../data/models/install_progress_model.dart';
 
 class InstallationCubit extends Cubit<InstallationState> {
   final FlatpakRepository repository;
 
-  // Track ongoing operations by short ID
   final Map<String, String> _ongoingOperations = {};
+
+  String? _currentOperationAppId;
 
   InstallationCubit({required this.repository}) : super(InstallationIdle());
 
@@ -21,6 +22,7 @@ class InstallationCubit extends Cubit<InstallationState> {
     }
 
     _ongoingOperations[shortId] = 'install';
+    _currentOperationAppId = shortId;
 
     emit(InstallationInProgress(
       appId: shortId,
@@ -34,6 +36,7 @@ class InstallationCubit extends Cubit<InstallationState> {
     result.fold(
           (failure) {
         _ongoingOperations.remove(shortId);
+        _currentOperationAppId = null;
         emit(InstallationFailure(
           appId: shortId,
           error: failure.message,
@@ -41,7 +44,7 @@ class InstallationCubit extends Cubit<InstallationState> {
         ));
       },
           (success) {
-        // Wait for event from event channel for completion
+        print('[InstallationCubit] Install API call completed: $success');
       },
     );
   }
@@ -54,6 +57,7 @@ class InstallationCubit extends Cubit<InstallationState> {
     }
 
     _ongoingOperations[shortId] = 'uninstall';
+    _currentOperationAppId = shortId;
 
     emit(InstallationInProgress(
       appId: shortId,
@@ -66,14 +70,14 @@ class InstallationCubit extends Cubit<InstallationState> {
     result.fold(
           (failure) {
         _ongoingOperations.remove(shortId);
+        _currentOperationAppId = null;
         emit(InstallationFailure(
           appId: shortId,
           error: failure.message,
           operation: 'uninstall',
         ));
       },
-          (success) {
-      },
+          (success) {},
     );
   }
 
@@ -85,6 +89,7 @@ class InstallationCubit extends Cubit<InstallationState> {
     }
 
     _ongoingOperations[shortId] = 'update';
+    _currentOperationAppId = shortId;
 
     emit(InstallationInProgress(
       appId: shortId,
@@ -98,42 +103,68 @@ class InstallationCubit extends Cubit<InstallationState> {
     result.fold(
           (failure) {
         _ongoingOperations.remove(shortId);
+        _currentOperationAppId = null;
         emit(InstallationFailure(
           appId: shortId,
           error: failure.message,
           operation: 'update',
         ));
       },
-          (success) {
-      },
+          (success) {},
     );
   }
 
   void handleEvent(FlatpakEvent event) {
-    if (event.appId == null) return;
+    print('[InstallationCubit] handleEvent: type=${event.type}, appId=${event.appId}, progress=${event.progress}');
 
-    final shortId = AppIdUtils.extractShortId(event.appId!);
-    final operation = _ongoingOperations[shortId];
+    if (event.type == FlatpakEventType.unknown) {
+      return;
+    }
 
-    if (operation == null) return;
+    final String? targetAppId;
+    if (event.appId != null) {
+      targetAppId = AppIdUtils.extractShortId(event.appId!);
+    } else if (_currentOperationAppId != null) {
+      targetAppId = _currentOperationAppId;
+      print('[InstallationCubit] Using current operation appId: $targetAppId');
+    } else {
+      print('[InstallationCubit] No appId in event and no current operation');
+      return;
+    }
+
+    final operation = _ongoingOperations[targetAppId];
+
+    if (operation == null) {
+      print('[InstallationCubit] No ongoing operation for: $targetAppId');
+      return;
+    }
+
+    print('[InstallationCubit] Processing event for $targetAppId: $operation');
 
     switch (event.type) {
       case FlatpakEventType.installProgress:
       case FlatpakEventType.updateProgress:
+        double normalizedProgress = event.progress ?? 0.0;
+        if (normalizedProgress > 1.0) {
+          normalizedProgress = normalizedProgress / 100.0;
+        }
+
+        print('[InstallationCubit] Progress: ${normalizedProgress * 100}%');
         emit(InstallationInProgress(
-          appId: shortId,
+          appId: targetAppId,
           status: InstallationStatus.downloading,
-          progress: event.progress ?? 0.0,
-          message: event.message,
+          progress: normalizedProgress,
+          message: event.message ?? 'Downloading...',
         ));
         break;
 
       case FlatpakEventType.installComplete:
       case FlatpakEventType.uninstallComplete:
       case FlatpakEventType.updateComplete:
-        _ongoingOperations.remove(shortId);
-        emit(InstallationSuccess(appId: shortId, operation: operation));
-        // Reset to idle after short delay
+        print('[InstallationCubit] Operation complete for: $targetAppId');
+        _ongoingOperations.remove(targetAppId);
+        _currentOperationAppId = null;
+        emit(InstallationSuccess(appId: targetAppId, operation: operation));
         Future.delayed(const Duration(seconds: 2), () {
           if (state is InstallationSuccess) {
             emit(InstallationIdle());
@@ -144,10 +175,12 @@ class InstallationCubit extends Cubit<InstallationState> {
       case FlatpakEventType.installFailed:
       case FlatpakEventType.uninstallFailed:
       case FlatpakEventType.updateFailed:
-        _ongoingOperations.remove(shortId);
+        print('[InstallationCubit] Operation failed for: $targetAppId');
+        _ongoingOperations.remove(targetAppId);
+        _currentOperationAppId = null;
         emit(InstallationFailure(
-          appId: shortId,
-          error: event.error ?? 'Operation failed',
+          appId: targetAppId,
+          error: event.error ?? event.message ?? 'Operation failed',
           operation: operation,
         ));
         break;
@@ -165,5 +198,12 @@ class InstallationCubit extends Cubit<InstallationState> {
   String? getOperationType(String appId) {
     final shortId = AppIdUtils.extractShortId(appId);
     return _ongoingOperations[shortId];
+  }
+
+  @override
+  Future<void> close() {
+    print('[InstallationCubit] Closing...');
+    _currentOperationAppId = null;
+    return super.close();
   }
 }

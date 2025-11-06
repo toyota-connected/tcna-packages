@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flatpak_flutter_example/responsive.dart';
 
-class AppscreanHead extends StatelessWidget implements PreferredSizeWidget{
-  const AppscreanHead({super.key,
+class AppscreenHead extends StatelessWidget implements PreferredSizeWidget{
+  const AppscreenHead({super.key,
   required this.appname,
   });
   final String appname;
@@ -60,15 +60,15 @@ class AppscreanHead extends StatelessWidget implements PreferredSizeWidget{
   Widget _buildBackWidget(BuildContext context){
     final backW = Responsive.scaleWithConstraints(
       context,
-      24,
-      minSize: 20,
+      26,
+      minSize: 22,
       maxSize: 28,
     );
 
     final backH = Responsive.scaleWithConstraints(
       context,
-      24,
-      minSize: 20,
+      26,
+      minSize: 22,
       maxSize: 28,
     );
 
@@ -88,11 +88,12 @@ class AppscreanHead extends StatelessWidget implements PreferredSizeWidget{
               style: TextStyle(
                   fontSize: Responsive.scaleWithConstraints(
                     context,
-                    18,
+                    20,
                     minSize: 16,
                     maxSize: 24,
                   ),
                   fontWeight: FontWeight.bold,
+                  fontFamily: 'khand',
                   color: Colors.black
               ),
             ),

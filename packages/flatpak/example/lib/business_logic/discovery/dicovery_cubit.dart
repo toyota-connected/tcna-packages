@@ -9,6 +9,7 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
   final Map<String, List<Application>> _categoryCache = {};
   final List<String> _availableRemotes = [];
   List<Application> _allApps = [];
+  List<Application> _updateApps = [];
 
   DiscoveryCubit({required this.flatpakRepository}) : super(DiscoveryInitial());
 
@@ -70,6 +71,30 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
         categoryApps: Map.from(_categoryCache),
         availableRemotes: _availableRemotes,
       ),
+    );
+  }
+
+  /// Load apps that have updates available
+  Future<void> loadUpdateApps() async {
+    if (_updateApps.isNotEmpty) {
+      return;
+    }
+    emit(DiscoveryLoading());
+    final result = await flatpakRepository.getApplicationsUpdate();
+    result.fold(
+          (failure) {
+        emit(DiscoveryError(failure.message));
+      },
+          (apps) {
+        _updateApps = apps;
+        print('[DiscoveryCubit] Apps with updates available: ${_updateApps.length}');
+        emit(
+          DiscoveryLoaded(
+            categoryApps: Map.from(_categoryCache),
+            availableRemotes: _availableRemotes,
+          ),
+        );
+      },
     );
   }
 

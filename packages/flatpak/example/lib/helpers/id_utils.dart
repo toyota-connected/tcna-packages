@@ -1,12 +1,13 @@
 class AppIdUtils {
   static String extractShortId(String fullId) {
-    if (fullId.startsWith('app/')) {
-      final parts = fullId.split('/');
-      if (parts.length >= 2) {
-        return parts[1];
-      }
+    String workingId = fullId;
+    if (workingId.startsWith('app/')) {
+      workingId = workingId.substring(4);
     }
-    return fullId;
+
+    final parts = workingId.split('/');
+    final shortId = parts.first;
+    return shortId;
   }
 
   /// Check if two app IDs match
