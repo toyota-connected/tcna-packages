@@ -45,6 +45,58 @@ class CameraLinux extends CameraPlatform {
           .where((CameraEvent event) => event.cameraId == cameraId);
 
   @override
+  bool supportsImageStreaming() => true;
+
+  static const _channel = EventChannel('camera_linux/image_stream');
+
+  @override
+  Stream<CameraImageData> onStreamedFrameAvailable(
+    int cameraId, {
+    CameraImageStreamOptions? options,
+  }) {
+    return _channel.receiveBroadcastStream(
+        {'cameraId': cameraId}).map<CameraImageData>(_decodeCameraImageData);
+  }
+
+  CameraImageData _decodeCameraImageData(dynamic event) {
+    final dataMap = Map<String, Object?>.from(event as Map);
+
+    final width = dataMap['width'] as int;
+    final height = dataMap['height'] as int;
+    final rawFormat = (dataMap['raw'] as String?) ?? 'I420';
+    final formatGroup = _parseGroup(dataMap['formatGroup'] as String?);
+    final planes = [
+      for (final planeMap in (dataMap['planes'] as List).cast<Map>())
+        CameraImagePlane(
+          bytes: planeMap['bytes'] as Uint8List,
+          bytesPerRow: planeMap['bytesPerRow'] as int,
+        ),
+    ];
+
+    return CameraImageData(
+      format: CameraImageFormat(formatGroup, raw: rawFormat),
+      width: width,
+      height: height,
+      planes: planes,
+    );
+  }
+
+  ImageFormatGroup _parseGroup(String? s) {
+    switch (s?.toLowerCase()) {
+      case 'bgra8888':
+        return ImageFormatGroup.bgra8888;
+      // Treat all 4:2:0 variants as yuv420 in the *group*:
+      case 'yuv420':
+      case 'i420':
+      case 'nv12':
+      case 'yv12':
+        return ImageFormatGroup.yuv420;
+      default:
+        return ImageFormatGroup.yuv420; // safe default
+    }
+  }
+
+  @override
   Future<List<CameraDescription>> availableCameras() async {
     try {
       final List<String?> cameras = await _hostApi.getAvailableCameras();
