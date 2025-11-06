@@ -15,7 +15,9 @@ class InstallationStatusListener extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<EventListenerBloc, EventListenerState>(
       listener: (context, state) {
+        print('[InstallationStatusListener] Received state: $state');
         if (state is EventListenerEventReceived) {
+          print('[InstallationStatusListener] Event: ${state.event.type}');
           context.read<InstallationCubit>().handleEvent(state.event);
 
           switch (state.event.type) {

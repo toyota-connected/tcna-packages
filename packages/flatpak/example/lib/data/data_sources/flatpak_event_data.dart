@@ -1,3 +1,4 @@
+// data/data_sources/flatpak_event_data.dart
 import 'dart:async';
 import 'package:flutter/services.dart';
 import '../models/flatpak_event_model.dart';
@@ -18,23 +19,37 @@ class FlatpakEventDataSourceImpl implements FlatpakEventDataSource {
 
   StreamSubscription? _subscription;
   bool _isListening = false;
+  bool _isDisposed = false;
 
   @override
-  Stream<FlatpakEventModel> get eventStream => _controller.stream;
+  Stream<FlatpakEventModel> get eventStream {
+    if (_isDisposed) {
+      throw StateError('EventDataSource has been disposed');
+    }
+    return _controller.stream;
+  }
 
   @override
   void startListening() {
-    if (_isListening) return;
+    if (_isListening || _isDisposed) {
+      print('[FlatpakEventDataSource] Already listening or disposed');
+      return;
+    }
 
+    print('[FlatpakEventDataSource] Starting to listen...');
     _isListening = true;
 
     _subscription = _eventChannel.receiveBroadcastStream().listen(
           (dynamic event) {
+        print('[FlatpakEventDataSource] Received raw event: $event');
+
         if (event is Map) {
           try {
             final eventModel = FlatpakEventModel.fromJson(
               Map<String, dynamic>.from(event),
             );
+
+            print('[FlatpakEventDataSource] Parsed event: ${eventModel.type}');
 
             if (!_controller.isClosed) {
               _controller.add(eventModel);
@@ -57,17 +72,24 @@ class FlatpakEventDataSourceImpl implements FlatpakEventDataSource {
         print('[FlatpakEventDataSource] Event stream done');
         _isListening = false;
       },
+      cancelOnError: false,
     );
+
+    print('[FlatpakEventDataSource] Subscription established');
   }
 
   @override
   void stopListening() {
+    print('[FlatpakEventDataSource] Stopping listening...');
     _subscription?.cancel();
     _subscription = null;
     _isListening = false;
   }
 
+  @override
   void dispose() {
+    print('[FlatpakEventDataSource] Disposing...');
+    _isDisposed = true;
     stopListening();
     _controller.close();
   }
