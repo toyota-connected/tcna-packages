@@ -28,7 +28,7 @@ class _AppIconsState extends State<AppsIcons> {
     'com.valvesoftware.Steam',
     'org.blender.Blender',
     'com.slack.Slack',
-    'org.videolan.VLC'
+    'org.videolan.VLC',
   ];
 
   @override
@@ -49,14 +49,12 @@ class _AppIconsState extends State<AppsIcons> {
       for (final appId in appIds) {
         try {
           final app = allApps.firstWhere(
-                (a) => a.id == appId ||
-                a.shortId == appId ||
-                a.id.contains(appId),
+            (a) => a.id == appId || a.shortId == appId || a.id.contains(appId),
             orElse: () => throw Exception('App not found'),
           );
           loadedApps.add(app);
         } catch (e) {
-          print('[AppsIcons] Could not find app: $appId');
+          debugPrint('[AppsIcons] Could not find app: $appId');
         }
       }
 
@@ -67,7 +65,7 @@ class _AppIconsState extends State<AppsIcons> {
         });
       }
     } catch (e) {
-      print('[AppsIcons] Error loading apps: $e');
+      debugPrint('[AppsIcons] Error loading apps: $e');
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -80,9 +78,7 @@ class _AppIconsState extends State<AppsIcons> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Center(
-        child: CupertinoActivityIndicator(
-          color: Colors.white,
-        ),
+        child: CupertinoActivityIndicator(color: Colors.white),
       );
     }
 
@@ -97,15 +93,13 @@ class _AppIconsState extends State<AppsIcons> {
 
     return SizedBox(
       height: 200,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: _buildFloatingIcons(),
-      ),
+      child: Stack(clipBehavior: Clip.none, children: _buildFloatingIcons()),
     );
   }
 
   List<Widget> _buildFloatingIcons() {
-    final positions = [ {'top': 0.0, 'left': 10.0, 'rotation': 0.0},
+    final positions = [
+      {'top': 0.0, 'left': 10.0, 'rotation': 0.0},
       {'top': 20.0, 'left': 160.0, 'rotation': 0.0},
       {'top': 10.0, 'right': 10.0, 'rotation': 0.0},
       {'top': 70.0, 'right': 30.0, 'rotation': 0.0},
@@ -113,7 +107,8 @@ class _AppIconsState extends State<AppsIcons> {
       {'top': 50.0, 'left': 80.0, 'rotation': 0.0},
       {'bottom': 30.0, 'left': 20.0, 'rotation': 0.0},
       {'bottom': 0.0, 'right': 20.0, 'rotation': 0.0},
-      {'bottom': 50.0, 'left': 180.0, 'rotation': 0.0}, ];
+      {'bottom': 50.0, 'left': 180.0, 'rotation': 0.0},
+    ];
 
     final widgets = <Widget>[];
 
@@ -121,10 +116,10 @@ class _AppIconsState extends State<AppsIcons> {
       final pos = positions[i];
       widgets.add(
         Positioned(
-          top: pos['top'] as double?,
-          bottom: pos['bottom'] as double?,
-          left: pos['left'] as double?,
-          right: pos['right'] as double?,
+          top: pos['top'],
+          bottom: pos['bottom'],
+          left: pos['left'],
+          right: pos['right'],
           child: Transform.rotate(
             angle: pos['rotation'] as double,
             child: _buildGlassIcon(_apps[i]),
@@ -145,15 +140,15 @@ class _AppIconsState extends State<AppsIcons> {
           width: 64,
           height: 64,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.3),
+            color: Colors.white.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(16.0),
             border: Border.all(
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.black.withValues(alpha: 0.2),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),

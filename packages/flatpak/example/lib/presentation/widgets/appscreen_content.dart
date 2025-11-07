@@ -53,10 +53,7 @@ class AppscreenContent extends StatelessWidget {
           ),
           child: ClipRRect(
             child: BackdropFilter(
-              filter: ImageFilter.blur(
-                sigmaX: 10.0,
-                sigmaY: 10.0,
-              ),
+              filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(
@@ -86,9 +83,7 @@ class AppscreenContent extends StatelessWidget {
     return Expanded(
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildAppinfo(context, app),
-        ],
+        children: [_buildAppinfo(context, app)],
       ),
     );
   }
@@ -128,7 +123,10 @@ class AppscreenContent extends StatelessWidget {
                     developerName,
                     style: TextStyle(
                       color: const Color(0xFF8B8B8B),
-                      fontSize: Responsive.scale(context, 13.0).clamp(11.0, 15.0),
+                      fontSize: Responsive.scale(
+                        context,
+                        13.0,
+                      ).clamp(11.0, 15.0),
                       height: 1.1,
                     ),
                     maxLines: 1,
@@ -200,10 +198,7 @@ class AppscreenContent extends StatelessWidget {
         );
       }
     }
-    return Image.asset(
-      'assets/icons/default_app_icon.png',
-      fit: BoxFit.cover,
-    );
+    return Image.asset('assets/icons/default_app_icon.png', fit: BoxFit.cover);
   }
 
   Widget _buildScreenshot(BuildContext context) {
@@ -236,10 +231,7 @@ class AppscreenContent extends StatelessWidget {
           desktop: 20.0,
         ),
       ),
-      child: Screenshot(
-        images: images,
-        captions: captions,
-      ),
+      child: Screenshot(images: images, captions: captions),
     );
   }
 
@@ -266,10 +258,13 @@ class AppscreenContent extends StatelessWidget {
             return BlocBuilder<AppLaunchCubit, AppLaunchState>(
               bloc: appLaunchCubit,
               builder: (context, launchState) {
-                final isInstalled = installedState is InstalledAppsLoaded &&
+                final isInstalled =
+                    installedState is InstalledAppsLoaded &&
                     installedState.installedIds.contains(app.id);
 
-                final isInstalling = installationCubit.isOperationInProgress(app.id);
+                final isInstalling = installationCubit.isOperationInProgress(
+                  app.id,
+                );
                 final isLaunching = appLaunchCubit.isLaunching(app.id);
 
                 // Get progress
@@ -296,20 +291,17 @@ class AppscreenContent extends StatelessWidget {
                 return GestureDetector(
                   onTap: canTap
                       ? () async {
-                    if (isInstalled) {
-                      await appLaunchCubit.launchApp(app.id);
-                    } else {
-                      await installationCubit.installApp(app.id);
-                    }
-                  }
+                          if (isInstalled) {
+                            await appLaunchCubit.launchApp(app.id);
+                          } else {
+                            await installationCubit.installApp(app.id);
+                          }
+                        }
                       : null,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(9999),
                     child: BackdropFilter(
-                      filter: ImageFilter.blur(
-                        sigmaX: 10,
-                        sigmaY: 10,
-                      ),
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                       child: Container(
                         width: buttonW,
                         height: buttonH,
@@ -325,30 +317,32 @@ class AppscreenContent extends StatelessWidget {
                           child: isInstalling && progress != null
                               ? _buildProgressIndicator(progress, buttonH)
                               : Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (isLaunching)
-                                const SizedBox(
-                                  width: 14,
-                                  height: 14,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white),
-                                  ),
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (isLaunching)
+                                      const SizedBox(
+                                        width: 14,
+                                        height: 14,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                        ),
+                                      ),
+                                    if (isLaunching) const SizedBox(width: 8),
+                                    Text(
+                                      buttonText,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: 16,
+                                        fontFamily: 'general-sans',
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              if (isLaunching) const SizedBox(width: 8),
-                              Text(
-                                buttonText,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: 16,
-                                  fontFamily: 'general-sans',
-                                ),
-                              ),
-                            ],
-                          ),
                         ),
                       ),
                     ),
@@ -421,10 +415,7 @@ class AppscreenContent extends StatelessWidget {
       ),
       child: ClipRRect(
         child: BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaY: 10,
-            sigmaX: 10,
-          ),
+          filter: ImageFilter.blur(sigmaY: 10, sigmaX: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -606,8 +597,9 @@ class AppscreenContent extends StatelessWidget {
       final metadata = jsonDecode(app.metadata) as Map<String, dynamic>;
       final categoriesData = metadata['categories'];
       if (categoriesData == null) return [];
-      List<dynamic> categories =
-      categoriesData is List ? categoriesData : [categoriesData];
+      List<dynamic> categories = categoriesData is List
+          ? categoriesData
+          : [categoriesData];
       return categories.take(3).where((c) => c != null).map((category) {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

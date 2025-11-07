@@ -14,8 +14,7 @@ class NavigationBar extends StatefulWidget {
   });
 
   @override
-  State<NavigationBar> createState() =>
-      _NavigationBarState();
+  State<NavigationBar> createState() => _NavigationBarState();
 }
 
 class _NavigationBarState extends State<NavigationBar>
@@ -29,22 +28,24 @@ class _NavigationBarState extends State<NavigationBar>
     super.initState();
     _controllers = List.generate(
       widget.items.length,
-          (index) => AnimationController(
+      (index) => AnimationController(
         duration: const Duration(milliseconds: 300),
         vsync: this,
       ),
     );
 
     _scaleAnimations = _controllers.map((controller) {
-      return Tween<double>(begin: 1.0, end: 1.2).animate(
-        CurvedAnimation(parent: controller, curve: Curves.easeInOut),
-      );
+      return Tween<double>(
+        begin: 1.0,
+        end: 1.2,
+      ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
     }).toList();
 
     _opacityAnimations = _controllers.map((controller) {
-      return Tween<double>(begin: 0.6, end: 1.0).animate(
-        CurvedAnimation(parent: controller, curve: Curves.easeInOut),
-      );
+      return Tween<double>(
+        begin: 0.6,
+        end: 1.0,
+      ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
     }).toList();
 
     _controllers[widget.currentIndex].forward();
@@ -131,7 +132,7 @@ class _NavigationBarState extends State<NavigationBar>
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(
                     widget.items.length,
-                        (index) => _buildNavItem(index),
+                    (index) => _buildNavItem(index),
                   ),
                 ),
               ],
@@ -166,7 +167,7 @@ class _NavigationBarState extends State<NavigationBar>
               scale: _scaleAnimations[index].value,
               child: Opacity(
                 opacity: _opacityAnimations[index].value,
-                child: Container(
+                child: SizedBox(
                   height: 80,
                   child: Center(
                     child: Icon(
@@ -191,8 +192,5 @@ class NavigationItem {
   final IconData icon;
   final String label;
 
-  const NavigationItem({
-    required this.icon,
-    required this.label,
-  });
+  const NavigationItem({required this.icon, required this.label});
 }

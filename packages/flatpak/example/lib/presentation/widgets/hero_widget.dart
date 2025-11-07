@@ -10,12 +10,12 @@ class HeroWidget extends StatelessWidget {
   final List<Widget>? featuredAppCards;
 
   const HeroWidget({
-    Key? key,
+    super.key,
     required this.title,
     required this.subtitle,
     required this.imageUrl,
     this.featuredAppCards,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +28,7 @@ class HeroWidget extends StatelessWidget {
           Positioned.fill(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(24.0),
-              child: Image.asset(
-                imageUrl,
-                fit: BoxFit.cover,
-              ),
+              child: Image.asset(imageUrl, fit: BoxFit.cover),
             ),
           ),
           // Glass effect container with content
@@ -46,18 +43,18 @@ class HeroWidget extends StatelessWidget {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Colors.white.withOpacity(0.2),
-                        Colors.white.withOpacity(0.1),
+                        Colors.white.withValues(alpha: 0.2),
+                        Colors.white.withValues(alpha: 0.1),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(24.0),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                       width: 1.5,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -98,7 +95,7 @@ class HeroWidget extends StatelessWidget {
                                 subtitle,
                                 style: TextStyle(
                                   fontSize: 14.0,
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withValues(alpha: 0.9),
                                   fontFamily: 'general-sans',
                                   height: 1.4,
                                   shadows: const [
@@ -118,10 +115,7 @@ class HeroWidget extends StatelessWidget {
                         ),
                         const SizedBox(width: 24.0),
                         // Right side - App icons
-                        const Expanded(
-                          flex: 2,
-                          child: AppsIcons(),
-                        ),
+                        const Expanded(flex: 2, child: AppsIcons()),
                       ],
                     ),
                   ),
@@ -145,17 +139,20 @@ class HeroWidget extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 14.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 28.0,
+              vertical: 14.0,
+            ),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Colors.green.withOpacity(0.9),
-                  Colors.green.shade600.withOpacity(0.9),
+                  Colors.green.withValues(alpha: 0.9),
+                  Colors.green.shade600.withValues(alpha: 0.9),
                 ],
               ),
               borderRadius: BorderRadius.circular(25.0),
               border: Border.all(
-                color: Colors.white.withOpacity(0.4),
+                color: Colors.white.withValues(alpha: 0.4),
                 width: 1.5,
               ),
               boxShadow: const [

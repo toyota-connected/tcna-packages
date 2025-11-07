@@ -12,7 +12,6 @@ import 'business_logic/installation/installation_cubit.dart';
 import 'business_logic/installed_apps/installed_apps_cubit.dart';
 import 'injection_container.dart';
 
-
 class FlatpakApp extends StatelessWidget {
   const FlatpakApp({super.key});
 
@@ -40,9 +39,7 @@ class FlatpakApp extends StatelessWidget {
           lazy: false,
         ),
 
-        BlocProvider<AppLaunchCubit>(
-          create: (context) => sl<AppLaunchCubit>(),
-        ),
+        BlocProvider<AppLaunchCubit>(create: (context) => sl<AppLaunchCubit>()),
         BlocProvider<SystemInfoCubit>(
           create: (context) => sl<SystemInfoCubit>(),
         ),

@@ -70,11 +70,15 @@ class HomeScreen extends StatelessWidget {
                         if (state is EventListenerListening) {
                           return Container(
                             padding: const EdgeInsets.all(8),
-                            color: Colors.green.withOpacity(0.2),
+                            color: Colors.green.withValues(alpha: 0.2),
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.check_circle, color: Colors.green, size: 16),
+                                Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green,
+                                  size: 16,
+                                ),
                                 SizedBox(width: 8),
                                 Text('Connected to Flatpak'),
                               ],
@@ -89,33 +93,32 @@ class HomeScreen extends StatelessWidget {
                     child: HeroWidget(
                       title: "Discover, Install, and Enjoy Apps on AGL Store.",
                       imageUrl: 'assets/images/Hero.png',
-                      subtitle: "Explore a wide range of applications available through Flatpak.",
+                      subtitle:
+                          "Explore a wide range of applications available through Flatpak.",
                     ),
                   ),
                   // Category sections
                   SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                        final categoryName = categoryOrder[index];
-                        final apps = state.categoryApps[categoryName] ?? [];
-                        final isLoading =
-                        context.read<DiscoveryCubit>().isCategoryLoading(categoryName);
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final categoryName = categoryOrder[index];
+                      final apps = state.categoryApps[categoryName] ?? [];
+                      final isLoading = context
+                          .read<DiscoveryCubit>()
+                          .isCategoryLoading(categoryName);
 
-                        return Column(
-                          children: [
-                            CategorySection(
-                              category_heading: categoryName,
-                              apps: apps,
-                              isLoading: isLoading,
-                              onTap: (app) => _navigateToApp(app, context),
-                              onInstall: (app) => _handleInstall(app, context),
-                            ),
-                            const SizedBox(height: 32),
-                          ],
-                        );
-                      },
-                      childCount: categoryOrder.length,
-                    ),
+                      return Column(
+                        children: [
+                          CategorySection(
+                            category_heading: categoryName,
+                            apps: apps,
+                            isLoading: isLoading,
+                            onTap: (app) => _navigateToApp(app, context),
+                            onInstall: (app) => _handleInstall(app, context),
+                          ),
+                          const SizedBox(height: 32),
+                        ],
+                      );
+                    }, childCount: categoryOrder.length),
                   ),
                 ],
               ),

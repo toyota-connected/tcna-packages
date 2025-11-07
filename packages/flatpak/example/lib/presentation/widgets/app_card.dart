@@ -57,29 +57,17 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 1000),
     );
 
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.05,
-    ).animate(CurvedAnimation(
-      parent: _hoverController,
-      curve: Curves.easeInOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(parent: _hoverController, curve: Curves.easeInOut),
+    );
 
-    _elevationAnimation = Tween<double>(
-      begin: 0.0,
-      end: 8.0,
-    ).animate(CurvedAnimation(
-      parent: _hoverController,
-      curve: Curves.easeInOut,
-    ));
+    _elevationAnimation = Tween<double>(begin: 0.0, end: 8.0).animate(
+      CurvedAnimation(parent: _hoverController, curve: Curves.easeInOut),
+    );
 
-    _rotationAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _loadingController,
-      curve: Curves.linear,
-    ));
+    _rotationAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _loadingController, curve: Curves.linear),
+    );
   }
 
   @override
@@ -129,7 +117,9 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
               child: Container(
                 width: cardWidth,
                 height: cardHeight,
-                margin: EdgeInsets.all(Responsive.scale(context, 12.0).clamp(10.0, 16.0)),
+                margin: EdgeInsets.all(
+                  Responsive.scale(context, 12.0).clamp(10.0, 16.0),
+                ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
@@ -264,11 +254,9 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
               child: Text(
                 _getAppSummary(app),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.color
-                      ?.withValues(alpha: 0.7),
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
                   fontSize: Responsive.scale(context, 12.0).clamp(10.0, 14.0),
                   fontFamily: 'general-sans',
                 ),
@@ -292,14 +280,17 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
             return BlocBuilder<AppLaunchCubit, AppLaunchState>(
               builder: (context, launchState) {
                 // Determine app states
-                final isInstalled = installedState is InstalledAppsLoaded &&
+                final isInstalled =
+                    installedState is InstalledAppsLoaded &&
                     installedState.installedIds.contains(widget.application.id);
 
-                final isInstalling =
-                context.read<InstallationCubit>().isOperationInProgress(widget.application.id);
+                final isInstalling = context
+                    .read<InstallationCubit>()
+                    .isOperationInProgress(widget.application.id);
 
-                final isLaunching =
-                context.read<AppLaunchCubit>().isLaunching(widget.application.id);
+                final isLaunching = context.read<AppLaunchCubit>().isLaunching(
+                  widget.application.id,
+                );
 
                 final isLoading = isInstalling || isLaunching;
 
@@ -331,26 +322,29 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
                 }
 
                 return GestureDetector(
-                  onTap: isLoading ? null : () async {
-                    if (isInstalled) {
-                      await context.read<AppLaunchCubit>()
-                          .launchApp(widget.application.id);
-                    } else if (!isInstalling) {
-                      await context.read<InstallationCubit>()
-                          .installApp(widget.application.id);
-                    }
-                  },
+                  onTap: isLoading
+                      ? null
+                      : () async {
+                          if (isInstalled) {
+                            await context.read<AppLaunchCubit>().launchApp(
+                              widget.application.id,
+                            );
+                          } else if (!isInstalling) {
+                            await context.read<InstallationCubit>().installApp(
+                              widget.application.id,
+                            );
+                          }
+                        },
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
                     child: BackdropFilter(
-                      filter: ImageFilter.blur(
-                        sigmaX: 10,
-                        sigmaY: 10,
-                      ),
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 8),
+                          horizontal: 24,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: isLoading
                               ? Colors.grey.withValues(alpha: 0.8)
@@ -369,7 +363,9 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
                                 animation: _rotationAnimation,
                                 builder: (context, child) {
                                   return Transform.rotate(
-                                    angle: _rotationAnimation.value * 2.0 *
+                                    angle:
+                                        _rotationAnimation.value *
+                                        2.0 *
                                         3.141592653589793,
                                     child: SizedBox(
                                       width: 14,
@@ -379,8 +375,10 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
                                             ? progress
                                             : null,
                                         strokeWidth: 2,
-                                        valueColor: const AlwaysStoppedAnimation<Color>(
-                                            Colors.white),
+                                        valueColor:
+                                            const AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
                                       ),
                                     ),
                                   );
@@ -435,7 +433,8 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
             if (icon is Map<String, dynamic> && icon['type'] == iconType) {
               final path = icon['path'] as String?;
               if (icon['type'] == 'cached') {
-                final cachedPath = '/var/lib/flatpak/appstream/flathub/x86_64/active/icons/128x128/$path';
+                final cachedPath =
+                    '/var/lib/flatpak/appstream/flathub/x86_64/active/icons/128x128/$path';
                 return cachedPath;
               }
               if (path != null) {

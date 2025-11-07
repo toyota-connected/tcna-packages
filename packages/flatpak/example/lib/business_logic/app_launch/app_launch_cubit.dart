@@ -22,7 +22,7 @@ class AppLaunchCubit extends Cubit<AppLaunchState> {
     final result = await repository.launchApplication(appId);
 
     result.fold(
-          (failure) {
+      (failure) {
         _launchingApps.remove(shortId);
         emit(AppLaunchFailure(appId: shortId, error: failure.message));
         // Reset after delay
@@ -32,7 +32,7 @@ class AppLaunchCubit extends Cubit<AppLaunchState> {
           }
         });
       },
-          (success) {
+      (success) {
         _launchingApps.remove(shortId);
         if (success) {
           emit(AppLaunchSuccess(shortId));

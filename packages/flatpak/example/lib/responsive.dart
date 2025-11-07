@@ -6,20 +6,20 @@ class Responsive {
   static const double mobileBreakpoint = 768.0;
   static const double tabletBreakpoint = 1024.0;
 
-  static bool isMobile(BuildContext context) => 
+  static bool isMobile(BuildContext context) =>
       MediaQuery.of(context).size.width < mobileBreakpoint;
 
-  static bool isTablet(BuildContext context) => 
-      MediaQuery.of(context).size.width >= mobileBreakpoint && 
+  static bool isTablet(BuildContext context) =>
+      MediaQuery.of(context).size.width >= mobileBreakpoint &&
       MediaQuery.of(context).size.width < tabletBreakpoint;
 
-  static bool isDesktop(BuildContext context) => 
+  static bool isDesktop(BuildContext context) =>
       MediaQuery.of(context).size.width >= tabletBreakpoint;
 
-  static double width(BuildContext context) => 
+  static double width(BuildContext context) =>
       MediaQuery.of(context).size.width;
 
-  static double height(BuildContext context) => 
+  static double height(BuildContext context) =>
       MediaQuery.of(context).size.height;
 
   static T responsive<T>(
@@ -51,9 +51,12 @@ class Responsive {
   static double scale(BuildContext context, double figmaSize) {
     final screenWidth = MediaQuery.of(context).size.width;
     final scaleFactor = screenWidth / designWidth;
-    
+
     if (isMobile(context)) {
-      return (figmaSize * scaleFactor * 1.2).clamp(figmaSize * 0.6, figmaSize * 1.2);
+      return (figmaSize * scaleFactor * 1.2).clamp(
+        figmaSize * 0.6,
+        figmaSize * 1.2,
+      );
     } else if (isTablet(context)) {
       return (figmaSize * scaleFactor).clamp(figmaSize * 0.8, figmaSize * 1.1);
     } else {
@@ -62,16 +65,12 @@ class Responsive {
   }
 
   static double scaleWithConstraints(
-    BuildContext context, 
+    BuildContext context,
     double figmaSize, {
     double? minSize,
     double? maxSize,
   }) {
     final scaled = scale(context, figmaSize);
-    return scaled.clamp(
-      minSize ?? figmaSize * 0.5, 
-      maxSize ?? figmaSize * 2.0,
-    );
+    return scaled.clamp(minSize ?? figmaSize * 0.5, maxSize ?? figmaSize * 2.0);
   }
-
 }

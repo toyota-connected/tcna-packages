@@ -9,9 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../../business_logic/discovery/dicovery_cubit.dart';
 import '../../business_logic/discovery/discovery_state.dart';
 import '../../business_logic/installation/installation_cubit.dart';
-import '../../business_logic/installed_apps/installed_apps_cubit.dart';
 import '../../data/models/application_model.dart';
-import '../../helpers/id_utils.dart';
 import '../../responsive.dart';
 import '../widgets/cateogry_section.dart';
 
@@ -27,7 +25,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   Timer? _rotationTimer;
 
   Map<String, List<Application>> _dynamicCategories = {};
-  List<String> _displayedCategories = [];
+  final List<String> _displayedCategories = [];
   List<Application> _featuredApps = [];
 
   static const int _maxDisplayedCategories = 6;
@@ -89,7 +87,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
     _dynamicCategories = Map.fromEntries(sortedEntries);
 
-    print('[DiscoverScreen] Found ${_dynamicCategories.length} categories');
+    debugPrint(
+      '[DiscoverScreen] Found ${_dynamicCategories.length} categories',
+    );
 
     _selectRandomCategories();
   }
@@ -123,13 +123,14 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
     while (_displayedCategories.length < _maxDisplayedCategories &&
         _displayedCategories.length < allCategoryNames.length) {
-      final randomCategory = allCategoryNames[random.nextInt(allCategoryNames.length)];
+      final randomCategory =
+          allCategoryNames[random.nextInt(allCategoryNames.length)];
       if (!_displayedCategories.contains(randomCategory)) {
         _displayedCategories.add(randomCategory);
       }
     }
 
-    print('[DiscoverScreen] Displaying categories: $_displayedCategories');
+    debugPrint('[DiscoverScreen] Displaying categories: $_displayedCategories');
 
     if (mounted) {
       setState(() {});
@@ -154,7 +155,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   void _startCategoryRotation() {
     _rotationTimer = Timer.periodic(_rotationInterval, (timer) {
-      print('[DiscoverScreen] Rotating categories...');
+      debugPrint('[DiscoverScreen] Rotating categories...');
       _selectRandomCategories();
       _selectRandomFeaturedApps();
     });
@@ -238,7 +239,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.bottomRight,
-                  end: Alignment.topLeft,transform: const GradientRotation(45 * 3.1416 / 180),
+                  end: Alignment.topLeft,
+                  transform: const GradientRotation(45 * 3.1416 / 180),
                   colors: [
                     const Color(0xFF6366F1).withValues(alpha: 0.1),
                     const Color(0xFF8B5CF6).withValues(alpha: 0.1),
@@ -291,7 +293,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 
   Widget _buildFeaturedCard(Application app) {
-    return Container(
+    return SizedBox(
       width: 300,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
@@ -424,7 +426,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(size * 0.25),
-        child: iconPath != null ? _buildIconImage(iconPath, size) : _buildDefaultIcon(size),
+        child: iconPath != null
+            ? _buildIconImage(iconPath, size)
+            : _buildDefaultIcon(size),
       ),
     );
   }
@@ -542,8 +546,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       final metadata = jsonDecode(app.metadata) as Map<String, dynamic>;
       final categoriesData = metadata['categories'];
       if (categoriesData == null) return [];
-      List<dynamic> categories =
-      categoriesData is List ? categoriesData : [categoriesData];
+      List<dynamic> categories = categoriesData is List
+          ? categoriesData
+          : [categoriesData];
       return categories
           .where((c) => c != null && c.toString().trim().isNotEmpty)
           .map((c) => c.toString().trim())

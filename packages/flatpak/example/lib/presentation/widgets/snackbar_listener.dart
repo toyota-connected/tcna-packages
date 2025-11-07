@@ -20,9 +20,7 @@ class SnackbarListener extends StatelessWidget {
             if (state is InstallationSuccess) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(
-                    '${state.operation} completed successfully',
-                  ),
+                  content: Text('${state.operation} completed successfully'),
                   backgroundColor: Colors.green,
                 ),
               );
@@ -31,10 +29,7 @@ class SnackbarListener extends StatelessWidget {
                 SnackBar(
                   content: Text('${state.operation} failed: ${state.error}'),
                   backgroundColor: Colors.red,
-                  action: SnackBarAction(
-                    label: 'Dismiss',
-                    onPressed: () {},
-                  ),
+                  action: SnackBarAction(label: 'Dismiss', onPressed: () {}),
                 ),
               );
             }

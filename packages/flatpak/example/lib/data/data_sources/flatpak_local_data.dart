@@ -45,9 +45,7 @@ class FlatpakLocalDataSourceImpl implements FlatpakLocalDataSource {
   @override
   Future<List<InstallationModel>> getSystemInstallations() async {
     final installations = await _api.getSystemInstallations();
-    return installations
-        .map((i) => InstallationModel.fromPigeon(i))
-        .toList();
+    return installations.map((i) => InstallationModel.fromPigeon(i)).toList();
   }
 
   @override

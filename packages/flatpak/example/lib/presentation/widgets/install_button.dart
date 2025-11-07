@@ -15,7 +15,8 @@ class InstallButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<InstalledAppsCubit, InstalledAppsState>(
       builder: (context, installedState) {
-        final isInstalled = installedState is InstalledAppsLoaded &&
+        final isInstalled =
+            installedState is InstalledAppsLoaded &&
             installedState.installedIds.contains(app.shortId);
 
         return BlocBuilder<InstallationCubit, InstallationState>(
@@ -54,9 +55,7 @@ class InstallButton extends StatelessWidget {
                 },
                 icon: const Icon(Icons.delete_outline),
                 label: const Text('Uninstall'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                ),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               );
             }
 

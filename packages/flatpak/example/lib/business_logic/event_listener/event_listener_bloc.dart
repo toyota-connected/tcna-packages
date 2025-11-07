@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/models/flatpak_event_model.dart';
 import '../../data/repositories/flatpak_repository.dart';
@@ -10,7 +11,7 @@ class EventListenerBloc extends Bloc<EventListenerEvent, EventListenerState> {
   StreamSubscription<FlatpakEventModel>? _eventSubscription;
 
   EventListenerBloc({required this.repository}) : super(EventListenerIdle()) {
-    print('[EventListenerBloc] Constructor called');
+    debugPrint('[EventListenerBloc] Constructor called');
 
     on<StartListening>(_onStartListening);
     on<StopListening>(_onStopListening);
@@ -18,61 +19,59 @@ class EventListenerBloc extends Bloc<EventListenerEvent, EventListenerState> {
   }
 
   void _onStartListening(
-      StartListening event,
-      Emitter<EventListenerState> emit,
-      ) async {
-    print('[EventListenerBloc] StartListening called');
+    StartListening event,
+    Emitter<EventListenerState> emit,
+  ) async {
+    debugPrint('[EventListenerBloc] StartListening called');
 
     if (_eventSubscription != null) {
-      print('[EventListenerBloc] Already listening, ignoring');
+      debugPrint('[EventListenerBloc] Already listening, ignoring');
       return;
     }
 
     emit(EventListenerListening());
-    print('[EventListenerBloc] Emitted EventListenerListening');
+    debugPrint('[EventListenerBloc] Emitted EventListenerListening');
 
     repository.startEventListening();
-    print('[EventListenerBloc] Called repository.startEventListening()');
+    debugPrint('[EventListenerBloc] Called repository.startEventListening()');
 
     // Subscribe to the event stream
     _eventSubscription = repository.eventStream.listen(
-          (flatpakEvent) {
-        print('[EventListenerBloc] Received event from stream: ${flatpakEvent.type}');
+      (flatpakEvent) {
+        debugPrint(
+          '[EventListenerBloc] Received event from stream: ${flatpakEvent.type}',
+        );
         add(EventReceived(flatpakEvent));
       },
       onError: (error) {
-        print('[EventListenerBloc] Stream error: $error');
+        debugPrint('[EventListenerBloc] Stream error: $error');
       },
       onDone: () {
-        print('[EventListenerBloc] Stream closed');
+        debugPrint('[EventListenerBloc] Stream closed');
       },
     );
 
-    print('[EventListenerBloc] Stream subscription established');
+    debugPrint('[EventListenerBloc] Stream subscription established');
   }
 
-  void _onStopListening(
-      StopListening event,
-      Emitter<EventListenerState> emit,
-      ) {
-    print('[EventListenerBloc] StopListening called');
+  void _onStopListening(StopListening event, Emitter<EventListenerState> emit) {
+    debugPrint('[EventListenerBloc] StopListening called');
     _eventSubscription?.cancel();
     _eventSubscription = null;
     repository.stopEventListening();
     emit(EventListenerStopped());
   }
 
-  void _onEventReceived(
-      EventReceived event,
-      Emitter<EventListenerState> emit,
-      ) {
-    print('[EventListenerBloc] EventReceived handler called: ${event.event.type}');
+  void _onEventReceived(EventReceived event, Emitter<EventListenerState> emit) {
+    debugPrint(
+      '[EventListenerBloc] EventReceived handler called: ${event.event.type}',
+    );
     emit(EventListenerEventReceived(event.event));
   }
 
   @override
   Future<void> close() {
-    print('[EventListenerBloc] Closing...');
+    debugPrint('[EventListenerBloc] Closing...');
     _eventSubscription?.cancel();
     repository.stopEventListening();
     return super.close();

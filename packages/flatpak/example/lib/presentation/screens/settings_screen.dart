@@ -1,8 +1,6 @@
 import 'dart:ui';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import '../../business_logic/system_info/system_info_cubit.dart';
 import '../../business_logic/system_info/system_info_state.dart';
 import '../../responsive.dart';
@@ -83,7 +81,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.bottomRight,
-                  end: Alignment.topLeft,transform: const GradientRotation(45 * 3.1416 / 180),
+                  end: Alignment.topLeft,
+                  transform: const GradientRotation(45 * 3.1416 / 180),
                   colors: [
                     const Color(0xFF6366F1).withValues(alpha: 0.1),
                     const Color(0xFF8B5CF6).withValues(alpha: 0.1),
@@ -100,16 +99,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildLoadingState() {
-    return Container(
+    return SizedBox(
       height: MediaQuery.of(context).size.height - 200,
-      child: const Center(
-        child: CircularProgressIndicator(),
-      ),
+      child: const Center(child: CircularProgressIndicator()),
     );
   }
 
   Widget _buildErrorState(String message) {
-    return Container(
+    return SizedBox(
       height: MediaQuery.of(context).size.height - 200,
       child: Center(
         child: Column(
@@ -145,7 +142,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2563EB),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -165,7 +165,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Container(
+    return SizedBox(
       height: MediaQuery.of(context).size.height - 200,
       child: Center(
         child: Column(
@@ -220,7 +220,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _buildInfoTile(
           icon: Icons.memory,
           title: 'Default Architecture',
-          subtitle: state.defaultArch.isNotEmpty ? state.defaultArch : 'Unknown',
+          subtitle: state.defaultArch.isNotEmpty
+              ? state.defaultArch
+              : 'Unknown',
         ),
       ],
     );
@@ -237,11 +239,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'User Installation',
             installation: state.userInstallation!,
           ),
-        ...state.systemInstallations.map((installation) => _buildInstallationTile(
-          icon: Icons.computer,
-          title: 'System Installation',
-          installation: installation,
-        )),
+        ...state.systemInstallations.map(
+          (installation) => _buildInstallationTile(
+            icon: Icons.computer,
+            title: 'System Installation',
+            installation: installation,
+          ),
+        ),
       ],
     );
   }
@@ -336,9 +340,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   width: 1.5,
                 ),
               ),
-              child: Column(
-                children: children,
-              ),
+              child: Column(children: children),
             ),
           ),
         ),
@@ -457,13 +459,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Wrap(
                     spacing: 6,
                     runSpacing: 4,
-                    children: installation.remotes.take(3).map<Widget>((remote) {
+                    children: installation.remotes.take(3).map<Widget>((
+                      remote,
+                    ) {
                       return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.grey.shade100.withValues(alpha: 0.8),
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: Colors.grey.shade300, width: 0.5),
+                          border: Border.all(
+                            color: Colors.grey.shade300,
+                            width: 0.5,
+                          ),
                         ),
                         child: Text(
                           remote.name,
@@ -543,11 +553,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
               ),
-              Icon(
-                Icons.chevron_right,
-                color: Colors.grey[400],
-                size: 20,
-              ),
+              Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
             ],
           ),
         ),

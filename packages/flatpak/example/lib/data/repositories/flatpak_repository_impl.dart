@@ -37,7 +37,7 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
       final version = await localDataSource.getVersion();
       return Right(version);
     } on PlatformException catch (e) {
-      return Left(PlatformFailure(e.message ?? 'Platform error'));
+      return Left(PlatformFailure(e.message));
     }
   }
 
@@ -47,7 +47,7 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
       final arch = await localDataSource.getDefaultArch();
       return Right(arch);
     } on PlatformException catch (e) {
-      return Left(PlatformFailure(e.message ?? 'Platform error'));
+      return Left(PlatformFailure(e.message));
     }
   }
 
@@ -57,7 +57,7 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
       final arches = await localDataSource.getSupportedArches();
       return Right(arches);
     } on PlatformException catch (e) {
-      return Left(PlatformFailure(e.message ?? 'Platform error'));
+      return Left(PlatformFailure(e.message));
     }
   }
 
@@ -67,7 +67,7 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
       final installations = await localDataSource.getSystemInstallations();
       return Right(installations);
     } on PlatformException catch (e) {
-      return Left(PlatformFailure(e.message ?? 'Platform error'));
+      return Left(PlatformFailure(e.message));
     }
   }
 
@@ -77,7 +77,7 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
       final installation = await localDataSource.getUserInstallation();
       return Right(installation);
     } on PlatformException catch (e) {
-      return Left(PlatformFailure(e.message ?? 'Platform error'));
+      return Left(PlatformFailure(e.message));
     }
   }
 
@@ -87,18 +87,19 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
       final apps = await localDataSource.getApplicationsInstalled();
       return Right(apps);
     } on PlatformException catch (e) {
-      return Left(PlatformFailure(e.message ?? 'Platform error'));
+      return Left(PlatformFailure(e.message));
     }
   }
 
   @override
   Future<Either<Failure, List<Application>>> getApplicationsRemote(
-      String remoteId) async {
+    String remoteId,
+  ) async {
     try {
       final apps = await localDataSource.getApplicationsRemote(remoteId);
       return Right(apps);
     } on PlatformException catch (e) {
-      return Left(PlatformFailure(e.message ?? 'Platform error'));
+      return Left(PlatformFailure(e.message));
     }
   }
 
@@ -108,7 +109,7 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
       final apps = await localDataSource.getApplicationsUpdate();
       return Right(apps);
     } on PlatformException catch (e) {
-      return Left(PlatformFailure(e.message ?? 'Platform error'));
+      return Left(PlatformFailure(e.message));
     }
   }
 
@@ -118,7 +119,7 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
       final result = await localDataSource.applicationInstall(appId);
       return Right(result);
     } on PlatformException catch (e) {
-      return Left(PlatformFailure(e.message ?? 'Installation failed'));
+      return Left(PlatformFailure(e.message));
     }
   }
 
@@ -128,7 +129,7 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
       final result = await localDataSource.applicationUninstall(appId);
       return Right(result);
     } on PlatformException catch (e) {
-      return Left(PlatformFailure(e.message ?? 'Uninstallation failed'));
+      return Left(PlatformFailure(e.message));
     }
   }
 
@@ -138,7 +139,7 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
       final result = await localDataSource.applicationUpdate(appId);
       return Right(result);
     } on PlatformException catch (e) {
-      return Left(PlatformFailure(e.message ?? 'Update failed'));
+      return Left(PlatformFailure(e.message));
     }
   }
 
@@ -148,7 +149,7 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
       final result = await localDataSource.applicationStart(appId);
       return Right(result);
     } on PlatformException catch (e) {
-      return Left(PlatformFailure(e.message ?? 'Launch failed'));
+      return Left(PlatformFailure(e.message));
     }
   }
 
@@ -158,7 +159,7 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
       final result = await localDataSource.applicationStop(appId);
       return Right(result);
     } on PlatformException catch (e) {
-      return Left(PlatformFailure(e.message ?? 'Stop failed'));
+      return Left(PlatformFailure(e.message));
     }
   }
 
@@ -169,7 +170,7 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
       final result = await localDataSource.remoteAdd(remoteModel);
       return Right(result);
     } on PlatformException catch (e) {
-      return Left(PlatformFailure(e.message ?? 'Add remote failed'));
+      return Left(PlatformFailure(e.message));
     }
   }
 
@@ -179,7 +180,7 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
       final result = await localDataSource.remoteRemove(remoteId);
       return Right(result);
     } on PlatformException catch (e) {
-      return Left(PlatformFailure(e.message ?? 'Remove remote failed'));
+      return Left(PlatformFailure(e.message));
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/models/installation_model.dart';
 import '../../data/repositories/flatpak_repository.dart';
@@ -6,7 +7,8 @@ import 'system_info_state.dart';
 class SystemInfoCubit extends Cubit<SystemInfoState> {
   final FlatpakRepository flatpakRepository;
 
-  SystemInfoCubit({required this.flatpakRepository}) : super(const SystemInfoInitial());
+  SystemInfoCubit({required this.flatpakRepository})
+    : super(const SystemInfoInitial());
 
   Future<void> loadSystemInfo() async {
     emit(const SystemInfoLoading());
@@ -33,42 +35,54 @@ class SystemInfoCubit extends Cubit<SystemInfoState> {
       Installation? userInstallation;
 
       versionResult.fold(
-            (failure) => print('[SystemInfoCubit] Failed to get version: ${failure.message}'),
-            (v) => version = v as String,
+        (failure) => debugPrint(
+          '[SystemInfoCubit] Failed to get version: ${failure.message}',
+        ),
+        (v) => version = v as String,
       );
 
       archResult.fold(
-            (failure) => print('[SystemInfoCubit] Failed to get arch: ${failure.message}'),
-            (a) => defaultArch = a as String,
+        (failure) => debugPrint(
+          '[SystemInfoCubit] Failed to get arch: ${failure.message}',
+        ),
+        (a) => defaultArch = a as String,
       );
 
       archesResult.fold(
-            (failure) => print('[SystemInfoCubit] Failed to get arches: ${failure.message}'),
-            (a) => supportedArches = a as List<String>,
+        (failure) => debugPrint(
+          '[SystemInfoCubit] Failed to get arches: ${failure.message}',
+        ),
+        (a) => supportedArches = a as List<String>,
       );
 
       installationsResult.fold(
-            (failure) => print('[SystemInfoCubit] Failed to get installations: ${failure.message}'),
-            (i) => systemInstallations = i as List<Installation>,
+        (failure) => debugPrint(
+          '[SystemInfoCubit] Failed to get installations: ${failure.message}',
+        ),
+        (i) => systemInstallations = i as List<Installation>,
       );
 
       userInstallationResult.fold(
-            (failure) => print('[SystemInfoCubit] Failed to get user installation: ${failure.message}'),
-            (i) => userInstallation = i as Installation,
+        (failure) => debugPrint(
+          '[SystemInfoCubit] Failed to get user installation: ${failure.message}',
+        ),
+        (i) => userInstallation = i as Installation,
       );
 
-      emit(SystemInfoLoaded(
-        version: version,
-        defaultArch: defaultArch,
-        supportedArches: supportedArches,
-        systemInstallations: systemInstallations,
-        userInstallation: userInstallation,
-      ));
+      emit(
+        SystemInfoLoaded(
+          version: version,
+          defaultArch: defaultArch,
+          supportedArches: supportedArches,
+          systemInstallations: systemInstallations,
+          userInstallation: userInstallation,
+        ),
+      );
 
-      print('[SystemInfoCubit] System info loaded successfully');
+      debugPrint('[SystemInfoCubit] System info loaded successfully');
     } catch (e) {
       emit(SystemInfoError('Failed to load system info: $e'));
-      print('[SystemInfoCubit] Error: $e');
+      debugPrint('[SystemInfoCubit] Error: $e');
     }
   }
 

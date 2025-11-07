@@ -13,7 +13,6 @@ import '../../business_logic/installed_apps/installed_apps_cubit.dart';
 import '../../business_logic/installed_apps/installed_apps_state.dart';
 import '../../data/models/application_model.dart';
 import '../../helpers/id_utils.dart';
-import '../../responsive.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -45,7 +44,10 @@ class _SearchScreenState extends State<SearchScreen> {
     if (query.trim().isEmpty) {
       context.read<DiscoveryCubit>().clearSearch();
     } else {
-      context.read<DiscoveryCubit>().searchApplications(query.trim(), limit: 50);
+      context.read<DiscoveryCubit>().searchApplications(
+        query.trim(),
+        limit: 50,
+      );
     }
   }
 
@@ -63,7 +65,11 @@ class _SearchScreenState extends State<SearchScreen> {
                   if (state.isSearching) {
                     return const Center(child: CircularProgressIndicator());
                   }
-                  return _buildSearchResults(context, state.results, state.query);
+                  return _buildSearchResults(
+                    context,
+                    state.results,
+                    state.query,
+                  );
                 }
                 return _buildEmptyState(context);
               },
@@ -108,9 +114,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     constraints: const BoxConstraints(),
                   ),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildSearchField(context),
-                  ),
+                  Expanded(child: _buildSearchField(context)),
                   if (_searchController.text.isNotEmpty) ...[
                     const SizedBox(width: 12),
                     IconButton(
@@ -160,21 +164,14 @@ class _SearchScreenState extends State<SearchScreen> {
                 fontSize: 15,
                 fontFamily: 'general-sans',
               ),
-              prefixIcon: Icon(
-                Icons.search,
-                color: Colors.grey[600],
-                size: 22,
-              ),
+              prefixIcon: Icon(Icons.search, color: Colors.grey[600], size: 22),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 12,
               ),
             ),
-            style: const TextStyle(
-              fontSize: 15,
-              fontFamily: 'general-sans',
-            ),
+            style: const TextStyle(fontSize: 15, fontFamily: 'general-sans'),
           ),
         ),
       ),
@@ -186,11 +183,7 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.search,
-            size: 80,
-            color: Colors.grey[300],
-          ),
+          Icon(Icons.search, size: 80, color: Colors.grey[300]),
           const SizedBox(height: 16),
           Text(
             'Search for apps',
@@ -216,20 +209,16 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildSearchResults(
-      BuildContext context,
-      List<Application> results,
-      String query,
-      ) {
+    BuildContext context,
+    List<Application> results,
+    String query,
+  ) {
     if (results.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.search_off,
-              size: 80,
-              color: Colors.grey[300],
-            ),
+            Icon(Icons.search_off, size: 80, color: Colors.grey[300]),
             const SizedBox(height: 16),
             Text(
               'No results found',
@@ -376,7 +365,9 @@ class _SearchScreenState extends State<SearchScreen> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
-        child: iconPath != null ? _buildIconImage(iconPath) : _buildDefaultIcon(),
+        child: iconPath != null
+            ? _buildIconImage(iconPath)
+            : _buildDefaultIcon(),
       ),
     );
   }
@@ -419,7 +410,12 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildHighlightedText(String text, String query, TextStyle style) {
     if (query.isEmpty) {
-      return Text(text, style: style, maxLines: 1, overflow: TextOverflow.ellipsis);
+      return Text(
+        text,
+        style: style,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
     }
 
     final lowerText = text.toLowerCase();
@@ -427,7 +423,12 @@ class _SearchScreenState extends State<SearchScreen> {
     final startIndex = lowerText.indexOf(lowerQuery);
 
     if (startIndex == -1) {
-      return Text(text, style: style, maxLines: 1, overflow: TextOverflow.ellipsis);
+      return Text(
+        text,
+        style: style,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
     }
 
     final endIndex = startIndex + query.length;
@@ -487,14 +488,18 @@ class _SearchScreenState extends State<SearchScreen> {
         return BlocBuilder<InstallationCubit, InstallationState>(
           builder: (context, installState) {
             final shortId = AppIdUtils.extractShortId(app.id);
-            final isInstalled = installedState is InstalledAppsLoaded &&
+            final isInstalled =
+                installedState is InstalledAppsLoaded &&
                 installedState.installedIds.contains(shortId);
 
-            final isInstalling = context.read<InstallationCubit>().isOperationInProgress(app.id);
+            final isInstalling = context
+                .read<InstallationCubit>()
+                .isOperationInProgress(app.id);
 
             double? progress;
             if (isInstalling && installState is InstallationInProgress) {
-              if (AppIdUtils.extractShortId(installState.appId ?? '') == shortId) {
+              if (AppIdUtils.extractShortId(installState.appId ?? '') ==
+                  shortId) {
                 progress = installState.progress;
               }
             }
@@ -513,7 +518,9 @@ class _SearchScreenState extends State<SearchScreen> {
                         value: progress,
                         strokeWidth: 3,
                         backgroundColor: Colors.grey.withValues(alpha: 0.3),
-                        valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2563EB)),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          Color(0xFF2563EB),
+                        ),
                       ),
                     ),
                     Text(
@@ -535,7 +542,10 @@ class _SearchScreenState extends State<SearchScreen> {
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF10B981).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
@@ -579,7 +589,10 @@ class _SearchScreenState extends State<SearchScreen> {
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
                         child: Text(
                           'Get',
                           style: TextStyle(
@@ -624,8 +637,9 @@ class _SearchScreenState extends State<SearchScreen> {
       final metadata = jsonDecode(app.metadata) as Map<String, dynamic>;
       final categoriesData = metadata['categories'];
       if (categoriesData == null) return [];
-      List<dynamic> categories =
-      categoriesData is List ? categoriesData : [categoriesData];
+      List<dynamic> categories = categoriesData is List
+          ? categoriesData
+          : [categoriesData];
       return categories
           .where((c) => c != null)
           .map((c) => c.toString().trim())

@@ -21,7 +21,9 @@ abstract class FlatpakRepository {
 
   // Application Discovery
   Future<Either<Failure, List<Application>>> getApplicationsInstalled();
-  Future<Either<Failure, List<Application>>> getApplicationsRemote(String remoteId);
+  Future<Either<Failure, List<Application>>> getApplicationsRemote(
+    String remoteId,
+  );
   Future<Either<Failure, List<Application>>> getApplicationsUpdate();
 
   // Application Management

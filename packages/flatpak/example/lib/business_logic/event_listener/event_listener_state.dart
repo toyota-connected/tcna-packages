@@ -8,8 +8,11 @@ abstract class EventListenerState extends Equatable {
 }
 
 class EventListenerIdle extends EventListenerState {}
+
 class EventListenerListening extends EventListenerState {}
+
 class EventListenerStopped extends EventListenerState {}
+
 class EventListenerEventReceived extends EventListenerState {
   final FlatpakEvent event;
   EventListenerEventReceived(this.event);

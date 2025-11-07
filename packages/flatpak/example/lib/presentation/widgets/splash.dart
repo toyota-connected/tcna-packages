@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../../business_logic/discovery/dicovery_cubit.dart';
 import '../../business_logic/installed_apps/installed_apps_cubit.dart';
 import '../../responsive.dart';
-import '../screens/navigation_menu.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,7 +13,8 @@ class SplashScreen extends StatefulWidget {
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
   late AnimationController _animationController;
   late AnimationController _fadeController;
   late AnimationController _subtitleController;
@@ -105,50 +105,44 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
         parent: _animationController,
-        curve: const Interval(0.2, 0.8, curve: Curves.easeInOut)));
+        curve: const Interval(0.2, 0.8, curve: Curves.easeInOut),
+      ),
+    );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(
         parent: _animationController,
-        curve: const Interval(0.0, 0.6, curve: Curves.elasticOut)));
+        curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
+      ),
+    );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(-1.0, 0.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.4, 1.0, curve: Curves.fastEaseInToSlowEaseOut)));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(-1.0, 0.0), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: const Interval(
+              0.4,
+              1.0,
+              curve: Curves.fastEaseInToSlowEaseOut,
+            ),
+          ),
+        );
 
-    _subtitleSlideAnimation = Tween<Offset>(
-      begin: const Offset(-1.0, 0.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _subtitleController,
-      curve: Curves.easeOut,
-    ));
+    _subtitleSlideAnimation =
+        Tween<Offset>(begin: const Offset(-1.0, 0.0), end: Offset.zero).animate(
+          CurvedAnimation(parent: _subtitleController, curve: Curves.easeOut),
+        );
 
-    _subtitleFadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _subtitleController,
-      curve: Curves.easeInOut,
-    ));
+    _subtitleFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _subtitleController, curve: Curves.easeInOut),
+    );
 
-    _fadeToGradientAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeToGradientAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _splashInit();
@@ -190,8 +184,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
         context.go('/home');
       }
     } catch (e, stackTrace) {
-      print('[SplashScreen] Error during initialization: $e');
-      print('[SplashScreen] Stack trace: $stackTrace');
+      debugPrint('[SplashScreen] Error during initialization: $e');
+      debugPrint('[SplashScreen] Stack trace: $stackTrace');
 
       setState(() {
         _hasError = true;
@@ -215,14 +209,14 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
         await discoveryCubit.loadCategoryApps(entry.key, entry.value);
         await Future.delayed(const Duration(milliseconds: 100));
       } catch (e) {
-        print('[SplashScreen] Error loading category ${entry.key}: $e');
+        debugPrint('[SplashScreen] Error loading category ${entry.key}: $e');
       }
     }
 
-    print('[SplashScreen] Categories loaded:');
+    debugPrint('[SplashScreen] Categories loaded:');
     for (final entry in categories.entries) {
       final apps = discoveryCubit.getCategoryApps(entry.key);
-      print('[SplashScreen] ${entry.key}: ${apps.length} apps');
+      debugPrint('[SplashScreen] ${entry.key}: ${apps.length} apps');
     }
   }
 
@@ -231,10 +225,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     return Scaffold(
       body: Center(
         child: AnimatedBuilder(
-          animation: Listenable.merge([
-            _animationController,
-            _fadeController,
-          ]),
+          animation: Listenable.merge([_animationController, _fadeController]),
           builder: (context, child) {
             return Stack(
               children: [
@@ -270,7 +261,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                                       const LinearGradient(
                                         colors: [
                                           Color(0x00000000),
-                                          Color(0xFF33D17A)
+                                          Color(0xFF33D17A),
                                         ],
                                         begin: Alignment.bottomRight,
                                         end: Alignment.topLeft,
@@ -278,8 +269,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                                   child: Text(
                                     'Store',
                                     style: TextStyle(
-                                      fontSize:
-                                      Responsive.scaleWithConstraints(
+                                      fontSize: Responsive.scaleWithConstraints(
                                         context,
                                         40,
                                         minSize: 36,
@@ -302,7 +292,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                         AnimatedBuilder(
                           animation: Listenable.merge([
                             _subtitleSlideAnimation,
-                            _subtitleFadeAnimation
+                            _subtitleFadeAnimation,
                           ]),
                           builder: (context, child) {
                             return SlideTransition(
@@ -334,7 +324,9 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                                 child: LinearProgressIndicator(
                                   backgroundColor: Colors.grey[200],
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    _hasError ? Colors.red : const Color(0xFF33D17A),
+                                    _hasError
+                                        ? Colors.red
+                                        : const Color(0xFF33D17A),
                                   ),
                                 ),
                               ),
@@ -366,10 +358,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [
-                          Color(0xFF070E20),
-                          Color(0xFF1E3B86),
-                        ],
+                        colors: [Color(0xFF070E20), Color(0xFF1E3B86)],
                       ),
                     ),
                   ),

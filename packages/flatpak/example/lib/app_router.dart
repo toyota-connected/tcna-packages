@@ -44,16 +44,14 @@ class AppRouter {
           GoRoute(
             path: RouteNames.home,
             name: 'home',
-            pageBuilder: (context, state) => NoTransitionPage(
-              child: const HomeScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                NoTransitionPage(child: const HomeScreen()),
           ),
           GoRoute(
             path: RouteNames.discover,
             name: 'discover',
-            pageBuilder: (context, state) => NoTransitionPage(
-              child: const DiscoverScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                NoTransitionPage(child: const DiscoverScreen()),
           ),
           GoRoute(
             path: RouteNames.installed,
@@ -70,16 +68,14 @@ class AppRouter {
           GoRoute(
             path: RouteNames.search,
             name: 'search',
-            pageBuilder: (context, state) => NoTransitionPage(
-              child: const SearchScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                NoTransitionPage(child: const SearchScreen()),
           ),
           GoRoute(
             path: RouteNames.settings,
             name: 'settings',
-            pageBuilder: (context, state) => NoTransitionPage(
-              child: const SettingsScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                NoTransitionPage(child: const SettingsScreen()),
           ),
           GoRoute(
             path: '/app/:appId',

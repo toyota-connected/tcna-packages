@@ -4,14 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flatpak_flutter_example/responsive.dart';
 
-class AppscreenHead extends StatelessWidget implements PreferredSizeWidget{
-  const AppscreenHead({super.key,
-  required this.appname,
-  });
+class AppscreenHead extends StatelessWidget implements PreferredSizeWidget {
+  const AppscreenHead({super.key, required this.appname});
   final String appname;
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Container(
       height: preferredSize.height,
       decoration: BoxDecoration(
@@ -32,15 +30,9 @@ class AppscreenHead extends StatelessWidget implements PreferredSizeWidget{
       ),
       child: ClipRRect(
         child: BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaX: 10.0,
-            sigmaY: 10.0,
-          ),
+          filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
           child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 40,
-              vertical: 25,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 40, vertical: 25),
             child: Row(
               children: [
                 _buildBackWidget(context),
@@ -57,7 +49,7 @@ class AppscreenHead extends StatelessWidget implements PreferredSizeWidget{
   @override
   Size get preferredSize => const Size.fromHeight(100);
 
-  Widget _buildBackWidget(BuildContext context){
+  Widget _buildBackWidget(BuildContext context) {
     final backW = Responsive.scaleWithConstraints(
       context,
       26,
@@ -73,36 +65,35 @@ class AppscreenHead extends StatelessWidget implements PreferredSizeWidget{
     );
 
     return GestureDetector(
-        onTap: () => Navigator.pop(context),
-        child: Row(
-          children: [
-              SizedBox(
-                height: backH,
-                width: backW,
-                child: Icon(CupertinoIcons.back,
-                  color: Colors.black,
-                ),
+      onTap: () => Navigator.pop(context),
+      child: Row(
+        children: [
+          SizedBox(
+            height: backH,
+            width: backW,
+            child: Icon(CupertinoIcons.back, color: Colors.black),
+          ),
+          SizedBox(width: 10),
+          Text(
+            appname,
+            style: TextStyle(
+              fontSize: Responsive.scaleWithConstraints(
+                context,
+                20,
+                minSize: 16,
+                maxSize: 24,
               ),
-            SizedBox(width: 10,),
-            Text(appname,
-              style: TextStyle(
-                  fontSize: Responsive.scaleWithConstraints(
-                    context,
-                    20,
-                    minSize: 16,
-                    maxSize: 24,
-                  ),
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'khand',
-                  color: Colors.black
-              ),
+              fontWeight: FontWeight.bold,
+              fontFamily: 'khand',
+              color: Colors.black,
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildEngageWidget(BuildContext context){
+  Widget _buildEngageWidget(BuildContext context) {
     final engageW = Responsive.scaleWithConstraints(
       context,
       56,
@@ -139,7 +130,7 @@ class AppscreenHead extends StatelessWidget implements PreferredSizeWidget{
                   maxSize: 24,
                 ),
               ),
-              SizedBox(width: 12,),
+              SizedBox(width: 12),
               SvgPicture.asset(
                 'assets/icons/share.svg',
                 width: Responsive.scaleWithConstraints(
@@ -161,5 +152,4 @@ class AppscreenHead extends StatelessWidget implements PreferredSizeWidget{
       ],
     );
   }
-
 }

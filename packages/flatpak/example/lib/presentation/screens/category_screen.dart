@@ -10,10 +10,7 @@ import '../../responsive.dart';
 import '../widgets/app_card.dart';
 
 class CategoryScreen extends StatefulWidget {
-  const CategoryScreen({
-    super.key,
-    required this.category,
-  });
+  const CategoryScreen({super.key, required this.category});
 
   final String category;
 
@@ -55,7 +52,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
     // Filter apps that belong to this category
     for (final app in updatedApps) {
       final categories = _getCategories(app);
-      final cleanedCategories = categories.map((c) => _cleanCategoryName(c)).toList();
+      final cleanedCategories = categories
+          .map((c) => _cleanCategoryName(c))
+          .toList();
 
       if (cleanedCategories.contains(widget.category)) {
         categoryApps.add(app);
@@ -70,7 +69,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
       _isLoading = false;
     });
 
-    print('[CategoryScreen] Found ${categoryApps.length} apps in ${widget.category}');
+    debugPrint(
+      '[CategoryScreen] Found ${categoryApps.length} apps in ${widget.category}',
+    );
   }
 
   void _sortApps(List<Application> apps) {
@@ -141,22 +142,14 @@ class _CategoryScreenState extends State<CategoryScreen> {
           color: const Color(0xFF111827),
         ),
       ),
-      actions: [
-        if (!_isLoading) _buildSortMenu(),
-        const SizedBox(width: 8),
-      ],
+      actions: [if (!_isLoading) _buildSortMenu(), const SizedBox(width: 8)],
     );
   }
 
   Widget _buildSortMenu() {
     return PopupMenuButton<String>(
-      icon: Icon(
-        Icons.sort,
-        color: Colors.grey[700],
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      icon: Icon(Icons.sort, color: Colors.grey[700]),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: _changeSortOrder,
       itemBuilder: (context) => [
         PopupMenuItem(
@@ -165,7 +158,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
             children: [
               Icon(
                 Icons.sort_by_alpha,
-                color: _sortBy == 'name' ? const Color(0xFF2563EB) : Colors.grey[600],
+                color: _sortBy == 'name'
+                    ? const Color(0xFF2563EB)
+                    : Colors.grey[600],
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -173,8 +168,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 'Sort by Name',
                 style: TextStyle(
                   fontFamily: 'general-sans',
-                  color: _sortBy == 'name' ? const Color(0xFF2563EB) : Colors.grey[800],
-                  fontWeight: _sortBy == 'name' ? FontWeight.w600 : FontWeight.normal,
+                  color: _sortBy == 'name'
+                      ? const Color(0xFF2563EB)
+                      : Colors.grey[800],
+                  fontWeight: _sortBy == 'name'
+                      ? FontWeight.w600
+                      : FontWeight.normal,
                 ),
               ),
             ],
@@ -186,7 +185,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
             children: [
               Icon(
                 Icons.people,
-                color: _sortBy == 'developer' ? const Color(0xFF2563EB) : Colors.grey[600],
+                color: _sortBy == 'developer'
+                    ? const Color(0xFF2563EB)
+                    : Colors.grey[600],
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -194,8 +195,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 'Sort by Developer',
                 style: TextStyle(
                   fontFamily: 'general-sans',
-                  color: _sortBy == 'developer' ? const Color(0xFF2563EB) : Colors.grey[800],
-                  fontWeight: _sortBy == 'developer' ? FontWeight.w600 : FontWeight.normal,
+                  color: _sortBy == 'developer'
+                      ? const Color(0xFF2563EB)
+                      : Colors.grey[800],
+                  fontWeight: _sortBy == 'developer'
+                      ? FontWeight.w600
+                      : FontWeight.normal,
                 ),
               ),
             ],
@@ -262,7 +267,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   context.push('/app/${_categoryApps[index].shortId}');
                 },
                 onInstall: () {
-                  context.read<InstallationCubit>().installApp(_categoryApps[index].id);
+                  context.read<InstallationCubit>().installApp(
+                    _categoryApps[index].id,
+                  );
                 },
               );
             },
@@ -294,11 +301,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.category_outlined,
-            size: 80,
-            color: Colors.grey[300],
-          ),
+          Icon(Icons.category_outlined, size: 80, color: Colors.grey[300]),
           const SizedBox(height: 16),
           Text(
             'No apps found',
@@ -365,8 +368,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
       final metadata = jsonDecode(app.metadata) as Map<String, dynamic>;
       final categoriesData = metadata['categories'];
       if (categoriesData == null) return [];
-      List<dynamic> categories =
-      categoriesData is List ? categoriesData : [categoriesData];
+      List<dynamic> categories = categoriesData is List
+          ? categoriesData
+          : [categoriesData];
       return categories
           .where((c) => c != null && c.toString().trim().isNotEmpty)
           .map((c) => c.toString().trim())

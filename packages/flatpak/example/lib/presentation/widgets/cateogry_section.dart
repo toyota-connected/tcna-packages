@@ -50,15 +50,12 @@ class CategorySection extends StatelessWidget {
                     fontFamily: 'general-sans',
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
         const SizedBox(height: 20),
-        SizedBox(
-          height: 234,
-          child: _buildContent(context),
-        )
+        SizedBox(height: 234, child: _buildContent(context)),
       ],
     );
   }
@@ -166,26 +163,16 @@ class CategorySection extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.apps,
-            size: 48,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.apps, size: 48, color: Colors.grey[400]),
           const SizedBox(height: 8),
           Text(
             'No apps available in this category',
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 16,
-            ),
+            style: TextStyle(color: Colors.grey[600], fontSize: 16),
           ),
           const SizedBox(height: 8),
           Text(
             'Pull to refresh or check your connection',
-            style: TextStyle(
-              color: Colors.grey[500],
-              fontSize: 12,
-            ),
+            style: TextStyle(color: Colors.grey[500], fontSize: 12),
           ),
         ],
       ),

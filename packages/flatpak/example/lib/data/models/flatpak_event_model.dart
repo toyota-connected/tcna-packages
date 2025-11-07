@@ -110,11 +110,11 @@ class FlatpakEventModel extends FlatpakEvent {
 
   static FlatpakEventType _parseEventType(String? type) {
     switch (type) {
-    // Progress events
+      // Progress events
       case 'progress':
         return FlatpakEventType.installProgress;
 
-    // Installation events
+      // Installation events
       case 'installation_started':
       case 'install_progress':
         return FlatpakEventType.installProgress;
@@ -125,13 +125,13 @@ class FlatpakEventModel extends FlatpakEvent {
       case 'operation_error':
         return FlatpakEventType.installFailed;
 
-    // Uninstall events
+      // Uninstall events
       case 'uninstall_complete':
         return FlatpakEventType.uninstallComplete;
       case 'uninstall_failed':
         return FlatpakEventType.uninstallFailed;
 
-    // Update events
+      // Update events
       case 'update_started':
       case 'update_progress':
         return FlatpakEventType.updateProgress;

@@ -29,7 +29,6 @@ class Installation extends Equatable {
   List<Object?> get props => [id, path];
 }
 
-
 class InstallationModel extends Installation {
   const InstallationModel({
     required super.id,

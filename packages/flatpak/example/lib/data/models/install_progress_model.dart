@@ -1,12 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum InstallationStatus {
-  idle,
-  downloading,
-  installing,
-  completed,
-  failed,
-}
+enum InstallationStatus { idle, downloading, installing, completed, failed }
 
 class InstallProgressModel extends Equatable {
   final String appId;

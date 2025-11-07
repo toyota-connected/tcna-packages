@@ -26,20 +26,20 @@ class AppTheme {
   static const double borderRadiusXLarge = 24.0;
 
   static List<BoxShadow> get glassShadow => [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.1),
-          blurRadius: 20.0,
-          offset: Offset(0, 8),
-        ),
-      ];
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.1),
+      blurRadius: 20.0,
+      offset: Offset(0, 8),
+    ),
+  ];
 
   static List<BoxShadow> get softShadow => [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.05),
-          blurRadius: 10.0,
-          offset: Offset(0, 2),
-        ),
-      ];
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.05),
+      blurRadius: 10.0,
+      offset: Offset(0, 2),
+    ),
+  ];
 
   static ThemeData get lightTheme => ThemeData(
     useMaterial3: true,
@@ -54,6 +54,4 @@ class AppTheme {
       scrolledUnderElevation: 0,
     ),
   );
-
-  
 }

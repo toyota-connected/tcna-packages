@@ -30,27 +30,23 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       child: ClipRRect(
         child: BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaX: 10.0,
-            sigmaY: 10.0,
-          ),
+          filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
           child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 65,
-              vertical: 33.0,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 65, vertical: 33.0),
             child: Row(
               children: [
                 _buildLogo(context),
                 Spacer(),
 
                 _buildSearchBar(context),
-                SizedBox(width: Responsive.scaleWithConstraints(
-                  context,
-                  61,
-                  minSize: 24,
-                  maxSize: 72,
-                )),
+                SizedBox(
+                  width: Responsive.scaleWithConstraints(
+                    context,
+                    61,
+                    minSize: 24,
+                    maxSize: 72,
+                  ),
+                ),
                 _buildUserSection(context),
               ],
             ),
@@ -63,7 +59,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(100);
 
-  Widget _buildLogo(BuildContext context){
+  Widget _buildLogo(BuildContext context) {
     final logoH = Responsive.scaleWithConstraints(
       context,
       36,
@@ -143,7 +139,9 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
       width: searchBarWidth,
       height: searchBarHeight,
       constraints: BoxConstraints(
-        maxWidth: Responsive.isMobile(context) ? double.infinity : searchBarWidth,
+        maxWidth: Responsive.isMobile(context)
+            ? double.infinity
+            : searchBarWidth,
       ),
       child: Container(
         decoration: BoxDecoration(
@@ -176,13 +174,13 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
             border: InputBorder.none,
             contentPadding: EdgeInsets.symmetric(
               horizontal: Responsive.scale(context, 16).clamp(12.0, 20.0),
-              vertical: (searchBarHeight - 20 ) / 2,
+              vertical: (searchBarHeight - 20) / 2,
             ),
             isDense: true,
           ),
           style: TextStyle(
             color: Color(0xFF212121),
-            fontSize: Responsive.scale(context, 14.0).clamp(12.0,16.0),
+            fontSize: Responsive.scale(context, 14.0).clamp(12.0, 16.0),
           ),
         ),
       ),
@@ -196,17 +194,19 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
           // TODO: notification widget
           ///onTap: ,
           child: SvgPicture.asset(
-              'assets/icons/bell.svg',
+            'assets/icons/bell.svg',
             width: 17.05,
             height: 19.5,
-
           ),
         ),
 
         const SizedBox(width: 16),
 
         GestureDetector(
-          onTap:()=> Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreen())) ,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ProfileScreen()),
+          ),
           child: Container(
             width: 31.18,
             height: 31.18,
@@ -226,15 +226,11 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                'assets/images/person.png',
-                fit: BoxFit.cover,
-              ),
+              child: Image.asset('assets/images/person.png', fit: BoxFit.cover),
             ),
           ),
         ),
       ],
     );
   }
-  
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/models/application_model.dart';
 import '../../data/repositories/flatpak_repository.dart';
@@ -19,10 +20,10 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
     final installationResult = await flatpakRepository.getSystemInstallations();
     installationResult.fold(
-          (failure) {
+      (failure) {
         emit(DiscoveryError(failure.message));
       },
-          (installations) {
+      (installations) {
         _availableRemotes.clear();
         for (final installation in installations) {
           for (final remote in installation.remotes) {
@@ -53,18 +54,24 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     for (final remote in _availableRemotes) {
       final result = await flatpakRepository.getApplicationsRemote(remote);
       result.fold(
-            (failure) {
-          print('[DiscoveryCubit] Error loading remote $remote: ${failure.message}');
+        (failure) {
+          debugPrint(
+            '[DiscoveryCubit] Error loading remote $remote: ${failure.message}',
+          );
         },
-            (apps) {
-          print('[DiscoveryCubit] Loaded ${apps.length} apps from $remote');
+        (apps) {
+          if (kDebugMode) {
+            print('[DiscoveryCubit] Loaded ${apps.length} apps from $remote');
+          }
           allApps.addAll(apps);
         },
       );
     }
 
     _allApps = allApps;
-    print('[DiscoveryCubit] Total apps loaded: ${_allApps.length}');
+    if (kDebugMode) {
+      print('[DiscoveryCubit] Total apps loaded: ${_allApps.length}');
+    }
 
     emit(
       DiscoveryLoaded(
@@ -81,12 +88,14 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     emit(DiscoveryLoading());
     final result = await flatpakRepository.getApplicationsUpdate();
     result.fold(
-          (failure) {
+      (failure) {
         emit(DiscoveryError(failure.message));
       },
-          (apps) {
+      (apps) {
         _updateApps = apps;
-        print('[DiscoveryCubit] Apps with updates available: ${_updateApps.length}');
+        debugPrint(
+          '[DiscoveryCubit] Apps with updates available: ${_updateApps.length}',
+        );
         emit(
           DiscoveryLoaded(
             categoryApps: Map.from(_categoryCache),
@@ -97,7 +106,10 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     );
   }
 
-  Future<void> loadCategoryApps(String categoryName, List<String> appIds) async {
+  Future<void> loadCategoryApps(
+    String categoryName,
+    List<String> appIds,
+  ) async {
     if (_categoryCache.containsKey(categoryName)) {
       emit(
         DiscoveryLoaded(
@@ -116,19 +128,21 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     for (final appId in appIds) {
       try {
         final app = _allApps.firstWhere(
-              (a) =>
-          a.id == appId ||
+          (a) =>
+              a.id == appId ||
               a.shortId == appId ||
               a.id.contains(appId) ||
               a.shortId.contains(appId),
         );
         categoryApps.add(app);
       } catch (e) {
-        print('[DiscoveryCubit] App not found: $appId');
+        debugPrint('[DiscoveryCubit] App not found: $appId');
       }
     }
 
-    print('[DiscoveryCubit] Category "$categoryName" has ${categoryApps.length} apps');
+    debugPrint(
+      '[DiscoveryCubit] Category "$categoryName" has ${categoryApps.length} apps',
+    );
 
     _categoryCache[categoryName] = categoryApps;
 
@@ -155,10 +169,10 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
     final result = await flatpakRepository.getApplicationsRemote(remoteId);
     result.fold(
-          (failure) {
+      (failure) {
         emit(DiscoveryError(failure.message));
       },
-          (apps) {
+      (apps) {
         _categoryCache[category] = apps;
         emit(
           DiscoveryLoaded(
@@ -181,9 +195,7 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
       return;
     }
 
-    emit(
-      DiscoverySearchResults(results: [], query: query, isSearching: true),
-    );
+    emit(DiscoverySearchResults(results: [], query: query, isSearching: true));
 
     // Ensure all apps are loaded
     if (_allApps.isEmpty) {
@@ -248,7 +260,9 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
     results.addAll(sortedApps.take(limit));
 
-    print('[DiscoveryCubit] Search "$query" found ${results.length} results');
+    debugPrint(
+      '[DiscoveryCubit] Search "$query" found ${results.length} results',
+    );
 
     emit(
       DiscoverySearchResults(
@@ -274,7 +288,8 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
   bool isCategoryLoading(String category) {
     final currentState = state;
-    return currentState is DiscoveryLoading && currentState.category == category;
+    return currentState is DiscoveryLoading &&
+        currentState.category == category;
   }
 
   List<Application> get allApps => List.unmodifiable(_allApps);
@@ -297,8 +312,9 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
       final metadata = jsonDecode(app.metadata) as Map<String, dynamic>;
       final dev = metadata['developer'];
       if (dev != null) {
-        String devString =
-        dev is List && dev.isNotEmpty ? dev.first.toString() : dev.toString();
+        String devString = dev is List && dev.isNotEmpty
+            ? dev.first.toString()
+            : dev.toString();
         return devString.trim();
       }
       return '';
@@ -313,9 +329,13 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
       final metadata = jsonDecode(app.metadata) as Map<String, dynamic>;
       final categoriesData = metadata['categories'];
       if (categoriesData == null) return [];
-      List<dynamic> categories =
-      categoriesData is List ? categoriesData : [categoriesData];
-      return categories.where((c) => c != null).map((c) => c.toString().trim()).toList();
+      List<dynamic> categories = categoriesData is List
+          ? categoriesData
+          : [categoriesData];
+      return categories
+          .where((c) => c != null)
+          .map((c) => c.toString().trim())
+          .toList();
     } catch (e) {
       return [];
     }

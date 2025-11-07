@@ -19,40 +19,25 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton<FlatpakApi>(() => FlatpakApi());
 
   sl.registerLazySingleton<FlatpakLocalDataSource>(
-        () => FlatpakLocalDataSourceImpl(sl()),
+    () => FlatpakLocalDataSourceImpl(sl()),
   );
 
   sl.registerLazySingleton<FlatpakEventDataSource>(
-        () => FlatpakEventDataSourceImpl(),
+    () => FlatpakEventDataSourceImpl(),
   );
 
   sl.registerLazySingleton<FlatpakRepository>(
-        () => FlatpakRepositoryImpl(
-      localDataSource: sl(),
-      eventDataSource: sl(),
-    ),
+    () => FlatpakRepositoryImpl(localDataSource: sl(), eventDataSource: sl()),
   );
 
-  sl.registerFactory(
-        () => EventListenerBloc(repository: sl()),
-  );
+  sl.registerFactory(() => EventListenerBloc(repository: sl()));
 
-  sl.registerFactory(
-        () => InstallationCubit(repository: sl()),
-  );
+  sl.registerFactory(() => InstallationCubit(repository: sl()));
 
-  sl.registerFactory(
-        () => InstalledAppsCubit(repository: sl()),
-  );
+  sl.registerFactory(() => InstalledAppsCubit(repository: sl()));
 
-  sl.registerFactory(
-        () => DiscoveryCubit(flatpakRepository: sl()),
-  );
+  sl.registerFactory(() => DiscoveryCubit(flatpakRepository: sl()));
 
-  sl.registerFactory(
-        () => AppLaunchCubit(repository: sl()),
-  );
-  sl.registerFactory(
-        () => SystemInfoCubit(flatpakRepository: sl()),
-  );
+  sl.registerFactory(() => AppLaunchCubit(repository: sl()));
+  sl.registerFactory(() => SystemInfoCubit(flatpakRepository: sl()));
 }

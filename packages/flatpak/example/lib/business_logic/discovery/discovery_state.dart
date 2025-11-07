@@ -19,10 +19,7 @@ class DiscoveryLoaded extends DiscoveryState {
   final Map<String, List<Application>> categoryApps;
   final List<String> availableRemotes;
 
-  DiscoveryLoaded({
-    required this.categoryApps,
-    required this.availableRemotes,
-  });
+  DiscoveryLoaded({required this.categoryApps, required this.availableRemotes});
 
   @override
   List<Object?> get props => [categoryApps, availableRemotes];

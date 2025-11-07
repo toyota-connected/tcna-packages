@@ -1,5 +1,6 @@
 // data/data_sources/flatpak_event_data.dart
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import '../models/flatpak_event_model.dart';
 
@@ -11,11 +12,12 @@ abstract class FlatpakEventDataSource {
 }
 
 class FlatpakEventDataSourceImpl implements FlatpakEventDataSource {
-  static const EventChannel _eventChannel =
-  EventChannel('flutter.io/flatpakPlugin/flatpakEvents');
+  static const EventChannel _eventChannel = EventChannel(
+    'flutter.io/flatpakPlugin/flatpakEvents',
+  );
 
   final StreamController<FlatpakEventModel> _controller =
-  StreamController<FlatpakEventModel>.broadcast();
+      StreamController<FlatpakEventModel>.broadcast();
 
   StreamSubscription? _subscription;
   bool _isListening = false;
@@ -32,16 +34,16 @@ class FlatpakEventDataSourceImpl implements FlatpakEventDataSource {
   @override
   void startListening() {
     if (_isListening || _isDisposed) {
-      print('[FlatpakEventDataSource] Already listening or disposed');
+      debugPrint('[FlatpakEventDataSource] Already listening or disposed');
       return;
     }
 
-    print('[FlatpakEventDataSource] Starting to listen...');
+    debugPrint('[FlatpakEventDataSource] Starting to listen...');
     _isListening = true;
 
     _subscription = _eventChannel.receiveBroadcastStream().listen(
-          (dynamic event) {
-        print('[FlatpakEventDataSource] Received raw event: $event');
+      (dynamic event) {
+        debugPrint('[FlatpakEventDataSource] Received raw event: $event');
 
         if (event is Map) {
           try {
@@ -49,13 +51,15 @@ class FlatpakEventDataSourceImpl implements FlatpakEventDataSource {
               Map<String, dynamic>.from(event),
             );
 
-            print('[FlatpakEventDataSource] Parsed event: ${eventModel.type}');
+            debugPrint(
+              '[FlatpakEventDataSource] Parsed event: ${eventModel.type}',
+            );
 
             if (!_controller.isClosed) {
               _controller.add(eventModel);
             }
           } catch (e) {
-            print('[FlatpakEventDataSource] Error parsing event: $e');
+            debugPrint('[FlatpakEventDataSource] Error parsing event: $e');
             if (!_controller.isClosed) {
               _controller.addError(e);
             }
@@ -63,24 +67,24 @@ class FlatpakEventDataSourceImpl implements FlatpakEventDataSource {
         }
       },
       onError: (dynamic error) {
-        print('[FlatpakEventDataSource] Event stream error: $error');
+        debugPrint('[FlatpakEventDataSource] Event stream error: $error');
         if (!_controller.isClosed) {
           _controller.addError(error);
         }
       },
       onDone: () {
-        print('[FlatpakEventDataSource] Event stream done');
+        debugPrint('[FlatpakEventDataSource] Event stream done');
         _isListening = false;
       },
       cancelOnError: false,
     );
 
-    print('[FlatpakEventDataSource] Subscription established');
+    debugPrint('[FlatpakEventDataSource] Subscription established');
   }
 
   @override
   void stopListening() {
-    print('[FlatpakEventDataSource] Stopping listening...');
+    debugPrint('[FlatpakEventDataSource] Stopping listening...');
     _subscription?.cancel();
     _subscription = null;
     _isListening = false;
@@ -88,7 +92,7 @@ class FlatpakEventDataSourceImpl implements FlatpakEventDataSource {
 
   @override
   void dispose() {
-    print('[FlatpakEventDataSource] Disposing...');
+    debugPrint('[FlatpakEventDataSource] Disposing...');
     _isDisposed = true;
     stopListening();
     _controller.close();

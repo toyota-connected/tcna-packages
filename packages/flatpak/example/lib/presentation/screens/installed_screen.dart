@@ -15,7 +15,6 @@ import '../../business_logic/installed_apps/installed_apps_state.dart';
 import '../../business_logic/discovery/discovery_state.dart';
 import '../../data/models/application_model.dart';
 import '../../helpers/id_utils.dart';
-import '../../responsive.dart';
 
 class InstalledScreen extends StatefulWidget {
   final InstalledAppsCubit installedAppsCubit;
@@ -181,8 +180,8 @@ class _InstalledScreenState extends State<InstalledScreen> {
           return installedIds.contains(shortId);
         }).toList();
 
-        print('[InstalledScreen] Installed IDs: $installedIds');
-        print(
+        debugPrint('[InstalledScreen] Installed IDs: $installedIds');
+        debugPrint(
           '[InstalledScreen] Found ${installedApps.length} installed apps in discovery',
         );
 
@@ -536,7 +535,7 @@ class _InstalledScreenState extends State<InstalledScreen> {
         }
       }
     } catch (e) {
-      print('[InstalledScreen] Error parsing icon: $e');
+      debugPrint('[InstalledScreen] Error parsing icon: $e');
     }
     return null;
   }
@@ -713,7 +712,7 @@ class _InstalledScreenState extends State<InstalledScreen> {
           TextButton(
             onPressed: () {
               Navigator.of(dialogContext).pop();
-              print('[InstalledScreen] Uninstalling app: ${app.id}');
+              debugPrint('[InstalledScreen] Uninstalling app: ${app.id}');
               widget.installationCubit.uninstallApp(app.id);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
