@@ -1,0 +1,453 @@
+import 'dart:io';
+import 'dart:ui';
+import 'dart:convert';
+import 'package:flatpak_flutter_example/responsive.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../business_logic/app_launch/app_launch_cubit.dart';
+import '../../business_logic/app_launch/app_launch_state.dart';
+import '../../business_logic/installation/installation_cubit.dart';
+import '../../business_logic/installation/installation_state.dart';
+import '../../business_logic/installed_apps/installed_apps_cubit.dart';
+import '../../business_logic/installed_apps/installed_apps_state.dart';
+import '../../data/models/application_model.dart';
+
+class AppCard extends StatefulWidget {
+  final Application application;
+  final String? name;
+  final String? summary;
+  final String? iconPath;
+  final VoidCallback? onInstall;
+  final VoidCallback? onTap;
+
+  const AppCard({
+    super.key,
+    required this.application,
+    this.name,
+    this.summary,
+    this.iconPath,
+    this.onInstall,
+    this.onTap,
+  });
+
+  @override
+  State<AppCard> createState() => _AppCardState();
+}
+
+class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
+  bool _isHovered = false;
+  late AnimationController _hoverController;
+  late AnimationController _loadingController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _elevationAnimation;
+  late Animation<double> _rotationAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _hoverController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+
+    _loadingController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(parent: _hoverController, curve: Curves.easeInOut),
+    );
+
+    _elevationAnimation = Tween<double>(begin: 0.0, end: 8.0).animate(
+      CurvedAnimation(parent: _hoverController, curve: Curves.easeInOut),
+    );
+
+    _rotationAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _loadingController, curve: Curves.linear),
+    );
+  }
+
+  @override
+  void dispose() {
+    _hoverController.dispose();
+    _loadingController.dispose();
+    super.dispose();
+  }
+
+  void _onHover(bool isHovered) {
+    setState(() {
+      _isHovered = isHovered;
+      if (isHovered) {
+        _hoverController.forward();
+      } else {
+        _hoverController.reverse();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cardWidth = Responsive.scaleWithConstraints(
+      context,
+      220,
+      minSize: 200,
+      maxSize: 250,
+    );
+
+    final cardHeight = Responsive.scaleWithConstraints(
+      context,
+      220,
+      minSize: 200,
+      maxSize: 250,
+    );
+
+    return AnimatedBuilder(
+      animation: _hoverController,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _scaleAnimation.value,
+          child: MouseRegion(
+            onEnter: (_) => _onHover(true),
+            onExit: (_) => _onHover(false),
+            child: GestureDetector(
+              onTap: widget.onTap,
+              child: Container(
+                width: cardWidth,
+                height: cardHeight,
+                margin: EdgeInsets.all(
+                  Responsive.scale(context, 12.0).clamp(10.0, 16.0),
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 20 + _elevationAnimation.value,
+                      offset: Offset(0, 4 + _elevationAnimation.value / 2),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: _isHovered
+                            ? Colors.white.withValues(alpha: 0.35)
+                            : Colors.white.withValues(alpha: 0.25),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: _isHovered
+                              ? Colors.white.withValues(alpha: 0.4)
+                              : Colors.white.withValues(alpha: 0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(
+                          Responsive.scale(context, 12.0).clamp(10.0, 16.0),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            _buildAppIcon(context, widget.application),
+                            const Spacer(),
+                            _buildBottomSection(context, widget.application),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAppIcon(BuildContext context, Application app) {
+    final iconSize = Responsive.scale(context, 92).clamp(64.0, 128.0);
+    return Container(
+      width: iconSize,
+      height: iconSize,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: _buildIcon(iconSize),
+      ),
+    );
+  }
+
+  Widget _buildIcon(double size) {
+    final iconPath = widget.iconPath ?? _getIconPath(widget.application);
+    if (iconPath != null) {
+      if (iconPath.startsWith('http')) {
+        return Image.network(
+          iconPath,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return _buildDefaultIcon(size);
+          },
+        );
+      } else {
+        return Image.file(
+          File(iconPath),
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return _buildDefaultIcon(size);
+          },
+        );
+      }
+    }
+    return _buildDefaultIcon(size);
+  }
+
+  Widget _buildDefaultIcon(double size) {
+    return Image.asset(
+      'assets/icons/default_app_icon.png',
+      width: size,
+      height: size,
+      fit: BoxFit.cover,
+    );
+  }
+
+  Widget _buildBottomSection(BuildContext context, Application app) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          _getAppName(app),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            fontSize: Responsive.scale(context, 20.0).clamp(16.0, 24.0),
+            fontFamily: 'khand',
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Text(
+                _getAppSummary(app),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+                  fontSize: Responsive.scale(context, 12.0).clamp(10.0, 14.0),
+                  fontFamily: 'general-sans',
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+            _buildGetButton(context),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGetButton(BuildContext context) {
+    return BlocBuilder<InstalledAppsCubit, InstalledAppsState>(
+      builder: (context, installedState) {
+        return BlocBuilder<InstallationCubit, InstallationState>(
+          builder: (context, installState) {
+            return BlocBuilder<AppLaunchCubit, AppLaunchState>(
+              builder: (context, launchState) {
+                // Determine app states
+                final isInstalled =
+                    installedState is InstalledAppsLoaded &&
+                    installedState.installedIds.contains(widget.application.id);
+
+                final isInstalling = context
+                    .read<InstallationCubit>()
+                    .isOperationInProgress(widget.application.id);
+
+                final isLaunching = context.read<AppLaunchCubit>().isLaunching(
+                  widget.application.id,
+                );
+
+                final isLoading = isInstalling || isLaunching;
+
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (isLoading && !_loadingController.isAnimating) {
+                    _loadingController.repeat();
+                  } else if (!isLoading && _loadingController.isAnimating) {
+                    _loadingController.stop();
+                    _loadingController.reset();
+                  }
+                });
+
+                String buttonText;
+                double? progress;
+
+                if (isInstalling && installState is InstallationInProgress) {
+                  if (installState.appId == widget.application.id) {
+                    buttonText = "Installing...";
+                    progress = installState.progress;
+                  } else {
+                    buttonText = "Installing...";
+                  }
+                } else if (isLaunching) {
+                  buttonText = "Opening...";
+                } else if (isInstalled) {
+                  buttonText = "Open";
+                } else {
+                  buttonText = "Get";
+                }
+
+                return GestureDetector(
+                  onTap: isLoading
+                      ? null
+                      : () async {
+                          if (isInstalled) {
+                            await context.read<AppLaunchCubit>().launchApp(
+                              widget.application.id,
+                            );
+                          } else if (!isInstalling) {
+                            await context.read<InstallationCubit>().installApp(
+                              widget.application.id,
+                            );
+                          }
+                        },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isLoading
+                              ? Colors.grey.withValues(alpha: 0.8)
+                              : Colors.black87,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            width: 1.5,
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (isLoading)
+                              AnimatedBuilder(
+                                animation: _rotationAnimation,
+                                builder: (context, child) {
+                                  return Transform.rotate(
+                                    angle:
+                                        _rotationAnimation.value *
+                                        2.0 *
+                                        3.141592653589793,
+                                    child: SizedBox(
+                                      width: 14,
+                                      height: 14,
+                                      child: CircularProgressIndicator(
+                                        value: progress != null && progress > 0
+                                            ? progress
+                                            : null,
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            const AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            if (isLoading) const SizedBox(width: 8),
+                            Text(
+                              buttonText,
+                              style: TextStyle(
+                                color: isLoading
+                                    ? Colors.white.withValues(alpha: 0.7)
+                                    : Colors.white,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'general-sans',
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  String _getAppName(Application app) {
+    return widget.name ?? app.name;
+  }
+
+  String _getAppSummary(Application app) {
+    return widget.summary ?? app.summary;
+  }
+
+  String? _getIconPath(Application app) {
+    try {
+      if (widget.application.appdata.isEmpty) {
+        return null;
+      }
+
+      final appdata = jsonDecode(app.appdata) as Map<String, dynamic>;
+      final icons = appdata['icons'] as List<dynamic>?;
+
+      if (icons != null) {
+        for (final iconType in ['remote', 'cached', 'local']) {
+          for (final icon in icons) {
+            if (icon is Map<String, dynamic> && icon['type'] == iconType) {
+              final path = icon['path'] as String?;
+              if (icon['type'] == 'cached') {
+                final cachedPath =
+                    '/var/lib/flatpak/appstream/flathub/x86_64/active/icons/128x128/$path';
+                return cachedPath;
+              }
+              if (path != null) {
+                return path;
+              }
+            }
+          }
+        }
+      }
+
+      return 'assets/icons/default_app_icon.png';
+    } catch (e) {
+      return 'assets/icons/default_app_icon.png';
+    }
+  }
+}

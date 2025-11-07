@@ -586,7 +586,7 @@ class FlatpakApi {
     }
   }
 
-  /// Get a list of applications need to update on machine.
+  /// Get a list of applications needing update on machine.
   Future<List<Application>> getApplicationsUpdate() async {
     final String pigeonVar_channelName = 'dev.flutter.pigeon.flatpak_flutter.FlatpakApi.getApplicationsUpdate$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
