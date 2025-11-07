@@ -1,3 +1,4 @@
+import 'package:flatpak_flutter_example/business_logic/system_info/system_info_cubit.dart';
 import 'package:flatpak_flutter_example/presentation/widgets/installation_status_listener.dart';
 import 'package:flatpak_flutter_example/presentation/widgets/snackbar_listener.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +42,9 @@ class FlatpakApp extends StatelessWidget {
 
         BlocProvider<AppLaunchCubit>(
           create: (context) => sl<AppLaunchCubit>(),
+        ),
+        BlocProvider<SystemInfoCubit>(
+          create: (context) => sl<SystemInfoCubit>(),
         ),
       ],
       child: InstallationStatusListener(

@@ -1,3 +1,4 @@
+import 'package:flatpak_flutter_example/business_logic/system_info/system_info_cubit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flatpak_flutter/src/messages.g.dart';
 
@@ -50,5 +51,8 @@ Future<void> initializeDependencies() async {
 
   sl.registerFactory(
         () => AppLaunchCubit(repository: sl()),
+  );
+  sl.registerFactory(
+        () => SystemInfoCubit(flatpakRepository: sl()),
   );
 }

@@ -7,6 +7,7 @@ import '../../business_logic/installation/installation_cubit.dart';
 import '../../business_logic/installed_apps/installed_apps_cubit.dart';
 import '../../business_logic/installed_apps/installed_apps_state.dart';
 import '../../data/models/application_model.dart';
+import '../../helpers/id_utils.dart';
 import '../widgets/appscreen_content.dart';
 import '../widgets/appscreen_head.dart';
 
@@ -30,14 +31,70 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
   }
 
   Future<void> _loadAppDetails() async {
-    final discoveryCubit = context.read<DiscoveryCubit>();
-    final discoveryState = discoveryCubit.state;
+    print('[AppDetailScreen] Loading app details for: ${widget.appId}');
 
+    final discoveryCubit = context.read<DiscoveryCubit>();
+
+    final allApps = discoveryCubit.allApps;
+    print('[AppDetailScreen] Searching in ${allApps.length} apps from discovery');
+
+    if (allApps.isNotEmpty) {
+      try {
+        final app = allApps.firstWhere(
+              (a) {
+            final match = a.shortId == widget.appId ||
+                a.id == widget.appId ||
+                AppIdUtils.extractShortId(a.id) == widget.appId ||
+                AppIdUtils.extractShortId(a.id) == AppIdUtils.extractShortId(widget.appId);
+            if (match) {
+              print('[AppDetailScreen] Found match: ${a.name} (${a.id})');
+            }
+            return match;
+          },
+        );
+        if (mounted) {
+          setState(() {
+            _app = app;
+            _isLoading = false;
+          });
+        }
+        return;
+      } catch (e) {
+        print('[AppDetailScreen] App not found in allApps: $e');
+      }
+    }
+
+    await discoveryCubit.loadAllApps();
+
+    final updatedAllApps = discoveryCubit.allApps;
+    if (updatedAllApps.isNotEmpty) {
+      try {
+        final app = updatedAllApps.firstWhere(
+              (a) => a.shortId == widget.appId ||
+              a.id == widget.appId ||
+              AppIdUtils.extractShortId(a.id) == widget.appId ||
+              AppIdUtils.extractShortId(a.id) == AppIdUtils.extractShortId(widget.appId),
+        );
+        if (mounted) {
+          setState(() {
+            _app = app;
+            _isLoading = false;
+          });
+        }
+        return;
+      } catch (e) {
+        print('[AppDetailScreen] App not found after loading: $e');
+      }
+    }
+
+    final discoveryState = discoveryCubit.state;
     if (discoveryState is DiscoveryLoaded) {
       for (final apps in discoveryState.categoryApps.values) {
         try {
           final app = apps.firstWhere(
-                (a) => a.shortId == widget.appId || a.id == widget.appId,
+                (a) => a.shortId == widget.appId ||
+                a.id == widget.appId ||
+                AppIdUtils.extractShortId(a.id) == widget.appId,
           );
           if (mounted) {
             setState(() {
@@ -56,7 +113,9 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
     if (installedState is InstalledAppsLoaded) {
       try {
         final app = installedState.apps.firstWhere(
-              (a) => a.shortId == widget.appId || a.id == widget.appId,
+              (a) => a.shortId == widget.appId ||
+              a.id == widget.appId ||
+              AppIdUtils.extractShortId(a.id) == widget.appId,
         );
         if (mounted) {
           setState(() {

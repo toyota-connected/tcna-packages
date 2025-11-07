@@ -52,6 +52,16 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
   }
 
   @override
+  Future<Either<Failure, List<String>>> getSupportedArches() async {
+    try {
+      final arches = await localDataSource.getSupportedArches();
+      return Right(arches);
+    } on PlatformException catch (e) {
+      return Left(PlatformFailure(e.message ?? 'Platform error'));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<Installation>>> getSystemInstallations() async {
     try {
       final installations = await localDataSource.getSystemInstallations();

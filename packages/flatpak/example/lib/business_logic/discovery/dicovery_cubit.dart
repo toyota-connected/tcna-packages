@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/models/application_model.dart';
 import '../../data/repositories/flatpak_repository.dart';
@@ -19,8 +20,8 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     final installationResult = await flatpakRepository.getSystemInstallations();
     installationResult.fold(
           (failure) {
-            emit(DiscoveryError(failure.message));
-            },
+        emit(DiscoveryError(failure.message));
+      },
           (installations) {
         _availableRemotes.clear();
         for (final installation in installations) {
@@ -40,7 +41,6 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     );
   }
 
-  /// Load all apps from all remotes and cache them
   Future<void> loadAllApps() async {
     if (_allApps.isNotEmpty) {
       return;
@@ -74,7 +74,6 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     );
   }
 
-  /// Load apps that have updates available
   Future<void> loadUpdateApps() async {
     if (_updateApps.isNotEmpty) {
       return;
@@ -98,7 +97,6 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     );
   }
 
-  /// Load apps for a specific category by filtering from app IDs
   Future<void> loadCategoryApps(String categoryName, List<String> appIds) async {
     if (_categoryCache.containsKey(categoryName)) {
       emit(
@@ -118,7 +116,8 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     for (final appId in appIds) {
       try {
         final app = _allApps.firstWhere(
-              (a) => a.id == appId ||
+              (a) =>
+          a.id == appId ||
               a.shortId == appId ||
               a.id.contains(appId) ||
               a.shortId.contains(appId),
@@ -141,7 +140,6 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     );
   }
 
-  /// Load apps from a specific remote
   Future<void> loadRemoteApps(String category, String remoteId) async {
     if (_categoryCache.containsKey(category)) {
       emit(
@@ -158,8 +156,8 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     final result = await flatpakRepository.getApplicationsRemote(remoteId);
     result.fold(
           (failure) {
-            emit(DiscoveryError(failure.message));
-            },
+        emit(DiscoveryError(failure.message));
+      },
           (apps) {
         _categoryCache[category] = apps;
         emit(
@@ -172,7 +170,7 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     );
   }
 
-  Future<void> searchApplications(String query, {int limit = 20}) async {
+  Future<void> searchApplications(String query, {int limit = 50}) async {
     if (query.isEmpty) {
       emit(
         DiscoveryLoaded(
@@ -187,26 +185,70 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
       DiscoverySearchResults(results: [], query: query, isSearching: true),
     );
 
+    // Ensure all apps are loaded
+    if (_allApps.isEmpty) {
+      await loadAllApps();
+    }
+
     final searchLower = query.toLowerCase();
     final results = <Application>[];
+    final scores = <Application, int>{};
 
     for (final app in _allApps) {
-      if (app.name.toLowerCase().contains(searchLower) && results.length < limit) {
-        results.add(app);
+      int score = 0;
+      final nameLower = app.name.toLowerCase();
+      final shortIdLower = app.shortId.toLowerCase();
+
+      if (nameLower == searchLower) {
+        score += 100;
+      }
+      // Starts with query
+      else if (nameLower.startsWith(searchLower)) {
+        score += 50;
+      }
+      // Contains query
+      else if (nameLower.contains(searchLower)) {
+        score += 25;
+      }
+
+      // ID matches
+      if (shortIdLower.contains(searchLower)) {
+        score += 15;
+      }
+
+      // Check description
+      final description = _getDescription(app).toLowerCase();
+      if (description.contains(searchLower)) {
+        score += 10;
+      }
+
+      // Check developer
+      final developer = _getDeveloper(app).toLowerCase();
+      if (developer.contains(searchLower)) {
+        score += 20;
+      }
+
+      // Check categories
+      final categories = _getCategories(app);
+      for (final category in categories) {
+        if (category.toLowerCase().contains(searchLower)) {
+          score += 15;
+          break;
+        }
+      }
+
+      if (score > 0) {
+        scores[app] = score;
       }
     }
 
-    if (results.length < limit) {
-      for (final category in _categoryCache.values) {
-        for (final app in category) {
-          if (app.name.toLowerCase().contains(searchLower) &&
-              results.length < limit &&
-              !results.contains(app)) {
-            results.add(app);
-          }
-        }
-      }
-    }
+    // Sort by score and take top results
+    final sortedApps = scores.keys.toList()
+      ..sort((a, b) => scores[b]!.compareTo(scores[a]!));
+
+    results.addAll(sortedApps.take(limit));
+
+    print('[DiscoveryCubit] Search "$query" found ${results.length} results');
 
     emit(
       DiscoverySearchResults(
@@ -232,9 +274,50 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
   bool isCategoryLoading(String category) {
     final currentState = state;
-    return currentState is DiscoveryLoading &&
-        currentState.category == category;
+    return currentState is DiscoveryLoading && currentState.category == category;
   }
 
   List<Application> get allApps => List.unmodifiable(_allApps);
+
+  // Helper methods for search
+  String _getDescription(Application app) {
+    try {
+      if (app.appdata.isEmpty) return '';
+      final appdata = jsonDecode(app.appdata) as Map<String, dynamic>;
+      final description = appdata['description'] as String?;
+      return description?.trim() ?? '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  String _getDeveloper(Application app) {
+    try {
+      if (app.metadata.isEmpty) return '';
+      final metadata = jsonDecode(app.metadata) as Map<String, dynamic>;
+      final dev = metadata['developer'];
+      if (dev != null) {
+        String devString =
+        dev is List && dev.isNotEmpty ? dev.first.toString() : dev.toString();
+        return devString.trim();
+      }
+      return '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  List<String> _getCategories(Application app) {
+    try {
+      if (app.metadata.isEmpty) return [];
+      final metadata = jsonDecode(app.metadata) as Map<String, dynamic>;
+      final categoriesData = metadata['categories'];
+      if (categoriesData == null) return [];
+      List<dynamic> categories =
+      categoriesData is List ? categoriesData : [categoriesData];
+      return categories.where((c) => c != null).map((c) => c.toString().trim()).toList();
+    } catch (e) {
+      return [];
+    }
+  }
 }

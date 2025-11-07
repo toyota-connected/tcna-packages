@@ -81,16 +81,23 @@ class AppRouter {
               child: const SettingsScreen(),
             ),
           ),
+          GoRoute(
+            path: '/app/:appId',
+            name: 'appDetail',
+            builder: (context, state) {
+              final appId = state.pathParameters['appId']!;
+              return AppDetailScreen(appId: appId);
+            },
+          ),
+          GoRoute(
+            path: '/category/:categoryName',
+            name: 'category',
+            builder: (context, state) {
+              final categoryName = state.pathParameters['categoryName']!;
+              return CategoryScreen(category: categoryName);
+            },
+          ),
         ],
-      ),
-
-      GoRoute(
-        path: '/app/:appId',
-        name: 'appDetail',
-        builder: (context, state) {
-          final appId = state.pathParameters['appId']!;
-          return AppDetailScreen(appId: appId);
-        },
       ),
     ],
   );
