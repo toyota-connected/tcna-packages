@@ -88,7 +88,7 @@ jobs:
           flutter pub global run dartdoc
 
       - name: Upload docs artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: docs
           path: ${{ inputs.package-path }}/doc
