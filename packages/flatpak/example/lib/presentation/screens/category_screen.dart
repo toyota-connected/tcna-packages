@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../business_logic/discovery/discovery_cubit.dart';
-import '../../business_logic/installation/installation_cubit.dart';
 import '../../data/models/application_model.dart';
 import '../../responsive.dart';
 import '../widgets/app_card.dart';

@@ -4,21 +4,15 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-
-// Logic
 import '../../business_logic/app_launch/app_launch_cubit.dart';
 import '../../business_logic/app_launch/app_launch_state.dart';
 import '../../business_logic/app_status/app_status_cubit.dart';
 import '../../business_logic/app_status/app_status_state.dart';
 import '../../business_logic/installation/installation_cubit.dart';
 import '../../business_logic/installation/installation_state.dart';
-
-// Models & Utils
 import '../../data/models/application_model.dart';
 import '../../helpers/id_utils.dart';
 import 'package:flatpak_flutter_example/responsive.dart';
-
-// Widgets
 import 'package:flatpak_flutter_example/presentation/widgets/screenshot_widget.dart';
 import 'app_info.dart';
 
@@ -41,7 +35,7 @@ class AppscreenContent extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // Header Section (Icon, Name, Buttons)
+          // Header Section
           Container(
             width: double.infinity,
             decoration: BoxDecoration(
@@ -79,7 +73,6 @@ class AppscreenContent extends StatelessWidget {
           _buildScreenshot(context),
           const SizedBox(height: 18),
           _buildInfo(context),
-          // Add bottom padding for scrolling
           const SizedBox(height: 40),
         ],
       ),
@@ -155,14 +148,11 @@ class AppscreenContent extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          // Action buttons aligned to the right
           _buildActionButtons(context),
         ],
       ),
     );
   }
-
-  // --- ACTION BUTTONS LOGIC ---
 
   Widget _buildActionButtons(BuildContext context) {
     return BlocBuilder<AppStatusCubit, AppStatusState>(
@@ -181,7 +171,7 @@ class AppscreenContent extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildOpenButton(context),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               if (needsUpdate || status == AppStatus.updating)
                 _buildUpdateButton(context)
               else
@@ -210,40 +200,14 @@ class AppscreenContent extends StatelessWidget {
           }
         }
 
-        return ElevatedButton(
-          onPressed:
+        return _GlassActionButton(
+          label: isInstalling ? 'Installing...' : 'Install',
+          baseColor: const Color(0xFF2563EB), // Blue
+          onTap:
           isInstalling ? null : () => installationCubit.installApp(app.id),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF2563EB),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-            shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            elevation: 2,
-          ),
-          child: isInstalling
-              ? Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    value: progress,
-                    strokeWidth: 2,
-                    color: Colors.white,
-                    backgroundColor: Colors.white24,
-                  )),
-              const SizedBox(width: 8),
-              Text(
-                  progress != null && progress > 0
-                      ? '${(progress * 100).toInt()}%'
-                      : 'Installing...',
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
-            ],
-          )
-              : const Text('Install',
-              style: TextStyle(fontWeight: FontWeight.w600)),
+          isLoading: isInstalling,
+          progress: progress,
+          isFilled: true,
         );
       },
     );
@@ -255,29 +219,12 @@ class AppscreenContent extends StatelessWidget {
       builder: (context, state) {
         final isLaunching = appLaunchCubit.isLaunching(app.id);
 
-        return ElevatedButton.icon(
-          onPressed:
-          isLaunching ? null : () => appLaunchCubit.launchApp(app.id),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF2563EB), // Blue
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            elevation: 2,
-          ),
-          icon: isLaunching
-              ? const SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(
-                strokeWidth: 2, color: Colors.white),
-          )
-              : const Icon(Icons.open_in_new, size: 18),
-          label: Text(
-            isLaunching ? 'Opening...' : 'Open',
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
+        return _GlassActionButton(
+          label: isLaunching ? 'Opening...' : 'Open',
+          baseColor: const Color(0xFF2563EB), // Blue
+          onTap: isLaunching ? null : () => appLaunchCubit.launchApp(app.id),
+          isLoading: isLaunching,
+          isFilled: true,
         );
       },
     );
@@ -291,35 +238,13 @@ class AppscreenContent extends StatelessWidget {
             appStatusCubit.getAppStatus(app.id) == AppStatus.updating;
         final progress = appStatusCubit.getProgress(app.id);
 
-        return ElevatedButton.icon(
-          onPressed:
-          isUpdating ? null : () => installationCubit.updateApp(app.id),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.orange.shade700,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            elevation: 2,
-          ),
-          icon: isUpdating
-              ? SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(
-              value: progress,
-              strokeWidth: 2,
-              color: Colors.white,
-              backgroundColor: Colors.white24,
-            ),
-          )
-              : const Icon(Icons.system_update, size: 18),
-          label: Text(
-            isUpdating && progress != null && progress > 0
-                ? '${(progress * 100).toInt()}%'
-                : 'Update',
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
+        return _GlassActionButton(
+          label: 'Update',
+          baseColor: Colors.orange.shade700,
+          onTap: isUpdating ? null : () => installationCubit.updateApp(app.id),
+          isLoading: isUpdating,
+          progress: progress,
+          isFilled: true,
         );
       },
     );
@@ -333,34 +258,16 @@ class AppscreenContent extends StatelessWidget {
             installationCubit.isOperationInProgress(app.id) &&
                 installationCubit.getOperationType(app.id) == 'uninstall';
 
-        return OutlinedButton.icon(
-          onPressed:
-          isUninstalling ? null : () => _showUninstallDialog(context),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: Colors.red.shade700,
-            side: BorderSide(color: Colors.red.shade700),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-          icon: isUninstalling
-              ? const SizedBox(
-            width: 16,
-            height: 16,
-            child:
-            CircularProgressIndicator(strokeWidth: 2, color: Colors.red),
-          )
-              : const Icon(Icons.delete_outline, size: 18),
-          label: Text(
-            isUninstalling ? 'Uninstalling...' : 'Uninstall',
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
+        return _GlassActionButton(
+          label: isUninstalling ? 'Uninstalling...' : 'Uninstall',
+          baseColor: Colors.red.shade600, // Red
+          onTap: isUninstalling ? null : () => _showUninstallDialog(context),
+          isLoading: isUninstalling,
+          isFilled: true,
         );
       },
     );
   }
-
-  // --- DIALOGS & VISUALS ---
 
   void _showUninstallDialog(BuildContext context) {
     showDialog(
@@ -390,7 +297,7 @@ class AppscreenContent extends StatelessWidget {
 
   Widget _buildAppIcon(BuildContext context, Application app) {
     final cardSize = Responsive.scale(context, 80).clamp(68.0, 92.0);
-    final iconSize = cardSize * 0.7; // Slightly larger inside the box
+    final iconSize = cardSize * 0.7;
 
     return Container(
       width: cardSize,
@@ -415,10 +322,8 @@ class AppscreenContent extends StatelessWidget {
     );
   }
 
-  // [FIX] Improved Icon Builder with Error Handling
   Widget _buildIcon(double size) {
     final iconPath = _getIconPath(app);
-
     if (iconPath != null) {
       if (iconPath.startsWith('http')) {
         return Image.network(
@@ -426,18 +331,15 @@ class AppscreenContent extends StatelessWidget {
           width: size,
           height: size,
           fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) =>
-              _buildDefaultIcon(size),
+          errorBuilder: (context, error, stackTrace) => _buildDefaultIcon(size),
         );
       } else {
-        // Safe check for File image
         return Image.file(
           File(iconPath),
           width: size,
           height: size,
           fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) =>
-              _buildDefaultIcon(size),
+          errorBuilder: (context, error, stackTrace) => _buildDefaultIcon(size),
         );
       }
     }
@@ -450,7 +352,6 @@ class AppscreenContent extends StatelessWidget {
       width: size,
       height: size,
       fit: BoxFit.cover,
-      // Backup if asset is missing too
       errorBuilder: (context, error, stackTrace) => Icon(
         Icons.apps,
         size: size * 0.5,
@@ -569,8 +470,6 @@ class AppscreenContent extends StatelessWidget {
       ),
     );
   }
-
-  // --- DATA PARSING HELPERS ---
 
   String _getContentRating(Application app) {
     try {
@@ -708,7 +607,6 @@ class AppscreenContent extends StatelessWidget {
     }
   }
 
-  // [FIX] Improved Logic: Verifies file existence before returning path
   String? _getIconPath(Application app) {
     try {
       if (app.appdata.isEmpty) return null;
@@ -716,30 +614,20 @@ class AppscreenContent extends StatelessWidget {
       final icons = appdata['icons'] as List<dynamic>?;
 
       if (icons != null) {
-        // 1. Look for Remote first if Local is unreliable
-        // Or 2. Check existence of Cached
         for (final icon in icons) {
           if (icon is Map<String, dynamic>) {
             final type = icon['type'];
             final path = icon['path']?.toString();
-
             if (path == null) continue;
-
             if (type == 'cached') {
-              final fullPath = '/var/lib/flatpak/appstream/flathub/x86_64/active/icons/128x128/$path';
-              // CRITICAL FIX: Check if file actually exists
-              if (File(fullPath).existsSync()) {
-                return fullPath;
-              }
+              final fullPath =
+                  '/var/lib/flatpak/appstream/flathub/x86_64/active/icons/128x128/$path';
+              if (File(fullPath).existsSync()) return fullPath;
             } else if (type == 'remote') {
-              // We return this if cached failed or wasn't found first
               return path;
             }
           }
         }
-
-        // Secondary pass: if we skipped 'remote' because we were looking for 'cached' first
-        // but cached didn't exist, ensure we grab the remote one now.
         for (final icon in icons) {
           if (icon is Map<String, dynamic> && icon['type'] == 'remote') {
             return icon['path']?.toString();
@@ -758,7 +646,6 @@ class AppscreenContent extends StatelessWidget {
       final appdata = jsonDecode(app.appdata) as Map<String, dynamic>;
       final screenshots = appdata['screenshots'] as List<dynamic>?;
       if (screenshots == null) return null;
-
       List<String> result = [];
       for (final screenshot in screenshots) {
         final images = screenshot['images'] as List<dynamic>?;
@@ -769,7 +656,6 @@ class AppscreenContent extends StatelessWidget {
             final imgMap = image as Map<String, dynamic>;
             final url = imgMap['url']?.toString();
             final w = int.tryParse(imgMap['width']?.toString() ?? '0') ?? 0;
-
             if (url != null && w > maxWidth) {
               maxWidth = w;
               bestUrl = url;
@@ -790,7 +676,6 @@ class AppscreenContent extends StatelessWidget {
       final appdata = jsonDecode(app.appdata) as Map<String, dynamic>;
       final screenshots = appdata['screenshots'] as List<dynamic>?;
       if (screenshots == null) return null;
-
       List<String> result = [];
       for (final screenshot in screenshots) {
         final captions = screenshot['captions'] as List<dynamic>?;
@@ -803,5 +688,116 @@ class AppscreenContent extends StatelessWidget {
     } catch (_) {
       return [];
     }
+  }
+}
+
+class _GlassActionButton extends StatelessWidget {
+  final String label;
+  final Color baseColor;
+  final VoidCallback? onTap;
+  final bool isLoading;
+  final double? progress;
+  final bool isFilled;
+
+  const _GlassActionButton({
+    required this.label,
+    required this.baseColor,
+    required this.onTap,
+    this.isLoading = false,
+    this.progress,
+    this.isFilled = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final effectiveColor = onTap == null && !isLoading ? Colors.grey : baseColor;
+
+    final decoration = isFilled
+        ? BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          effectiveColor.withValues(alpha: 0.9),
+          effectiveColor.withValues(alpha: 0.7),
+        ],
+      ),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(
+        color: Colors.white.withValues(alpha: 0.2),
+        width: 1.0,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: effectiveColor.withValues(alpha: 0.3),
+          blurRadius: 12,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    )
+        : BoxDecoration(
+      color: effectiveColor.withValues(alpha: 0.1),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(
+        color: effectiveColor.withValues(alpha: 0.4),
+        width: 1.5,
+      ),
+    );
+
+    final textColor = isFilled ? Colors.white : effectiveColor;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          decoration: decoration,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isLoading) ...[
+                SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    value: progress,
+                    strokeWidth: 2,
+                    color: textColor,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                if (progress != null && progress! > 0)
+                  Text(
+                    '${(progress! * 100).toInt()}%',
+                    style: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                if (progress == null)
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+              ] else
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -56,9 +56,9 @@ class FlatpakEventModel {
   });
 
   factory FlatpakEventModel.fromMap(Map<dynamic, dynamic> map) {
-    bool? _toBool(dynamic v) => v is bool ? v : (v is int ? v != 0 : null);
+    bool? toBool(dynamic v) => v is bool ? v : (v is int ? v != 0 : null);
 
-    String? _extractAppId(String? ref) {
+    String? extractAppId(String? ref) {
       if (ref == null) return null;
       final parts = ref.split('/');
       return (parts.length > 1) ? parts[1] : null;
@@ -127,7 +127,7 @@ class FlatpakEventModel {
 
     final rawAppId = map['app_id'] as String?;
     final rawRef = map['operation_ref'] as String? ?? map['ref'] as String?;
-    final appId = rawAppId ?? _extractAppId(rawRef);
+    final appId = rawAppId ?? extractAppId(rawRef);
 
     double? progress = (map['progress'] as num?)?.toDouble();
     if (progress != null && progress > 1.0) progress /= 100.0;
@@ -147,7 +147,7 @@ class FlatpakEventModel {
       progress: progress,
       message: map['status'] as String? ?? map['error_message'] as String?,
       error: map['error_message'] as String?,
-      isEstimating: _toBool(map['is_estimating']),
+      isEstimating: toBool(map['is_estimating']),
       bytes: map['bytes'] as int?,
       startTime: map['start_time'] as int?,
       speedBps: (map['speed_bps'] as num?)?.toDouble(),
@@ -155,8 +155,8 @@ class FlatpakEventModel {
       completedOperations: map['completed_operations'] as int?,
       currentRef: map['current_ref'] as String?,
       operationType: map['operation_type'] as String?,
-      isMainApp: _toBool(map['is_main_app']),
-      success: _toBool(map['success']),
+      isMainApp: toBool(map['is_main_app']),
+      success: toBool(map['success']),
       operations: ops,
     );
   }

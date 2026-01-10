@@ -9,7 +9,6 @@ import '../data_sources/flatpak_local_data.dart';
 import '../data_sources/flatpak_permission_data.dart';
 import '../models/application_model.dart';
 import '../models/flatpak_event_model.dart';
-import '../models/flatpak_permission_model.dart';
 import '../models/installation_model.dart';
 import '../models/remote_model.dart';
 import 'flatpak_repository.dart';
