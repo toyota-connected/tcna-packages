@@ -4,27 +4,29 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../business_logic/app_launch/app_launch_cubit.dart';
 import '../../business_logic/app_launch/app_launch_state.dart';
-import '../../business_logic/discovery/dicovery_cubit.dart';
+import '../../business_logic/app_status/app_status_cubit.dart';
+import '../../business_logic/app_status/app_status_state.dart';
+import '../../business_logic/discovery/discovery_cubit.dart';
 import '../../business_logic/installation/installation_cubit.dart';
 import '../../business_logic/installation/installation_state.dart';
-import '../../business_logic/installed_apps/installed_apps_cubit.dart';
-import '../../business_logic/installed_apps/installed_apps_state.dart';
 import '../../business_logic/discovery/discovery_state.dart';
 import '../../data/models/application_model.dart';
 import '../../helpers/id_utils.dart';
+import '../../app_router.dart';
 
 class InstalledScreen extends StatefulWidget {
-  final InstalledAppsCubit installedAppsCubit;
+  final AppStatusCubit appStatusCubit;
   final InstallationCubit installationCubit;
   final AppLaunchCubit appLaunchCubit;
   final DiscoveryCubit discoveryCubit;
 
   const InstalledScreen({
     super.key,
-    required this.installedAppsCubit,
+    required this.appStatusCubit,
     required this.installationCubit,
     required this.appLaunchCubit,
     required this.discoveryCubit,
@@ -34,29 +36,65 @@ class InstalledScreen extends StatefulWidget {
   State<InstalledScreen> createState() => _InstalledScreenState();
 }
 
-class _InstalledScreenState extends State<InstalledScreen> {
+class _InstalledScreenState extends State<InstalledScreen>
+    with AutomaticKeepAliveClientMixin, RouteAware {
+
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   void initState() {
     super.initState();
-    widget.installedAppsCubit.loadInstalledApps();
+    _loadData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      routeObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    debugPrint('[InstalledScreen] Returned to screen - refreshing data');
+    _refreshData();
+  }
+
+  void _loadData() {
+    widget.appStatusCubit.loadAppStatus();
     widget.discoveryCubit.loadAllApps();
-    widget.discoveryCubit.loadUpdateApps();
+  }
+
+  void _refreshData() {
+    widget.appStatusCubit.refresh();
+    widget.discoveryCubit.loadAllApps();
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: Column(
         children: [
           _buildHeader(context),
           Expanded(
-            child: BlocBuilder<InstalledAppsCubit, InstalledAppsState>(
-              bloc: widget.installedAppsCubit,
-              builder: (context, installedState) {
-                if (installedState is InstalledAppsLoading) {
+            child: BlocBuilder<AppStatusCubit, AppStatusState>(
+              bloc: widget.appStatusCubit,
+              builder: (context, statusState) {
+                if (statusState is AppStatusLoading) {
                   return const Center(child: CircularProgressIndicator());
-                } else if (installedState is InstalledAppsError) {
+                } else if (statusState is AppStatusError) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -68,20 +106,19 @@ class _InstalledScreenState extends State<InstalledScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Error: ${installedState.message}',
+                          'Error: ${statusState.message}',
                           style: const TextStyle(fontSize: 16),
                         ),
                         const SizedBox(height: 16),
                         ElevatedButton(
-                          onPressed: () =>
-                              widget.installedAppsCubit.loadInstalledApps(),
+                          onPressed: _loadData,
                           child: const Text('Retry'),
                         ),
                       ],
                     ),
                   );
-                } else if (installedState is InstalledAppsLoaded) {
-                  return _buildContent(context, installedState.installedIds);
+                } else if (statusState is AppStatusLoaded) {
+                  return _buildContent(context, statusState);
                 }
                 return const SizedBox.shrink();
               },
@@ -165,7 +202,7 @@ class _InstalledScreenState extends State<InstalledScreen> {
     );
   }
 
-  Widget _buildContent(BuildContext context, Set<String> installedIds) {
+  Widget _buildContent(BuildContext context, AppStatusLoaded statusState) {
     return BlocBuilder<DiscoveryCubit, DiscoveryState>(
       bloc: widget.discoveryCubit,
       builder: (context, discoveryState) {
@@ -177,24 +214,29 @@ class _InstalledScreenState extends State<InstalledScreen> {
         final allApps = widget.discoveryCubit.allApps;
         final installedApps = allApps.where((app) {
           final shortId = AppIdUtils.extractShortId(app.id);
-          return installedIds.contains(shortId);
+          return statusState.installedIds.contains(shortId);
         }).toList();
 
-        debugPrint('[InstalledScreen] Installed IDs: $installedIds');
         debugPrint(
-          '[InstalledScreen] Found ${installedApps.length} installed apps in discovery',
-        );
+            '[InstalledScreen] Installed IDs: ${statusState.installedIds}');
+        debugPrint(
+            '[InstalledScreen] Found ${installedApps.length} installed apps');
 
-        // TODO: Get apps with updates from backend
-        // For now, using empty list as placeholder
-        final appsWithUpdates = <Application>[];
-        final appsUpToDate = installedApps;
+        // Separate apps that need updates
+        final appsWithUpdates = installedApps.where((app) {
+          final shortId = AppIdUtils.extractShortId(app.id);
+          return statusState.updatableIds.contains(shortId);
+        }).toList();
+
+        final appsUpToDate = installedApps.where((app) {
+          final shortId = AppIdUtils.extractShortId(app.id);
+          return !statusState.updatableIds.contains(shortId);
+        }).toList();
 
         return RefreshIndicator(
           onRefresh: () async {
-            await widget.installedAppsCubit.refreshInstalledApps();
-            await widget.discoveryCubit.loadAllApps();
-            await widget.discoveryCubit.loadUpdateApps();
+            _refreshData();
+            await Future.delayed(const Duration(milliseconds: 500));
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -205,6 +247,9 @@ class _InstalledScreenState extends State<InstalledScreen> {
                 _buildStorageSection(context, installedApps),
                 const SizedBox(height: 40),
                 if (appsWithUpdates.isNotEmpty) ...[
+                  _buildSectionHeader(
+                      'Apps with Updates', appsWithUpdates.length),
+                  const SizedBox(height: 16),
                   _buildAppsList(
                     context,
                     appsWithUpdates,
@@ -212,12 +257,15 @@ class _InstalledScreenState extends State<InstalledScreen> {
                   ),
                   const SizedBox(height: 40),
                 ],
-                if (appsUpToDate.isNotEmpty)
+                if (appsUpToDate.isNotEmpty) ...[
+                  _buildSectionHeader('Up to Date', appsUpToDate.length),
+                  const SizedBox(height: 16),
                   _buildAppsList(
                     context,
                     appsUpToDate,
                     showUpdateButton: false,
                   ),
+                ],
                 if (installedApps.isEmpty)
                   Center(
                     child: Column(
@@ -242,6 +290,37 @@ class _InstalledScreenState extends State<InstalledScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSectionHeader(String title, int count) {
+    return Row(
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'khand',
+          ),
+        ),
+        const SizedBox(width: 12),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.blue.shade100,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            '$count',
+            style: TextStyle(
+              color: Colors.blue.shade800,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -299,8 +378,7 @@ class _InstalledScreenState extends State<InstalledScreen> {
                             value: used / totalSpace,
                             minHeight: 8,
                             backgroundColor: Colors.grey[200]!.withValues(
-                              alpha: 0.5,
-                            ),
+                                alpha: 0.5),
                             valueColor: const AlwaysStoppedAnimation<Color>(
                               Color(0xFF2563EB),
                             ),
@@ -349,11 +427,10 @@ class _InstalledScreenState extends State<InstalledScreen> {
     );
   }
 
-  Widget _buildAppsList(
-    BuildContext context,
-    List<Application> apps, {
-    required bool showUpdateButton,
-  }) {
+  Widget _buildAppsList(BuildContext context,
+      List<Application> apps, {
+        required bool showUpdateButton,
+      }) {
     return Column(
       children: apps
           .map((app) => _buildAppItem(context, app, showUpdateButton))
@@ -361,86 +438,89 @@ class _InstalledScreenState extends State<InstalledScreen> {
     );
   }
 
-  Widget _buildAppItem(
-    BuildContext context,
-    Application app,
-    bool showUpdateButton,
-  ) {
+  Widget _buildAppItem(BuildContext context,
+      Application app,
+      bool showUpdateButton,) {
     final sizeGB = (app.installedSize / (1024 * 1024 * 1024)).toStringAsFixed(
-      2,
-    );
+        2);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.3),
-                width: 1.5,
+    return GestureDetector(
+      onTap: () {
+        // Navigate to app details when tapped
+        context.push('/app/${app.shortId}');
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.25),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                _buildAppIcon(app),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        app.name,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'khand',
+              child: Row(
+                children: [
+                  _buildAppIcon(app),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          app.name,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'khand',
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '$sizeGB GB',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[600],
-                          fontFamily: 'general-sans',
+                        const SizedBox(height: 4),
+                        Text(
+                          '$sizeGB GB',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey[600],
+                            fontFamily: 'general-sans',
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                if (showUpdateButton)
-                  _buildAppUpdateButton(context, app)
-                else
-                  Row(
-                    children: [
-                      Text(
-                        'Up to date',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[600],
-                          fontFamily: 'general-sans',
+                  if (showUpdateButton)
+                    _buildAppUpdateButton(context, app)
+                  else
+                    Row(
+                      children: [
+                        Text(
+                          'Up to date',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey[600],
+                            fontFamily: 'general-sans',
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      _buildOpenButton(context, app),
-                      const SizedBox(width: 8),
-                      _buildUninstallButton(context, app),
-                    ],
-                  ),
-              ],
+                        const SizedBox(width: 12),
+                        _buildOpenButton(context, app),
+                        const SizedBox(width: 8),
+                        _buildUninstallButton(context, app),
+                      ],
+                    ),
+                ],
+              ),
             ),
           ),
         ),
@@ -510,9 +590,7 @@ class _InstalledScreenState extends State<InstalledScreen> {
 
   String? _getIconPath(Application app) {
     try {
-      if (app.appdata.isEmpty) {
-        return null;
-      }
+      if (app.appdata.isEmpty) return null;
 
       final appdata = jsonDecode(app.appdata) as Map<String, dynamic>;
       final icons = appdata['icons'] as List<dynamic>?;
@@ -523,13 +601,9 @@ class _InstalledScreenState extends State<InstalledScreen> {
             if (icon is Map<String, dynamic> && icon['type'] == iconType) {
               final path = icon['path'] as String?;
               if (icon['type'] == 'cached') {
-                final cachedPath =
-                    '/var/lib/flatpak/appstream/flathub/x86_64/active/icons/128x128/$path';
-                return cachedPath;
+                return '/var/lib/flatpak/appstream/flathub/x86_64/active/icons/128x128/$path';
               }
-              if (path != null) {
-                return path;
-              }
+              if (path != null) return path;
             }
           }
         }
@@ -544,6 +618,7 @@ class _InstalledScreenState extends State<InstalledScreen> {
     return BlocBuilder<AppLaunchCubit, AppLaunchState>(
       bloc: widget.appLaunchCubit,
       builder: (context, state) {
+        // Check specific app launch status
         final isLaunching = widget.appLaunchCubit.isLaunching(app.id);
 
         return ClipRRect(
@@ -565,9 +640,7 @@ class _InstalledScreenState extends State<InstalledScreen> {
                     : () => widget.appLaunchCubit.launchApp(app.id),
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
-                  ),
+                      horizontal: 20, vertical: 10),
                   foregroundColor: const Color(0xFF2563EB),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -575,23 +648,22 @@ class _InstalledScreenState extends State<InstalledScreen> {
                 ),
                 child: isLaunching
                     ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Color(0xFF2563EB),
-                          ),
-                        ),
-                      )
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                        Color(0xFF2563EB)),
+                  ),
+                )
                     : const Text(
-                        'Open',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'general-sans',
-                        ),
-                      ),
+                  'Open',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'general-sans',
+                  ),
+                ),
               ),
             ),
           ),
@@ -601,69 +673,67 @@ class _InstalledScreenState extends State<InstalledScreen> {
   }
 
   Widget _buildUninstallButton(BuildContext context, Application app) {
-    return BlocBuilder<InstalledAppsCubit, InstalledAppsState>(
-      builder: (context, installedState) {
-        return BlocBuilder<InstallationCubit, InstallationState>(
-          builder: (context, installState) {
-            final isInstalled =
-                installedState is InstalledAppsLoaded &&
-                installedState.installedIds.contains(app.shortId);
+    return BlocBuilder<InstallationCubit, InstallationState>(
+      bloc: widget.installationCubit,
+      builder: (context, installState) {
+        final isUninstalling = widget.installationCubit.isOperationInProgress(
+            app.id) &&
+            widget.installationCubit.getOperationType(app.id) == 'uninstall';
+        double? progress;
+        if (isUninstalling && installState is InstallationInProgress) {
+          if (AppIdUtils.extractShortId(installState.appId ?? '') ==
+              app.shortId) {
+            progress = installState.progress;
+          }
+        }
 
-            final isUninstalling =
-                widget.installationCubit.isOperationInProgress(app.id) &&
-                widget.installationCubit.getOperationType(app.id) ==
-                    'uninstall';
-
-            double? progress;
-            if (isUninstalling && installState is InstallationInProgress) {
-              if (AppIdUtils.extractShortId(installState.appId ?? '') ==
-                  app.shortId) {
-                progress = installState.progress;
-              }
-            }
-
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.3),
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.4),
+                  width: 1,
+                ),
+              ),
+              child: TextButton(
+                onPressed: isUninstalling
+                    ? null
+                    : () => _showUninstallDialog(context, app),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 10),
+                  foregroundColor: Colors.red,
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.4),
-                      width: 1,
-                    ),
                   ),
-                  child: TextButton(
-                    onPressed: isUninstalling
-                        ? null
-                        : () => _showUninstallDialog(context, app),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      foregroundColor: Colors.red,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: isUninstalling && progress != null && progress > 0
-                        ? _buildProgressIndicator(progress, 36)
-                        : const Text(
-                            'Uninstall',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: 'general-sans',
-                            ),
-                          ),
+                ),
+                child: isUninstalling
+                    ? (progress != null && progress > 0
+                    ? _buildProgressIndicator(progress, 36)
+                    : const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                  ),
+                ))
+                    : const Text(
+                  'Uninstall',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'general-sans',
                   ),
                 ),
               ),
-            );
-          },
+            ),
+          ),
         );
       },
     );
@@ -701,42 +771,49 @@ class _InstalledScreenState extends State<InstalledScreen> {
   void _showUninstallDialog(BuildContext context, Application app) {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Uninstall App'),
-        content: Text('Are you sure you want to uninstall ${app.name}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+      builder: (dialogContext) =>
+          AlertDialog(
+            title: const Text('Uninstall App'),
+            content: Text('Are you sure you want to uninstall ${app.name}?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                  debugPrint('[InstalledScreen] Uninstalling app: ${app.id}');
+                  // Use the repository method directly
+                  widget.installationCubit.uninstallApp(app.id);
+
+                  // Show feedback
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Uninstalling ${app.name}...'),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('Uninstall'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              debugPrint('[InstalledScreen] Uninstalling app: ${app.id}');
-              widget.installationCubit.uninstallApp(app.id);
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Uninstall'),
-          ),
-        ],
-      ),
     );
   }
 
   Widget _buildAppUpdateButton(BuildContext context, Application app) {
-    return BlocBuilder<InstallationCubit, InstallationState>(
-      bloc: widget.installationCubit,
+    return BlocBuilder<AppStatusCubit, AppStatusState>(
+      bloc: widget.appStatusCubit,
       builder: (context, state) {
-        final shortId = AppIdUtils.extractShortId(app.id);
-        final isUpdating =
-            widget.installationCubit.isOperationInProgress(app.id) &&
-            widget.installationCubit.getOperationType(app.id) == 'update';
+        final status = widget.appStatusCubit.getAppStatus(app.id);
+        final isUpdating = status == AppStatus.updating;
+        final progress = widget.appStatusCubit.getProgress(app.id);
 
-        double? progress;
-        if (isUpdating && state is InstallationInProgress) {
-          if (AppIdUtils.extractShortId(state.appId ?? '') == shortId) {
-            progress = state.progress;
-          }
+        // Hide button if no update needed (double check)
+        if (status != AppStatus.needsUpdate && !isUpdating) {
+          return const SizedBox.shrink();
         }
 
         return ClipRRect(
@@ -760,9 +837,7 @@ class _InstalledScreenState extends State<InstalledScreen> {
                     : () => widget.installationCubit.updateApp(app.id),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 10,
-                  ),
+                      horizontal: 24, vertical: 10),
                   backgroundColor: Colors.transparent,
                   foregroundColor: Colors.white,
                   elevation: 0,
@@ -773,43 +848,40 @@ class _InstalledScreenState extends State<InstalledScreen> {
                 ),
                 child: isUpdating && progress != null && progress > 0
                     ? SizedBox(
-                        width: 60,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                value: progress,
-                                strokeWidth: 2,
-                                valueColor: const AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
-                                backgroundColor: Colors.white.withValues(
-                                  alpha: 0.3,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${(progress * 100).toInt()}%',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontFamily: 'general-sans',
-                              ),
-                            ),
-                          ],
+                  width: 60,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          value: progress,
+                          strokeWidth: 2,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              Colors.white),
+                          backgroundColor: Colors.white.withValues(alpha: 0.3),
                         ),
-                      )
-                    : const Text(
-                        'Update',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${(progress * 100).toInt()}%',
+                        style: const TextStyle(
+                          fontSize: 12,
                           fontFamily: 'general-sans',
                         ),
                       ),
+                    ],
+                  ),
+                )
+                    : const Text(
+                  'Update',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'general-sans',
+                  ),
+                ),
               ),
             ),
           ),
@@ -819,81 +891,66 @@ class _InstalledScreenState extends State<InstalledScreen> {
   }
 
   Widget _buildUpdateAllButton(BuildContext context) {
-    return BlocBuilder<InstalledAppsCubit, InstalledAppsState>(
-      bloc: widget.installedAppsCubit,
-      builder: (context, installedState) {
-        return BlocBuilder<DiscoveryCubit, DiscoveryState>(
-          bloc: widget.discoveryCubit,
-          builder: (context, discoveryState) {
-            if (installedState is! InstalledAppsLoaded) {
-              return const SizedBox.shrink();
-            }
+    return BlocBuilder<AppStatusCubit, AppStatusState>(
+      bloc: widget.appStatusCubit,
+      builder: (context, statusState) {
+        if (statusState is! AppStatusLoaded) {
+          return const SizedBox.shrink();
+        }
 
-            // TODO: Get actual update apps from backend
-            final updateApps = <Application>[];
-            final count = updateApps.length;
+        final count = statusState.updatableIds.length;
+        if (count == 0) return const SizedBox.shrink();
 
-            if (count == 0) {
-              return const SizedBox.shrink();
-            }
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF2563EB).withValues(alpha: 0.9),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  width: 1.5,
+                ),
+              ),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  for (final shortId in statusState.updatableIds) {
+                    // Find the full App ID from the loaded apps list to be safe
+                    final app = widget.discoveryCubit.allApps.firstWhere(
+                          (a) => AppIdUtils.extractShortId(a.id) == shortId,
+                      orElse: () => Application.empty(),
+                    );
 
-            return BlocBuilder<InstallationCubit, InstallationState>(
-              bloc: widget.installationCubit,
-              builder: (context, installState) {
-                final isUpdating = installState is InstallationInProgress;
-
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isUpdating
-                            ? Colors.grey.withValues(alpha: 0.6)
-                            : const Color(0xFF2563EB).withValues(alpha: 0.9),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.3),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: ElevatedButton.icon(
-                        onPressed: isUpdating
-                            ? null
-                            : () {
-                                for (final app in updateApps) {
-                                  widget.installationCubit.updateApp(app.id);
-                                }
-                              },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          backgroundColor: Colors.transparent,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        icon: const Icon(Icons.system_update, size: 18),
-                        label: Text(
-                          'Update All ($count)',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: 'general-sans',
-                          ),
-                        ),
-                      ),
-                    ),
+                    if (app.id.isNotEmpty) {
+                      widget.installationCubit.updateApp(app.id);
+                    }
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 12),
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                );
-              },
-            );
-          },
+                ),
+                icon: const Icon(Icons.system_update, size: 18),
+                label: Text(
+                  'Update All ($count)',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'general-sans',
+                  ),
+                ),
+              ),
+            ),
+          ),
         );
       },
     );

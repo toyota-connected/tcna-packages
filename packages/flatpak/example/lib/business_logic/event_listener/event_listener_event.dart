@@ -11,7 +11,7 @@ class StartListening extends EventListenerEvent {}
 class StopListening extends EventListenerEvent {}
 
 class EventReceived extends EventListenerEvent {
-  final FlatpakEvent event;
+  final FlatpakEventModel event;
   EventReceived(this.event);
   @override
   List<Object?> get props => [event];

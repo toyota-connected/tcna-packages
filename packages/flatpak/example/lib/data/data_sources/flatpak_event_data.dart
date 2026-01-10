@@ -47,7 +47,7 @@ class FlatpakEventDataSourceImpl implements FlatpakEventDataSource {
 
         if (event is Map) {
           try {
-            final eventModel = FlatpakEventModel.fromJson(
+            final eventModel = FlatpakEventModel.fromMap(
               Map<String, dynamic>.from(event),
             );
 

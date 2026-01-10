@@ -5,51 +5,68 @@ import '../../data/models/install_progress_model.dart';
 import '../../data/repositories/flatpak_repository.dart';
 import '../../helpers/id_utils.dart';
 import 'installation_state.dart';
+import '../app_status/app_status_cubit.dart';
+import '../app_status/app_status_state.dart';
 
 class InstallationCubit extends Cubit<InstallationState> {
   final FlatpakRepository repository;
+  final AppStatusCubit appStatusCubit;
 
+  // Tracks active operations
   final Map<String, String> _ongoingOperations = {};
 
-  String? _currentOperationAppId;
+  // Tracks detailed progress
+  final Map<String, OperationTracker> _operationTrackers = {};
+  String? _lastRequestedAppId;
 
-  InstallationCubit({required this.repository}) : super(InstallationIdle());
+  InstallationCubit({
+    required this.repository,
+    required this.appStatusCubit,
+  }) : super(InstallationIdle());
 
   Future<void> installApp(String appId) async {
     final shortId = AppIdUtils.extractShortId(appId);
 
     if (_ongoingOperations.containsKey(shortId)) {
+      debugPrint('[InstallationCubit] Operation already in progress for: $shortId');
       return;
     }
 
-    _ongoingOperations[shortId] = 'install';
-    _currentOperationAppId = shortId;
+    _startOperation(shortId, 'install');
+    debugPrint('[InstallationCubit] Starting installation: $shortId');
 
-    emit(
-      InstallationInProgress(
-        appId: shortId,
-        status: InstallationStatus.downloading,
-        progress: 0.0,
-        message: 'Starting installation...',
-      ),
-    );
+    // UI update
+    appStatusCubit.updateAppStatus(shortId, AppStatus.installing, progress: 0.0);
+    emit(InstallationInProgress(
+      appId: shortId,
+      status: InstallationStatus.downloading,
+      progress: 0.0,
+      message: 'Starting installation...',
+    ));
 
     final result = await repository.installApplication(appId);
 
     result.fold(
-      (failure) {
-        _ongoingOperations.remove(shortId);
-        _currentOperationAppId = null;
-        emit(
-          InstallationFailure(
-            appId: shortId,
-            error: failure.message,
-            operation: 'install',
-          ),
-        );
+          (failure) {
+        debugPrint('[InstallationCubit] Installation failed start: ${failure.message}');
+        _failOperation(shortId, 'install', failure.message);
+        // Revert status
+        appStatusCubit.updateAppStatus(shortId, AppStatus.notInstalled);
       },
-      (success) {
-        debugPrint('[InstallationCubit] Install API call completed: $success');
+          (success) {
+        debugPrint('[InstallationCubit] Install API initiated: $success');
+        if (_ongoingOperations.containsKey(shortId)) {
+          debugPrint('[InstallationCubit] Force-completing installation for $shortId based on API result.');
+
+          _cleanup(shortId);
+          appStatusCubit.markInstalled(shortId);
+
+          emit(InstallationSuccess(appId: shortId, operation: 'install'));
+
+          Future.delayed(const Duration(seconds: 1), () {
+            emit(InstallationIdle());
+          });
+        }
       },
     );
   }
@@ -57,153 +74,206 @@ class InstallationCubit extends Cubit<InstallationState> {
   Future<void> uninstallApp(String appId) async {
     final shortId = AppIdUtils.extractShortId(appId);
 
-    if (_ongoingOperations.containsKey(shortId)) {
-      return;
-    }
+    if (_ongoingOperations.containsKey(shortId)) return;
 
-    _ongoingOperations[shortId] = 'uninstall';
-    _currentOperationAppId = shortId;
+    _startOperation(shortId, 'uninstall');
 
-    emit(
-      InstallationInProgress(
-        appId: shortId,
-        status: InstallationStatus.installing,
-        message: 'Uninstalling...',
-      ),
-    );
+    emit(InstallationInProgress(
+      appId: shortId,
+      status: InstallationStatus.installing,
+      message: 'Uninstalling...',
+    ));
 
     final result = await repository.uninstallApplication(appId);
 
-    result.fold((failure) {
-      _ongoingOperations.remove(shortId);
-      _currentOperationAppId = null;
-      emit(
-        InstallationFailure(
-          appId: shortId,
-          error: failure.message,
-          operation: 'uninstall',
-        ),
-      );
-    }, (success) {});
+    result.fold(
+          (failure) {
+        _failOperation(shortId, 'uninstall', failure.message);
+      },
+          (success) {
+        debugPrint('[InstallationCubit] Uninstall API returned. Forcing completion for $shortId');
+        appStatusCubit.markUninstalled(shortId);
+        _cleanup(shortId);
+        emit(InstallationSuccess(appId: shortId, operation: 'uninstall'));
+        Future.delayed(const Duration(milliseconds: 500), () {
+          emit(InstallationIdle());
+        });
+      },
+    );
   }
 
   Future<void> updateApp(String appId) async {
     final shortId = AppIdUtils.extractShortId(appId);
+    if (_ongoingOperations.containsKey(shortId)) return;
+    _startOperation(shortId, 'update');
 
-    if (_ongoingOperations.containsKey(shortId)) {
-      return;
-    }
+    appStatusCubit.updateAppStatus(shortId, AppStatus.updating, progress: 0);
 
-    _ongoingOperations[shortId] = 'update';
-    _currentOperationAppId = shortId;
+    emit(InstallationInProgress(
+      appId: shortId,
+      status: InstallationStatus.downloading,
+      progress: 0,
+      message: 'Starting update...',
+    ));
 
-    emit(
-      InstallationInProgress(
-        appId: shortId,
-        status: InstallationStatus.downloading,
-        progress: 0.0,
-        message: 'Updating...',
-      ),
-    );
-
-    final result = await repository.updateApplication(appId);
-
-    result.fold((failure) {
-      _ongoingOperations.remove(shortId);
-      _currentOperationAppId = null;
-      emit(
-        InstallationFailure(
+    try {
+      debugPrint('[InstallationCubit] Starting update: $shortId');
+      await repository.updateApplication(appId);
+      debugPrint('[InstallationCubit] Update API returned. Forcing completion.');
+      await appStatusCubit.markUpdated(shortId);
+      _cleanup(shortId);
+      emit(InstallationSuccess(
           appId: shortId,
-          error: failure.message,
-          operation: 'update',
-        ),
-      );
-    }, (success) {});
+          operation: 'update'
+      ));
+      Future.delayed(const Duration(seconds: 1), () {
+        emit(InstallationIdle());
+      });
+
+    } catch (e) {
+      debugPrint('[InstallationCubit] Update Error: $e');
+
+      _cleanup(shortId);
+
+      appStatusCubit.updateAppStatus(shortId, AppStatus.needsUpdate);
+
+      emit(InstallationFailure(
+          appId: shortId,
+          error: e.toString(),
+          operation: 'update'
+      ));
+    }
+  }
+  void _startOperation(String appId, String type) {
+    _ongoingOperations[appId] = type;
+    _lastRequestedAppId = appId;
+    _operationTrackers[appId] = OperationTracker(
+      appId: appId,
+      operationType: type,
+    );
   }
 
-  void handleEvent(FlatpakEvent event) {
-    debugPrint(
-      '[InstallationCubit] handleEvent: type=${event.type}, appId=${event.appId}, progress=${event.progress}',
-    );
+  void _failOperation(String appId, String operation, String error) {
+    debugPrint('[InstallationCubit] $operation failed for $appId: $error');
+    _cleanup(appId);
 
-    if (event.type == FlatpakEventType.unknown) {
-      return;
+    emit(InstallationFailure(
+      appId: appId,
+      error: error,
+      operation: operation,
+    ));
+    Future.delayed(const Duration(seconds: 3), () {
+      if (state is InstallationFailure && (state as InstallationFailure).appId == appId) {
+        emit(InstallationIdle());
+      }
+    });
+  }
+
+  void _cleanup(String appId) {
+    _ongoingOperations.remove(appId);
+    _operationTrackers.remove(appId);
+    if (_lastRequestedAppId == appId) {
+      _lastRequestedAppId = null;
     }
+  }
 
-    final String? targetAppId;
+  void handleEvent(FlatpakEventModel event) {
+    if (event.type == FlatpakEventType.unknown) return;
+
+    String? targetAppId;
     if (event.appId != null) {
       targetAppId = AppIdUtils.extractShortId(event.appId!);
-    } else if (_currentOperationAppId != null) {
-      targetAppId = _currentOperationAppId;
-      debugPrint(
-        '[InstallationCubit] Using current operation appId: $targetAppId',
-      );
     } else {
-      debugPrint(
-        '[InstallationCubit] No appId in event and no current operation',
-      );
+      if (_lastRequestedAppId != null && _ongoingOperations.containsKey(_lastRequestedAppId)) {
+        targetAppId = _lastRequestedAppId;
+      }
+    }
+
+    if (targetAppId == null || !_ongoingOperations.containsKey(targetAppId)) {
       return;
     }
 
-    final operation = _ongoingOperations[targetAppId];
-
-    if (operation == null) {
-      debugPrint('[InstallationCubit] No ongoing operation for: $targetAppId');
-      return;
-    }
-
-    debugPrint(
-      '[InstallationCubit] Processing event for $targetAppId: $operation',
-    );
+    final operation = _ongoingOperations[targetAppId]!;
+    final tracker = _operationTrackers[targetAppId];
 
     switch (event.type) {
+      case FlatpakEventType.transactionReady:
+        if (tracker != null && event.totalOperations != null) {
+          tracker.totalOperations = event.totalOperations!;
+          tracker.operations = event.operations ?? [];
+          debugPrint('[InstallationCubit] [$targetAppId] Transaction ready: ${tracker.totalOperations} ops');
+        }
+        break;
+
       case FlatpakEventType.installProgress:
       case FlatpakEventType.updateProgress:
-        double normalizedProgress = event.progress ?? 0.0;
-        if (normalizedProgress > 1.0) {
-          normalizedProgress = normalizedProgress / 100.0;
+      case FlatpakEventType.aggregatedProgress:
+        double progress = event.progress ?? 0.0;
+        if (progress > 1.0) progress /= 100.0;
+
+        if (tracker != null) {
+          if (event.type == FlatpakEventType.aggregatedProgress) {
+            tracker.currentProgress = progress;
+            if (event.completedOperations != null) {
+              tracker.completedOperations = event.completedOperations!;
+            }
+          } else {
+            tracker.currentProgress = progress;
+          }
         }
 
-        debugPrint(
-          '[InstallationCubit] Progress: ${normalizedProgress * 100}%',
-        );
-        emit(
-          InstallationInProgress(
-            appId: targetAppId,
-            status: InstallationStatus.downloading,
-            progress: normalizedProgress,
-            message: event.message ?? 'Downloading...',
-          ),
-        );
+        final displayProgress = progress;
+        final appStatus = operation == 'update' ? AppStatus.updating : AppStatus.installing;
+
+        appStatusCubit.updateAppStatus(targetAppId, appStatus, progress: displayProgress);
+
+        emit(InstallationInProgress(
+          appId: targetAppId,
+          status: InstallationStatus.downloading,
+          progress: displayProgress,
+          message: event.message ?? _getMessageForRef(event.currentRef) ?? 'Processing...',
+        ));
+        break;
+
+      case FlatpakEventType.operationComplete:
+        if (tracker != null) {
+          tracker.completedOperations++;
+          debugPrint('[InstallationCubit] [$targetAppId] Op Complete: ${tracker.completedOperations}/${tracker.totalOperations}');
+        }
         break;
 
       case FlatpakEventType.installComplete:
       case FlatpakEventType.uninstallComplete:
       case FlatpakEventType.updateComplete:
-        debugPrint('[InstallationCubit] Operation complete for: $targetAppId');
-        _ongoingOperations.remove(targetAppId);
-        _currentOperationAppId = null;
+        debugPrint('[InstallationCubit] [$targetAppId] ===== COMPLETE =====');
+
+        _cleanup(targetAppId);
+
+        if (event.type == FlatpakEventType.installComplete) {
+          appStatusCubit.markInstalled(targetAppId);
+        } else if (event.type == FlatpakEventType.uninstallComplete) {
+          appStatusCubit.markUninstalled(targetAppId);
+        } else if (event.type == FlatpakEventType.updateComplete) {
+          appStatusCubit.markUpdated(targetAppId);
+        }
+
         emit(InstallationSuccess(appId: targetAppId, operation: operation));
-        Future.delayed(const Duration(seconds: 2), () {
-          if (state is InstallationSuccess) {
-            emit(InstallationIdle());
-          }
+
+        Future.delayed(const Duration(seconds: 1), () {
+          emit(InstallationIdle());
         });
         break;
 
       case FlatpakEventType.installFailed:
       case FlatpakEventType.uninstallFailed:
       case FlatpakEventType.updateFailed:
-        debugPrint('[InstallationCubit] Operation failed for: $targetAppId');
-        _ongoingOperations.remove(targetAppId);
-        _currentOperationAppId = null;
-        emit(
-          InstallationFailure(
-            appId: targetAppId,
-            error: event.error ?? event.message ?? 'Operation failed',
-            operation: operation,
-          ),
-        );
+        _failOperation(targetAppId, operation, event.error ?? event.message ?? 'Unknown error');
+
+        if (operation == 'install') {
+          appStatusCubit.updateAppStatus(targetAppId, AppStatus.notInstalled);
+        } else {
+          appStatusCubit.refresh();
+        }
         break;
 
       default:
@@ -211,9 +281,11 @@ class InstallationCubit extends Cubit<InstallationState> {
     }
   }
 
-  bool isOperationInProgress(String appId) {
-    final shortId = AppIdUtils.extractShortId(appId);
-    return _ongoingOperations.containsKey(shortId);
+  String? _getMessageForRef(String? ref) {
+    if (ref == null) return null;
+    if (ref.contains('runtime/')) return 'Installing dependencies...';
+    if (ref.contains('app/')) return 'Installing application...';
+    return null;
   }
 
   String? getOperationType(String appId) {
@@ -221,10 +293,25 @@ class InstallationCubit extends Cubit<InstallationState> {
     return _ongoingOperations[shortId];
   }
 
-  @override
-  Future<void> close() {
-    debugPrint('[InstallationCubit] Closing...');
-    _currentOperationAppId = null;
-    return super.close();
+  bool isOperationInProgress(String appId) {
+    final shortId = AppIdUtils.extractShortId(appId);
+    return _ongoingOperations.containsKey(shortId);
+  }
+}
+
+class OperationTracker {
+  final String appId;
+  final String operationType;
+  int totalOperations = 1;
+  int completedOperations = 0;
+  double currentProgress = 0.0;
+  List<OperationInfo> operations = [];
+
+  OperationTracker({required this.appId, required this.operationType});
+
+  double get overallProgress {
+    if (totalOperations == 0) return 0.0;
+    final val = (completedOperations + currentProgress) / totalOperations;
+    return val.clamp(0.0, 1.0);
   }
 }

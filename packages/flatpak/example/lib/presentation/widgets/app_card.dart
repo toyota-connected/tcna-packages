@@ -1,16 +1,14 @@
 import 'dart:io';
 import 'dart:ui';
 import 'dart:convert';
+import 'package:flatpak_flutter_example/business_logic/app_status/app_status_cubit.dart';
 import 'package:flatpak_flutter_example/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../business_logic/app_launch/app_launch_cubit.dart';
-import '../../business_logic/app_launch/app_launch_state.dart';
+import '../../business_logic/app_status/app_status_state.dart';
 import '../../business_logic/installation/installation_cubit.dart';
-import '../../business_logic/installation/installation_state.dart';
-import '../../business_logic/installed_apps/installed_apps_cubit.dart';
-import '../../business_logic/installed_apps/installed_apps_state.dart';
 import '../../data/models/application_model.dart';
 
 class AppCard extends StatefulWidget {
@@ -18,7 +16,6 @@ class AppCard extends StatefulWidget {
   final String? name;
   final String? summary;
   final String? iconPath;
-  final VoidCallback? onInstall;
   final VoidCallback? onTap;
 
   const AppCard({
@@ -27,7 +24,6 @@ class AppCard extends StatefulWidget {
     this.name,
     this.summary,
     this.iconPath,
-    this.onInstall,
     this.onTap,
   });
 
@@ -231,183 +227,265 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
   }
 
   Widget _buildBottomSection(BuildContext context, Application app) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          _getAppName(app),
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            fontSize: Responsive.scale(context, 20.0).clamp(16.0, 24.0),
-            fontFamily: 'khand',
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Text(
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _getAppName(app),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: Responsive.scale(context, 20.0).clamp(16.0, 24.0),
+                  fontFamily: 'khand',
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Text(
                 _getAppSummary(app),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+                  color: Theme.of(context).textTheme.bodyMedium?.color
+                      ?.withValues(alpha: 0.7),
                   fontSize: Responsive.scale(context, 12.0).clamp(10.0, 14.0),
                   fontFamily: 'general-sans',
                 ),
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-            ),
-            const SizedBox(width: 8),
-            _buildGetButton(context),
-          ],
+            ],
+          ),
+        ),
+        const SizedBox(width: 8),
+
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 130),
+          child: _buildActionButton(context),
         ),
       ],
     );
   }
 
-  Widget _buildGetButton(BuildContext context) {
-    return BlocBuilder<InstalledAppsCubit, InstalledAppsState>(
-      builder: (context, installedState) {
-        return BlocBuilder<InstallationCubit, InstallationState>(
-          builder: (context, installState) {
-            return BlocBuilder<AppLaunchCubit, AppLaunchState>(
-              builder: (context, launchState) {
-                // Determine app states
-                final isInstalled =
-                    installedState is InstalledAppsLoaded &&
-                    installedState.installedIds.contains(widget.application.id);
+  Widget _buildActionButton(BuildContext context) {
+    // Get unified app status
+    final appStatus = context.select<AppStatusCubit, AppStatus>(
+          (cubit) => cubit.getAppStatus(widget.application.id),
+    );
 
-                final isInstalling = context
-                    .read<InstallationCubit>()
-                    .isOperationInProgress(widget.application.id);
+    final progress = context.select<AppStatusCubit, double?>(
+          (cubit) => cubit.getProgress(widget.application.id),
+    );
 
-                final isLaunching = context.read<AppLaunchCubit>().isLaunching(
-                  widget.application.id,
-                );
+    // Update loading animation
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final isLoading = appStatus == AppStatus.installing ||
+          appStatus == AppStatus.updating ||
+          appStatus == AppStatus.launching;
 
-                final isLoading = isInstalling || isLaunching;
+      if (isLoading && !_loadingController.isAnimating) {
+        _loadingController.repeat();
+      } else if (!isLoading && _loadingController.isAnimating) {
+        _loadingController.stop();
+        _loadingController.reset();
+      }
+    });
 
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (isLoading && !_loadingController.isAnimating) {
-                    _loadingController.repeat();
-                  } else if (!isLoading && _loadingController.isAnimating) {
-                    _loadingController.stop();
-                    _loadingController.reset();
-                  }
-                });
+    // Determine button appearance
+    final ButtonConfig config = _getButtonConfig(appStatus, progress);
 
-                String buttonText;
-                double? progress;
-
-                if (isInstalling && installState is InstallationInProgress) {
-                  if (installState.appId == widget.application.id) {
-                    buttonText = "Installing...";
-                    progress = installState.progress;
-                  } else {
-                    buttonText = "Installing...";
-                  }
-                } else if (isLaunching) {
-                  buttonText = "Opening...";
-                } else if (isInstalled) {
-                  buttonText = "Open";
-                } else {
-                  buttonText = "Get";
-                }
-
-                return GestureDetector(
-                  onTap: isLoading
-                      ? null
-                      : () async {
-                          if (isInstalled) {
-                            await context.read<AppLaunchCubit>().launchApp(
-                              widget.application.id,
-                            );
-                          } else if (!isInstalling) {
-                            await context.read<InstallationCubit>().installApp(
-                              widget.application.id,
-                            );
-                          }
-                        },
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isLoading
-                              ? Colors.grey.withValues(alpha: 0.8)
-                              : Colors.black87,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            width: 1.5,
-                            color: Colors.white.withValues(alpha: 0.3),
+    return GestureDetector(
+      onTap: config.isEnabled
+          ? () => _handleButtonTap(context, appStatus)
+          : null,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
+            decoration: BoxDecoration(
+              color: config.backgroundColor,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                width: 1.5,
+                color: Colors.white.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (config.showProgress) ...[
+                  AnimatedBuilder(
+                    animation: _rotationAnimation,
+                    builder: (context, child) {
+                      return Transform.rotate(
+                        angle: _rotationAnimation.value * 2.0 * 3.141592653589793,
+                        child: SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            value: progress != null && progress > 0 ? progress : null,
+                            strokeWidth: 2,
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (isLoading)
-                              AnimatedBuilder(
-                                animation: _rotationAnimation,
-                                builder: (context, child) {
-                                  return Transform.rotate(
-                                    angle:
-                                        _rotationAnimation.value *
-                                        2.0 *
-                                        3.141592653589793,
-                                    child: SizedBox(
-                                      width: 14,
-                                      height: 14,
-                                      child: CircularProgressIndicator(
-                                        value: progress != null && progress > 0
-                                            ? progress
-                                            : null,
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            const AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
-                                            ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            if (isLoading) const SizedBox(width: 8),
-                            Text(
-                              buttonText,
-                              style: TextStyle(
-                                color: isLoading
-                                    ? Colors.white.withValues(alpha: 0.7)
-                                    : Colors.white,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: 'general-sans',
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
-            );
-          },
-        );
-      },
+                  const SizedBox(width: 8),
+                ],
+                Flexible(
+                  child: Text(
+                    config.text,
+                    style: TextStyle(
+                      color: config.textColor,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'general-sans',
+                      fontSize: 14,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
+  }
+
+  ButtonConfig _getButtonConfig(AppStatus status, double? progress) {
+    switch (status) {
+      case AppStatus.notInstalled:
+        return ButtonConfig(
+          text: 'Get',
+          isEnabled: true,
+          showProgress: false,
+          backgroundColor: Colors.black87,
+          textColor: Colors.white,
+        );
+
+      case AppStatus.installed:
+        return ButtonConfig(
+          text: 'Open',
+          isEnabled: true,
+          showProgress: false,
+          backgroundColor: Colors.blue.shade700,
+          textColor: Colors.white,
+        );
+
+      case AppStatus.needsUpdate:
+        return ButtonConfig(
+          text: 'Update',
+          isEnabled: true,
+          showProgress: false,
+          backgroundColor: Colors.orange.shade700,
+          textColor: Colors.white,
+        );
+
+      case AppStatus.installing:
+        return ButtonConfig(
+          text: progress != null && progress > 0
+              ? '${(progress * 100).toInt()}%'
+              : 'Installing...',
+          isEnabled: false,
+          showProgress: true,
+          backgroundColor: Colors.grey.withValues(alpha: 0.8),
+          textColor: Colors.white.withValues(alpha: 0.7),
+        );
+
+      case AppStatus.updating:
+        return ButtonConfig(
+          text: progress != null && progress > 0
+              ? '${(progress * 100).toInt()}%'
+              : 'Updating...',
+          isEnabled: false,
+          showProgress: true,
+          backgroundColor: Colors.grey.withValues(alpha: 0.8),
+          textColor: Colors.white.withValues(alpha: 0.7),
+        );
+
+      case AppStatus.launching:
+        return ButtonConfig(
+          text: 'Opening...',
+          isEnabled: false,
+          showProgress: true,
+          backgroundColor: Colors.grey.withValues(alpha: 0.8),
+          textColor: Colors.white.withValues(alpha: 0.7),
+        );
+    }
+  }
+
+  Future<void> _handleButtonTap(BuildContext context, AppStatus status) async {
+    final appStatusCubit = context.read<AppStatusCubit>();
+
+    try {
+      switch (status) {
+        case AppStatus.notInstalled:
+          appStatusCubit.updateAppStatus(
+            widget.application.id,
+            AppStatus.installing,
+          );
+          await context
+              .read<InstallationCubit>()
+              .installApp(widget.application.id);
+          break;
+
+        case AppStatus.needsUpdate:
+          appStatusCubit.updateAppStatus(
+            widget.application.id,
+            AppStatus.updating,
+          );
+          await context
+              .read<InstallationCubit>()
+              .updateApp(widget.application.id);
+          break;
+
+        case AppStatus.installed:
+          appStatusCubit.updateAppStatus(
+            widget.application.id,
+            AppStatus.launching,
+          );
+          await context
+              .read<AppLaunchCubit>()
+              .launchApp(widget.application.id);
+
+          Future.delayed(const Duration(seconds: 2), () {
+            if (mounted) {
+              appStatusCubit.updateAppStatus(
+                widget.application.id,
+                AppStatus.installed,
+              );
+            }
+          });
+          break;
+
+        default:
+          break;
+      }
+    } catch (e) {
+      debugPrint('[AppCard] Action error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Action failed: $e'),
+            backgroundColor: Colors.red.shade700,
+          ),
+        );
+        appStatusCubit.refresh();
+      }
+    }
   }
 
   String _getAppName(Application app) {
@@ -450,4 +528,20 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
       return 'assets/icons/default_app_icon.png';
     }
   }
+}
+
+class ButtonConfig {
+  final String text;
+  final bool isEnabled;
+  final bool showProgress;
+  final Color backgroundColor;
+  final Color textColor;
+
+  ButtonConfig({
+    required this.text,
+    required this.isEnabled,
+    required this.showProgress,
+    required this.backgroundColor,
+    required this.textColor,
+  });
 }

@@ -7,7 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../business_logic/discovery/dicovery_cubit.dart';
+import '../../business_logic/discovery/discovery_cubit.dart';
 
 class AppsIcons extends StatefulWidget {
   const AppsIcons({super.key});
@@ -20,14 +20,14 @@ class _AppIconsState extends State<AppsIcons> {
   List<Application> _apps = [];
   bool _isLoading = true;
   static const List<String> appIds = [
-    'com.spotify.Client',
-    'com.discordapp.Discord',
+    'com.brave.Browser',
+    'org.libreoffice.LibreOffice',
     'org.telegram.desktop',
     'com.visualstudio.code',
     'org.gimp.GIMP',
-    'com.valvesoftware.Steam',
-    'org.blender.Blender',
-    'com.slack.Slack',
+    'org.kde.krita',
+    'com.github.tenderowl.frog',
+    'org.libretro.RetroArch',
     'org.videolan.VLC',
   ];
 

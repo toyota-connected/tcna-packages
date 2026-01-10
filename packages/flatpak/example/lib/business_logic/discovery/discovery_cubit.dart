@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/models/application_model.dart';
 import '../../data/repositories/flatpak_repository.dart';
+import '../../helpers/id_utils.dart';
 import 'discovery_state.dart';
 
 class DiscoveryCubit extends Cubit<DiscoveryState> {
@@ -16,14 +17,16 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
   DiscoveryCubit({required this.flatpakRepository}) : super(DiscoveryInitial());
 
   Future<void> initialize() async {
+    debugPrint('[DiscoveryCubit] Initializing...');
     emit(DiscoveryLoading());
 
     final installationResult = await flatpakRepository.getSystemInstallations();
     installationResult.fold(
-      (failure) {
+          (failure) {
+        debugPrint('[DiscoveryCubit] Initialization failed: ${failure.message}');
         emit(DiscoveryError(failure.message));
       },
-      (installations) {
+          (installations) {
         _availableRemotes.clear();
         for (final installation in installations) {
           for (final remote in installation.remotes) {
@@ -32,6 +35,7 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
             }
           }
         }
+        debugPrint('[DiscoveryCubit] Available remotes: $_availableRemotes');
         emit(
           DiscoveryLoaded(
             categoryApps: {},
@@ -42,35 +46,53 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     );
   }
 
-  Future<void> loadAllApps() async {
-    if (_allApps.isNotEmpty) {
+  Future<void> loadAllApps({bool forceReload = false}) async {
+    // Allow reloading even if apps are already loaded
+    if (_allApps.isNotEmpty && !forceReload) {
+      debugPrint('[DiscoveryCubit] Apps already loaded: ${_allApps.length}');
+      emit(
+        DiscoveryLoaded(
+          categoryApps: Map.from(_categoryCache),
+          availableRemotes: _availableRemotes,
+        ),
+      );
       return;
     }
 
-    emit(DiscoveryLoading());
+    debugPrint('[DiscoveryCubit] Loading all apps from remotes (force: $forceReload)...');
+
+    // Don't emit loading if we already have apps
+    if (_allApps.isEmpty) {
+      emit(DiscoveryLoading());
+    }
 
     final allApps = <Application>[];
 
     for (final remote in _availableRemotes) {
+      debugPrint('[DiscoveryCubit] Fetching apps from remote: $remote');
       final result = await flatpakRepository.getApplicationsRemote(remote);
       result.fold(
-        (failure) {
-          debugPrint(
-            '[DiscoveryCubit] Error loading remote $remote: ${failure.message}',
-          );
+            (failure) {
+          debugPrint('[DiscoveryCubit] Error loading remote $remote: ${failure.message}');
         },
-        (apps) {
-          if (kDebugMode) {
-            print('[DiscoveryCubit] Loaded ${apps.length} apps from $remote');
-          }
+            (apps) {
+          debugPrint('[DiscoveryCubit] Loaded ${apps.length} apps from $remote');
           allApps.addAll(apps);
         },
       );
     }
 
     _allApps = allApps;
-    if (kDebugMode) {
-      print('[DiscoveryCubit] Total apps loaded: ${_allApps.length}');
+    debugPrint('[DiscoveryCubit] Total apps loaded: ${_allApps.length}');
+
+    if (_allApps.isNotEmpty && _allApps.length >= 5) {
+      debugPrint('[DiscoveryCubit] Sample app IDs:');
+      for (var i = 0; i < 5; i++) {
+        final app = _allApps[i];
+        debugPrint('  $i. Full ID: ${app.id}');
+        debugPrint('     Short ID: ${app.shortId}');
+        debugPrint('     Name: ${app.name}');
+      }
     }
 
     emit(
@@ -88,14 +110,12 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     emit(DiscoveryLoading());
     final result = await flatpakRepository.getApplicationsUpdate();
     result.fold(
-      (failure) {
+          (failure) {
         emit(DiscoveryError(failure.message));
       },
-      (apps) {
+          (apps) {
         _updateApps = apps;
-        debugPrint(
-          '[DiscoveryCubit] Apps with updates available: ${_updateApps.length}',
-        );
+        debugPrint('[DiscoveryCubit] Apps with updates available: ${_updateApps.length}');
         emit(
           DiscoveryLoaded(
             categoryApps: Map.from(_categoryCache),
@@ -107,10 +127,11 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
   }
 
   Future<void> loadCategoryApps(
-    String categoryName,
-    List<String> appIds,
-  ) async {
+      String categoryName,
+      List<String> appIds,
+      ) async {
     if (_categoryCache.containsKey(categoryName)) {
+      debugPrint('[DiscoveryCubit] Category "$categoryName" already cached with ${_categoryCache[categoryName]!.length} apps');
       emit(
         DiscoveryLoaded(
           categoryApps: Map.from(_categoryCache),
@@ -120,29 +141,83 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
       return;
     }
 
+    // Ensure all apps are loaded first
     if (_allApps.isEmpty) {
+      debugPrint('[DiscoveryCubit] All apps not loaded yet, loading...');
       await loadAllApps();
-    }
 
-    final categoryApps = <Application>[];
-    for (final appId in appIds) {
-      try {
-        final app = _allApps.firstWhere(
-          (a) =>
-              a.id == appId ||
-              a.shortId == appId ||
-              a.id.contains(appId) ||
-              a.shortId.contains(appId),
+      if (_allApps.isEmpty) {
+        debugPrint('[DiscoveryCubit] No apps available after loading!');
+        _categoryCache[categoryName] = [];
+        emit(
+          DiscoveryLoaded(
+            categoryApps: Map.from(_categoryCache),
+            availableRemotes: _availableRemotes,
+          ),
         );
-        categoryApps.add(app);
-      } catch (e) {
-        debugPrint('[DiscoveryCubit] App not found: $appId');
+        return;
       }
     }
 
-    debugPrint(
-      '[DiscoveryCubit] Category "$categoryName" has ${categoryApps.length} apps',
-    );
+    debugPrint('[DiscoveryCubit] Loading category "$categoryName" with ${appIds.length} app IDs');
+    debugPrint('[DiscoveryCubit] Searching in ${_allApps.length} available apps');
+
+    final categoryApps = <Application>[];
+    int matchedCount = 0;
+
+    for (final requestedId in appIds) {
+      try {
+        Application? foundApp;
+
+        foundApp = _allApps.cast<Application?>().firstWhere(
+              (a) => a!.shortId.toLowerCase() == requestedId.toLowerCase(),
+          orElse: () => null,
+        );
+
+        foundApp ??= _allApps.cast<Application?>().firstWhere(
+                (a) => a!.id.toLowerCase() == requestedId.toLowerCase(),
+            orElse: () => null,
+          );
+
+        if (foundApp == null) {
+          final requestedShortId = AppIdUtils.extractShortId(requestedId);
+          foundApp = _allApps.cast<Application?>().firstWhere(
+                (a) => AppIdUtils.extractShortId(a!.id).toLowerCase() == requestedShortId.toLowerCase(),
+            orElse: () => null,
+          );
+        }
+
+        foundApp ??= _allApps.cast<Application?>().firstWhere(
+                (a) => a!.shortId.toLowerCase().contains(requestedId.toLowerCase()),
+            orElse: () => null,
+          );
+
+        foundApp ??= _allApps.cast<Application?>().firstWhere(
+                (a) => a!.id.toLowerCase().contains(requestedId.toLowerCase()),
+            orElse: () => null,
+          );
+
+        if (foundApp == null) {
+          final requestedLower = requestedId.toLowerCase();
+          foundApp = _allApps.cast<Application?>().firstWhere(
+                (a) => a!.name.toLowerCase().contains(requestedLower),
+            orElse: () => null,
+          );
+        }
+
+        if (foundApp != null) {
+          categoryApps.add(foundApp);
+          matchedCount++;
+          debugPrint('[DiscoveryCubit] Matched "$requestedId" -> ${foundApp.name} (${foundApp.shortId})');
+        } else {
+          debugPrint('[DiscoveryCubit] Not found: "$requestedId"');
+        }
+      } catch (e) {
+        debugPrint('[DiscoveryCubit] Error matching "$requestedId": $e');
+      }
+    }
+
+    debugPrint('[DiscoveryCubit] Category "$categoryName": matched $matchedCount/${appIds.length} apps');
 
     _categoryCache[categoryName] = categoryApps;
 
@@ -169,10 +244,10 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
     final result = await flatpakRepository.getApplicationsRemote(remoteId);
     result.fold(
-      (failure) {
+          (failure) {
         emit(DiscoveryError(failure.message));
       },
-      (apps) {
+          (apps) {
         _categoryCache[category] = apps;
         emit(
           DiscoveryLoaded(
@@ -197,7 +272,6 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
     emit(DiscoverySearchResults(results: [], query: query, isSearching: true));
 
-    // Ensure all apps are loaded
     if (_allApps.isEmpty) {
       await loadAllApps();
     }
@@ -213,34 +287,26 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
       if (nameLower == searchLower) {
         score += 100;
-      }
-      // Starts with query
-      else if (nameLower.startsWith(searchLower)) {
+      } else if (nameLower.startsWith(searchLower)) {
         score += 50;
-      }
-      // Contains query
-      else if (nameLower.contains(searchLower)) {
+      } else if (nameLower.contains(searchLower)) {
         score += 25;
       }
 
-      // ID matches
       if (shortIdLower.contains(searchLower)) {
         score += 15;
       }
 
-      // Check description
       final description = _getDescription(app).toLowerCase();
       if (description.contains(searchLower)) {
         score += 10;
       }
 
-      // Check developer
       final developer = _getDeveloper(app).toLowerCase();
       if (developer.contains(searchLower)) {
         score += 20;
       }
 
-      // Check categories
       final categories = _getCategories(app);
       for (final category in categories) {
         if (category.toLowerCase().contains(searchLower)) {
@@ -254,15 +320,12 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
       }
     }
 
-    // Sort by score and take top results
     final sortedApps = scores.keys.toList()
       ..sort((a, b) => scores[b]!.compareTo(scores[a]!));
 
     results.addAll(sortedApps.take(limit));
 
-    debugPrint(
-      '[DiscoveryCubit] Search "$query" found ${results.length} results',
-    );
+    debugPrint('[DiscoveryCubit] Search "$query" found ${results.length} results');
 
     emit(
       DiscoverySearchResults(
@@ -280,6 +343,14 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
         availableRemotes: _availableRemotes,
       ),
     );
+  }
+
+  /// Force reload all data from system
+  Future<void> refreshAll() async {
+    debugPrint('[DiscoveryCubit] Force refreshing all data...');
+    _allApps.clear();
+    _categoryCache.clear();
+    await loadAllApps(forceReload: true);
   }
 
   List<Application> getCategoryApps(String category) {

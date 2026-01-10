@@ -7,13 +7,18 @@ import 'package:flatpak_flutter_example/presentation/screens/navigation_menu.dar
 import 'package:flatpak_flutter_example/presentation/screens/search_screen.dart';
 import 'package:flatpak_flutter_example/presentation/screens/settings_screen.dart';
 import 'package:flatpak_flutter_example/presentation/widgets/splash.dart';
+import 'package:flatpak_flutter_example/presentation/widgets/permission_handler_wrapper.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'business_logic/app_launch/app_launch_cubit.dart';
-import 'business_logic/discovery/dicovery_cubit.dart';
+import 'business_logic/app_status/app_status_cubit.dart';
+import 'business_logic/discovery/discovery_cubit.dart';
 import 'business_logic/installation/installation_cubit.dart';
-import 'business_logic/installed_apps/installed_apps_cubit.dart';
+
+// Global RouteObserver for tracking navigation
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 class RouteNames {
   static const String splash = '/';
@@ -28,6 +33,8 @@ class RouteNames {
 
 class AppRouter {
   static final GoRouter router = GoRouter(
+    navigatorKey: permissionNavigatorKey,
+    observers: [routeObserver],
     initialLocation: RouteNames.splash,
     routes: [
       GoRoute(
@@ -58,7 +65,7 @@ class AppRouter {
             name: 'installed',
             pageBuilder: (context, state) => NoTransitionPage(
               child: InstalledScreen(
-                installedAppsCubit: context.read<InstalledAppsCubit>(),
+                appStatusCubit: context.read<AppStatusCubit>(),
                 installationCubit: context.read<InstallationCubit>(),
                 appLaunchCubit: context.read<AppLaunchCubit>(),
                 discoveryCubit: context.read<DiscoveryCubit>(),

@@ -1,155 +1,198 @@
-import 'package:equatable/equatable.dart';
-
 enum FlatpakEventType {
+  unknown,
   installProgress,
   installComplete,
   installFailed,
+  uninstallProgress,
   uninstallComplete,
   uninstallFailed,
   updateProgress,
   updateComplete,
   updateFailed,
-  error,
-  unknown,
+  transactionReady, // Lists all operations that will be performed
+  operationStarted, // Individual operation (app/runtime) started
+  operationComplete, // Individual operation completed
+  operationSummary, // FINAL summary - all operations done
+  aggregatedProgress, // Overall progress across all operations
 }
 
-class FlatpakEvent extends Equatable {
+class FlatpakEventModel {
   final FlatpakEventType type;
   final String? appId;
+  final String? ref;
   final double? progress;
   final String? message;
   final String? error;
-  final DateTime timestamp;
+  final bool? isEstimating;
+  final int? bytes;
+  final int? startTime;
+  final double? speedBps;
+  final int? totalOperations;
+  final int? completedOperations;
+  final String? currentRef;
+  final String? operationType;
+  final bool? isMainApp;
+  final bool? success;
+  final List<OperationInfo>? operations;
 
-  const FlatpakEvent({
+  FlatpakEventModel({
     required this.type,
     this.appId,
+    this.ref,
     this.progress,
     this.message,
     this.error,
-    required this.timestamp,
+    this.isEstimating,
+    this.bytes,
+    this.startTime,
+    this.speedBps,
+    this.totalOperations,
+    this.completedOperations,
+    this.currentRef,
+    this.operationType,
+    this.isMainApp,
+    this.success,
+    this.operations,
   });
 
-  @override
-  List<Object?> get props => [type, appId, progress, timestamp];
-}
+  factory FlatpakEventModel.fromMap(Map<dynamic, dynamic> map) {
+    bool? _toBool(dynamic v) => v is bool ? v : (v is int ? v != 0 : null);
 
-class FlatpakEventModel extends FlatpakEvent {
-  const FlatpakEventModel({
-    required super.type,
-    super.appId,
-    super.progress,
-    super.message,
-    super.error,
-    required super.timestamp,
-  });
+    String? _extractAppId(String? ref) {
+      if (ref == null) return null;
+      final parts = ref.split('/');
+      return (parts.length > 1) ? parts[1] : null;
+    }
 
-  factory FlatpakEventModel.fromJson(Map<String, dynamic> json) {
-    final eventType = _parseEventType(json['type'] as String?);
+    final typeStr = map['type'] as String?;
+    FlatpakEventType eventType = FlatpakEventType.unknown;
 
-    String? appId;
-    if (json.containsKey('app_id')) {
-      appId = json['app_id'] as String?;
-    } else if (json.containsKey('appId')) {
-      appId = json['appId'] as String?;
-    } else if (json.containsKey('operation_ref')) {
-      final ref = json['operation_ref'] as String?;
-      if (ref != null && ref.startsWith('app/')) {
-        final parts = ref.split('/');
-        if (parts.length >= 2) {
-          appId = parts[1]; // Get com.google.Chrome
-        }
-      }
-    } else if (json.containsKey('ref')) {
-      final ref = json['ref'] as String?;
-      if (ref != null && ref.startsWith('app/')) {
-        final parts = ref.split('/');
-        if (parts.length >= 2) {
-          appId = parts[1];
-        }
+    // Parse event type
+    if (typeStr != null) {
+      switch (typeStr) {
+        case 'progress':
+          eventType = FlatpakEventType.installProgress;
+          break;
+
+        case 'aggregated_progress':
+          eventType = FlatpakEventType.aggregatedProgress;
+          break;
+
+        case 'operation_complete':
+          eventType = FlatpakEventType.operationComplete;
+          break;
+
+        case 'operation_summary':
+          final opType = map['operation_type'] as String?;
+          final success = map['success'] as bool? ?? false;
+
+          if (opType == 'install') {
+            eventType = success
+                ? FlatpakEventType.installComplete
+                : FlatpakEventType.installFailed;
+          } else if (opType == 'update') {
+            eventType = success
+                ? FlatpakEventType.updateComplete
+                : FlatpakEventType.updateFailed;
+          } else if (opType == 'uninstall') {
+            eventType = success
+                ? FlatpakEventType.uninstallComplete
+                : FlatpakEventType.uninstallFailed;
+          }
+          break;
+
+        case 'operation_started':
+          eventType = FlatpakEventType.operationStarted;
+          break;
+
+        case 'operation_error':
+          final opType = map['operation_type'] as String?;
+          if (opType == 'install') {
+            eventType = FlatpakEventType.installFailed;
+          } else if (opType == 'update') {
+            eventType = FlatpakEventType.updateFailed;
+          } else {
+            eventType = FlatpakEventType.uninstallFailed;
+          }
+          break;
+
+        case 'transaction_ready':
+          eventType = FlatpakEventType.transactionReady;
+          break;
+
+        default:
+          eventType = FlatpakEventType.unknown;
       }
     }
 
-    double? progress;
-    if (json.containsKey('progress')) {
-      final progressValue = json['progress'];
-      if (progressValue is int) {
-        progress = progressValue.toDouble();
-      } else if (progressValue is double) {
-        progress = progressValue;
-      }
-    }
+    final rawAppId = map['app_id'] as String?;
+    final rawRef = map['operation_ref'] as String? ?? map['ref'] as String?;
+    final appId = rawAppId ?? _extractAppId(rawRef);
 
-    String? message;
-    if (json.containsKey('message')) {
-      message = json['message'] as String?;
-    } else if (json.containsKey('status')) {
-      message = json['status'] as String?;
-    } else if (json.containsKey('error_message')) {
-      message = json['error_message'] as String?;
-    }
+    double? progress = (map['progress'] as num?)?.toDouble();
+    if (progress != null && progress > 1.0) progress /= 100.0;
 
-    String? error;
-    if (json.containsKey('error')) {
-      error = json['error'] as String?;
-    } else if (json.containsKey('error_message')) {
-      error = json['error_message'] as String?;
+    List<OperationInfo>? ops;
+    if (map['operations'] != null) {
+      final opsList = map['operations'] as List<dynamic>?;
+      ops = opsList
+          ?.map((o) => OperationInfo.fromMap(o as Map<dynamic, dynamic>))
+          .toList();
     }
 
     return FlatpakEventModel(
       type: eventType,
       appId: appId,
+      ref: rawRef,
       progress: progress,
-      message: message,
-      error: error,
-      timestamp: json['timestamp'] != null
-          ? DateTime.parse(json['timestamp'] as String)
-          : DateTime.now(),
+      message: map['status'] as String? ?? map['error_message'] as String?,
+      error: map['error_message'] as String?,
+      isEstimating: _toBool(map['is_estimating']),
+      bytes: map['bytes'] as int?,
+      startTime: map['start_time'] as int?,
+      speedBps: (map['speed_bps'] as num?)?.toDouble(),
+      totalOperations: map['total_operations'] as int?,
+      completedOperations: map['completed_operations'] as int?,
+      currentRef: map['current_ref'] as String?,
+      operationType: map['operation_type'] as String?,
+      isMainApp: _toBool(map['is_main_app']),
+      success: _toBool(map['success']),
+      operations: ops,
     );
   }
 
-  static FlatpakEventType _parseEventType(String? type) {
-    switch (type) {
-      // Progress events
-      case 'progress':
-        return FlatpakEventType.installProgress;
+  @override
+  String toString() {
+    return 'FlatpakEvent{type: $type, appId: $appId, ref: $ref, '
+        'progress: $progress, totalOps: $totalOperations, '
+        'completedOps: $completedOperations, isMainApp: $isMainApp}';
+  }
+}
 
-      // Installation events
-      case 'installation_started':
-      case 'install_progress':
-        return FlatpakEventType.installProgress;
-      case 'install_complete':
-      case 'operation_complete':
-        return FlatpakEventType.installComplete;
-      case 'install_failed':
-      case 'operation_error':
-        return FlatpakEventType.installFailed;
+class OperationInfo {
+  final String ref;
+  final String type;
+  final String kind;
+  final bool isMainApp;
 
-      // Uninstall events
-      case 'uninstall_complete':
-        return FlatpakEventType.uninstallComplete;
-      case 'uninstall_failed':
-        return FlatpakEventType.uninstallFailed;
+  OperationInfo({
+    required this.ref,
+    required this.type,
+    required this.kind,
+    required this.isMainApp,
+  });
 
-      // Update events
-      case 'update_started':
-      case 'update_progress':
-        return FlatpakEventType.updateProgress;
-      case 'update_complete':
-        return FlatpakEventType.updateComplete;
-      case 'update_failed':
-        return FlatpakEventType.updateFailed;
+  factory OperationInfo.fromMap(Map<dynamic, dynamic> map) {
+    return OperationInfo(
+      ref: map['ref'] as String? ?? '',
+      type: map['type'] as String? ?? 'unknown',
+      kind: map['kind'] as String? ?? 'unknown',
+      isMainApp: map['is_main_app'] as bool? ?? false,
+    );
+  }
 
-      case 'error':
-        return FlatpakEventType.error;
-
-      case 'connection_established':
-      case 'operation_started':
-      case 'transaction_ready':
-        return FlatpakEventType.unknown;
-
-      default:
-        return FlatpakEventType.unknown;
-    }
+  @override
+  String toString() {
+    return 'OperationInfo{ref: $ref, type: $type, kind: $kind, isMainApp: $isMainApp}';
   }
 }

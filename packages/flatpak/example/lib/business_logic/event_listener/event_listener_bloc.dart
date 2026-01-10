@@ -18,42 +18,13 @@ class EventListenerBloc extends Bloc<EventListenerEvent, EventListenerState> {
     on<EventReceived>(_onEventReceived);
   }
 
-  void _onStartListening(
-    StartListening event,
-    Emitter<EventListenerState> emit,
-  ) async {
-    debugPrint('[EventListenerBloc] StartListening called');
-
-    if (_eventSubscription != null) {
-      debugPrint('[EventListenerBloc] Already listening, ignoring');
-      return;
-    }
+  void _onStartListening(StartListening _, Emitter<EventListenerState> emit) {
+    if (_eventSubscription != null) return;
 
     emit(EventListenerListening());
-    debugPrint('[EventListenerBloc] Emitted EventListenerListening');
-
     repository.startEventListening();
-    debugPrint('[EventListenerBloc] Called repository.startEventListening()');
-
-    // Subscribe to the event stream
-    _eventSubscription = repository.eventStream.listen(
-      (flatpakEvent) {
-        debugPrint(
-          '[EventListenerBloc] Received event from stream: ${flatpakEvent.type}',
-        );
-        add(EventReceived(flatpakEvent));
-      },
-      onError: (error) {
-        debugPrint('[EventListenerBloc] Stream error: $error');
-      },
-      onDone: () {
-        debugPrint('[EventListenerBloc] Stream closed');
-      },
-    );
-
-    debugPrint('[EventListenerBloc] Stream subscription established');
+    _listenToStream();
   }
-
   void _onStopListening(StopListening event, Emitter<EventListenerState> emit) {
     debugPrint('[EventListenerBloc] StopListening called');
     _eventSubscription?.cancel();
@@ -67,6 +38,25 @@ class EventListenerBloc extends Bloc<EventListenerEvent, EventListenerState> {
       '[EventListenerBloc] EventReceived handler called: ${event.event.type}',
     );
     emit(EventListenerEventReceived(event.event));
+  }
+
+  void _listenToStream() {
+    _eventSubscription = repository.eventStream.listen(
+          (e) => add(EventReceived(e)),
+      onError: (err, st) {
+        debugPrint('[EventListenerBloc] stream error: $err');
+        _eventSubscription?.cancel();
+        _eventSubscription = null;
+        // try again after a short delay
+        Future.delayed(const Duration(seconds: 2), () {
+          if (!isClosed) add(StartListening());
+        });
+      },
+      onDone: () {
+        debugPrint('[EventListenerBloc] stream closed');
+        _eventSubscription = null;
+      },
+    );
   }
 
   @override

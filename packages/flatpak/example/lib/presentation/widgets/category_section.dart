@@ -86,7 +86,6 @@ class CategorySection extends StatelessWidget {
           child: AppCard(
             application: app,
             onTap: () => onTap(app),
-            onInstall: () => onInstall(app),
           ),
         );
       },

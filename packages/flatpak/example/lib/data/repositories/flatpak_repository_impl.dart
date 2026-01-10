@@ -1,10 +1,15 @@
 import 'package:dartz/dartz.dart';
+import 'package:flatpak_flutter_example/core/permissions/permission_status.dart';
+import 'package:flatpak_flutter_example/core/permissions/permission_types.dart';
+import 'package:flatpak_flutter_example/data/models/flatpak_permission_model.dart';
 import '../../helpers/errors_exception.dart';
 import '../../helpers/errors_handler.dart';
 import '../data_sources/flatpak_event_data.dart';
 import '../data_sources/flatpak_local_data.dart';
+import '../data_sources/flatpak_permission_data.dart';
 import '../models/application_model.dart';
 import '../models/flatpak_event_model.dart';
+import '../models/flatpak_permission_model.dart';
 import '../models/installation_model.dart';
 import '../models/remote_model.dart';
 import 'flatpak_repository.dart';
@@ -12,14 +17,20 @@ import 'flatpak_repository.dart';
 class FlatpakRepositoryImpl implements FlatpakRepository {
   final FlatpakLocalDataSource localDataSource;
   final FlatpakEventDataSource eventDataSource;
+  final FlatpakPermissionDataSource permissionDataSource;
 
   FlatpakRepositoryImpl({
     required this.localDataSource,
     required this.eventDataSource,
+    required this.permissionDataSource,
   });
 
   @override
   Stream<FlatpakEventModel> get eventStream => eventDataSource.eventStream;
+
+  @override
+  Stream<PermissionEventModel> get permissionStream =>
+      permissionDataSource.permissionStream;
 
   @override
   void startEventListening() {
@@ -29,6 +40,16 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
   @override
   void stopEventListening() {
     eventDataSource.stopListening();
+  }
+
+  @override
+  void startPermissionListening() {
+    permissionDataSource.startListening();
+  }
+
+  @override
+  void stopPermissionListening() {
+    permissionDataSource.stopListening();
   }
 
   @override
@@ -181,6 +202,90 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
       return Right(result);
     } on PlatformException catch (e) {
       return Left(PlatformFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> respondToPermissionRequest({
+    required String requestId,
+    required FlatpakPermission permission,
+    required bool granted,
+  }) async {
+    try {
+      await permissionDataSource.respondToPermissionRequest(
+        requestId: requestId,
+        permission: permission,
+        granted: granted,
+      );
+      return const Right(null);
+    } on PlatformException catch (e) {
+      return Left(PlatformFailure(e.message));
+    } catch (e) {
+      return Left(PlatformFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<FlatpakPermission, PermissionStatus>>>
+  checkPermissions({
+    required String appId,
+    required List<FlatpakPermission> permissions,
+  }) async {
+    try {
+      final result = await permissionDataSource.checkPermissions(
+        appId: appId,
+        permissions: permissions,
+      );
+
+      // Convert bool to PermissionStatus
+      final Map<FlatpakPermission, PermissionStatus> statusMap = {};
+      result.forEach((permission, granted) {
+        statusMap[permission] = granted
+            ? PermissionStatus.granted
+            : PermissionStatus.denied;
+      });
+
+      return Right(statusMap);
+    } on PlatformException catch (e) {
+      return Left(PlatformFailure(e.message));
+    } catch (e) {
+      return Left(PlatformFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> revokePermission({
+    required String appId,
+    required FlatpakPermission permission,
+  }) async {
+    try {
+      final result = await permissionDataSource.revokePermission(
+        appId: appId,
+        permission: permission,
+      );
+      return Right(result);
+    } on PlatformException catch (e) {
+      return Left(PlatformFailure(e.message));
+    } catch (e) {
+      return Left(PlatformFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> grantPermission({
+    required String appId,
+    required FlatpakPermission permission,
+  }) async {
+    try {
+      final result = await permissionDataSource.grantPermission(
+        appId: appId,
+        permission: permission,
+      );
+      return Right(result);
+    } on PlatformException catch (e) {
+      return Left(PlatformFailure(e.message));
+    } catch (e) {
+      return Left(PlatformFailure(e.toString()));
     }
   }
 }

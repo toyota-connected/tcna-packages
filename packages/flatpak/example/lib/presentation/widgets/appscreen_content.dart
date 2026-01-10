@@ -1,94 +1,102 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
-import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flatpak_flutter_example/presentation/widgets/screenshot_widget.dart';
-import 'package:flatpak_flutter_example/responsive.dart';
+import 'package:intl/intl.dart';
+
+// Logic
 import '../../business_logic/app_launch/app_launch_cubit.dart';
 import '../../business_logic/app_launch/app_launch_state.dart';
+import '../../business_logic/app_status/app_status_cubit.dart';
+import '../../business_logic/app_status/app_status_state.dart';
 import '../../business_logic/installation/installation_cubit.dart';
 import '../../business_logic/installation/installation_state.dart';
-import '../../business_logic/installed_apps/installed_apps_cubit.dart';
-import '../../business_logic/installed_apps/installed_apps_state.dart';
+
+// Models & Utils
 import '../../data/models/application_model.dart';
+import '../../helpers/id_utils.dart';
+import 'package:flatpak_flutter_example/responsive.dart';
+
+// Widgets
+import 'package:flatpak_flutter_example/presentation/widgets/screenshot_widget.dart';
 import 'app_info.dart';
 
 class AppscreenContent extends StatelessWidget {
   const AppscreenContent({
     super.key,
     required this.app,
-    required this.installedAppsCubit,
+    required this.appStatusCubit,
     required this.installationCubit,
     required this.appLaunchCubit,
   });
 
   final Application app;
-  final InstalledAppsCubit installedAppsCubit;
+  final AppStatusCubit appStatusCubit;
   final InstallationCubit installationCubit;
   final AppLaunchCubit appLaunchCubit;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.25),
-            border: Border(
-              bottom: BorderSide(
-                color: Colors.white.withValues(alpha: 0.2),
-                width: 1.0,
-              ),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10.0,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 54,
-                  vertical: 15,
-                ),
-                child: Row(
-                  children: [
-                    _buildApp(context),
-                    const Spacer(),
-                    _buildInstallButton(context),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 18),
-        _buildScreenshot(context),
-        const SizedBox(height: 18),
-        _buildInfo(context),
-      ],
-    );
-  }
-
-  Widget _buildApp(BuildContext context) {
-    return Expanded(
+    return SingleChildScrollView(
       child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [_buildAppinfo(context, app)],
+        children: [
+          // Header Section (Icon, Name, Buttons)
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.25),
+              border: Border(
+                bottom: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  width: 1.0,
+                ),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10.0,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 54,
+                    vertical: 15,
+                  ),
+                  child: _buildAppHeader(context),
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 18),
+          _buildScreenshot(context),
+          const SizedBox(height: 18),
+          _buildInfo(context),
+          // Add bottom padding for scrolling
+          const SizedBox(height: 40),
+        ],
       ),
     );
   }
 
-  Widget _buildAppinfo(BuildContext context, Application app) {
+  Widget _buildAppHeader(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildAppInfoRow(context, app),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAppInfoRow(BuildContext context, Application app) {
     final String developerName = _getDeveloper(app);
     final List<Widget> categories = _getCategories(context, app);
 
@@ -123,10 +131,8 @@ class AppscreenContent extends StatelessWidget {
                     developerName,
                     style: TextStyle(
                       color: const Color(0xFF8B8B8B),
-                      fontSize: Responsive.scale(
-                        context,
-                        13.0,
-                      ).clamp(11.0, 15.0),
+                      fontSize:
+                      Responsive.scale(context, 13.0).clamp(11.0, 15.0),
                       height: 1.1,
                     ),
                     maxLines: 1,
@@ -148,6 +154,235 @@ class AppscreenContent extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(width: 16),
+          // Action buttons aligned to the right
+          _buildActionButtons(context),
+        ],
+      ),
+    );
+  }
+
+  // --- ACTION BUTTONS LOGIC ---
+
+  Widget _buildActionButtons(BuildContext context) {
+    return BlocBuilder<AppStatusCubit, AppStatusState>(
+      bloc: appStatusCubit,
+      builder: (context, statusState) {
+        if (statusState is AppStatusInitial) {
+          return const SizedBox.shrink();
+        }
+
+        final isInstalled = appStatusCubit.isInstalled(app.id);
+        final needsUpdate = appStatusCubit.needsUpdate(app.id);
+        final status = appStatusCubit.getAppStatus(app.id);
+
+        if (isInstalled) {
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildOpenButton(context),
+              const SizedBox(width: 8),
+              if (needsUpdate || status == AppStatus.updating)
+                _buildUpdateButton(context)
+              else
+                _buildUninstallButton(context),
+            ],
+          );
+        } else {
+          return _buildInstallButton(context);
+        }
+      },
+    );
+  }
+
+  Widget _buildInstallButton(BuildContext context) {
+    return BlocBuilder<InstallationCubit, InstallationState>(
+      bloc: installationCubit,
+      builder: (context, installState) {
+        final isInstalling = installationCubit.isOperationInProgress(app.id) &&
+            installationCubit.getOperationType(app.id) == 'install';
+
+        double? progress;
+        if (isInstalling && installState is InstallationInProgress) {
+          if (AppIdUtils.extractShortId(installState.appId ?? '') ==
+              app.shortId) {
+            progress = installState.progress;
+          }
+        }
+
+        return ElevatedButton(
+          onPressed:
+          isInstalling ? null : () => installationCubit.installApp(app.id),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF2563EB),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            elevation: 2,
+          ),
+          child: isInstalling
+              ? Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    value: progress,
+                    strokeWidth: 2,
+                    color: Colors.white,
+                    backgroundColor: Colors.white24,
+                  )),
+              const SizedBox(width: 8),
+              Text(
+                  progress != null && progress > 0
+                      ? '${(progress * 100).toInt()}%'
+                      : 'Installing...',
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
+            ],
+          )
+              : const Text('Install',
+              style: TextStyle(fontWeight: FontWeight.w600)),
+        );
+      },
+    );
+  }
+
+  Widget _buildOpenButton(BuildContext context) {
+    return BlocBuilder<AppLaunchCubit, AppLaunchState>(
+      bloc: appLaunchCubit,
+      builder: (context, state) {
+        final isLaunching = appLaunchCubit.isLaunching(app.id);
+
+        return ElevatedButton.icon(
+          onPressed:
+          isLaunching ? null : () => appLaunchCubit.launchApp(app.id),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF2563EB), // Blue
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            elevation: 2,
+          ),
+          icon: isLaunching
+              ? const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(
+                strokeWidth: 2, color: Colors.white),
+          )
+              : const Icon(Icons.open_in_new, size: 18),
+          label: Text(
+            isLaunching ? 'Opening...' : 'Open',
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildUpdateButton(BuildContext context) {
+    return BlocBuilder<AppStatusCubit, AppStatusState>(
+      bloc: appStatusCubit,
+      builder: (context, state) {
+        final isUpdating =
+            appStatusCubit.getAppStatus(app.id) == AppStatus.updating;
+        final progress = appStatusCubit.getProgress(app.id);
+
+        return ElevatedButton.icon(
+          onPressed:
+          isUpdating ? null : () => installationCubit.updateApp(app.id),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.orange.shade700,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            elevation: 2,
+          ),
+          icon: isUpdating
+              ? SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(
+              value: progress,
+              strokeWidth: 2,
+              color: Colors.white,
+              backgroundColor: Colors.white24,
+            ),
+          )
+              : const Icon(Icons.system_update, size: 18),
+          label: Text(
+            isUpdating && progress != null && progress > 0
+                ? '${(progress * 100).toInt()}%'
+                : 'Update',
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildUninstallButton(BuildContext context) {
+    return BlocBuilder<InstallationCubit, InstallationState>(
+      bloc: installationCubit,
+      builder: (context, state) {
+        final isUninstalling =
+            installationCubit.isOperationInProgress(app.id) &&
+                installationCubit.getOperationType(app.id) == 'uninstall';
+
+        return OutlinedButton.icon(
+          onPressed:
+          isUninstalling ? null : () => _showUninstallDialog(context),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Colors.red.shade700,
+            side: BorderSide(color: Colors.red.shade700),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+          icon: isUninstalling
+              ? const SizedBox(
+            width: 16,
+            height: 16,
+            child:
+            CircularProgressIndicator(strokeWidth: 2, color: Colors.red),
+          )
+              : const Icon(Icons.delete_outline, size: 18),
+          label: Text(
+            isUninstalling ? 'Uninstalling...' : 'Uninstall',
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        );
+      },
+    );
+  }
+
+  // --- DIALOGS & VISUALS ---
+
+  void _showUninstallDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Uninstall App'),
+        content: Text(
+          'Are you sure you want to uninstall ${app.name}? This will remove the app and all its data.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              installationCubit.uninstallApp(app.id);
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Uninstall'),
+          ),
         ],
       ),
     );
@@ -155,7 +390,8 @@ class AppscreenContent extends StatelessWidget {
 
   Widget _buildAppIcon(BuildContext context, Application app) {
     final cardSize = Responsive.scale(context, 80).clamp(68.0, 92.0);
-    final iconSize = cardSize * 0.5;
+    final iconSize = cardSize * 0.7; // Slightly larger inside the box
+
     return Container(
       width: cardSize,
       height: cardSize,
@@ -179,8 +415,10 @@ class AppscreenContent extends StatelessWidget {
     );
   }
 
+  // [FIX] Improved Icon Builder with Error Handling
   Widget _buildIcon(double size) {
     final iconPath = _getIconPath(app);
+
     if (iconPath != null) {
       if (iconPath.startsWith('http')) {
         return Image.network(
@@ -188,17 +426,37 @@ class AppscreenContent extends StatelessWidget {
           width: size,
           height: size,
           fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) =>
+              _buildDefaultIcon(size),
         );
       } else {
+        // Safe check for File image
         return Image.file(
           File(iconPath),
           width: size,
           height: size,
           fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) =>
+              _buildDefaultIcon(size),
         );
       }
     }
-    return Image.asset('assets/icons/default_app_icon.png', fit: BoxFit.cover);
+    return _buildDefaultIcon(size);
+  }
+
+  Widget _buildDefaultIcon(double size) {
+    return Image.asset(
+      'assets/icons/default_app_icon.png',
+      width: size,
+      height: size,
+      fit: BoxFit.cover,
+      // Backup if asset is missing too
+      errorBuilder: (context, error, stackTrace) => Icon(
+        Icons.apps,
+        size: size * 0.5,
+        color: Colors.grey,
+      ),
+    );
   }
 
   Widget _buildScreenshot(BuildContext context) {
@@ -218,170 +476,11 @@ class AppscreenContent extends StatelessWidget {
         desktop: Responsive.height(context) * 0.5,
       ).clamp(300.0, 600.0),
       padding: EdgeInsets.symmetric(
-        horizontal: Responsive.responsiveValue(
-          context,
-          mobile: 16.0,
-          tablet: 24.0,
-          desktop: 32.0,
-        ),
-        vertical: Responsive.responsiveValue(
-          context,
-          mobile: 12.0,
-          tablet: 16.0,
-          desktop: 20.0,
-        ),
+        horizontal: Responsive.responsiveValue(context,
+            mobile: 16.0, tablet: 24.0, desktop: 32.0),
+        vertical: 16.0,
       ),
       child: Screenshot(images: images, captions: captions),
-    );
-  }
-
-  Widget _buildInstallButton(BuildContext context) {
-    final buttonW = Responsive.scaleWithConstraints(
-      context,
-      112,
-      minSize: 100,
-      maxSize: 120,
-    );
-    final buttonH = Responsive.scaleWithConstraints(
-      context,
-      48,
-      minSize: 40,
-      maxSize: 56,
-    );
-
-    return BlocBuilder<InstalledAppsCubit, InstalledAppsState>(
-      bloc: installedAppsCubit,
-      builder: (context, installedState) {
-        return BlocBuilder<InstallationCubit, InstallationState>(
-          bloc: installationCubit,
-          builder: (context, installState) {
-            return BlocBuilder<AppLaunchCubit, AppLaunchState>(
-              bloc: appLaunchCubit,
-              builder: (context, launchState) {
-                final isInstalled =
-                    installedState is InstalledAppsLoaded &&
-                    installedState.installedIds.contains(app.id);
-
-                final isInstalling = installationCubit.isOperationInProgress(
-                  app.id,
-                );
-                final isLaunching = appLaunchCubit.isLaunching(app.id);
-
-                // Get progress
-                double? progress;
-                if (isInstalling && installState is InstallationInProgress) {
-                  if (installState.appId == app.id) {
-                    progress = installState.progress;
-                  }
-                }
-
-                String buttonText;
-                if (isInstalling) {
-                  buttonText = "Installing...";
-                } else if (isLaunching) {
-                  buttonText = "Opening...";
-                } else if (isInstalled) {
-                  buttonText = "Open";
-                } else {
-                  buttonText = "Install";
-                }
-
-                final canTap = !isInstalling && !isLaunching;
-
-                return GestureDetector(
-                  onTap: canTap
-                      ? () async {
-                          if (isInstalled) {
-                            await appLaunchCubit.launchApp(app.id);
-                          } else {
-                            await installationCubit.installApp(app.id);
-                          }
-                        }
-                      : null,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(9999),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                      child: Container(
-                        width: buttonW,
-                        height: buttonH,
-                        decoration: BoxDecoration(
-                          color: canTap ? const Color(0xFF2563EB) : Colors.grey,
-                          borderRadius: BorderRadius.circular(9999),
-                          border: Border.all(
-                            width: 1.5,
-                            color: Colors.white.withValues(alpha: 0.3),
-                          ),
-                        ),
-                        child: Center(
-                          child: isInstalling && progress != null
-                              ? _buildProgressIndicator(progress, buttonH)
-                              : Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (isLaunching)
-                                      const SizedBox(
-                                        width: 14,
-                                        height: 14,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                Colors.white,
-                                              ),
-                                        ),
-                                      ),
-                                    if (isLaunching) const SizedBox(width: 8),
-                                    Text(
-                                      buttonText,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w300,
-                                        fontSize: 16,
-                                        fontFamily: 'general-sans',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildProgressIndicator(double progress, double buttonHeight) {
-    final size = buttonHeight * 0.6;
-    final percentage = (progress * 100).toInt();
-
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        SizedBox(
-          width: size,
-          height: size,
-          child: CircularProgressIndicator(
-            value: progress,
-            strokeWidth: 3,
-            backgroundColor: Colors.white.withValues(alpha: 0.3),
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-          ),
-        ),
-        Text(
-          '$percentage%',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 8,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
     );
   }
 
@@ -401,9 +500,7 @@ class AppscreenContent extends StatelessWidget {
         color: Colors.white.withValues(alpha: 0.25),
         border: Border(
           bottom: BorderSide(
-            color: Colors.white.withValues(alpha: 0.2),
-            width: 1.0,
-          ),
+              color: Colors.white.withValues(alpha: 0.2), width: 1.0),
         ),
         boxShadow: [
           BoxShadow(
@@ -430,7 +527,9 @@ class AppscreenContent extends StatelessWidget {
               ),
               const SizedBox(height: 30),
               Text(
-                description,
+                description.isNotEmpty
+                    ? description
+                    : "No description available.",
                 style: const TextStyle(
                   color: Color(0xFF4B5563),
                   fontSize: 16,
@@ -442,10 +541,7 @@ class AppscreenContent extends StatelessWidget {
               Container(
                 width: double.infinity,
                 height: 1,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(9999),
-                ),
+                color: Colors.grey.shade300,
               ),
               const Padding(
                 padding: EdgeInsets.all(12.0),
@@ -460,9 +556,9 @@ class AppscreenContent extends StatelessWidget {
                 ),
               ),
               AppInfo(
-                version: version,
-                License: app.license,
-                last_upadate: lastUpdate,
+                version: version.isNotEmpty ? version : "Unknown",
+                License: app.license.isNotEmpty ? app.license : "Unknown",
+                last_upadate: lastUpdate.isNotEmpty ? lastUpdate : "-",
                 url: url,
                 content_rating: contentRating,
                 size: size,
@@ -474,20 +570,16 @@ class AppscreenContent extends StatelessWidget {
     );
   }
 
+  // --- DATA PARSING HELPERS ---
+
   String _getContentRating(Application app) {
     try {
       if (app.contentRatingType.isEmpty) return '';
-      String result = '';
-      final Map<String?, Object?> contentRating = app.contentRating;
-      if (contentRating.isNotEmpty) {
-        for (final k in contentRating.keys) {
-          Object? v = contentRating[k];
-          result += '$k : $v';
-        }
-        return result;
+      if (app.contentRating.isNotEmpty) {
+        return app.contentRating.keys.join(", ");
       }
       return '';
-    } catch (e) {
+    } catch (_) {
       return '';
     }
   }
@@ -503,11 +595,8 @@ class AppscreenContent extends StatelessWidget {
         size /= base;
         unitIndex++;
       }
-      String formattedSize = size == size.toInt()
-          ? size.toInt().toString()
-          : size.toStringAsFixed(2);
-      return '~$formattedSize ${units[unitIndex]}';
-    } catch (e) {
+      return '~${size.toStringAsFixed(1)} ${units[unitIndex]}';
+    } catch (_) {
       return '';
     }
   }
@@ -516,9 +605,9 @@ class AppscreenContent extends StatelessWidget {
     try {
       if (app.appdata.isEmpty) return '';
       final appdata = jsonDecode(app.appdata) as Map<String, dynamic>;
-      final description = appdata['description'] as String;
-      return description.trim().replaceAll(RegExp(r'\s+'), ' ');
-    } catch (e) {
+      final description = appdata['description'] as String?;
+      return description?.trim().replaceAll(RegExp(r'\s+'), ' ') ?? '';
+    } catch (_) {
       return '';
     }
   }
@@ -528,14 +617,11 @@ class AppscreenContent extends StatelessWidget {
       if (app.appdata.isEmpty) return '';
       final appdata = jsonDecode(app.appdata) as Map<String, dynamic>;
       final releases = appdata['releases'] as List<dynamic>?;
-      if (releases != null) {
-        for (final r in releases) {
-          final release = r['version'] as String?;
-          if (release != null) return release;
-        }
+      if (releases != null && releases.isNotEmpty) {
+        return releases.first['version']?.toString() ?? '';
       }
       return '';
-    } catch (e) {
+    } catch (_) {
       return '';
     }
   }
@@ -545,17 +631,21 @@ class AppscreenContent extends StatelessWidget {
       if (app.appdata.isEmpty) return '';
       final appdata = jsonDecode(app.appdata) as Map<String, dynamic>;
       final releases = appdata['releases'] as List<dynamic>?;
-      if (releases != null) {
-        for (final r in releases) {
-          final timestampString = r['timestamp'] as String?;
-          if (timestampString != null) {
-            final dateTime = DateTime.parse(timestampString);
-            return DateFormat('MMM dd, yyyy - HH:mm').format(dateTime);
+      if (releases != null && releases.isNotEmpty) {
+        final timestamp = releases.first['timestamp']?.toString();
+        if (timestamp != null) {
+          final validTimestamp = int.tryParse(timestamp);
+          final date = validTimestamp != null
+              ? DateTime.fromMillisecondsSinceEpoch(validTimestamp * 1000)
+              : DateTime.tryParse(timestamp);
+
+          if (date != null) {
+            return DateFormat('MMM dd, yyyy').format(date);
           }
         }
       }
       return '';
-    } catch (e) {
+    } catch (_) {
       return '';
     }
   }
@@ -564,12 +654,8 @@ class AppscreenContent extends StatelessWidget {
     try {
       if (app.metadata.isEmpty) return '';
       final metadata = jsonDecode(app.metadata) as Map<String, dynamic>;
-      final url = metadata['url'];
-      if (url != null) {
-        return url.toString().trim();
-      }
-      return '';
-    } catch (e) {
+      return metadata['url']?.toString().trim() ?? '';
+    } catch (_) {
       return '';
     }
   }
@@ -580,13 +666,12 @@ class AppscreenContent extends StatelessWidget {
       final metadata = jsonDecode(app.metadata) as Map<String, dynamic>;
       final dev = metadata['developer'];
       if (dev != null) {
-        String devString = dev is List && dev.isNotEmpty
-            ? dev.first.toString()
-            : dev.toString();
+        String devString =
+        dev is List && dev.isNotEmpty ? dev.first.toString() : dev.toString();
         return "by ${devString.trim()}";
       }
       return '';
-    } catch (e) {
+    } catch (_) {
       return '';
     }
   }
@@ -597,9 +682,9 @@ class AppscreenContent extends StatelessWidget {
       final metadata = jsonDecode(app.metadata) as Map<String, dynamic>;
       final categoriesData = metadata['categories'];
       if (categoriesData == null) return [];
-      List<dynamic> categories = categoriesData is List
-          ? categoriesData
-          : [categoriesData];
+      List<dynamic> categories =
+      categoriesData is List ? categoriesData : [categoriesData];
+
       return categories.take(3).where((c) => c != null).map((category) {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -618,69 +703,83 @@ class AppscreenContent extends StatelessWidget {
           ),
         );
       }).toList();
-    } catch (e) {
+    } catch (_) {
       return [];
     }
   }
 
+  // [FIX] Improved Logic: Verifies file existence before returning path
   String? _getIconPath(Application app) {
     try {
       if (app.appdata.isEmpty) return null;
       final appdata = jsonDecode(app.appdata) as Map<String, dynamic>;
       final icons = appdata['icons'] as List<dynamic>?;
+
       if (icons != null) {
-        for (final iconType in ['remote', 'cached', 'local']) {
-          for (final icon in icons) {
-            if (icon is Map<String, dynamic> && icon['type'] == iconType) {
-              final path = icon['path'] as String?;
-              if (icon['type'] == 'cached') {
-                return '/var/lib/flatpak/appstream/flathub/x86_64/active/icons/128x128/$path';
+        // 1. Look for Remote first if Local is unreliable
+        // Or 2. Check existence of Cached
+        for (final icon in icons) {
+          if (icon is Map<String, dynamic>) {
+            final type = icon['type'];
+            final path = icon['path']?.toString();
+
+            if (path == null) continue;
+
+            if (type == 'cached') {
+              final fullPath = '/var/lib/flatpak/appstream/flathub/x86_64/active/icons/128x128/$path';
+              // CRITICAL FIX: Check if file actually exists
+              if (File(fullPath).existsSync()) {
+                return fullPath;
               }
-              if (path != null) return path;
+            } else if (type == 'remote') {
+              // We return this if cached failed or wasn't found first
+              return path;
             }
           }
         }
+
+        // Secondary pass: if we skipped 'remote' because we were looking for 'cached' first
+        // but cached didn't exist, ensure we grab the remote one now.
+        for (final icon in icons) {
+          if (icon is Map<String, dynamic> && icon['type'] == 'remote') {
+            return icon['path']?.toString();
+          }
+        }
       }
-      return 'assets/icons/default_app_icon.png';
-    } catch (e) {
-      return 'assets/icons/default_app_icon.png';
+      return null;
+    } catch (_) {
+      return null;
     }
   }
 
   List<String>? _getScreenshotsimage(Application app) {
     try {
       if (app.appdata.isEmpty) return null;
-      List<String> result = [];
       final appdata = jsonDecode(app.appdata) as Map<String, dynamic>;
       final screenshots = appdata['screenshots'] as List<dynamic>?;
-      if (screenshots != null) {
-        for (final screenshot in screenshots) {
-          final images = screenshot['images'] as List<dynamic>?;
-          if (images != null) {
-            String? bestUrl;
-            int maxWidth = 0;
-            for (final image in images) {
-              final imageMap = image as Map<String, dynamic>;
-              final url = imageMap['url'] as String?;
-              final width = imageMap['width'] as String?;
-              if (url != null && width != null) {
-                try {
-                  final widthInt = int.parse(width);
-                  if (widthInt >= 700 && widthInt > maxWidth) {
-                    maxWidth = widthInt;
-                    bestUrl = url;
-                  }
-                } catch (e) {
-                  continue;
-                }
-              }
+      if (screenshots == null) return null;
+
+      List<String> result = [];
+      for (final screenshot in screenshots) {
+        final images = screenshot['images'] as List<dynamic>?;
+        if (images != null) {
+          String? bestUrl;
+          int maxWidth = 0;
+          for (final image in images) {
+            final imgMap = image as Map<String, dynamic>;
+            final url = imgMap['url']?.toString();
+            final w = int.tryParse(imgMap['width']?.toString() ?? '0') ?? 0;
+
+            if (url != null && w > maxWidth) {
+              maxWidth = w;
+              bestUrl = url;
             }
-            if (bestUrl != null) result.add(bestUrl);
           }
+          if (bestUrl != null) result.add(bestUrl);
         }
       }
       return result.isEmpty ? null : result;
-    } catch (e) {
+    } catch (_) {
       return null;
     }
   }
@@ -688,22 +787,20 @@ class AppscreenContent extends StatelessWidget {
   List<String>? _getScreenshotsCaption(Application app) {
     try {
       if (app.appdata.isEmpty) return null;
-      List<String> result = [];
       final appdata = jsonDecode(app.appdata) as Map<String, dynamic>;
       final screenshots = appdata['screenshots'] as List<dynamic>?;
-      if (screenshots != null) {
-        for (final screenshot in screenshots) {
-          final captions = screenshot['captions'] as List?;
-          if (captions != null) {
-            for (final caption in captions) {
-              final c = caption['caption'] as String?;
-              if (c != null) result.add(c);
-            }
-          }
+      if (screenshots == null) return null;
+
+      List<String> result = [];
+      for (final screenshot in screenshots) {
+        final captions = screenshot['captions'] as List<dynamic>?;
+        if (captions != null && captions.isNotEmpty) {
+          final cap = captions.first['caption']?.toString();
+          if (cap != null) result.add(cap);
         }
       }
       return result;
-    } catch (e) {
+    } catch (_) {
       return [];
     }
   }

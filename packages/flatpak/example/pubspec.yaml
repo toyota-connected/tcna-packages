@@ -50,6 +50,7 @@ dependencies:
   go_router: ^16.3.0
   dartz: ^0.10.1
   intl: 0.20.2
+  flutter_permission_handler_plus: ^0.1.0
 
 dev_dependencies:
   flutter_test:

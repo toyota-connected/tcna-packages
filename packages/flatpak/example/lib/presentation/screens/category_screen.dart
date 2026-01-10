@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../business_logic/discovery/dicovery_cubit.dart';
+import '../../business_logic/discovery/discovery_cubit.dart';
 import '../../business_logic/installation/installation_cubit.dart';
 import '../../data/models/application_model.dart';
 import '../../responsive.dart';
@@ -265,11 +265,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 application: _categoryApps[index],
                 onTap: () {
                   context.push('/app/${_categoryApps[index].shortId}');
-                },
-                onInstall: () {
-                  context.read<InstallationCubit>().installApp(
-                    _categoryApps[index].id,
-                  );
                 },
               );
             },
