@@ -1,43 +1,96 @@
+import 'package:flatpak_flutter_example/business_logic/app_status/app_status_cubit.dart';
 import 'package:flatpak_flutter_example/business_logic/system_info/system_info_cubit.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flatpak_flutter/src/messages.g.dart';
 
 import '../../data/repositories/flatpak_repository_impl.dart';
 
 import 'business_logic/app_launch/app_launch_cubit.dart';
-import 'business_logic/discovery/dicovery_cubit.dart';
+import 'business_logic/discovery/discovery_cubit.dart';
 import 'business_logic/event_listener/event_listener_bloc.dart';
+import 'business_logic/permission_listener/permission_listener_bloc.dart';
 import 'business_logic/installation/installation_cubit.dart';
-import 'business_logic/installed_apps/installed_apps_cubit.dart';
 import 'data/data_sources/flatpak_event_data.dart';
 import 'data/data_sources/flatpak_local_data.dart';
+import 'data/data_sources/flatpak_permission_data.dart';
 import 'data/repositories/flatpak_repository.dart';
 
 final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
+  const methodChannel = MethodChannel('flatpak_flutter');
+  sl.registerLazySingleton<MethodChannel>(() => methodChannel);
+
   sl.registerLazySingleton<FlatpakApi>(() => FlatpakApi());
 
+  const eventChannel = EventChannel('flutter.io/flatpakPlugin/flatpakEvents');
+  const permissionEventChannel = EventChannel('flutter.io/flatpakPlugin/accessEvents');
+
+  // Data Sources
   sl.registerLazySingleton<FlatpakLocalDataSource>(
-    () => FlatpakLocalDataSourceImpl(sl()),
+        () => FlatpakLocalDataSourceImpl(sl()),
   );
 
   sl.registerLazySingleton<FlatpakEventDataSource>(
-    () => FlatpakEventDataSourceImpl(),
+        () => FlatpakEventDataSourceImpl(),
   );
 
+  sl.registerLazySingleton<FlatpakPermissionDataSource>(
+        () => FlatpakPermissionDataSource(
+      methodChannel: methodChannel,
+      permissionEventChannel: permissionEventChannel,
+    ),
+  );
+
+  // Repository
   sl.registerLazySingleton<FlatpakRepository>(
-    () => FlatpakRepositoryImpl(localDataSource: sl(), eventDataSource: sl()),
+        () => FlatpakRepositoryImpl(
+      localDataSource: sl(),
+      eventDataSource: sl(),
+      permissionDataSource: sl(),
+    ),
   );
 
-  sl.registerFactory(() => EventListenerBloc(repository: sl()));
+  // Event listener
+  sl.registerLazySingleton<EventListenerBloc>(
+        () => EventListenerBloc(repository: sl()),
+  );
 
-  sl.registerFactory(() => InstallationCubit(repository: sl()));
+  // Permission listener
+  sl.registerLazySingleton<PermissionListenerBloc>(
+        () => PermissionListenerBloc(repository: sl()),
+  );
 
-  sl.registerFactory(() => InstalledAppsCubit(repository: sl()));
+  sl.registerLazySingleton<AppStatusCubit>(
+        () => AppStatusCubit(repository: sl()),
+  );
 
-  sl.registerFactory(() => DiscoveryCubit(flatpakRepository: sl()));
+  // Installation cubit
+  sl.registerLazySingleton<InstallationCubit>(
+        () => InstallationCubit(
+      repository: sl(),
+      appStatusCubit: sl(),
+    ),
+  );
 
-  sl.registerFactory(() => AppLaunchCubit(repository: sl()));
-  sl.registerFactory(() => SystemInfoCubit(flatpakRepository: sl()));
+  // Discovery cubit
+  sl.registerLazySingleton<DiscoveryCubit>(
+        () => DiscoveryCubit(flatpakRepository: sl()),
+  );
+
+  // App launch cubit
+  sl.registerLazySingleton<AppLaunchCubit>(
+        () => AppLaunchCubit(repository: sl()),
+  );
+
+  // System info cubit
+  sl.registerLazySingleton<SystemInfoCubit>(
+        () => SystemInfoCubit(flatpakRepository: sl()),
+  );
+}
+
+/// Clean up all singleton instances
+Future<void> resetDependencies() async {
+  await sl.reset();
 }

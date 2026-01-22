@@ -1,16 +1,22 @@
 import 'package:dartz/dartz.dart';
-
+import '../../core/permissions/permission_types.dart';
+import '../../core/permissions/permission_status.dart';
 import '../../helpers/errors_handler.dart';
 import '../models/application_model.dart';
 import '../models/flatpak_event_model.dart';
+import '../models/flatpak_permission_model.dart';
 import '../models/installation_model.dart';
 import '../models/remote_model.dart';
 
 abstract class FlatpakRepository {
-  // Event Stream
+  // Event Streams
   Stream<FlatpakEventModel> get eventStream;
+  Stream<PermissionEventModel> get permissionStream;
+
   void startEventListening();
   void stopEventListening();
+  void startPermissionListening();
+  void stopPermissionListening();
 
   // System Info
   Future<Either<Failure, String>> getVersion();
@@ -22,8 +28,8 @@ abstract class FlatpakRepository {
   // Application Discovery
   Future<Either<Failure, List<Application>>> getApplicationsInstalled();
   Future<Either<Failure, List<Application>>> getApplicationsRemote(
-    String remoteId,
-  );
+      String remoteId,
+      );
   Future<Either<Failure, List<Application>>> getApplicationsUpdate();
 
   // Application Management
@@ -36,4 +42,27 @@ abstract class FlatpakRepository {
   // Remote Management
   Future<Either<Failure, bool>> addRemote(Remote remote);
   Future<Either<Failure, bool>> removeRemote(String remoteId);
+
+  // Permission Management
+  Future<Either<Failure, void>> respondToPermissionRequest({
+    required String requestId,
+    required FlatpakPermission permission,
+    required bool granted,
+  });
+
+  Future<Either<Failure, Map<FlatpakPermission, PermissionStatus>>>
+  checkPermissions({
+    required String appId,
+    required List<FlatpakPermission> permissions,
+  });
+
+  Future<Either<Failure, bool>> revokePermission({
+    required String appId,
+    required FlatpakPermission permission,
+  });
+
+  Future<Either<Failure, bool>> grantPermission({
+    required String appId,
+    required FlatpakPermission permission,
+  });
 }

@@ -3,18 +3,27 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../data/models/application_model.dart';
 import '../../business_logic/app_launch/app_launch_cubit.dart';
-import '../../business_logic/discovery/dicovery_cubit.dart';
+import '../../business_logic/app_status/app_status_cubit.dart';
+import '../../business_logic/app_status/app_status_state.dart';
+import '../../business_logic/discovery/discovery_cubit.dart';
 import '../../business_logic/discovery/discovery_state.dart';
 import '../../business_logic/event_listener/event_listener_bloc.dart';
 import '../../business_logic/event_listener/event_listener_state.dart';
 import '../../business_logic/installation/installation_cubit.dart';
-import '../../business_logic/installed_apps/installed_apps_cubit.dart';
-import '../widgets/cateogry_section.dart';
+import '../widgets/category_section.dart';
 import '../widgets/hero_widget.dart';
 import '../widgets/top_bar.dart';
+import '../../app_router.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen>
+    with AutomaticKeepAliveClientMixin, RouteAware {
 
   static const List<String> categoryOrder = [
     'Popular Apps',
@@ -26,7 +35,48 @@ class HomeScreen extends StatelessWidget {
   ];
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      routeObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    debugPrint('[HomeScreen] Returned to screen - refreshing data');
+    _refreshData();
+  }
+
+  void _loadData() {
+    context.read<DiscoveryCubit>().initialize();
+    context.read<AppStatusCubit>().loadAppStatus();
+  }
+
+  void _refreshData() {
+    context.read<AppStatusCubit>().refresh();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return Scaffold(
       appBar: const AppTopBar(),
       body: BlocBuilder<DiscoveryCubit, DiscoveryState>(
@@ -45,9 +95,7 @@ class HomeScreen extends StatelessWidget {
                   Text('Error: ${state.message}'),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () {
-                      context.read<DiscoveryCubit>().initialize();
-                    },
+                    onPressed: _loadData,
                     child: const Text('Retry'),
                   ),
                 ],
@@ -59,6 +107,7 @@ class HomeScreen extends StatelessWidget {
             return RefreshIndicator(
               onRefresh: () async {
                 await context.read<DiscoveryCubit>().initialize();
+                context.read<AppStatusCubit>().refresh();
               },
               child: CustomScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -89,36 +138,41 @@ class HomeScreen extends StatelessWidget {
                       },
                     ),
                   ),
+
                   SliverToBoxAdapter(
                     child: HeroWidget(
                       title: "Discover, Install, and Enjoy Apps on AGL Store.",
                       imageUrl: 'assets/images/Hero.png',
                       subtitle:
-                          "Explore a wide range of applications available through Flatpak.",
+                      "Explore a wide range of applications available through Flatpak.",
                     ),
                   ),
+
                   // Category sections
                   SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final categoryName = categoryOrder[index];
-                      final apps = state.categoryApps[categoryName] ?? [];
-                      final isLoading = context
-                          .read<DiscoveryCubit>()
-                          .isCategoryLoading(categoryName);
+                    delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                        final categoryName = categoryOrder[index];
+                        final apps = state.categoryApps[categoryName] ?? [];
+                        final isLoading = context
+                            .read<DiscoveryCubit>()
+                            .isCategoryLoading(categoryName);
 
-                      return Column(
-                        children: [
-                          CategorySection(
-                            category_heading: categoryName,
-                            apps: apps,
-                            isLoading: isLoading,
-                            onTap: (app) => _navigateToApp(app, context),
-                            onInstall: (app) => _handleInstall(app, context),
-                          ),
-                          const SizedBox(height: 32),
-                        ],
-                      );
-                    }, childCount: categoryOrder.length),
+                        return Column(
+                          children: [
+                            CategorySection(
+                              category_heading: categoryName,
+                              apps: apps,
+                              isLoading: isLoading,
+                              onTap: (app) => _navigateToApp(app, context),
+                              onInstall: (app) => _handleInstall(app, context),
+                            ),
+                            const SizedBox(height: 32),
+                          ],
+                        );
+                      },
+                      childCount: categoryOrder.length,
+                    ),
                   ),
                 ],
               ),
@@ -136,14 +190,20 @@ class HomeScreen extends StatelessWidget {
   }
 
   Future<void> _handleInstall(Application app, BuildContext context) async {
+    final appStatusCubit = context.read<AppStatusCubit>();
     final installationCubit = context.read<InstallationCubit>();
     final launchCubit = context.read<AppLaunchCubit>();
 
-    final isInstalled = context.read<InstalledAppsCubit>().isInstalled(app.id);
+    final status = appStatusCubit.getAppStatus(app.id);
 
-    if (isInstalled) {
+    if (status == AppStatus.installed) {
+      // Launch the app
       await launchCubit.launchApp(app.id);
-    } else if (!installationCubit.isOperationInProgress(app.id)) {
+    } else if (status == AppStatus.needsUpdate) {
+      // Update the app
+      await installationCubit.updateApp(app.id);
+    } else if (status == AppStatus.notInstalled) {
+      // Install the app
       await installationCubit.installApp(app.id);
     }
   }

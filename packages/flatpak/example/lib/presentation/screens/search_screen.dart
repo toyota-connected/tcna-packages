@@ -5,14 +5,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../business_logic/discovery/dicovery_cubit.dart';
+import '../../business_logic/app_launch/app_launch_cubit.dart';
+import '../../business_logic/app_status/app_status_cubit.dart';
+import '../../business_logic/app_status/app_status_state.dart';
+import '../../business_logic/discovery/discovery_cubit.dart';
 import '../../business_logic/discovery/discovery_state.dart';
 import '../../business_logic/installation/installation_cubit.dart';
-import '../../business_logic/installation/installation_state.dart';
-import '../../business_logic/installed_apps/installed_apps_cubit.dart';
-import '../../business_logic/installed_apps/installed_apps_state.dart';
 import '../../data/models/application_model.dart';
-import '../../helpers/id_utils.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -209,10 +208,10 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildSearchResults(
-    BuildContext context,
-    List<Application> results,
-    String query,
-  ) {
+      BuildContext context,
+      List<Application> results,
+      String query,
+      ) {
     if (results.isEmpty) {
       return Center(
         child: Column(
@@ -348,6 +347,180 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  Widget _buildInstallButton(BuildContext context, Application app) {
+    return BlocBuilder<AppStatusCubit, AppStatusState>(
+      builder: (context, state) {
+        final cubit = context.read<AppStatusCubit>();
+        final status = cubit.getAppStatus(app.id);
+        final progress = cubit.getProgress(app.id);
+
+        if (status == AppStatus.installing ||
+            status == AppStatus.updating ||
+            (progress != null && progress > 0)) {
+          final displayProgress = progress ?? 0.0;
+          return SizedBox(
+            width: 48,
+            height: 48,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: CircularProgressIndicator(
+                    value: displayProgress > 0 ? displayProgress : null,
+                    strokeWidth: 3,
+                    backgroundColor: Colors.grey.withValues(alpha: 0.3),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      Color(0xFF2563EB),
+                    ),
+                  ),
+                ),
+                if (displayProgress > 0)
+                  Text(
+                    '${(displayProgress * 100).toInt()}%',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'general-sans',
+                    ),
+                  ),
+              ],
+            ),
+          );
+        }
+
+        if (status == AppStatus.needsUpdate) {
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFF2563EB).withValues(alpha: 0.5),
+                    width: 1.5,
+                  ),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      context.read<InstallationCubit>().updateApp(app.id);
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      child: Text(
+                        'Update',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF2563EB),
+                          fontFamily: 'general-sans',
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
+        if (status == AppStatus.installed) {
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                    width: 1.5,
+                  ),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                          context.read<AppLaunchCubit>()
+                          .launchApp(app.id);
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      child: Text(
+                        'Open',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF059669),
+                          fontFamily: 'general-sans',
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF2563EB).withValues(alpha: 0.9),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  width: 1.5,
+                ),
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    context.read<InstallationCubit>().installApp(app.id);
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                    child: Text(
+                      'Get',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        fontFamily: 'general-sans',
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildAppIcon(Application app) {
     final iconPath = _getIconPath(app);
     return Container(
@@ -479,138 +652,6 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         );
       }).toList(),
-    );
-  }
-
-  Widget _buildInstallButton(BuildContext context, Application app) {
-    return BlocBuilder<InstalledAppsCubit, InstalledAppsState>(
-      builder: (context, installedState) {
-        return BlocBuilder<InstallationCubit, InstallationState>(
-          builder: (context, installState) {
-            final shortId = AppIdUtils.extractShortId(app.id);
-            final isInstalled =
-                installedState is InstalledAppsLoaded &&
-                installedState.installedIds.contains(shortId);
-
-            final isInstalling = context
-                .read<InstallationCubit>()
-                .isOperationInProgress(app.id);
-
-            double? progress;
-            if (isInstalling && installState is InstallationInProgress) {
-              if (AppIdUtils.extractShortId(installState.appId ?? '') ==
-                  shortId) {
-                progress = installState.progress;
-              }
-            }
-
-            if (isInstalling && progress != null && progress > 0) {
-              return SizedBox(
-                width: 48,
-                height: 48,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      width: 36,
-                      height: 36,
-                      child: CircularProgressIndicator(
-                        value: progress,
-                        strokeWidth: 3,
-                        backgroundColor: Colors.grey.withValues(alpha: 0.3),
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          Color(0xFF2563EB),
-                        ),
-                      ),
-                    ),
-                    Text(
-                      '${(progress * 100).toInt()}%',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: 'general-sans',
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            if (isInstalled) {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: const Color(0xFF10B981).withValues(alpha: 0.3),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: const Text(
-                      'Installed',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF059669),
-                        fontFamily: 'general-sans',
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }
-
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF2563EB).withValues(alpha: 0.9),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.3),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        context.read<InstallationCubit>().installApp(app.id);
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                        child: Text(
-                          'Get',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                            fontFamily: 'general-sans',
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
     );
   }
 

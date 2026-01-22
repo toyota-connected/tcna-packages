@@ -40,6 +40,28 @@ class Application extends Equatable {
     required this.appdata,
   });
 
+  factory Application.empty() {
+    return const Application(
+      name: '',
+      id: '',
+      summary: '',
+      version: '',
+      origin: '',
+      license: '',
+      installedSize: 0,
+      deployDir: '',
+      isCurrent: false,
+      contentRatingType: '',
+      contentRating: {},
+      latestCommit: '',
+      eol: '',
+      eolRebase: '',
+      subpaths: [],
+      metadata: '',
+      appdata: '',
+    );
+  }
+
   String get shortId {
     if (id.startsWith('app/')) {
       final parts = id.split('/');

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../../business_logic/discovery/dicovery_cubit.dart';
-import '../../business_logic/installed_apps/installed_apps_cubit.dart';
+import '../../business_logic/app_status/app_status_cubit.dart';
+import '../../business_logic/discovery/discovery_cubit.dart';
 import '../../responsive.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -29,6 +29,7 @@ class _SplashScreenState extends State<SplashScreen>
   String _loadingMessage = 'Initializing...';
   bool _hasError = false;
   String _errorMessage = '';
+  int _retryCount = 0;
 
   static const Map<String, List<String>> categories = {
     'Popular Apps': [
@@ -160,23 +161,33 @@ class _SplashScreenState extends State<SplashScreen>
       _animationController.forward();
 
       setState(() => _loadingMessage = 'Connecting to Flatpak...');
-      await Future.delayed(const Duration(seconds: 1));
+      await Future.delayed(const Duration(milliseconds: 800));
 
-      setState(() => _loadingMessage = 'Loading remotes...');
       await context.read<DiscoveryCubit>().initialize();
 
       setState(() => _loadingMessage = 'Loading installed apps...');
-      await context.read<InstalledAppsCubit>().loadInstalledApps();
+      await context.read<AppStatusCubit>().loadAppStatus();
 
       await Future.delayed(const Duration(milliseconds: 500));
       _subtitleController.forward();
 
       setState(() => _loadingMessage = 'Loading apps from remotes...');
       await context.read<DiscoveryCubit>().loadAllApps();
+      final allApps = context.read<DiscoveryCubit>().allApps;
+      if (allApps.isEmpty) {
+        throw Exception('No apps loaded from Flatpak remotes. Please check your internet connection.');
+      }
 
       setState(() => _loadingMessage = 'Organizing categories...');
       await _loadAllCategories();
 
+      int totalCategoryApps = 0;
+      for (final entry in categories.entries) {
+        final apps = context.read<DiscoveryCubit>().getCategoryApps(entry.key);
+        totalCategoryApps += apps.length;
+        debugPrint('[SplashScreen] ${entry.key}: ${apps.length} apps');
+      }
+      // Small delay before transition
       await Future.delayed(const Duration(milliseconds: 500));
       await _fadeController.forward();
 
@@ -184,7 +195,6 @@ class _SplashScreenState extends State<SplashScreen>
         context.go('/home');
       }
     } catch (e, stackTrace) {
-      debugPrint('[SplashScreen] Error during initialization: $e');
       debugPrint('[SplashScreen] Stack trace: $stackTrace');
 
       setState(() {
@@ -193,9 +203,20 @@ class _SplashScreenState extends State<SplashScreen>
         _loadingMessage = 'Error occurred';
       });
 
-      await Future.delayed(const Duration(seconds: 3));
-      if (mounted) {
-        _splashInit();
+      // Retry logic with backoff
+      _retryCount++;
+      if (_retryCount < 3) {
+        final retryDelay = Duration(seconds: 2 * _retryCount);
+        debugPrint('[SplashScreen] Retrying in ${retryDelay.inSeconds} seconds (attempt $_retryCount/3)...');
+
+        await Future.delayed(retryDelay);
+        if (mounted) {
+          _splashInit();
+        }
+      } else {
+        setState(() {
+          _errorMessage = 'Failed to initialize after 3 attempts. Please restart the app.';
+        });
       }
     }
   }
@@ -207,16 +228,12 @@ class _SplashScreenState extends State<SplashScreen>
       try {
         setState(() => _loadingMessage = 'Loading ${entry.key}...');
         await discoveryCubit.loadCategoryApps(entry.key, entry.value);
+
+        // Small delay for UI smoothness
         await Future.delayed(const Duration(milliseconds: 100));
       } catch (e) {
         debugPrint('[SplashScreen] Error loading category ${entry.key}: $e');
       }
-    }
-
-    debugPrint('[SplashScreen] Categories loaded:');
-    for (final entry in categories.entries) {
-      final apps = discoveryCubit.getCategoryApps(entry.key);
-      debugPrint('[SplashScreen] ${entry.key}: ${apps.length} apps');
     }
   }
 
@@ -331,16 +348,32 @@ class _SplashScreenState extends State<SplashScreen>
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              Text(
-                                _hasError ? _errorMessage : _loadingMessage,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: _hasError
-                                      ? Colors.red
-                                      : Colors.black.withValues(alpha: 0.5),
-                                  fontWeight: FontWeight.w300,
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 40),
+                                child: Text(
+                                  _hasError ? _errorMessage : _loadingMessage,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: _hasError
+                                        ? Colors.red
+                                        : Colors.black.withValues(alpha: 0.5),
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
                               ),
+                              if (_hasError && _retryCount < 3)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: Text(
+                                    'Retrying... (attempt $_retryCount/3)',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.orange.withValues(alpha: 0.7),
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
                         ),

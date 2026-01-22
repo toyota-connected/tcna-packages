@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../business_logic/app_launch/app_launch_cubit.dart';
-import '../../business_logic/discovery/dicovery_cubit.dart';
+import '../../business_logic/app_status/app_status_cubit.dart';
+import '../../business_logic/discovery/discovery_cubit.dart';
 import '../../business_logic/discovery/discovery_state.dart';
 import '../../business_logic/installation/installation_cubit.dart';
-import '../../business_logic/installed_apps/installed_apps_cubit.dart';
-import '../../business_logic/installed_apps/installed_apps_state.dart';
 import '../../data/models/application_model.dart';
 import '../../helpers/id_utils.dart';
 import '../widgets/appscreen_content.dart';
 import '../widgets/appscreen_head.dart';
+import '../../app_router.dart';
 
 class AppDetailScreen extends StatefulWidget {
   final String appId;
@@ -20,7 +20,7 @@ class AppDetailScreen extends StatefulWidget {
   State<AppDetailScreen> createState() => _AppDetailScreenState();
 }
 
-class _AppDetailScreenState extends State<AppDetailScreen> {
+class _AppDetailScreenState extends State<AppDetailScreen> with RouteAware {
   Application? _app;
   bool _isLoading = true;
 
@@ -30,21 +30,40 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
     _loadAppDetails();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      routeObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    debugPrint('[AppDetailScreen] Returned to screen - refreshing status');
+    context.read<AppStatusCubit>().refresh();
+  }
+
   Future<void> _loadAppDetails() async {
     debugPrint('[AppDetailScreen] Loading app details for: ${widget.appId}');
 
     final discoveryCubit = context.read<DiscoveryCubit>();
 
+    // First check if app is in cached allApps
     final allApps = discoveryCubit.allApps;
-    debugPrint(
-      '[AppDetailScreen] Searching in ${allApps.length} apps from discovery',
-    );
+    debugPrint('[AppDetailScreen] Searching in ${allApps.length} apps from discovery');
 
     if (allApps.isNotEmpty) {
       try {
         final app = allApps.firstWhere((a) {
-          final match =
-              a.shortId == widget.appId ||
+          final match = a.shortId == widget.appId ||
               a.id == widget.appId ||
               AppIdUtils.extractShortId(a.id) == widget.appId ||
               AppIdUtils.extractShortId(a.id) ==
@@ -66,14 +85,15 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
       }
     }
 
+    // Load all apps if not found
     await discoveryCubit.loadAllApps();
 
     final updatedAllApps = discoveryCubit.allApps;
     if (updatedAllApps.isNotEmpty) {
       try {
         final app = updatedAllApps.firstWhere(
-          (a) =>
-              a.shortId == widget.appId ||
+              (a) =>
+          a.shortId == widget.appId ||
               a.id == widget.appId ||
               AppIdUtils.extractShortId(a.id) == widget.appId ||
               AppIdUtils.extractShortId(a.id) ==
@@ -91,13 +111,14 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
       }
     }
 
+    // Try category apps
     final discoveryState = discoveryCubit.state;
     if (discoveryState is DiscoveryLoaded) {
       for (final apps in discoveryState.categoryApps.values) {
         try {
           final app = apps.firstWhere(
-            (a) =>
-                a.shortId == widget.appId ||
+                (a) =>
+            a.shortId == widget.appId ||
                 a.id == widget.appId ||
                 AppIdUtils.extractShortId(a.id) == widget.appId,
           );
@@ -110,27 +131,6 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
           return;
         } catch (_) {}
       }
-    }
-
-    final installedCubit = context.read<InstalledAppsCubit>();
-    final installedState = installedCubit.state;
-
-    if (installedState is InstalledAppsLoaded) {
-      try {
-        final app = installedState.apps.firstWhere(
-          (a) =>
-              a.shortId == widget.appId ||
-              a.id == widget.appId ||
-              AppIdUtils.extractShortId(a.id) == widget.appId,
-        );
-        if (mounted) {
-          setState(() {
-            _app = app;
-            _isLoading = false;
-          });
-        }
-        return;
-      } catch (_) {}
     }
 
     if (mounted) {
@@ -175,7 +175,7 @@ class _AppDetailScreenState extends State<AppDetailScreen> {
       body: SingleChildScrollView(
         child: AppscreenContent(
           app: _app!,
-          installedAppsCubit: context.read<InstalledAppsCubit>(),
+          appStatusCubit: context.read<AppStatusCubit>(),
           installationCubit: context.read<InstallationCubit>(),
           appLaunchCubit: context.read<AppLaunchCubit>(),
         ),

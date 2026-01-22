@@ -6,12 +6,12 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../business_logic/discovery/dicovery_cubit.dart';
+import '../../business_logic/discovery/discovery_cubit.dart';
 import '../../business_logic/discovery/discovery_state.dart';
 import '../../business_logic/installation/installation_cubit.dart';
 import '../../data/models/application_model.dart';
 import '../../responsive.dart';
-import '../widgets/cateogry_section.dart';
+import '../widgets/category_section.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
