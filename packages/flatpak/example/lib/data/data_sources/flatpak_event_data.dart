@@ -1,100 +1,114 @@
-// data/data_sources/flatpak_event_data.dart
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import '../models/flatpak_event_model.dart';
 
 abstract class FlatpakEventDataSource {
-  Stream<FlatpakEventModel> get eventStream;
-  void startListening();
-  void stopListening();
+  Stream<FlatpakEventModel> getTransactionStream(String transactionId);
+  void startListening(String transactionId);
+  void stopListening(String transactionId);
   void dispose();
 }
 
 class FlatpakEventDataSourceImpl implements FlatpakEventDataSource {
-  static const EventChannel _eventChannel = EventChannel(
-    'flutter.io/flatpakPlugin/flatpakEvents',
-  );
+  final Map<String, EventChannel> _eventChannels = {};
+  final Map<String, StreamController<FlatpakEventModel>> _controllers = {};
+  final Map<String, StreamSubscription> _subscriptions = {};
 
-  final StreamController<FlatpakEventModel> _controller =
-      StreamController<FlatpakEventModel>.broadcast();
-
-  StreamSubscription? _subscription;
-  bool _isListening = false;
   bool _isDisposed = false;
 
   @override
-  Stream<FlatpakEventModel> get eventStream {
+  Stream<FlatpakEventModel> getTransactionStream(String transactionId) {
     if (_isDisposed) {
       throw StateError('EventDataSource has been disposed');
     }
-    return _controller.stream;
+
+    if (!_controllers.containsKey(transactionId)) {
+      _controllers[transactionId] = StreamController<FlatpakEventModel>.broadcast(
+        onCancel: () {
+          debugPrint('[FlatpakEventDataSource] Stream cancelled for $transactionId');
+        },
+      );
+    }
+
+    return _controllers[transactionId]!.stream;
   }
 
   @override
-  void startListening() {
-    if (_isListening || _isDisposed) {
-      debugPrint('[FlatpakEventDataSource] Already listening or disposed');
+  void startListening(String transactionId) {
+    if (_isDisposed || _subscriptions.containsKey(transactionId)) {
       return;
     }
 
-    debugPrint('[FlatpakEventDataSource] Starting to listen...');
-    _isListening = true;
+    debugPrint('[FlatpakEventDataSource] Starting to listen to $transactionId');
 
-    _subscription = _eventChannel.receiveBroadcastStream().listen(
-      (dynamic event) {
-        debugPrint('[FlatpakEventDataSource] Received raw event: $event');
+    final channelName = 'flutter.io/flatpakPlugin/flatpakEvents/$transactionId';
+    _eventChannels[transactionId] = EventChannel(channelName);
 
+    if (!_controllers.containsKey(transactionId)) {
+      _controllers[transactionId] = StreamController<FlatpakEventModel>.broadcast();
+    }
+
+    final controller = _controllers[transactionId]!;
+
+    _subscriptions[transactionId] = _eventChannels[transactionId]!
+        .receiveBroadcastStream()
+        .listen(
+          (dynamic event) {
         if (event is Map) {
           try {
             final eventModel = FlatpakEventModel.fromMap(
               Map<String, dynamic>.from(event),
             );
 
-            debugPrint(
-              '[FlatpakEventDataSource] Parsed event: ${eventModel.type}',
-            );
+            debugPrint('[FlatpakEventDataSource] Event for $transactionId: ${eventModel.type}');
 
-            if (!_controller.isClosed) {
-              _controller.add(eventModel);
+            if (!controller.isClosed) {
+              controller.add(eventModel);
             }
           } catch (e) {
             debugPrint('[FlatpakEventDataSource] Error parsing event: $e');
-            if (!_controller.isClosed) {
-              _controller.addError(e);
+            if (!controller.isClosed) {
+              controller.addError(e);
             }
           }
         }
       },
       onError: (dynamic error) {
-        debugPrint('[FlatpakEventDataSource] Event stream error: $error');
-        if (!_controller.isClosed) {
-          _controller.addError(error);
+        debugPrint('[FlatpakEventDataSource] Error for $transactionId: $error');
+        if (!controller.isClosed) {
+          controller.addError(error);
         }
       },
       onDone: () {
-        debugPrint('[FlatpakEventDataSource] Event stream done');
-        _isListening = false;
+        debugPrint('[FlatpakEventDataSource] Done for $transactionId');
+        stopListening(transactionId);
       },
       cancelOnError: false,
     );
-
-    debugPrint('[FlatpakEventDataSource] Subscription established');
   }
 
   @override
-  void stopListening() {
-    debugPrint('[FlatpakEventDataSource] Stopping listening...');
-    _subscription?.cancel();
-    _subscription = null;
-    _isListening = false;
+  void stopListening(String transactionId) {
+    debugPrint('[FlatpakEventDataSource] Stopping $transactionId');
+
+    _subscriptions[transactionId]?.cancel();
+    _subscriptions.remove(transactionId);
+
+    _controllers[transactionId]?.close();
+    _controllers.remove(transactionId);
+
+    _eventChannels.remove(transactionId);
   }
 
   @override
   void dispose() {
     debugPrint('[FlatpakEventDataSource] Disposing...');
     _isDisposed = true;
-    stopListening();
-    _controller.close();
+
+    final transactionIds = List<String>.from(_subscriptions.keys);
+    for (final transactionId in transactionIds) {
+      stopListening(transactionId);
+    }
   }
 }

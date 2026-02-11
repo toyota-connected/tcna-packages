@@ -1,7 +1,6 @@
 import 'package:flatpak_flutter_example/business_logic/app_status/app_status_cubit.dart';
 import 'package:flatpak_flutter_example/business_logic/system_info/system_info_cubit.dart';
 import 'package:flatpak_flutter_example/presentation/widgets/app_status.dart';
-import 'package:flatpak_flutter_example/presentation/widgets/installation_status_listener.dart';
 import 'package:flatpak_flutter_example/presentation/widgets/permission_handler_wrapper.dart';
 import 'package:flatpak_flutter_example/presentation/widgets/snackbar_listener.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'app_router.dart';
 import 'business_logic/app_launch/app_launch_cubit.dart';
 import 'business_logic/discovery/discovery_cubit.dart';
-import 'business_logic/event_listener/event_listener_bloc.dart';
-import 'business_logic/event_listener/event_listener_event.dart';
 import 'business_logic/installation/installation_cubit.dart';
 import 'business_logic/permission_listener/permission_listener_bloc.dart';
 import 'business_logic/permission_listener/permission_listener_event.dart';
@@ -23,11 +20,6 @@ class FlatpakApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // Event listeners
-        BlocProvider<EventListenerBloc>(
-          create: (context) => sl<EventListenerBloc>()..add(StartListening()),
-          lazy: false,
-        ),
         BlocProvider<PermissionListenerBloc>(
           create: (context) => sl<PermissionListenerBloc>()
             ..add(StartPermissionListening()),
@@ -49,9 +41,11 @@ class FlatpakApp extends StatelessWidget {
           create: (context) => sl<DiscoveryCubit>(),
           lazy: false,
         ),
+
         BlocProvider<AppLaunchCubit>(
           create: (context) => sl<AppLaunchCubit>(),
         ),
+
         BlocProvider<SystemInfoCubit>(
           create: (context) => sl<SystemInfoCubit>(),
         ),
@@ -82,10 +76,8 @@ class FlatpakApp extends StatelessWidget {
             });
 
             return AppStatusCoordinator(
-              child: InstallationStatusListener(
-                child: SnackbarListener(
-                  child: child ?? const SizedBox(),
-                ),
+              child: SnackbarListener(
+                child: child ?? const SizedBox(),
               ),
             );
           },

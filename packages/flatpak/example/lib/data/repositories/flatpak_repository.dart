@@ -10,11 +10,11 @@ import '../models/remote_model.dart';
 
 abstract class FlatpakRepository {
   // Event Streams
-  Stream<FlatpakEventModel> get eventStream;
+  Stream<FlatpakEventModel> getTransactionStream(String transactionId);
   Stream<PermissionEventModel> get permissionStream;
 
-  void startEventListening();
-  void stopEventListening();
+  void startEventListening(String transactionId);
+  void stopEventListening(String transactionId);
   void startPermissionListening();
   void stopPermissionListening();
 
@@ -33,9 +33,9 @@ abstract class FlatpakRepository {
   Future<Either<Failure, List<Application>>> getApplicationsUpdate();
 
   // Application Management
-  Future<Either<Failure, bool>> installApplication(String appId);
-  Future<Either<Failure, bool>> uninstallApplication(String appId);
-  Future<Either<Failure, bool>> updateApplication(String appId);
+  Future<Either<Failure, String>> installApplication(String appId);
+  Future<Either<Failure, String>> uninstallApplication(String appId);
+  Future<Either<Failure, String>> updateApplication(String appId);
   Future<Either<Failure, bool>> launchApplication(String appId);
   Future<Either<Failure, bool>> stopApplication(String appId);
 

@@ -52,11 +52,6 @@ Future<void> initializeDependencies() async {
     ),
   );
 
-  // Event listener
-  sl.registerLazySingleton<EventListenerBloc>(
-        () => EventListenerBloc(repository: sl()),
-  );
-
   // Permission listener
   sl.registerLazySingleton<PermissionListenerBloc>(
         () => PermissionListenerBloc(repository: sl()),

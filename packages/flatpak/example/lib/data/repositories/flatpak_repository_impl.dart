@@ -25,20 +25,22 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
   });
 
   @override
-  Stream<FlatpakEventModel> get eventStream => eventDataSource.eventStream;
+  Stream<FlatpakEventModel> getTransactionStream(String transactionId) {
+    return eventDataSource.getTransactionStream(transactionId);
+  }
 
   @override
   Stream<PermissionEventModel> get permissionStream =>
       permissionDataSource.permissionStream;
 
   @override
-  void startEventListening() {
-    eventDataSource.startListening();
+  void startEventListening(String transactionId) {
+    eventDataSource.startListening(transactionId);
   }
 
   @override
-  void stopEventListening() {
-    eventDataSource.stopListening();
+  void stopEventListening(String transactionId) {
+    eventDataSource.stopListening(transactionId);
   }
 
   @override
@@ -134,30 +136,34 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> installApplication(String appId) async {
+  Future<Either<Failure, String>> installApplication(String appId) async {
     try {
-      final result = await localDataSource.applicationInstall(appId);
-      return Right(result);
+      final transactionId = _generateTransactionId(appId, 'install');
+      await localDataSource.applicationInstall(appId, transactionId);
+      return Right(transactionId);
+    } on PlatformException catch (e) {
+      return Left(PlatformFailure(e.message));
+    }
+  }
+
+
+  @override
+  Future<Either<Failure, String>> uninstallApplication(String appId) async {
+    try {
+      final transactionId = _generateTransactionId(appId, 'uninstall');
+      await localDataSource.applicationUninstall(appId, transactionId);
+      return Right(transactionId);
     } on PlatformException catch (e) {
       return Left(PlatformFailure(e.message));
     }
   }
 
   @override
-  Future<Either<Failure, bool>> uninstallApplication(String appId) async {
+  Future<Either<Failure, String>> updateApplication(String appId) async {
     try {
-      final result = await localDataSource.applicationUninstall(appId);
-      return Right(result);
-    } on PlatformException catch (e) {
-      return Left(PlatformFailure(e.message));
-    }
-  }
-
-  @override
-  Future<Either<Failure, bool>> updateApplication(String appId) async {
-    try {
-      final result = await localDataSource.applicationUpdate(appId);
-      return Right(result);
+      final transactionId = _generateTransactionId(appId, 'update');
+      await localDataSource.applicationUpdate(appId, transactionId);
+      return Right(transactionId);
     } on PlatformException catch (e) {
       return Left(PlatformFailure(e.message));
     }
@@ -268,6 +274,12 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
     } catch (e) {
       return Left(PlatformFailure(e.toString()));
     }
+  }
+
+  String _generateTransactionId(String appId, String operation) {
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final shortId = appId.split('.').last;
+    return '${operation}_${shortId}_$timestamp';
   }
 
   @override
