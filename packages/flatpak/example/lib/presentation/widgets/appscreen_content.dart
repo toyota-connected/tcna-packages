@@ -192,19 +192,12 @@ class AppscreenContent extends StatelessWidget {
         final isInstalling = installationCubit.isOperationInProgress(app.id) &&
             installationCubit.getOperationType(app.id) == 'install';
 
-        double? progress;
-        if (isInstalling && installState is InstallationInProgress) {
-          if (AppIdUtils.extractShortId(installState.appId ?? '') ==
-              app.shortId) {
-            progress = installState.progress;
-          }
-        }
+        final progress = isInstalling ? appStatusCubit.getProgress(app.id) : null;
 
         return _GlassActionButton(
           label: isInstalling ? 'Installing...' : 'Install',
           baseColor: const Color(0xFF2563EB), // Blue
-          onTap:
-          isInstalling ? null : () => installationCubit.installApp(app.id),
+          onTap: isInstalling ? null : () => installationCubit.installApp(app.id),
           isLoading: isInstalling,
           progress: progress,
           isFilled: true,
@@ -746,6 +739,9 @@ class _GlassActionButton extends StatelessWidget {
 
     final textColor = isFilled ? Colors.white : effectiveColor;
 
+    final showProgress = isLoading && progress != null && progress! > 0;
+    final showSpinner = isLoading && (progress == null || progress! == 0);
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -762,29 +758,25 @@ class _GlassActionButton extends StatelessWidget {
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(
-                    value: progress,
+                    value: showProgress ? progress : null,
                     strokeWidth: 2,
                     color: textColor,
                   ),
                 ),
                 const SizedBox(width: 8),
-                if (progress != null && progress! > 0)
-                  Text(
-                    '${(progress! * 100).toInt()}%',
-                    style: TextStyle(
-                      color: textColor,
-                      fontWeight: FontWeight.w600,
-                    ),
+              ],
+
+              if (showProgress)
+                Text(
+                  '${(progress! * 100).toInt()}%',
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.3,
                   ),
-                if (progress == null)
-                  Text(
-                    label,
-                    style: TextStyle(
-                      color: textColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-              ] else
+                )
+              else
                 Text(
                   label,
                   style: TextStyle(

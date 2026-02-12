@@ -185,4 +185,8 @@ abstract class FlatpakApi {
 
   /// Stop application with given id.
   bool applicationStop(String id);
+
+  /// Setup event channel to use before flatpak events.
+  @async
+  void setupEventChannel(String appId);
 }

@@ -136,11 +136,10 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
   }
 
   @override
-  Future<Either<Failure, String>> installApplication(String appId) async {
+  Future<Either<Failure, bool>> installApplication(String appId) async {
     try {
-      final transactionId = _generateTransactionId(appId, 'install');
-      await localDataSource.applicationInstall(appId, transactionId);
-      return Right(transactionId);
+      final result = await localDataSource.applicationInstall(appId);
+      return Right(result);
     } on PlatformException catch (e) {
       return Left(PlatformFailure(e.message));
     }
@@ -148,22 +147,20 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
 
 
   @override
-  Future<Either<Failure, String>> uninstallApplication(String appId) async {
+  Future<Either<Failure, bool>> uninstallApplication(String appId) async {
     try {
-      final transactionId = _generateTransactionId(appId, 'uninstall');
-      await localDataSource.applicationUninstall(appId, transactionId);
-      return Right(transactionId);
+      final result = await localDataSource.applicationUninstall(appId);
+      return Right(result);
     } on PlatformException catch (e) {
       return Left(PlatformFailure(e.message));
     }
   }
 
   @override
-  Future<Either<Failure, String>> updateApplication(String appId) async {
+  Future<Either<Failure, bool>> updateApplication(String appId) async {
     try {
-      final transactionId = _generateTransactionId(appId, 'update');
-      await localDataSource.applicationUpdate(appId, transactionId);
-      return Right(transactionId);
+      final result = await localDataSource.applicationUpdate(appId);
+      return Right(result);
     } on PlatformException catch (e) {
       return Left(PlatformFailure(e.message));
     }
@@ -184,6 +181,16 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
     try {
       final result = await localDataSource.applicationStop(appId);
       return Right(result);
+    } on PlatformException catch (e) {
+      return Left(PlatformFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> setupEventChannel(String appId) async {
+    try {
+      await localDataSource.setupEventChannel(appId);
+      return const Right(null);
     } on PlatformException catch (e) {
       return Left(PlatformFailure(e.message));
     }

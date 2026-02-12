@@ -407,6 +407,10 @@ class FlatpakApi {
     std::function<void(ErrorOr<bool> reply)> result) = 0;
   // Stop application with given id.
   virtual ErrorOr<bool> ApplicationStop(const std::string& id) = 0;
+  // Setup event channel to use before flatpak events.
+  virtual void SetupEventChannel(
+    const std::string& app_id,
+    std::function<void(std::optional<FlutterError> reply)> result) = 0;
 
   // The codec used by FlatpakApi.
   static const flutter::StandardMessageCodec& GetCodec();

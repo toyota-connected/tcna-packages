@@ -33,11 +33,12 @@ abstract class FlatpakRepository {
   Future<Either<Failure, List<Application>>> getApplicationsUpdate();
 
   // Application Management
-  Future<Either<Failure, String>> installApplication(String appId);
-  Future<Either<Failure, String>> uninstallApplication(String appId);
-  Future<Either<Failure, String>> updateApplication(String appId);
+  Future<Either<Failure, bool>> installApplication(String appId);
+  Future<Either<Failure, bool>> uninstallApplication(String appId);
+  Future<Either<Failure, bool>> updateApplication(String appId);
   Future<Either<Failure, bool>> launchApplication(String appId);
   Future<Either<Failure, bool>> stopApplication(String appId);
+  Future<Either<Failure, void>> setupEventChannel(String appId);
 
   // Remote Management
   Future<Either<Failure, bool>> addRemote(Remote remote);

@@ -8,7 +8,6 @@ import '../../data/repositories/flatpak_repository_impl.dart';
 
 import 'business_logic/app_launch/app_launch_cubit.dart';
 import 'business_logic/discovery/discovery_cubit.dart';
-import 'business_logic/event_listener/event_listener_bloc.dart';
 import 'business_logic/permission_listener/permission_listener_bloc.dart';
 import 'business_logic/installation/installation_cubit.dart';
 import 'data/data_sources/flatpak_event_data.dart';

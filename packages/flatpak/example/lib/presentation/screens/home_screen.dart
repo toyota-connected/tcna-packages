@@ -7,8 +7,6 @@ import '../../business_logic/app_status/app_status_cubit.dart';
 import '../../business_logic/app_status/app_status_state.dart';
 import '../../business_logic/discovery/discovery_cubit.dart';
 import '../../business_logic/discovery/discovery_state.dart';
-import '../../business_logic/event_listener/event_listener_bloc.dart';
-import '../../business_logic/event_listener/event_listener_state.dart';
 import '../../business_logic/installation/installation_cubit.dart';
 import '../widgets/category_section.dart';
 import '../widgets/hero_widget.dart';

@@ -15,7 +15,6 @@ class InstallationCubit extends Cubit<InstallationState> {
   final AppStatusCubit appStatusCubit;
 
   // Track transaction ID for each app
-  final Map<String, String> _appToTransactionId = {};
   final Map<String, StreamSubscription> _transactionSubscriptions = {};
   final Map<String, OperationTracker> _operationTrackers = {};
 
@@ -27,13 +26,39 @@ class InstallationCubit extends Cubit<InstallationState> {
   Future<void> installApp(String appId) async {
     final shortId = AppIdUtils.extractShortId(appId);
 
-    if (_appToTransactionId.containsKey(shortId)) {
-      debugPrint('[InstallationCubit] Operation already in progress for: $shortId');
+    if (_operationTrackers.containsKey(shortId)) {
+      debugPrint('[InstallationCubit] Already installing $shortId');
       return;
     }
 
-    debugPrint('[InstallationCubit] Starting installation: $shortId');
+    _operationTrackers[shortId] = OperationTracker(
+      appId: shortId,
+      operationType: 'install',
+    );
+    debugPrint('[InstallationCubit] Starting install for $shortId');
 
+    debugPrint('[InstallationCubit] Setting up event channel for $shortId');
+    final setupResult = await repository.setupEventChannel(appId);
+    await setupResult.fold(
+          (failure) async {
+        debugPrint('[InstallationCubit] Failed to setup channel: ${failure.message}');
+        _cleanup(shortId);
+        emit(InstallationFailure(
+          appId: shortId,
+          error: 'Failed to setup event channel: ${failure.message}',
+          operation: 'install',
+        ));
+        return;
+      },
+          (_) async {
+        debugPrint('[InstallationCubit] Event channel setup complete');
+      },
+    );
+
+    debugPrint('[InstallationCubit] Starting Flutter event listener for $shortId');
+    await _listenToTransaction(shortId);
+
+    await Future.delayed(const Duration(milliseconds: 150));
     appStatusCubit.updateAppStatus(shortId, AppStatus.installing, progress: 0.0);
     emit(InstallationInProgress(
       appId: shortId,
@@ -42,11 +67,12 @@ class InstallationCubit extends Cubit<InstallationState> {
       message: 'Starting installation...',
     ));
 
+    debugPrint('[InstallationCubit] Calling install API for $shortId');
     final result = await repository.installApplication(appId);
-
     result.fold(
           (failure) {
-        debugPrint('[InstallationCubit] Installation failed: ${failure.message}');
+        debugPrint('[InstallationCubit] Failed to start install: ${failure.message}');
+        _cleanup(shortId);
         appStatusCubit.updateAppStatus(shortId, AppStatus.notInstalled);
         emit(InstallationFailure(
           appId: shortId,
@@ -54,25 +80,25 @@ class InstallationCubit extends Cubit<InstallationState> {
           operation: 'install',
         ));
       },
-          (transactionId) {
-        debugPrint('[InstallationCubit] Transaction started: $transactionId');
-
-        // Track this transaction
-        _appToTransactionId[shortId] = transactionId;
-        _operationTrackers[shortId] = OperationTracker(
-          appId: shortId,
-          operationType: 'install',
-        );
-
-        // Start listening to this transaction's events
-        _listenToTransaction(shortId, transactionId);
+          (success) {
+        debugPrint('[InstallationCubit] Install initiated for $shortId');
       },
     );
   }
 
   Future<void> uninstallApp(String appId) async {
     final shortId = AppIdUtils.extractShortId(appId);
-    if (_appToTransactionId.containsKey(shortId)) return;
+
+    if (_operationTrackers.containsKey(shortId)) return;
+
+    _operationTrackers[shortId] = OperationTracker(
+      appId: shortId,
+      operationType: 'uninstall',
+    );
+
+    await repository.setupEventChannel(appId);
+    await _listenToTransaction(shortId);
+    await Future.delayed(const Duration(milliseconds: 150));
 
     emit(InstallationInProgress(
       appId: shortId,
@@ -80,30 +106,38 @@ class InstallationCubit extends Cubit<InstallationState> {
       message: 'Uninstalling...',
     ));
 
+    await _listenToTransaction(shortId);
+
     final result = await repository.uninstallApplication(appId);
 
     result.fold(
           (failure) {
+        _cleanup(shortId);
         emit(InstallationFailure(
           appId: shortId,
           error: failure.message,
           operation: 'uninstall',
         ));
       },
-          (transactionId) {
-        _appToTransactionId[shortId] = transactionId;
-        _operationTrackers[shortId] = OperationTracker(
-          appId: shortId,
-          operationType: 'uninstall',
-        );
-        _listenToTransaction(shortId, transactionId);
+          (success) {
+        debugPrint('[InstallationCubit] Uninstall initiated');
       },
     );
   }
 
   Future<void> updateApp(String appId) async {
     final shortId = AppIdUtils.extractShortId(appId);
-    if (_appToTransactionId.containsKey(shortId)) return;
+
+    if (_operationTrackers.containsKey(shortId)) return;
+
+    _operationTrackers[shortId] = OperationTracker(
+      appId: shortId,
+      operationType: 'update',
+    );
+
+    await repository.setupEventChannel(appId);
+    await _listenToTransaction(shortId);
+    await Future.delayed(const Duration(milliseconds: 150));
 
     appStatusCubit.updateAppStatus(shortId, AppStatus.updating, progress: 0);
 
@@ -114,10 +148,13 @@ class InstallationCubit extends Cubit<InstallationState> {
       message: 'Starting update...',
     ));
 
+    _listenToTransaction(shortId);
+
     final result = await repository.updateApplication(appId);
 
     result.fold(
           (failure) {
+        _cleanup(shortId);
         appStatusCubit.updateAppStatus(shortId, AppStatus.needsUpdate);
         emit(InstallationFailure(
           appId: shortId,
@@ -125,25 +162,19 @@ class InstallationCubit extends Cubit<InstallationState> {
           operation: 'update',
         ));
       },
-          (transactionId) {
-        _appToTransactionId[shortId] = transactionId;
-        _operationTrackers[shortId] = OperationTracker(
-          appId: shortId,
-          operationType: 'update',
-        );
-        _listenToTransaction(shortId, transactionId);
+          (success) {
+        debugPrint('[InstallationCubit] Update initiated');
       },
     );
   }
 
-  void _listenToTransaction(String appId, String transactionId) {
-    debugPrint('[InstallationCubit] Listening to transaction: $transactionId for $appId');
+  Future<void> _listenToTransaction(String appId) async{
+    debugPrint('[InstallationCubit] Listening to transaction stream for $appId');
 
-    // Start event listening for this transaction
-    repository.startEventListening(transactionId);
+    await Future.delayed(const Duration(milliseconds: 50));
+    repository.startEventListening(appId);
 
-    // Subscribe to the transaction's event stream
-    final subscription = repository.getTransactionStream(transactionId).listen(
+    final subscription = repository.getTransactionStream(appId).listen(
           (event) {
         debugPrint('[InstallationCubit] Event for $appId: ${event.type}');
         _handleTransactionEvent(appId, event);
@@ -232,6 +263,7 @@ class InstallationCubit extends Cubit<InstallationState> {
         break;
     }
   }
+
   void _completeOperation(String appId, String operation) {
     debugPrint('[InstallationCubit] Operation complete: $appId');
 
@@ -268,20 +300,16 @@ class InstallationCubit extends Cubit<InstallationState> {
   }
 
   void _cleanup(String appId) {
-    final transactionId = _appToTransactionId[appId];
-    if (transactionId != null) {
-      repository.stopEventListening(transactionId);
-    }
+    repository.stopEventListening(appId);
 
     _transactionSubscriptions[appId]?.cancel();
     _transactionSubscriptions.remove(appId);
-    _appToTransactionId.remove(appId);
     _operationTrackers.remove(appId);
   }
 
   bool isOperationInProgress(String appId) {
     final shortId = AppIdUtils.extractShortId(appId);
-    return _appToTransactionId.containsKey(shortId);
+    return _operationTrackers.containsKey(shortId);
   }
 
   String? getOperationType(String appId) {
@@ -291,7 +319,7 @@ class InstallationCubit extends Cubit<InstallationState> {
 
   @override
   Future<void> close() {
-    for (final appId in List<String>.from(_appToTransactionId.keys)) {
+    for (final appId in List<String>.from(_operationTrackers.keys)) {
       _cleanup(appId);
     }
     return super.close();
@@ -306,11 +334,13 @@ class OperationTracker {
   double currentProgress = 0.0;
   List<OperationInfo> operations = [];
 
-  OperationTracker({required this.appId, required this.operationType});
+  OperationTracker({
+    required this.appId,
+    required this.operationType,
+  });
 
   double get overallProgress {
     if (totalOperations == 0) return 0.0;
-    final val = (completedOperations + currentProgress) / totalOperations;
-    return val.clamp(0.0, 1.0);
+    return ((completedOperations + currentProgress) / totalOperations).clamp(0.0, 1.0);
   }
 }

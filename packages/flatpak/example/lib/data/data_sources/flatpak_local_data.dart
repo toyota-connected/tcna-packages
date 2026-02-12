@@ -1,4 +1,3 @@
-import 'package:flutter/services.dart';
 import 'package:flatpak_flutter/src/messages.g.dart';
 import '../models/application_model.dart';
 import '../models/installation_model.dart';
@@ -15,15 +14,15 @@ abstract class FlatpakLocalDataSource {
   Future<List<ApplicationModel>> getApplicationsInstalled();
   Future<List<ApplicationModel>> getApplicationsUpdate();
   Future<List<ApplicationModel>> getApplicationsRemote(String remoteId);
-  Future<void> applicationInstall(String appId, String transactionId);
-  Future<void> applicationUninstall(String appId, String transactionId);
-  Future<void> applicationUpdate(String appId, String transactionId);
+  Future<bool> applicationInstall(String id);
+  Future<bool> applicationUninstall(String id);
+  Future<bool> applicationUpdate(String id);
   Future<bool> applicationStart(String id);
   Future<bool> applicationStop(String id);
+  Future<void> setupEventChannel(String id);
 }
 
 class FlatpakLocalDataSourceImpl implements FlatpakLocalDataSource {
-  static const MethodChannel _channel = MethodChannel('flutter.io/flatpakPlugin');
   final FlatpakApi _api;
 
   FlatpakLocalDataSourceImpl(this._api);
@@ -85,27 +84,18 @@ class FlatpakLocalDataSourceImpl implements FlatpakLocalDataSource {
   }
 
   @override
-  Future<void> applicationInstall(String appId, String transactionId) async {
-    await _channel.invokeMethod('installApplication', {
-      'appId': appId,
-      'transactionId': transactionId,
-    });
+  Future<bool> applicationInstall(String id) async {
+    return await _api.applicationInstall(id);
   }
 
   @override
-  Future<void> applicationUninstall(String appId, String transactionId) async {
-    await _channel.invokeMethod('uninstallApplication', {
-      'appId': appId,
-      'transactionId': transactionId,
-    });
+  Future<bool> applicationUninstall(String id) async {
+    return await _api.applicationUninstall(id);
   }
 
   @override
-  Future<void> applicationUpdate(String appId, String transactionId) async {
-    await _channel.invokeMethod('updateApplication', {
-      'appId': appId,
-      'transactionId': transactionId,
-    });
+  Future<bool> applicationUpdate(String id) async {
+    return await _api.applicationUpdate(id);
   }
 
   @override
@@ -116,5 +106,10 @@ class FlatpakLocalDataSourceImpl implements FlatpakLocalDataSource {
   @override
   Future<bool> applicationStop(String id) async {
     return await _api.applicationStop(id);
+  }
+
+  @override
+  Future<void> setupEventChannel(String id) async {
+    return await _api.setupEventChannel(id);
   }
 }
