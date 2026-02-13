@@ -25,20 +25,22 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
   });
 
   @override
-  Stream<FlatpakEventModel> get eventStream => eventDataSource.eventStream;
+  Stream<FlatpakEventModel> getTransactionStream(String transactionId) {
+    return eventDataSource.getTransactionStream(transactionId);
+  }
 
   @override
   Stream<PermissionEventModel> get permissionStream =>
       permissionDataSource.permissionStream;
 
   @override
-  void startEventListening() {
-    eventDataSource.startListening();
+  void startEventListening(String transactionId) {
+    eventDataSource.startListening(transactionId);
   }
 
   @override
-  void stopEventListening() {
-    eventDataSource.stopListening();
+  void stopEventListening(String transactionId) {
+    eventDataSource.stopListening(transactionId);
   }
 
   @override
@@ -143,6 +145,7 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
     }
   }
 
+
   @override
   Future<Either<Failure, bool>> uninstallApplication(String appId) async {
     try {
@@ -178,6 +181,16 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
     try {
       final result = await localDataSource.applicationStop(appId);
       return Right(result);
+    } on PlatformException catch (e) {
+      return Left(PlatformFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> setupEventChannel(String appId) async {
+    try {
+      await localDataSource.setupEventChannel(appId);
+      return const Right(null);
     } on PlatformException catch (e) {
       return Left(PlatformFailure(e.message));
     }
@@ -268,6 +281,12 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
     } catch (e) {
       return Left(PlatformFailure(e.toString()));
     }
+  }
+
+  String _generateTransactionId(String appId, String operation) {
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final shortId = appId.split('.').last;
+    return '${operation}_${shortId}_$timestamp';
   }
 
   @override

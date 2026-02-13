@@ -19,6 +19,7 @@ abstract class FlatpakLocalDataSource {
   Future<bool> applicationUpdate(String id);
   Future<bool> applicationStart(String id);
   Future<bool> applicationStop(String id);
+  Future<void> setupEventChannel(String id);
 }
 
 class FlatpakLocalDataSourceImpl implements FlatpakLocalDataSource {
@@ -105,5 +106,10 @@ class FlatpakLocalDataSourceImpl implements FlatpakLocalDataSource {
   @override
   Future<bool> applicationStop(String id) async {
     return await _api.applicationStop(id);
+  }
+
+  @override
+  Future<void> setupEventChannel(String id) async {
+    return await _api.setupEventChannel(id);
   }
 }

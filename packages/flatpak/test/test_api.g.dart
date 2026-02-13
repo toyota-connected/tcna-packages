@@ -110,6 +110,9 @@ abstract class TestHostFlatpakApi {
   /// Stop application with given id.
   bool applicationStop(String id);
 
+  /// Setup event channel to use before flatpak events.
+  Future<void> setupEventChannel(String appId);
+
   static void setUp(TestHostFlatpakApi? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
@@ -437,6 +440,31 @@ abstract class TestHostFlatpakApi {
           try {
             final bool output = api.applicationStop(arg_id!);
             return <Object?>[output];
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.flatpak_flutter.FlatpakApi.setupEventChannel$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(pigeonVar_channel, null);
+      } else {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(pigeonVar_channel, (Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.flatpak_flutter.FlatpakApi.setupEventChannel was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final String? arg_appId = (args[0] as String?);
+          assert(arg_appId != null,
+              'Argument for dev.flutter.pigeon.flatpak_flutter.FlatpakApi.setupEventChannel was null, expected non-null String.');
+          try {
+            await api.setupEventChannel(arg_appId!);
+            return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
           }          catch (e) {

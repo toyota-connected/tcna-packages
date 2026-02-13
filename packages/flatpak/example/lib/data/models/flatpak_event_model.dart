@@ -14,6 +14,10 @@ enum FlatpakEventType {
   operationComplete, // Individual operation completed
   operationSummary, // FINAL summary - all operations done
   aggregatedProgress, // Overall progress across all operations
+  installationStarted,
+  uninstallationStarted,
+  updateStarted,
+  connectionEstablished,
 }
 
 class FlatpakEventModel {
@@ -82,6 +86,30 @@ class FlatpakEventModel {
           eventType = FlatpakEventType.operationComplete;
           break;
 
+        case 'install_complete':
+          eventType = FlatpakEventType.installComplete;
+          break;
+
+        case 'uninstall_complete':
+          eventType = FlatpakEventType.uninstallComplete;
+          break;
+
+        case 'update_complete':
+          eventType = FlatpakEventType.updateComplete;
+          break;
+
+        case 'install_failed':
+          eventType = FlatpakEventType.installFailed;
+          break;
+
+        case 'uninstall_failed':
+          eventType = FlatpakEventType.uninstallFailed;
+          break;
+
+        case 'update_failed':
+          eventType = FlatpakEventType.updateFailed;
+          break;
+
         case 'operation_summary':
           final opType = map['operation_type'] as String?;
           final success = map['success'] as bool? ?? false;
@@ -99,6 +127,22 @@ class FlatpakEventModel {
                 ? FlatpakEventType.uninstallComplete
                 : FlatpakEventType.uninstallFailed;
           }
+          break;
+
+        case 'installation_started':
+          eventType = FlatpakEventType.installationStarted;
+          break;
+
+        case 'uninstallation_started':
+          eventType = FlatpakEventType.uninstallationStarted;
+          break;
+
+        case 'update_started':
+          eventType = FlatpakEventType.updateStarted;
+          break;
+
+        case 'connection_established':
+          eventType = FlatpakEventType.connectionEstablished;
           break;
 
         case 'operation_started':
@@ -145,8 +189,8 @@ class FlatpakEventModel {
       appId: appId,
       ref: rawRef,
       progress: progress,
-      message: map['status'] as String? ?? map['error_message'] as String?,
-      error: map['error_message'] as String?,
+      message: map['status'] as String? ?? map['message'] as String? ?? map['error_message'] as String?,
+      error: map['error'] as String? ?? map['error_message'] as String?,
       isEstimating: toBool(map['is_estimating']),
       bytes: map['bytes'] as int?,
       startTime: map['start_time'] as int?,

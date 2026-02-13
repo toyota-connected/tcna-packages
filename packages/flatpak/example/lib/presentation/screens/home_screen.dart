@@ -7,8 +7,6 @@ import '../../business_logic/app_status/app_status_cubit.dart';
 import '../../business_logic/app_status/app_status_state.dart';
 import '../../business_logic/discovery/discovery_cubit.dart';
 import '../../business_logic/discovery/discovery_state.dart';
-import '../../business_logic/event_listener/event_listener_bloc.dart';
-import '../../business_logic/event_listener/event_listener_state.dart';
 import '../../business_logic/installation/installation_cubit.dart';
 import '../widgets/category_section.dart';
 import '../widgets/hero_widget.dart';
@@ -112,33 +110,6 @@ class _HomeScreenState extends State<HomeScreen>
               child: CustomScrollView(
                 physics: const BouncingScrollPhysics(),
                 slivers: [
-                  // Connection status indicator
-                  SliverToBoxAdapter(
-                    child: BlocBuilder<EventListenerBloc, EventListenerState>(
-                      builder: (context, state) {
-                        if (state is EventListenerListening) {
-                          return Container(
-                            padding: const EdgeInsets.all(8),
-                            color: Colors.green.withValues(alpha: 0.2),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 8),
-                                Text('Connected to Flatpak'),
-                              ],
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                  ),
-
                   SliverToBoxAdapter(
                     child: HeroWidget(
                       title: "Discover, Install, and Enjoy Apps on AGL Store.",
