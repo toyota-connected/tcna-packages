@@ -17,13 +17,14 @@ class Entity with Jsonable {
   @protected
   FilamentViewApi? get engine => _engine;
 
-  final EntityGUID? _parentId;
-  Entity? get parent => scene.getEntity(_parentId!);
+  EntityGUID? _parentId;
+  Entity? get parent => _parentId != null ? scene.getEntity(_parentId!) : null;
 
-  final Iterable<EntityGUID> _children = <EntityGUID>[];
+  final List<EntityGUID> _children = <EntityGUID>[];
   Iterable<Entity> get children => _children.map((final id) => scene.getEntity(id)!);
 
-  /// List of children to be passed from the constructor. Only using at scene initialization.
+  /// List of children to be passed from the constructor. Only using at scene
+  /// initialization.
   Iterable<Entity> tmpChildren = <Entity>[];
 
   Entity({
@@ -31,14 +32,13 @@ class Entity with Jsonable {
     this.name,
     final EntityGUID? parentId,
     final Iterable<Entity> children = const <Entity>[],
-  })
-    // ;
-    : _parentId = parentId,
+  }) : _parentId = parentId,
        tmpChildren = children {
     // Make sure that direct children don't directly define a parentId
     assert(
       children.every((final child) => child._parentId == null),
-      'Direct children should not have a parentId set. When adding children, leave the parentId null.',
+      'Direct children should not have a parentId set. '
+      'When adding children, leave the parentId null.',
     );
   }
 
@@ -51,10 +51,64 @@ class Entity with Jsonable {
     _engine = engine;
   }
 
-  // TODO(kerberg): set parent
+  /// Gets the parent entity's GUID.
   EntityGUID? get parentId => _parentId;
 
-  // TODO(kerberjg): add/remove child
+  /// Sets the parent of this entity by GUID.
+  ///
+  /// Maintains bidirectional consistency: removes this entity from the old
+  /// parent's children list and adds it to the new parent's children list.
+  /// Pass `null` to unparent this entity.
+  set parentId(final EntityGUID? newParentId) {
+    if (newParentId == _parentId) return;
+
+    // Remove from old parent's children list
+    if (_parentId != null) {
+      scene.getEntity(_parentId!)?._children.remove(id);
+    }
+
+    // Add to new parent's children list
+    if (newParentId != null) {
+      scene.getEntity(newParentId)?._children.add(id);
+    }
+
+    _parentId = newParentId;
+  }
+
+  /// Sets the parent of this entity by reference.
+  ///
+  /// Maintains bidirectional consistency: removes this entity from the old
+  /// parent's children list and adds it to the new parent's children list.
+  /// Pass `null` to unparent this entity.
+  set parent(final Entity? newParent) {
+    parentId = newParent?.id;
+  }
+
+  /// Adds a child entity to this entity.
+  ///
+  /// Maintains bidirectional consistency: if the child already has a parent,
+  /// it is first removed from that parent's children list.
+  void addChild(final Entity child) {
+    if (child._parentId == id) return; // already a child
+
+    // Remove from old parent
+    if (child._parentId != null) {
+      scene.getEntity(child._parentId!)?._children.remove(child.id);
+    }
+
+    child._parentId = id;
+    _children.add(child.id);
+  }
+
+  /// Removes a child entity from this entity.
+  ///
+  /// Maintains bidirectional consistency: clears the child's parentId.
+  void removeChild(final Entity child) {
+    if (child._parentId != id) return; // not a child of this entity
+
+    child._parentId = null;
+    _children.remove(child.id);
+  }
 
   /// Returns a child entity with a given [name]
   Entity? getChildByName(final String name) =>
