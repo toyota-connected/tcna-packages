@@ -44,9 +44,13 @@ void main() {
     });
 
     test('create with asset', () async {
-      final int? textureId = await player.create(DataSource(
-        sourceType: DataSourceType.asset,
-        asset: 'someAsset',
+      final int? textureId =
+          await player.createWithOptions(VideoCreationOptions(
+        dataSource: DataSource(
+          sourceType: DataSourceType.asset,
+          asset: 'someAsset',
+        ),
+        viewType: VideoViewType.textureView,
       ));
       verify(mockApi.create('someAsset', null, <String, String>{}));
       expect(textureId, 3);
@@ -54,28 +58,39 @@ void main() {
 
     test('create with asset from package', () async {
       await expectLater(
-          () => player.create(DataSource(
-                sourceType: DataSourceType.asset,
-                asset: 'someAsset',
-                package: 'somePackage',
+          () => player.createWithOptions(VideoCreationOptions(
+                dataSource: DataSource(
+                  sourceType: DataSourceType.asset,
+                  asset: 'someAsset',
+                  package: 'somePackage',
+                ),
+                viewType: VideoViewType.textureView,
               )),
           throwsA(isA<UnimplementedError>()));
     });
 
     test('create with network', () async {
-      final int? textureId = await player.create(DataSource(
-        sourceType: DataSourceType.network,
-        uri: 'someUri',
+      final int? textureId =
+          await player.createWithOptions(VideoCreationOptions(
+        dataSource: DataSource(
+          sourceType: DataSourceType.network,
+          uri: 'someUri',
+        ),
+        viewType: VideoViewType.textureView,
       ));
       verify(mockApi.create(null, 'someUri', <String, String>{}));
       expect(textureId, 3);
     });
 
     test('create with network (some headers)', () async {
-      final int? textureId = await player.create(DataSource(
-        sourceType: DataSourceType.network,
-        uri: 'someUri',
-        httpHeaders: <String, String>{'Authorization': 'Bearer token'},
+      final int? textureId =
+          await player.createWithOptions(VideoCreationOptions(
+        dataSource: DataSource(
+          sourceType: DataSourceType.network,
+          uri: 'someUri',
+          httpHeaders: <String, String>{'Authorization': 'Bearer token'},
+        ),
+        viewType: VideoViewType.textureView,
       ));
       verify(mockApi.create(
           null, 'someUri', <String, String>{'Authorization': 'Bearer token'}));
@@ -83,19 +98,27 @@ void main() {
     });
 
     test('create with file', () async {
-      final int? textureId = await player.create(DataSource(
-        sourceType: DataSourceType.file,
-        uri: 'someUri',
+      final int? textureId =
+          await player.createWithOptions(VideoCreationOptions(
+        dataSource: DataSource(
+          sourceType: DataSourceType.file,
+          uri: 'someUri',
+        ),
+        viewType: VideoViewType.textureView,
       ));
       verify(mockApi.create(null, 'someUri', <String, String>{}));
       expect(textureId, 3);
     });
 
     test('create with file (some headers)', () async {
-      final int? textureId = await player.create(DataSource(
-        sourceType: DataSourceType.file,
-        uri: 'someUri',
-        httpHeaders: <String, String>{'Authorization': 'Bearer token'},
+      final int? textureId =
+          await player.createWithOptions(VideoCreationOptions(
+        dataSource: DataSource(
+          sourceType: DataSourceType.file,
+          uri: 'someUri',
+          httpHeaders: <String, String>{'Authorization': 'Bearer token'},
+        ),
+        viewType: VideoViewType.textureView,
       ));
       verify(mockApi.create(
           null, 'someUri', <String, String>{'Authorization': 'Bearer token'}));

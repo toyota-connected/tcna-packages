@@ -240,7 +240,9 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
         );
     }
 
-    _textureId = (await _platform.create(dataSourceDescription)) ??
+    _textureId = (await _platform.createWithOptions(VideoCreationOptions(
+            dataSource: dataSourceDescription,
+            viewType: VideoViewType.textureView))) ??
         kUninitializedTextureId;
     _creatingCompleter!.complete(null);
     final Completer<void> initializingCompleter = Completer<void>();
@@ -430,7 +432,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
     return (_textureId == MiniController.kUninitializedTextureId ||
             !widget.controller.value.isInitialized)
         ? Container()
-        : _platform.buildView(_textureId);
+        : _platform.buildViewWithOptions(VideoViewOptions(playerId: _textureId));
   }
 }
 
