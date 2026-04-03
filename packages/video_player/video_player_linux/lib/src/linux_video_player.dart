@@ -85,11 +85,7 @@ class LinuxVideoPlayer extends VideoPlayerPlatform {
   @override
   Future<void> setPlaybackSpeed(int textureId, double speed) {
     if (speed <= 0) {
-      throw ArgumentError.value(
-        speed,
-        'speed',
-        'Must be greater than 0',
-      );
+      throw ArgumentError.value(speed, 'speed', 'Must be greater than 0');
     }
 
     return _api.setPlaybackSpeed(textureId, speed);
