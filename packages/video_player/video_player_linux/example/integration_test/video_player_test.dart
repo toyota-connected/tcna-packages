@@ -28,12 +28,12 @@ const String _videoAssetKey = 'assets/Butterfly-209.mp4';
 // TODO(stuartmorgan): Convert this to a local `HttpServer` that vends the
 // assets directly, https://github.com/flutter/flutter/issues/95420
 String getUrlForAssetAsNetworkSource(String assetKey) {
-  return 'https://github.com/flutter/packages/blob/'
-      // This hash can be rolled forward to pick up newly-added assets.
-      '2e1673307ff7454aff40b47024eaed49a9e77e81'
+  // Use the main branch instead of a pinned commit hash so the URL doesn't
+  // break when the commit is garbage-collected or the repo is reorganized.
+  return 'https://github.com/flutter/packages/raw/'
+      'main'
       '/packages/video_player/video_player/example/'
-      '$assetKey'
-      '?raw=true';
+      '$assetKey';
 }
 
 void main() {
@@ -47,8 +47,9 @@ void main() {
       controller = MiniController.asset(_videoAssetKey);
     });
 
-    testWidgets('registers expected implementation',
-        (WidgetTester tester) async {
+    testWidgets('registers expected implementation', (
+      WidgetTester tester,
+    ) async {
       LinuxVideoPlayer.registerWith();
       expect(VideoPlayerPlatform.instance, isA<LinuxVideoPlayer>());
     });
@@ -58,8 +59,10 @@ void main() {
 
       expect(controller.value.isInitialized, true);
       expect(await controller.position, Duration.zero);
-      expect(controller.value.duration,
-          const Duration(seconds: 7, milliseconds: 540));
+      expect(
+        controller.value.duration,
+        const Duration(seconds: 7, milliseconds: 540),
+      );
     });
 
     testWidgets('can be played', (WidgetTester tester) async {
@@ -109,8 +112,9 @@ void main() {
       controller = MiniController.file(file);
     });
 
-    testWidgets('test video player using static file() method as constructor',
-        (WidgetTester tester) async {
+    testWidgets('test video player using static file() method as constructor', (
+      WidgetTester tester,
+    ) async {
       await controller.initialize();
 
       await controller.play();

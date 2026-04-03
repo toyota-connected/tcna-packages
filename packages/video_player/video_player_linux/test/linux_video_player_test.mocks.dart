@@ -31,128 +31,65 @@ class MockTestHostVideoPlayerApi extends _i1.Mock
 
   @override
   void initialize() => super.noSuchMethod(
-        Invocation.method(
-          #initialize,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.method(#initialize, []),
+    returnValueForMissingStub: null,
+  );
 
   @override
-  int create(
-    String? asset,
-    String? uri,
-    Map<String?, String?>? httpHeaders,
-  ) =>
+  int create(String? asset, String? uri, Map<String?, String?>? httpHeaders) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #create,
-          [
-            asset,
-            uri,
-            httpHeaders,
-          ],
-        ),
-        returnValue: 0,
-      ) as int);
+            Invocation.method(#create, [asset, uri, httpHeaders]),
+            returnValue: 0,
+          )
+          as int);
 
   @override
   void dispose(int? textureId) => super.noSuchMethod(
-        Invocation.method(
-          #dispose,
-          [textureId],
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.method(#dispose, [textureId]),
+    returnValueForMissingStub: null,
+  );
 
   @override
-  void setLooping(
-    int? textureId,
-    bool? isLooping,
-  ) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #setLooping,
-          [
-            textureId,
-            isLooping,
-          ],
-        ),
-        returnValueForMissingStub: null,
-      );
+  void setLooping(int? textureId, bool? isLooping) => super.noSuchMethod(
+    Invocation.method(#setLooping, [textureId, isLooping]),
+    returnValueForMissingStub: null,
+  );
 
   @override
-  void setVolume(
-    int? textureId,
-    double? volume,
-  ) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #setVolume,
-          [
-            textureId,
-            volume,
-          ],
-        ),
-        returnValueForMissingStub: null,
-      );
+  void setVolume(int? textureId, double? volume) => super.noSuchMethod(
+    Invocation.method(#setVolume, [textureId, volume]),
+    returnValueForMissingStub: null,
+  );
 
   @override
-  void setPlaybackSpeed(
-    int? textureId,
-    double? speed,
-  ) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #setPlaybackSpeed,
-          [
-            textureId,
-            speed,
-          ],
-        ),
-        returnValueForMissingStub: null,
-      );
+  void setPlaybackSpeed(int? textureId, double? speed) => super.noSuchMethod(
+    Invocation.method(#setPlaybackSpeed, [textureId, speed]),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void play(int? textureId) => super.noSuchMethod(
-        Invocation.method(
-          #play,
-          [textureId],
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.method(#play, [textureId]),
+    returnValueForMissingStub: null,
+  );
 
   @override
-  int getPosition(int? textureId) => (super.noSuchMethod(
-        Invocation.method(
-          #getPosition,
-          [textureId],
-        ),
-        returnValue: 0,
-      ) as int);
+  int getPosition(int? textureId) =>
+      (super.noSuchMethod(
+            Invocation.method(#getPosition, [textureId]),
+            returnValue: 0,
+          )
+          as int);
 
   @override
-  void seekTo(
-    int? textureId,
-    int? position,
-  ) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #seekTo,
-          [
-            textureId,
-            position,
-          ],
-        ),
-        returnValueForMissingStub: null,
-      );
+  void seekTo(int? textureId, int? position) => super.noSuchMethod(
+    Invocation.method(#seekTo, [textureId, position]),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void pause(int? textureId) => super.noSuchMethod(
-        Invocation.method(
-          #pause,
-          [textureId],
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.method(#pause, [textureId]),
+    returnValueForMissingStub: null,
+  );
 }

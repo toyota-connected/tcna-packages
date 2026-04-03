@@ -4,16 +4,16 @@
 
 import 'package:pigeon/pigeon.dart';
 
-@ConfigurePigeon(PigeonOptions(
-  dartOut: 'lib/src/messages.g.dart',
-  dartTestOut: 'test/test_api.g.dart',
-  cppHeaderOut: 'linux_cpp/messages.h',
-  cppSourceOut: 'linux_cpp/messages.cpp',
-  cppOptions: CppOptions(
-    namespace: 'video_player_linux',
+@ConfigurePigeon(
+  PigeonOptions(
+    dartOut: 'lib/src/messages.g.dart',
+    dartTestOut: 'test/test_api.g.dart',
+    cppHeaderOut: 'linux_cpp/messages.h',
+    cppSourceOut: 'linux_cpp/messages.cpp',
+    cppOptions: CppOptions(namespace: 'video_player_linux'),
+    copyrightHeader: 'pigeons/copyright.txt',
   ),
-  copyrightHeader: 'pigeons/copyright.txt',
-))
+)
 @HostApi(dartHostTestHandler: 'TestHostVideoPlayerApi')
 abstract class LinuxVideoPlayerApi {
   /// Initializes the video player.

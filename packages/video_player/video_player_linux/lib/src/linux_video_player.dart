@@ -41,7 +41,8 @@ class LinuxVideoPlayer extends VideoPlayerPlatform {
         if (dataSource.package != null) {
           //TODO
           throw UnimplementedError(
-              'Loading an asset from a package is not supported on Linux');
+            'Loading an asset from a package is not supported on Linux',
+          );
         }
       case DataSourceType.network:
         uri = dataSource.uri;
@@ -53,11 +54,11 @@ class LinuxVideoPlayer extends VideoPlayerPlatform {
         uri = dataSource.uri;
     }
 
-    final int textureId = await _api.create(
-      asset,
-      uri,
-      httpHeaders,
-    );
+    if (asset == null && uri == null) {
+      throw ArgumentError('Either asset or uri must be provided');
+    }
+
+    final int textureId = await _api.create(asset, uri, httpHeaders);
     return textureId;
   }
 
@@ -83,7 +84,13 @@ class LinuxVideoPlayer extends VideoPlayerPlatform {
 
   @override
   Future<void> setPlaybackSpeed(int textureId, double speed) {
-    assert(speed > 0);
+    if (speed <= 0) {
+      throw ArgumentError.value(
+        speed,
+        'speed',
+        'Must be greater than 0',
+      );
+    }
 
     return _api.setPlaybackSpeed(textureId, speed);
   }
@@ -101,26 +108,38 @@ class LinuxVideoPlayer extends VideoPlayerPlatform {
 
   @override
   Stream<VideoEvent> videoEventsFor(int textureId) {
-    return _eventChannelFor(textureId)
-        .receiveBroadcastStream()
-        .map((dynamic event) {
-      final Map<dynamic, dynamic> map = event as Map<dynamic, dynamic>;
+    return _eventChannelFor(textureId).receiveBroadcastStream().map((
+      dynamic event,
+    ) {
+      final map = event as Map<dynamic, dynamic>?;
+      if (map == null) {
+        return VideoEvent(eventType: VideoEventType.unknown);
+      }
       switch (map['event']) {
         case 'initialized':
+          final int? duration = map['duration'] as int?;
+          if (duration == null) {
+            return VideoEvent(eventType: VideoEventType.unknown);
+          }
           return VideoEvent(
             eventType: VideoEventType.initialized,
-            duration: Duration(milliseconds: map['duration'] as int),
-            size: Size((map['width'] as num?)?.toDouble() ?? 0.0,
-                (map['height'] as num?)?.toDouble() ?? 0.0),
+            duration: Duration(milliseconds: duration),
+            size: Size(
+              (map['width'] as num?)?.toDouble() ?? 0.0,
+              (map['height'] as num?)?.toDouble() ?? 0.0,
+            ),
             rotationCorrection: map['rotationCorrection'] as int? ?? 0,
           );
         case 'completed':
-          return VideoEvent(
-            eventType: VideoEventType.completed,
-          );
+          return VideoEvent(eventType: VideoEventType.completed);
         case 'bufferingUpdate':
-          final List<dynamic> values = map['values'] as List<dynamic>;
-
+          final List<dynamic>? values = map['values'] as List<dynamic>?;
+          if (values == null) {
+            return VideoEvent(
+              buffered: <DurationRange>[],
+              eventType: VideoEventType.bufferingUpdate,
+            );
+          }
           return VideoEvent(
             buffered: values.map<DurationRange>(_toDurationRange).toList(),
             eventType: VideoEventType.bufferingUpdate,
@@ -130,9 +149,13 @@ class LinuxVideoPlayer extends VideoPlayerPlatform {
         case 'bufferingEnd':
           return VideoEvent(eventType: VideoEventType.bufferingEnd);
         case 'isPlayingStateUpdate':
+          final bool? isPlaying = map['isPlaying'] as bool?;
+          if (isPlaying == null) {
+            return VideoEvent(eventType: VideoEventType.unknown);
+          }
           return VideoEvent(
             eventType: VideoEventType.isPlayingStateUpdate,
-            isPlaying: map['isPlaying'] as bool,
+            isPlaying: isPlaying,
           );
         default:
           return VideoEvent(eventType: VideoEventType.unknown);

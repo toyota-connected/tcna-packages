@@ -9,11 +9,7 @@ import 'package:flutter/material.dart';
 import 'mini_controller.dart';
 
 void main() {
-  runApp(
-    MaterialApp(
-      home: _App(),
-    ),
-  );
+  runApp(MaterialApp(home: _App()));
 }
 
 class _App extends StatelessWidget {
@@ -28,19 +24,13 @@ class _App extends StatelessWidget {
           bottom: const TabBar(
             isScrollable: true,
             tabs: <Widget>[
-              Tab(
-                icon: Icon(Icons.cloud),
-                text: 'Remote',
-              ),
+              Tab(icon: Icon(Icons.cloud), text: 'Remote'),
               Tab(icon: Icon(Icons.insert_drive_file), text: 'Asset'),
             ],
           ),
         ),
         body: TabBarView(
-          children: <Widget>[
-            _BumbleBeeRemoteVideo(),
-            _ButterFlyAssetVideo(),
-          ],
+          children: <Widget>[_BumbleBeeRemoteVideo(), _ButterFlyAssetVideo()],
         ),
       ),
     );
@@ -66,6 +56,8 @@ class _ButterFlyAssetVideoState extends State<_ButterFlyAssetVideo> {
     _controller.initialize().then((_) {
       setState(() {});
       _controller.play();
+    }).catchError((Object error) {
+      debugPrint('Failed to initialize asset video: $error');
     });
   }
 
@@ -80,9 +72,7 @@ class _ButterFlyAssetVideoState extends State<_ButterFlyAssetVideo> {
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
-          Container(
-            padding: const EdgeInsets.only(top: 20.0),
-          ),
+          Container(padding: const EdgeInsets.only(top: 20.0)),
           const Text('With assets mp4'),
           Container(
             padding: const EdgeInsets.all(20),
@@ -122,7 +112,9 @@ class _BumbleBeeRemoteVideoState extends State<_BumbleBeeRemoteVideo> {
     _controller.addListener(() {
       setState(() {});
     });
-    _controller.initialize();
+    _controller.initialize().catchError((Object error) {
+      debugPrint('Failed to initialize remote video: $error');
+    });
   }
 
   @override
@@ -211,10 +203,7 @@ class _ControlsOverlay extends StatelessWidget {
             itemBuilder: (BuildContext context) {
               return <PopupMenuItem<double>>[
                 for (final double speed in _examplePlaybackRates)
-                  PopupMenuItem<double>(
-                    value: speed,
-                    child: Text('${speed}x'),
-                  )
+                  PopupMenuItem<double>(value: speed, child: Text('${speed}x')),
               ];
             },
             child: Padding(
