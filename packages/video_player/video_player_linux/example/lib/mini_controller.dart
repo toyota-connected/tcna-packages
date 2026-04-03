@@ -196,6 +196,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
   /// Only set for [asset] videos. The package that the asset was loaded from.
   final String? package;
 
+  bool _isDisposed = false;
   Timer? _timer;
   Completer<void>? _creatingCompleter;
   StreamSubscription<dynamic>? _eventSubscription;
@@ -239,7 +240,9 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
         );
     }
 
-    _textureId = (await _platform.create(dataSourceDescription)) ??
+    _textureId = (await _platform.createWithOptions(VideoCreationOptions(
+            dataSource: dataSourceDescription,
+            viewType: VideoViewType.textureView))) ??
         kUninitializedTextureId;
     _creatingCompleter!.complete(null);
     final Completer<void> initializingCompleter = Completer<void>();
@@ -288,9 +291,11 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
 
   @override
   Future<void> dispose() async {
+    _isDisposed = true;
+    _timer?.cancel();
+    _timer = null;
     if (_creatingCompleter != null) {
       await _creatingCompleter!.future;
-      _timer?.cancel();
       await _eventSubscription?.cancel();
       await _platform.dispose(_textureId);
     }
@@ -317,8 +322,12 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
       _timer = Timer.periodic(
         const Duration(milliseconds: 500),
         (Timer timer) async {
+          if (_isDisposed) {
+            timer.cancel();
+            return;
+          }
           final Duration? newPosition = await position;
-          if (newPosition == null) {
+          if (newPosition == null || _isDisposed) {
             return;
           }
           _updatePosition(newPosition);
@@ -420,9 +429,10 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return _textureId == MiniController.kUninitializedTextureId
+    return (_textureId == MiniController.kUninitializedTextureId ||
+            !widget.controller.value.isInitialized)
         ? Container()
-        : _platform.buildView(_textureId);
+        : _platform.buildViewWithOptions(VideoViewOptions(playerId: _textureId));
   }
 }
 

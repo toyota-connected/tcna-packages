@@ -31,7 +31,8 @@ class LinuxVideoPlayer extends VideoPlayerPlatform {
   }
 
   @override
-  Future<int?> create(DataSource dataSource) async {
+  Future<int?> createWithOptions(VideoCreationOptions options) async {
+    final DataSource dataSource = options.dataSource;
     String? asset;
     String? uri;
     Map<String, String> httpHeaders = <String, String>{};
@@ -141,8 +142,8 @@ class LinuxVideoPlayer extends VideoPlayerPlatform {
   }
 
   @override
-  Widget buildView(int textureId) {
-    return Texture(textureId: textureId);
+  Widget buildViewWithOptions(VideoViewOptions options) {
+    return Texture(textureId: options.playerId);
   }
 
   @override
