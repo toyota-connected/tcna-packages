@@ -1,0 +1,7 @@
+[global]
+cursor_theme = "DMZ-White"
+app_id = "homescreen"
+
+[view]
+width = 1024
+height = 768

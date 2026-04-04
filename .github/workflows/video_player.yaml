@@ -12,10 +12,7 @@ on:
       - "packages/video_player/video_player_linux/linux_cpp/**"
       - "packages/video_player/video_player_linux/pigeons/**"
       # in packages/video_player/video_player_linux/example
-      - "packages/video_player/video_player_linux/example/pubspec.yaml"
-      - "packages/video_player/video_player_linux/example/lib/**"
-      - "packages/video_player/video_player_linux/example/test/**"
-      - "packages/video_player/video_player_linux/example/assets/**"
+      - "packages/video_player/video_player_linux/example/**"
       # workflow definition itself
       - ".github/workflows/video_player.yaml"
       - ".github/workflows/ci.yaml"
@@ -32,10 +29,7 @@ on:
       - "packages/video_player/video_player_linux/linux_cpp/**"
       - "packages/video_player/video_player_linux/pigeons/**"
       # in packages/video_player/video_player_linux/example
-      - "packages/video_player/video_player_linux/example/pubspec.yaml"
-      - "packages/video_player/video_player_linux/example/lib/**"
-      - "packages/video_player/video_player_linux/example/test/**"
-      - "packages/video_player/video_player_linux/example/assets/**"
+      - "packages/video_player/video_player_linux/example/**"
       # workflow definition itself
       - ".github/workflows/video_player.yaml"
       - ".github/workflows/ci.yaml"

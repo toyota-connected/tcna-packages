@@ -1,0 +1,19 @@
+name: player
+description: A modern video player example demonstrating the full video_player API.
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  video_player_platform_interface: ">=6.1.0 <7.0.0"
+  video_player_linux:
+    path: ../../
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/Butterfly-209.mp4
