@@ -43,3 +43,11 @@ runs:
     - name: Install dependencies
       run: cd ${{ inputs.package-path }} && flutter pub get
       shell: bash
+
+    - name: Install nested example dependencies
+      run: |
+        for dir in $(find ${{ inputs.package-path }} -mindepth 2 -name pubspec.yaml -exec dirname {} \;); do
+          echo "Resolving dependencies in $dir"
+          cd "$dir" && flutter pub get && cd -
+        done
+      shell: bash
