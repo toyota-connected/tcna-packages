@@ -197,6 +197,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
   final String? package;
 
   bool _isDisposed = false;
+  Duration? _seekTarget;
   Timer? _timer;
   Completer<void>? _creatingCompleter;
   StreamSubscription<dynamic>? _eventSubscription;
@@ -240,11 +241,15 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
         );
     }
 
-    _textureId = (await _platform.createWithOptions(VideoCreationOptions(
-            dataSource: dataSourceDescription,
-            viewType: VideoViewType.textureView))) ??
-        kUninitializedTextureId;
-
+    try {
+      _textureId = (await _platform.createWithOptions(VideoCreationOptions(
+              dataSource: dataSourceDescription,
+              viewType: VideoViewType.textureView))) ??
+          kUninitializedTextureId;
+    } catch (e) {
+      _creatingCompleter!.complete(null);
+      rethrow;
+    }
     _creatingCompleter!.complete(null);
 
     // Start the pipeline so the first frame renders and triggers the
@@ -309,7 +314,9 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
     if (_creatingCompleter != null) {
       await _creatingCompleter!.future;
       await _eventSubscription?.cancel();
-      await _platform.dispose(_textureId);
+      if (_textureId != kUninitializedTextureId) {
+        await _platform.dispose(_textureId);
+      }
     }
     super.dispose();
   }
@@ -328,6 +335,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
 
   Future<void> _applyPlayPause() async {
     _timer?.cancel();
+    if (_textureId == kUninitializedTextureId) return;
     if (value.isPlaying) {
       await _platform.play(_textureId);
 
@@ -341,6 +349,17 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
           final Duration? newPosition = await position;
           if (newPosition == null || _isDisposed) {
             return;
+          }
+          // After a seek, ignore polled positions that haven't caught up
+          // to the seek target yet (the pipeline reports stale values
+          // during the flush).
+          final target = _seekTarget;
+          if (target != null) {
+            if ((newPosition - target).abs() < const Duration(seconds: 2)) {
+              _seekTarget = null;
+            } else {
+              return;
+            }
           }
           _updatePosition(newPosition);
         },
@@ -372,8 +391,9 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
     } else if (position < Duration.zero) {
       position = Duration.zero;
     }
-    await _platform.seekTo(_textureId, position);
+    _seekTarget = position;
     _updatePosition(position);
+    await _platform.seekTo(_textureId, position);
   }
 
   /// Sets the playback speed.
