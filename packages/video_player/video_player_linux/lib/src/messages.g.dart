@@ -18,7 +18,8 @@ PlatformException _createConnectionError(String channelName) {
   );
 }
 
-List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty = false}) {
+List<Object?> wrapResponse(
+    {Object? result, PlatformException? error, bool empty = false}) {
   if (empty) {
     return <Object?>[];
   }
@@ -36,12 +37,15 @@ class LinuxVideoPlayerApi {
       : __pigeon_binaryMessenger = binaryMessenger;
   final BinaryMessenger? __pigeon_binaryMessenger;
 
-  static const MessageCodec<Object?> pigeonChannelCodec = StandardMessageCodec();
+  static const MessageCodec<Object?> pigeonChannelCodec =
+      StandardMessageCodec();
 
   /// Initializes the video player.
   Future<void> initialize() async {
-    const String __pigeon_channelName = 'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.initialize';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    const String __pigeon_channelName =
+        'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.initialize';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
@@ -63,15 +67,18 @@ class LinuxVideoPlayerApi {
 
   /// Creates a new instance of the video player.
   /// Returns the textureId of the created player.
-  Future<int> create(String? asset, String? uri, Map<String?, String?> httpHeaders) async {
-    const String __pigeon_channelName = 'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.create';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+  Future<int> create(
+      String? asset, String? uri, Map<String?, String?> httpHeaders) async {
+    const String __pigeon_channelName =
+        'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.create';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
     );
-    final List<Object?>? __pigeon_replyList =
-        await __pigeon_channel.send(<Object?>[asset, uri, httpHeaders]) as List<Object?>?;
+    final List<Object?>? __pigeon_replyList = await __pigeon_channel
+        .send(<Object?>[asset, uri, httpHeaders]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {
@@ -92,8 +99,10 @@ class LinuxVideoPlayerApi {
 
   /// Disposes the video player with the given textureId.
   Future<void> dispose(int textureId) async {
-    const String __pigeon_channelName = 'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.dispose';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    const String __pigeon_channelName =
+        'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.dispose';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
@@ -115,14 +124,16 @@ class LinuxVideoPlayerApi {
 
   /// Sets the looping state of the video player with the given textureId.
   Future<void> setLooping(int textureId, bool isLooping) async {
-    const String __pigeon_channelName = 'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setLooping';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    const String __pigeon_channelName =
+        'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setLooping';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
     );
-    final List<Object?>? __pigeon_replyList =
-        await __pigeon_channel.send(<Object?>[textureId, isLooping]) as List<Object?>?;
+    final List<Object?>? __pigeon_replyList = await __pigeon_channel
+        .send(<Object?>[textureId, isLooping]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {
@@ -138,14 +149,16 @@ class LinuxVideoPlayerApi {
 
   /// Sets the volume of the video player with the given textureId.
   Future<void> setVolume(int textureId, double volume) async {
-    const String __pigeon_channelName = 'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setVolume';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    const String __pigeon_channelName =
+        'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setVolume';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
     );
-    final List<Object?>? __pigeon_replyList =
-        await __pigeon_channel.send(<Object?>[textureId, volume]) as List<Object?>?;
+    final List<Object?>? __pigeon_replyList = await __pigeon_channel
+        .send(<Object?>[textureId, volume]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {
@@ -161,14 +174,16 @@ class LinuxVideoPlayerApi {
 
   /// Sets the playback speed of the video player with the given textureId.
   Future<void> setPlaybackSpeed(int textureId, double speed) async {
-    const String __pigeon_channelName = 'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setPlaybackSpeed';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    const String __pigeon_channelName =
+        'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setPlaybackSpeed';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
     );
-    final List<Object?>? __pigeon_replyList =
-        await __pigeon_channel.send(<Object?>[textureId, speed]) as List<Object?>?;
+    final List<Object?>? __pigeon_replyList = await __pigeon_channel
+        .send(<Object?>[textureId, speed]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {
@@ -184,8 +199,10 @@ class LinuxVideoPlayerApi {
 
   /// Starts playing the video in the video player with the given textureId.
   Future<void> play(int textureId) async {
-    const String __pigeon_channelName = 'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.play';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    const String __pigeon_channelName =
+        'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.play';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
@@ -208,8 +225,10 @@ class LinuxVideoPlayerApi {
   /// Gets the current position of the video player with the given textureId.
   /// Returns the position in milliseconds.
   Future<int> getPosition(int textureId) async {
-    const String __pigeon_channelName = 'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.getPosition';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    const String __pigeon_channelName =
+        'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.getPosition';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
@@ -237,14 +256,16 @@ class LinuxVideoPlayerApi {
   /// Seeks to the given position in the video player with the given textureId.
   /// The position is in milliseconds.
   Future<void> seekTo(int textureId, int position) async {
-    const String __pigeon_channelName = 'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.seekTo';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    const String __pigeon_channelName =
+        'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.seekTo';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
     );
-    final List<Object?>? __pigeon_replyList =
-        await __pigeon_channel.send(<Object?>[textureId, position]) as List<Object?>?;
+    final List<Object?>? __pigeon_replyList = await __pigeon_channel
+        .send(<Object?>[textureId, position]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {
@@ -260,8 +281,10 @@ class LinuxVideoPlayerApi {
 
   /// Pauses the video in the video player with the given textureId.
   Future<void> pause(int textureId) async {
-    const String __pigeon_channelName = 'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.pause';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    const String __pigeon_channelName =
+        'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.pause';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,

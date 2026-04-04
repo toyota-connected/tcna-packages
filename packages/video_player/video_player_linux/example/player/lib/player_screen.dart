@@ -35,6 +35,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     _controller = null;
     _loadedUrl = item.url;
     if (old != null) {
+      old.pause();
       await old.dispose();
     }
 
