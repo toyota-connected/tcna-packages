@@ -293,7 +293,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
 
     void errorListener(Object obj) {
       final PlatformException e = obj as PlatformException;
-      value = VideoPlayerValue.erroneous(e.message!);
+      value = VideoPlayerValue.erroneous(e.message ?? e.code);
       _timer?.cancel();
       if (!initializingCompleter.isCompleted) {
         initializingCompleter.completeError(obj);
@@ -474,8 +474,10 @@ class _VideoPlayerState extends State<VideoPlayer> {
     return (_textureId == MiniController.kUninitializedTextureId ||
             !widget.controller.value.isInitialized)
         ? Container()
-        : _platform
-            .buildViewWithOptions(VideoViewOptions(playerId: _textureId));
+        : RepaintBoundary(
+            child: _platform
+                .buildViewWithOptions(VideoViewOptions(playerId: _textureId)),
+          );
   }
 }
 
