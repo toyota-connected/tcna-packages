@@ -72,86 +72,90 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
       scale: _scaleAnimation,
       child: FadeTransition(
         opacity: _fadeAnimation,
-        child: Dialog(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          insetPadding: Responsive.paddingAll(context, 20),
-          child: GlassContainer(
-            borderRadius: Responsive.scale(context, 32),
-            blur: 20,
-            borderOpacity: 0.2,
-            color: isDark
-                ? Colors.black.withValues(alpha: 0.6)
-                : Colors.white.withValues(alpha: 0.7),
+        child: Center(
+          child: Material(
+            color: Colors.transparent,
+            type: MaterialType.transparency,
             child: Container(
+              margin: Responsive.paddingAll(context, 20),
               constraints: BoxConstraints(
                 maxWidth: Responsive.dialogMaxWidth(context),
                 maxHeight: Responsive.dialogMaxHeight(context),
               ),
-              padding: Responsive.paddingAll(context, 32),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildIconHeader(context, colorScheme, permission),
+              child: GlassContainer(
+                borderRadius: Responsive.scale(context, 32),
+                blur: 20,
+                borderOpacity: 0.2,
+                color: isDark
+                    ? Colors.black.withValues(alpha: 0.6)
+                    : Colors.white.withValues(alpha: 0.7),
+                child: Padding(
+                  padding: Responsive.paddingAll(context, 32),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildIconHeader(context, colorScheme, permission),
 
-                    Responsive.vGap(context, 28),
+                        Responsive.vGap(context, 28),
 
-                    Text(
-                      'Permission Required',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: Responsive.fontSize(context, 24),
-                        // Ensure text is readable on glass
-                        color: isDark ? Colors.white : Colors.black87,
-                        letterSpacing: -0.5,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    Responsive.vGap(context, 12),
-                    RichText(
-                      textAlign: TextAlign.center,
-                      text: TextSpan(
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: isDark ? Colors.white70 : Colors.black54,
-                          fontSize: Responsive.fontSize(context, 16),
-                          height: 1.5,
+                        Text(
+                          'Permission Required',
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: Responsive.fontSize(context, 24),
+                            // Ensure text is readable on glass
+                            color: isDark ? Colors.white : Colors.black87,
+                            letterSpacing: -0.5,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        children: [
-                          TextSpan(
-                            text: _getAppDisplayName(widget.event.appId),
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: isDark ? Colors.white : Colors.black,
+                        Responsive.vGap(context, 12),
+                        RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: isDark ? Colors.white70 : Colors.black54,
+                              fontSize: Responsive.fontSize(context, 16),
+                              height: 1.5,
                             ),
+                            children: [
+                              TextSpan(
+                                text: _getAppDisplayName(widget.event.appId),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: isDark ? Colors.white : Colors.black,
+                                ),
+                              ),
+                              const TextSpan(text: ' wants to access your '),
+                              TextSpan(
+                                text: permission.displayName.toLowerCase(),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: isDark ? Colors.white : Colors.black,
+                                ),
+                              ),
+                            ],
                           ),
-                          const TextSpan(text: ' wants to access your '),
-                          TextSpan(
-                            text: permission.displayName.toLowerCase(),
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: isDark ? Colors.white : Colors.black,
-                            ),
-                          ),
+                        ),
+
+                        Responsive.vGap(context, 24),
+
+                        _buildDescriptionCard(context, permission),
+
+                        if (widget.event.total != null &&
+                            widget.event.total! > 1) ...[
+                          Responsive.vGap(context, 24),
+                          _buildProgressIndicator(context, colorScheme),
                         ],
-                      ),
+
+                        Responsive.vGap(context, 32),
+
+                        // Action buttons
+                        _buildActionButtons(context, colorScheme, isDark),
+                      ],
                     ),
-
-                    Responsive.vGap(context, 24),
-
-                    _buildDescriptionCard(context, permission),
-
-                    if (widget.event.total != null &&
-                        widget.event.total! > 1) ...[
-                      Responsive.vGap(context, 24),
-                      _buildProgressIndicator(context, colorScheme),
-                    ],
-
-                    Responsive.vGap(context, 32),
-
-                    // Action buttons
-                    _buildActionButtons(context, colorScheme, isDark),
-                  ],
+                  ),
                 ),
               ),
             ),
