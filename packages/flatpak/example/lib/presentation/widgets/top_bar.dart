@@ -10,8 +10,10 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final barHeight = Responsive.scale(context, 100);
+
     return Container(
-      height: preferredSize.height,
+      height: barHeight,
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.25),
         border: Border(
@@ -54,7 +56,31 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(100);
+  Size get preferredSize {
+    try {
+      final view = PlatformDispatcher.instance.implicitView ?? PlatformDispatcher.instance.views.first;
+      final w = view.physicalSize.width / view.devicePixelRatio;
+      final h = view.physicalSize.height / view.devicePixelRatio;
+      
+      final wRatio = w / 1024.0;
+      final hRatio = h / 768.0;
+      final val = wRatio * hRatio;
+      double scale = val <= 0 ? 1.0 : (val < 1 ? val + (1 - val) * 0.5 : val * 0.5 + 0.5);
+      
+      if (w < 600) {
+        scale = scale.clamp(0.45, 0.85);
+      } else if (w < 1024) {
+        scale = scale.clamp(0.70, 1.10);
+      } else if (w < 1440) {
+        scale = scale.clamp(0.90, 1.40);
+      } else {
+        scale = scale.clamp(1.10, 2.00);
+      }
+      return Size.fromHeight(100.0 * scale);
+    } catch (_) {
+      return const Size.fromHeight(100.0);
+    }
+  }
 
   Widget _buildLogo(BuildContext context) {
     final logoH = Responsive.scale(context, 36);
