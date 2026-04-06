@@ -155,4 +155,70 @@ class MockTestHostVideoPlayerApi extends _i1.Mock
         ),
         returnValueForMissingStub: null,
       );
+
+  @override
+  int getAudioTrackCount(int? textureId) => (super.noSuchMethod(
+        Invocation.method(
+          #getAudioTrackCount,
+          [textureId],
+        ),
+        returnValue: 0,
+      ) as int);
+
+  @override
+  void setAudioTrack(
+    int? textureId,
+    int? trackIndex,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setAudioTrack,
+          [
+            textureId,
+            trackIndex,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setOutputChannels(
+    int? textureId,
+    int? channels,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setOutputChannels,
+          [
+            textureId,
+            channels,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setMute(
+    int? textureId,
+    bool? mute,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setMute,
+          [
+            textureId,
+            mute,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  bool isAudioOnly(int? textureId) => (super.noSuchMethod(
+        Invocation.method(
+          #isAudioOnly,
+          [textureId],
+        ),
+        returnValue: false,
+      ) as bool);
 }

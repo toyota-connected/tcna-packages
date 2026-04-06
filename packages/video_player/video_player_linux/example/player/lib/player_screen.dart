@@ -277,7 +277,12 @@ class _PlayerScreenState extends State<PlayerScreen>
                   color: Colors.black,
                   child: Center(
                     child: val.isInitialized
-                        ? AspectRatio(
+                        ? ctrl.isAudioOnly
+                            ? _AudioPlayerView(
+                                controller: ctrl,
+                                item: widget.item!,
+                              )
+                            : AspectRatio(
                             aspectRatio: val.aspectRatio,
                             child: Stack(
                               alignment: Alignment.center,
@@ -983,6 +988,117 @@ class _FpsButton extends StatelessWidget {
               ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Audio-only fallback shown in place of the video texture when the loaded
+/// media has no video stream. Displays album art (embedded → sidecar →
+/// generated placeholder) and basic text metadata.
+class _AudioPlayerView extends StatelessWidget {
+  const _AudioPlayerView({required this.controller, required this.item});
+
+  final MiniController controller;
+  final MediaItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, _) {
+        final art = controller.albumArt;
+        final title = controller.title ?? item.name;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 280,
+              height: 280,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.4),
+                    blurRadius: 40,
+                    offset: const Offset(0, 16),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: art != null
+                    ? Image.memory(art, fit: BoxFit.cover, gaplessPlayback: true)
+                    : _GeneratedArt(
+                        title: title,
+                        artist: controller.artist,
+                      ),
+              ),
+            ),
+            const SizedBox(height: 32),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.headlineSmall,
+              textAlign: TextAlign.center,
+            ),
+            if (controller.artist != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                controller.artist!,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ],
+            if (controller.album != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                controller.album!,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurfaceVariant
+                          .withValues(alpha: 0.7),
+                    ),
+              ),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Deterministic gradient + music note used as the ultimate album-art
+/// fallback. Hue is hashed from title+artist so each track has a unique but
+/// consistent placeholder.
+class _GeneratedArt extends StatelessWidget {
+  const _GeneratedArt({required this.title, this.artist});
+
+  final String title;
+  final String? artist;
+
+  @override
+  Widget build(BuildContext context) {
+    final int hash = (title + (artist ?? '')).hashCode;
+    final double hue = (hash % 360).abs().toDouble();
+    final Color c1 = HSLColor.fromAHSL(1, hue, 0.3, 0.15).toColor();
+    final Color c2 =
+        HSLColor.fromAHSL(1, (hue + 40) % 360, 0.4, 0.25).toColor();
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [c1, c2],
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.music_note_rounded,
+          size: 80,
+          color: HSLColor.fromAHSL(0.3, hue, 0.5, 0.6).toColor(),
         ),
       ),
     );

@@ -11,6 +11,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:video_player_linux/video_player_linux.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 
 VideoPlayerPlatform? _cachedPlatform;
@@ -201,6 +202,34 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
   Timer? _timer;
   Completer<void>? _creatingCompleter;
   StreamSubscription<dynamic>? _eventSubscription;
+  StreamSubscription<LinuxMediaEvent>? _linuxEventSubscription;
+
+  // Phase 1 — audio-only mode + album art / metadata state.
+  bool _isAudioOnly = false;
+  bool get isAudioOnly => _isAudioOnly;
+
+  Uint8List? _albumArt;
+  Uint8List? get albumArt => _albumArt;
+
+  String? _title;
+  String? _artist;
+  String? _album;
+  String? get title => _title;
+  String? get artist => _artist;
+  String? get album => _album;
+
+  String? _audioCodec;
+  int? _audioChannels;
+  int? _audioSampleRate;
+  String? get audioCodec => _audioCodec;
+  int? get audioChannels => _audioChannels;
+  int? get audioSampleRate => _audioSampleRate;
+
+  int _audioTrackCount = 0;
+  int get audioTrackCount => _audioTrackCount;
+
+  bool _muted = false;
+  bool get muted => _muted;
 
   /// The id of a texture that hasn't been initialized.
   @visibleForTesting
@@ -262,15 +291,35 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
     void eventListener(VideoEvent event) {
       switch (event.eventType) {
         case VideoEventType.initialized:
+          // Audio-only media reports a zero-sized texture (no GL backing).
+          _isAudioOnly = event.size == Size.zero;
           value = value.copyWith(
             duration: event.duration,
             size: event.size,
             isInitialized: event.duration != null,
           );
+          notifyListeners();
           initializingCompleter.complete(null);
           _platform.setVolume(_textureId, 1.0);
           _platform.setLooping(_textureId, true);
           _applyPlayPause();
+          // Cache audio track count and try sidecar art if no embedded art
+          // arrived in the seeded mediaMetadata event.
+          final platform = _platform;
+          if (platform is LinuxVideoPlayer) {
+            platform.getAudioTrackCount(_textureId).then((int n) {
+              _audioTrackCount = n;
+              if (!_isDisposed) notifyListeners();
+            }).catchError((_) {});
+            if (_isAudioOnly && _albumArt == null) {
+              _findSidecarArt().then((Uint8List? bytes) {
+                if (bytes != null && !_isDisposed && _albumArt == null) {
+                  _albumArt = bytes;
+                  notifyListeners();
+                }
+              });
+            }
+          }
         case VideoEventType.completed:
           value = value.copyWith(
             position: value.duration,
@@ -303,7 +352,92 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
     _eventSubscription = _platform
         .videoEventsFor(_textureId)
         .listen(eventListener, onError: errorListener);
+
+    // Subscribe to Linux-specific media events (album art, metadata, audio
+    // info) that aren't representable on the upstream VideoEvent enum.
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      _linuxEventSubscription =
+          platform.linuxEventsFor(_textureId).listen((LinuxMediaEvent e) {
+        switch (e.type) {
+          case LinuxMediaEventType.albumArt:
+            if (e.bytes != null && e.bytes!.isNotEmpty) {
+              _albumArt = e.bytes;
+              notifyListeners();
+            }
+          case LinuxMediaEventType.metadata:
+            final m = e.metadata!;
+            _title = (m['title'] as String?)?.isNotEmpty == true
+                ? m['title'] as String
+                : _title;
+            _artist = (m['artist'] as String?)?.isNotEmpty == true
+                ? m['artist'] as String
+                : _artist;
+            _album = (m['album'] as String?)?.isNotEmpty == true
+                ? m['album'] as String
+                : _album;
+            notifyListeners();
+          case LinuxMediaEventType.audioInfo:
+            final m = e.metadata!;
+            _audioCodec = (m['codec'] as String?)?.isNotEmpty == true
+                ? m['codec'] as String
+                : _audioCodec;
+            _audioChannels = m['channels'] as int? ?? _audioChannels;
+            _audioSampleRate = m['sampleRate'] as int? ?? _audioSampleRate;
+            notifyListeners();
+        }
+      });
+    }
     return initializingCompleter.future;
+  }
+
+  /// Looks for a sidecar cover art file in the same directory as the
+  /// currently-loaded media. Only useful for `file://` sources.
+  Future<Uint8List?> _findSidecarArt() async {
+    if (dataSourceType != DataSourceType.file &&
+        dataSourceType != DataSourceType.network) {
+      return null;
+    }
+    final Uri? uri = Uri.tryParse(dataSource);
+    if (uri == null || uri.scheme != 'file') return null;
+    final String filePath = uri.toFilePath();
+    final int slash = filePath.lastIndexOf(Platform.pathSeparator);
+    final String dir = slash > 0 ? filePath.substring(0, slash) : '.';
+    const List<String> names = <String>[
+      'cover.jpg', 'cover.png',
+      'folder.jpg', 'folder.png',
+      'album.jpg', 'album.png',
+      'front.jpg', 'front.png',
+      'artwork.jpg', 'artwork.png',
+    ];
+    for (final String n in names) {
+      final File f = File('$dir${Platform.pathSeparator}$n');
+      if (await f.exists()) return f.readAsBytes();
+    }
+    return null;
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // Phase 1 — audio control surface
+  // ────────────────────────────────────────────────────────────────────
+
+  Future<void> setAudioTrack(int trackIndex) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) await platform.setAudioTrack(_textureId, trackIndex);
+  }
+
+  Future<void> setOutputChannels(int channels) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) await platform.setOutputChannels(_textureId, channels);
+  }
+
+  Future<void> setMute(bool mute) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setMute(_textureId, mute);
+      _muted = mute;
+      notifyListeners();
+    }
   }
 
   @override
@@ -314,6 +448,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
     if (_creatingCompleter != null) {
       await _creatingCompleter!.future;
       await _eventSubscription?.cancel();
+      await _linuxEventSubscription?.cancel();
       if (_textureId != kUninitializedTextureId) {
         await _platform.dispose(_textureId);
       }

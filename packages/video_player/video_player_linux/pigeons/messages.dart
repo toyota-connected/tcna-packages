@@ -16,6 +16,10 @@ import 'package:pigeon/pigeon.dart';
 ))
 @HostApi(dartHostTestHandler: 'TestHostVideoPlayerApi')
 abstract class LinuxVideoPlayerApi {
+  // ──────────────────────────────────────────────────────────────────────
+  // Existing methods
+  // ──────────────────────────────────────────────────────────────────────
+
   /// Initializes the video player.
   void initialize();
 
@@ -48,4 +52,23 @@ abstract class LinuxVideoPlayerApi {
 
   /// Pauses the video in the video player with the given textureId.
   void pause(int textureId);
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Phase 1 — Foundation
+  // ──────────────────────────────────────────────────────────────────────
+
+  /// Returns the number of audio tracks in the current media.
+  int getAudioTrackCount(int textureId);
+
+  /// Switches to the audio track at [trackIndex].
+  void setAudioTrack(int textureId, int trackIndex);
+
+  /// Sets the output channel count (1=mono, 2=stereo, 6=5.1, 8=7.1).
+  void setOutputChannels(int textureId, int channels);
+
+  /// Toggles native mute (preserves volume level for unmute).
+  void setMute(int textureId, bool mute);
+
+  /// Returns true if the media has no video stream.
+  bool isAudioOnly(int textureId);
 }

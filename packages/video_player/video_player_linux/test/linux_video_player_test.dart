@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -310,6 +311,44 @@ void main() {
               isPlaying: false,
             ),
           ]));
+    });
+
+    // ──────────────────────────────────────────────────────────────────
+    // Phase 1 — audio control surface
+    // ──────────────────────────────────────────────────────────────────
+
+    test('getAudioTrackCount forwards to api', () async {
+      when(mockApi.getAudioTrackCount(7)).thenReturn(3);
+      expect(await player.getAudioTrackCount(7), 3);
+      verify(mockApi.getAudioTrackCount(7));
+    });
+
+    test('setAudioTrack forwards to api', () async {
+      await player.setAudioTrack(7, 1);
+      verify(mockApi.setAudioTrack(7, 1));
+    });
+
+    test('setOutputChannels forwards to api', () async {
+      await player.setOutputChannels(7, 6);
+      verify(mockApi.setOutputChannels(7, 6));
+    });
+
+    test('setMute forwards to api', () async {
+      await player.setMute(7, true);
+      verify(mockApi.setMute(7, true));
+    });
+
+    test('isAudioOnly forwards to api', () async {
+      when(mockApi.isAudioOnly(7)).thenReturn(true);
+      expect(await player.isAudioOnly(7), isTrue);
+      verify(mockApi.isAudioOnly(7));
+    });
+
+    test('buildViewWithOptions returns SizedBox.shrink for audio-only IDs',
+        () {
+      final widget = player.buildViewWithOptions(
+          VideoViewOptions(playerId: kLinuxAudioOnlyIdBase + 5));
+      expect(widget, isA<SizedBox>());
     });
   });
 }

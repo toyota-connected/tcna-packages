@@ -98,6 +98,22 @@ class LinuxVideoPlayerApi {
     int64_t position) = 0;
   // Pauses the video in the video player with the given textureId.
   virtual std::optional<FlutterError> Pause(int64_t texture_id) = 0;
+  // Returns the number of audio tracks in the current media.
+  virtual ErrorOr<int64_t> GetAudioTrackCount(int64_t texture_id) = 0;
+  // Switches to the audio track at [trackIndex].
+  virtual std::optional<FlutterError> SetAudioTrack(
+    int64_t texture_id,
+    int64_t track_index) = 0;
+  // Sets the output channel count (1=mono, 2=stereo, 6=5.1, 8=7.1).
+  virtual std::optional<FlutterError> SetOutputChannels(
+    int64_t texture_id,
+    int64_t channels) = 0;
+  // Toggles native mute (preserves volume level for unmute).
+  virtual std::optional<FlutterError> SetMute(
+    int64_t texture_id,
+    bool mute) = 0;
+  // Returns true if the media has no video stream.
+  virtual ErrorOr<bool> IsAudioOnly(int64_t texture_id) = 0;
 
   // The codec used by LinuxVideoPlayerApi.
   static const flutter::StandardMessageCodec& GetCodec();
