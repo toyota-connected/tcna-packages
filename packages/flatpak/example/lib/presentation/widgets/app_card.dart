@@ -86,19 +86,8 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final cardWidth = Responsive.scaleWithConstraints(
-      context,
-      220,
-      minSize: 200,
-      maxSize: 250,
-    );
-
-    final cardHeight = Responsive.scaleWithConstraints(
-      context,
-      220,
-      minSize: 200,
-      maxSize: 250,
-    );
+    final cardWidth = Responsive.scale(context, 220);
+    final cardHeight = Responsive.scale(context, 220);
 
     return AnimatedBuilder(
       animation: _hoverController,
@@ -113,11 +102,9 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
               child: Container(
                 width: cardWidth,
                 height: cardHeight,
-                margin: EdgeInsets.all(
-                  Responsive.scale(context, 12.0).clamp(10.0, 16.0),
-                ),
+                margin: Responsive.paddingAll(context, 12.0),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(Responsive.scale(context, 16)),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.1),
@@ -127,7 +114,7 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
                   ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(Responsive.scale(context, 16)),
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                     child: Container(
@@ -135,7 +122,7 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
                         color: _isHovered
                             ? Colors.white.withValues(alpha: 0.35)
                             : Colors.white.withValues(alpha: 0.25),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(Responsive.scale(context, 16)),
                         border: Border.all(
                           color: _isHovered
                               ? Colors.white.withValues(alpha: 0.4)
@@ -144,9 +131,7 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
                         ),
                       ),
                       child: Padding(
-                        padding: EdgeInsets.all(
-                          Responsive.scale(context, 12.0).clamp(10.0, 16.0),
-                        ),
+                        padding: Responsive.paddingAll(context, 12.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
@@ -168,12 +153,12 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
   }
 
   Widget _buildAppIcon(BuildContext context, Application app) {
-    final iconSize = Responsive.scale(context, 92).clamp(64.0, 128.0);
+    final iconSize = Responsive.scale(context, 92);
     return Container(
       width: iconSize,
       height: iconSize,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(Responsive.scale(context, 12)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -183,7 +168,7 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(Responsive.scale(context, 12)),
         child: _buildIcon(iconSize),
       ),
     );
@@ -238,19 +223,19 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
                 _getAppName(app),
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  fontSize: Responsive.scale(context, 20.0).clamp(16.0, 24.0),
+                  fontSize: Responsive.fontSize(context, 20.0),
                   fontFamily: 'khand',
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
+              Responsive.vGap(context, 4),
               Text(
                 _getAppSummary(app),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).textTheme.bodyMedium?.color
                       ?.withValues(alpha: 0.7),
-                  fontSize: Responsive.scale(context, 12.0).clamp(10.0, 14.0),
+                  fontSize: Responsive.fontSize(context, 12.0),
                   fontFamily: 'general-sans',
                 ),
                 maxLines: 1,
@@ -259,10 +244,10 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
             ],
           ),
         ),
-        const SizedBox(width: 8),
+        Responsive.hGap(context, 8),
 
         ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 130),
+          constraints: BoxConstraints(maxWidth: Responsive.scale(context, 130)),
           child: _buildActionButton(context),
         ),
       ],
@@ -301,18 +286,19 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
           ? () => _handleButtonTap(context, appStatus)
           : null,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(Responsive.scale(context, 20)),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(
+            padding: Responsive.paddingSymmetric(
+              context,
               horizontal: 16,
               vertical: 8,
             ),
             decoration: BoxDecoration(
               color: config.backgroundColor,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(Responsive.scale(context, 20)),
               border: Border.all(
                 width: 1.5,
                 color: Colors.white.withValues(alpha: 0.3),
@@ -329,8 +315,8 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
                       return Transform.rotate(
                         angle: _rotationAnimation.value * 2.0 * 3.141592653589793,
                         child: SizedBox(
-                          width: 14,
-                          height: 14,
+                          width: Responsive.scale(context, 14),
+                          height: Responsive.scale(context, 14),
                           child: CircularProgressIndicator(
                             value: progress != null && progress > 0 ? progress : null,
                             strokeWidth: 2,
@@ -342,7 +328,7 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
                       );
                     },
                   ),
-                  const SizedBox(width: 8),
+                  Responsive.hGap(context, 8),
                 ],
                 Flexible(
                   child: Text(
@@ -351,7 +337,7 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
                       color: config.textColor,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'general-sans',
-                      fontSize: 14,
+                      fontSize: Responsive.fontSize(context, 14),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

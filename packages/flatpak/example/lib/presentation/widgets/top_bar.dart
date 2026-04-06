@@ -32,9 +32,10 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
           child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: Responsive.scaleWithConstraints(context, 65, minSize: 16, maxSize: 100), 
-              vertical: Responsive.scaleWithConstraints(context, 33, minSize: 12, maxSize: 40)
+            padding: Responsive.paddingSymmetric(
+              context,
+              horizontal: 65, 
+              vertical: 33,
             ),
             child: Row(
               children: [
@@ -42,14 +43,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
                 Spacer(),
 
                 _buildSearchBar(context),
-                SizedBox(
-                  width: Responsive.scaleWithConstraints(
-                    context,
-                    61,
-                    minSize: 24,
-                    maxSize: 72,
-                  ),
-                ),
+                Responsive.hGap(context, 61),
                 _buildUserSection(context),
               ],
             ),
@@ -63,57 +57,49 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(100);
 
   Widget _buildLogo(BuildContext context) {
-    final logoH = Responsive.scaleWithConstraints(
-      context,
-      36,
-      minSize: 24,
-      maxSize: 48,
-    );
-
-    final logoW = Responsive.scaleWithConstraints(
-      context,
-      168,
-      minSize: 112,
-      maxSize: 224,
-    );
+    final logoH = Responsive.scale(context, 36);
+    final logoW = Responsive.scale(context, 168);
 
     return Expanded(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(
-            height: logoH,
-            width: logoW,
-            child: SvgPicture.asset(
-              'assets/logos/AGL.svg',
+          Flexible(
+            child: SizedBox(
               height: logoH,
               width: logoW,
-              fit: BoxFit.contain,
+              child: SvgPicture.asset(
+                'assets/logos/AGL.svg',
+                height: logoH,
+                width: logoW,
+                fit: BoxFit.contain,
+              ),
             ),
           ),
-          const SizedBox(width: 7),
-          Container(
-            height: logoH,
-            alignment: Alignment.centerLeft,
-            child: ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                colors: [Color(0x00000000), Color(0xFF33D17A)],
-                begin: Alignment.bottomRight,
-                end: Alignment.topLeft,
-              ).createShader(bounds),
-              child: Text(
-                'Store',
-                style: TextStyle(
-                  fontSize: Responsive.scaleWithConstraints(
-                    context,
-                    36,
-                    minSize: 24,
-                    maxSize: 48,
+          Responsive.hGap(context, 7),
+          Flexible(
+            child: Container(
+              height: logoH,
+              alignment: Alignment.centerLeft,
+              child: ShaderMask(
+                shaderCallback: (bounds) => const LinearGradient(
+                  colors: [Color(0x00000000), Color(0xFF33D17A)],
+                  begin: Alignment.bottomRight,
+                  end: Alignment.topLeft,
+                ).createShader(bounds),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Store',
+                    style: TextStyle(
+                      fontSize: Responsive.fontSize(context, 36),
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                      height: 1.0,
+                    ),
                   ),
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                  letterSpacing: -0.5,
-                  height: 1.0,
                 ),
               ),
             ),
@@ -124,19 +110,8 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   Widget _buildSearchBar(BuildContext context) {
-    final searchBarWidth = Responsive.scaleWithConstraints(
-      context,
-      280,
-      minSize: 200,
-      maxSize: 400,
-    );
-
-    final searchBarHeight = Responsive.scaleWithConstraints(
-      context,
-      42,
-      minSize: 36,
-      maxSize: 48,
-    );
+    final searchBarWidth = Responsive.scale(context, 280);
+    final searchBarHeight = Responsive.scale(context, 42);
 
     return Container(
       width: searchBarWidth,
@@ -149,7 +124,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.7),
-          borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+          borderRadius: BorderRadius.circular(Responsive.scale(context, AppTheme.borderRadiusMedium)),
           border: Border.all(
             color: Colors.white.withValues(alpha: 0.3),
             width: 1.0,
@@ -167,23 +142,23 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
             hintText: 'Search for apps...',
             hintStyle: TextStyle(
               color: const Color(0xFFADAEBC).withValues(alpha: 0.8),
-              fontSize: Responsive.scale(context, 16).clamp(12.0, 18.0),
+              fontSize: Responsive.fontSize(context, 16),
             ),
             prefixIcon: Icon(
               Icons.search,
               color: const Color(0xFF9CA3AF).withValues(alpha: 0.8),
-              size: Responsive.scale(context, 16).clamp(12.0, 18.0),
+              size: Responsive.scale(context, 16),
             ),
             border: InputBorder.none,
             contentPadding: EdgeInsets.symmetric(
-              horizontal: Responsive.scale(context, 16).clamp(12.0, 20.0),
-              vertical: (searchBarHeight - 20) / 2,
+              horizontal: Responsive.scale(context, 16),
+              vertical: (searchBarHeight - Responsive.scale(context, 20)) / 2,
             ),
             isDense: true,
           ),
           style: TextStyle(
             color: Color(0xFF212121),
-            fontSize: Responsive.scale(context, 14.0).clamp(12.0, 16.0),
+            fontSize: Responsive.fontSize(context, 14.0),
           ),
         ),
       ),
@@ -198,12 +173,12 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
           ///onTap: ,
           child: SvgPicture.asset(
             'assets/icons/bell.svg',
-            width: Responsive.scaleWithConstraints(context, 17.05, minSize: 12, maxSize: 24),
-            height: Responsive.scaleWithConstraints(context, 19.5, minSize: 14, maxSize: 28),
+            width: Responsive.scale(context, 17.05),
+            height: Responsive.scale(context, 19.5),
           ),
         ),
 
-        const SizedBox(width: 16),
+        Responsive.hGap(context, 16),
 
         GestureDetector(
           onTap: () => Navigator.push(
@@ -211,10 +186,10 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
             MaterialPageRoute(builder: (context) => ProfileScreen()),
           ),
           child: Container(
-            width: 31.18,
-            height: 31.18,
+            width: Responsive.scale(context, 31.18),
+            height: Responsive.scale(context, 31.18),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(Responsive.scale(context, 10)),
               border: Border.all(
                 color: Colors.white.withValues(alpha: 0.3),
                 width: 2,
@@ -228,7 +203,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
               ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(Responsive.scale(context, 8)),
               child: Image.asset('assets/images/person.png', fit: BoxFit.cover),
             ),
           ),

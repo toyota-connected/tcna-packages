@@ -12,6 +12,7 @@ import '../widgets/category_section.dart';
 import '../widgets/hero_widget.dart';
 import '../widgets/top_bar.dart';
 import '../../app_router.dart';
+import '../../responsive.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -88,10 +89,10 @@ class _HomeScreenState extends State<HomeScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error, size: 64, color: Colors.red),
-                  const SizedBox(height: 16),
+                  Icon(Icons.error, size: Responsive.scale(context, 64), color: Colors.red),
+                  Responsive.vGap(context, 16),
                   Text('Error: ${state.message}'),
-                  const SizedBox(height: 16),
+                  Responsive.vGap(context, 16),
                   ElevatedButton(
                     onPressed: _loadData,
                     child: const Text('Retry'),
@@ -138,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen>
                               onTap: (app) => _navigateToApp(app, context),
                               onInstall: (app) => _handleInstall(app, context),
                             ),
-                            const SizedBox(height: 32),
+                            Responsive.vGap(context, 32),
                           ],
                         );
                       },

@@ -58,9 +58,10 @@ class AppscreenContent extends StatelessWidget {
                 filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                 child: Container(
                   width: double.infinity,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Responsive.scaleWithConstraints(context, 54, minSize: 20, maxSize: 80),
-                    vertical: Responsive.scaleWithConstraints(context, 15, minSize: 10, maxSize: 24),
+                  padding: Responsive.paddingSymmetric(
+                    context,
+                    horizontal: 54,
+                    vertical: 15,
                   ),
                   child: _buildAppHeader(context),
                 ),
@@ -68,11 +69,11 @@ class AppscreenContent extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 18),
+          Responsive.vGap(context, 18),
           _buildScreenshot(context),
-          const SizedBox(height: 18),
+          Responsive.vGap(context, 18),
           _buildInfo(context),
-          const SizedBox(height: 40),
+          Responsive.vGap(context, 40),
         ],
       ),
     );
@@ -94,12 +95,12 @@ class AppscreenContent extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
+      padding: Responsive.paddingSymmetric(context, horizontal: 20.0, vertical: 6.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _buildAppIcon(context, app),
-          const SizedBox(width: 14),
+          Responsive.hGap(context, 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,7 +110,7 @@ class AppscreenContent extends StatelessWidget {
                   app.name,
                   style: TextStyle(
                     color: Colors.black87,
-                    fontSize: Responsive.scale(context, 18.0).clamp(15.0, 20.0),
+                    fontSize: Responsive.fontSize(context, 18.0),
                     fontWeight: FontWeight.w600,
                     fontFamily: 'khand',
                     height: 1.2,
@@ -117,24 +118,23 @@ class AppscreenContent extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 5),
+                Responsive.vGap(context, 5),
                 if (developerName.isNotEmpty)
                   Text(
                     developerName,
                     style: TextStyle(
                       color: const Color(0xFF8B8B8B),
-                      fontSize:
-                      Responsive.scale(context, 13.0).clamp(11.0, 15.0),
+                      fontSize: Responsive.fontSize(context, 13.0),
                       height: 1.1,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 if (categories.isNotEmpty) ...[
-                  const SizedBox(height: 8),
+                  Responsive.vGap(context, 8),
                   ConstrainedBox(
                     constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width - 200,
+                      maxWidth: Responsive.width(context) - Responsive.scale(context, 200),
                     ),
                     child: Wrap(
                       spacing: 6,
@@ -146,7 +146,7 @@ class AppscreenContent extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 16),
+          Responsive.hGap(context, 16),
           _buildActionButtons(context),
         ],
       ),
@@ -170,7 +170,7 @@ class AppscreenContent extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildOpenButton(context),
-              const SizedBox(width: 12),
+              Responsive.hGap(context, 12),
               if (needsUpdate || status == AppStatus.updating)
                 _buildUpdateButton(context)
               else
@@ -288,14 +288,14 @@ class AppscreenContent extends StatelessWidget {
   }
 
   Widget _buildAppIcon(BuildContext context, Application app) {
-    final cardSize = Responsive.scale(context, 80).clamp(68.0, 92.0);
+    final cardSize = Responsive.scale(context, 80);
     final iconSize = cardSize * 0.7;
 
     return Container(
       width: cardSize,
       height: cardSize,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(Responsive.scale(context, 16)),
         color: Colors.white.withValues(alpha: 0.7),
         boxShadow: [
           BoxShadow(
@@ -307,7 +307,7 @@ class AppscreenContent extends StatelessWidget {
       ),
       child: Center(
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(Responsive.scale(context, 12)),
           child: _buildIcon(iconSize),
         ),
       ),
@@ -364,13 +364,13 @@ class AppscreenContent extends StatelessWidget {
       width: double.infinity,
       height: Responsive.responsiveValue(
         context,
-        mobile: Responsive.height(context) * 0.3,
-        tablet: Responsive.height(context) * 0.4,
-        desktop: Responsive.height(context) * 0.5,
+        small: Responsive.height(context) * 0.3,
+        medium: Responsive.height(context) * 0.4,
+        large: Responsive.height(context) * 0.5,
       ).clamp(300.0, 600.0),
-      padding: EdgeInsets.symmetric(
-        horizontal: Responsive.responsiveValue(context,
-            mobile: 16.0, tablet: 24.0, desktop: 32.0),
+      padding: Responsive.paddingSymmetric(
+        context,
+        horizontal: 32.0,
         vertical: 16.0,
       ),
       child: Screenshot(images: images, captions: captions),
@@ -387,7 +387,7 @@ class AppscreenContent extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
+      padding: Responsive.paddingSymmetric(context, horizontal: 40.0, vertical: 10.0),
       alignment: Alignment.topLeft,
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.25),
@@ -409,40 +409,40 @@ class AppscreenContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "About this app",
                 style: TextStyle(
                   color: Colors.black87,
-                  fontSize: 18,
+                  fontSize: Responsive.fontSize(context, 18),
                   fontWeight: FontWeight.w500,
                   fontFamily: 'general-sans',
                 ),
               ),
-              const SizedBox(height: 30),
+              Responsive.vGap(context, 30),
               Text(
                 description.isNotEmpty
                     ? description
                     : "No description available.",
-                style: const TextStyle(
-                  color: Color(0xFF4B5563),
-                  fontSize: 16,
+                style: TextStyle(
+                  color: const Color(0xFF4B5563),
+                  fontSize: Responsive.fontSize(context, 16),
                   fontWeight: FontWeight.normal,
                   fontFamily: 'general-sans',
                 ),
               ),
-              const SizedBox(height: 30),
+              Responsive.vGap(context, 30),
               Container(
                 width: double.infinity,
                 height: 1,
                 color: Colors.grey.shade300,
               ),
-              const Padding(
-                padding: EdgeInsets.all(12.0),
+              Padding(
+                padding: Responsive.paddingAll(context, 12.0),
                 child: Text(
                   "App Info",
                   style: TextStyle(
                     color: Colors.black87,
-                    fontSize: 18,
+                    fontSize: Responsive.fontSize(context, 18),
                     fontWeight: FontWeight.w500,
                     fontFamily: 'general-sans',
                   ),
@@ -578,17 +578,17 @@ class AppscreenContent extends StatelessWidget {
 
       return categories.take(3).where((c) => c != null).map((category) {
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          padding: Responsive.paddingSymmetric(context, horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
             color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(Responsive.scale(context, 4)),
             border: Border.all(color: Colors.grey.shade300, width: 0.5),
           ),
           child: Text(
             category.toString().trim(),
-            style: const TextStyle(
-              fontSize: 11,
-              color: Color(0xFF374151),
+            style: TextStyle(
+              fontSize: Responsive.fontSize(context, 11),
+              color: const Color(0xFF374151),
               fontWeight: FontWeight.w400,
             ),
           ),

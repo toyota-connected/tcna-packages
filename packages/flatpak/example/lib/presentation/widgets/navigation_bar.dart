@@ -71,8 +71,8 @@ class _NavigationBarState extends State<NavigationBar>
 
   @override
   Widget build(BuildContext context) {
-    final margin = Responsive.scaleWithConstraints(context, 24, minSize: 12, maxSize: 48);
-    final navHeight = Responsive.scaleWithConstraints(context, 80, minSize: 60, maxSize: 100);
+    final margin = Responsive.scale(context, 24);
+    final navHeight = Responsive.scale(context, 80);
     final borderRadius = navHeight / 2;
 
     return Container(
@@ -178,7 +178,7 @@ class _NavigationBarState extends State<NavigationBar>
                   child: Center(
                     child: Icon(
                       item.icon,
-                      size: Responsive.scaleWithConstraints(context, 28, minSize: 20, maxSize: 40),
+                      size: Responsive.scale(context, 28),
                       color: isSelected
                           ? Colors.black87
                           : Colors.black.withValues(alpha: 0.5),
