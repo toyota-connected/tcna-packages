@@ -275,12 +275,12 @@ class _SplashScreenState extends State<SplashScreen>
                             opacity: _fadeAnimation,
                             child: SvgPicture.asset(
                               'assets/logos/AGL.svg',
-                              width: Responsive.scaleWithConstraints(context, 168, minSize: 100, maxSize: 300),
-                              height: Responsive.scaleWithConstraints(context, 36, minSize: 24, maxSize: 72),
+                              width: Responsive.scale(context, 168),
+                              height: Responsive.scale(context, 36),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        Responsive.hGap(context, 12),
                         SlideTransition(
                           position: _slideAnimation,
                           child: FadeTransition(
@@ -295,7 +295,7 @@ class _SplashScreenState extends State<SplashScreen>
                               child: Text(
                                 'Store',
                                 style: TextStyle(
-                                  fontSize: Responsive.scaleWithConstraints(context, 40, minSize: 36, maxSize: 72),
+                                  fontSize: Responsive.fontSize(context, 40),
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white,
                                   letterSpacing: -0.5,
@@ -307,7 +307,7 @@ class _SplashScreenState extends State<SplashScreen>
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    Responsive.vGap(context, 16),
 
                     // Subtitle
                     AnimatedBuilder(
@@ -320,7 +320,7 @@ class _SplashScreenState extends State<SplashScreen>
                             child: Text(
                               'AGL Store powered by Automotive Grade Linux',
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: Responsive.fontSize(context, 14),
                                 color: Colors.black.withValues(alpha: 0.7),
                                 fontWeight: FontWeight.w300,
                                 letterSpacing: 0.5,
@@ -331,7 +331,7 @@ class _SplashScreenState extends State<SplashScreen>
                       },
                     ),
 
-                    const SizedBox(height: 32),
+                    Responsive.vGap(context, 32),
 
                     FadeTransition(
                       opacity: _fadeAnimation,
@@ -339,7 +339,7 @@ class _SplashScreenState extends State<SplashScreen>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           SizedBox(
-                            width: Responsive.scaleWithConstraints(context, 200, minSize: 150, maxSize: 400),
+                            width: Responsive.scale(context, 200),
                             child: LinearProgressIndicator(
                               backgroundColor: Colors.grey[200],
                               valueColor: AlwaysStoppedAnimation<Color>(
@@ -347,13 +347,13 @@ class _SplashScreenState extends State<SplashScreen>
                               ),
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          Responsive.vGap(context, 16),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 40),
+                            padding: Responsive.paddingSymmetric(context, horizontal: 40),
                             child: Text(
                               _hasError ? _errorMessage : _loadingMessage,
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: Responsive.fontSize(context, 12),
                                 color: _hasError ? Colors.red : Colors.black.withValues(alpha: 0.5),
                                 fontWeight: FontWeight.w300,
                               ),
@@ -362,11 +362,11 @@ class _SplashScreenState extends State<SplashScreen>
                           ),
                           if (_hasError && _retryCount < 3)
                             Padding(
-                              padding: const EdgeInsets.only(top: 8),
+                              padding: EdgeInsets.only(top: Responsive.scale(context, 8)),
                               child: Text(
                                 'Retrying... (attempt $_retryCount/3)',
                                 style: TextStyle(
-                                  fontSize: 11,
+                                  fontSize: Responsive.fontSize(context, 11),
                                   color: Colors.orange.withValues(alpha: 0.7),
                                   fontWeight: FontWeight.w400,
                                 ),
