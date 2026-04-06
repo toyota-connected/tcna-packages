@@ -75,23 +75,24 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
       scale: _scaleAnimation,
       child: FadeTransition(
         opacity: _fadeAnimation,
-        child: Dialog(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          insetPadding: EdgeInsets.all(Responsive.scaleWithConstraints(context, 20, minSize: 10, maxSize: 40)),
-          child: GlassContainer(
-            borderRadius: Responsive.scaleWithConstraints(context, 32, minSize: 16, maxSize: 48),
-            blur: 20,
-            borderOpacity: 0.2,
-            color: isDark
-                ? Colors.black.withValues(alpha: 0.6)
-                : Colors.white.withValues(alpha: 0.7),
-            child: Container(
-              constraints: BoxConstraints(maxWidth: Responsive.scaleWithConstraints(context, 400, minSize: 300, maxSize: 600)),
-              padding: EdgeInsets.all(Responsive.scaleWithConstraints(context, 32, minSize: 16, maxSize: 48)),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
+        child: Center(
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            insetPadding: EdgeInsets.all(Responsive.scaleWithConstraints(context, 20, minSize: 10, maxSize: 40)),
+            child: GlassContainer(
+              borderRadius: Responsive.scaleWithConstraints(context, 32, minSize: 16, maxSize: 48),
+              blur: 20,
+              borderOpacity: 0.2,
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.6)
+                  : Colors.white.withValues(alpha: 0.7),
+              child: Container(
+                constraints: BoxConstraints(maxWidth: Responsive.scaleWithConstraints(context, 400, minSize: 300, maxSize: 600)),
+                padding: EdgeInsets.all(Responsive.scaleWithConstraints(context, 32, minSize: 16, maxSize: 48)),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                   _buildIconHeader(colorScheme, permission),
 
                   const SizedBox(height: 28),
@@ -153,6 +154,7 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
               ),
             ),
           ),
+        ),
         ),
       ),
     );
