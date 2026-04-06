@@ -440,6 +440,67 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
     }
   }
 
+  // ────────────────────────────────────────────────────────────────────
+  // Phase 2 — quality & tuning
+  // ────────────────────────────────────────────────────────────────────
+
+  Future<void> setScaleMethod(int method) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setScaleMethod(_textureId, method);
+    }
+  }
+
+  Future<void> setAVOffset(int offsetMs) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setAVOffset(_textureId, offsetMs);
+    }
+  }
+
+  Future<void> setSubtitlesEnabled(bool enabled) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setSubtitlesEnabled(_textureId, enabled);
+    }
+  }
+
+  Future<int> subtitleTrackCount() async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      return platform.getSubtitleTrackCount(_textureId);
+    }
+    return 0;
+  }
+
+  Future<void> setSubtitleTrack(int index) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setSubtitleTrack(_textureId, index);
+    }
+  }
+
+  Future<void> setSubtitleUri(String uri) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setSubtitleUri(_textureId, uri);
+    }
+  }
+
+  Future<void> setSubtitleFont(String fontDesc) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setSubtitleFont(_textureId, fontDesc);
+    }
+  }
+
+  Future<void> setChannelMixPreset(String preset) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setChannelMixPreset(_textureId, preset);
+    }
+  }
+
   @override
   Future<void> dispose() async {
     _isDisposed = true;

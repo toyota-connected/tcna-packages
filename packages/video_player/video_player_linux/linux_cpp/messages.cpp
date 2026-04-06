@@ -499,6 +499,272 @@ void LinuxVideoPlayerApi::SetUp(
       channel->SetMessageHandler(nullptr);
     }
   }
+  {
+    auto channel = std::make_unique<BasicMessageChannel<>>(binary_messenger, "dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setScaleMethod", &GetCodec());
+    if (api != nullptr) {
+      channel->SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
+        try {
+          const auto& args = std::get<EncodableList>(message);
+          const auto& encodable_texture_id_arg = args.at(0);
+          if (encodable_texture_id_arg.IsNull()) {
+            reply(WrapError("texture_id_arg unexpectedly null."));
+            return;
+          }
+          const int64_t texture_id_arg = encodable_texture_id_arg.LongValue();
+          const auto& encodable_method_arg = args.at(1);
+          if (encodable_method_arg.IsNull()) {
+            reply(WrapError("method_arg unexpectedly null."));
+            return;
+          }
+          const int64_t method_arg = encodable_method_arg.LongValue();
+          std::optional<FlutterError> output = api->SetScaleMethod(texture_id_arg, method_arg);
+          if (output.has_value()) {
+            reply(WrapError(output.value()));
+            return;
+          }
+          EncodableList wrapped;
+          wrapped.push_back(EncodableValue());
+          reply(EncodableValue(std::move(wrapped)));
+        } catch (const std::exception& exception) {
+          reply(WrapError(exception.what()));
+        }
+      });
+    } else {
+      channel->SetMessageHandler(nullptr);
+    }
+  }
+  {
+    auto channel = std::make_unique<BasicMessageChannel<>>(binary_messenger, "dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setAVOffset", &GetCodec());
+    if (api != nullptr) {
+      channel->SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
+        try {
+          const auto& args = std::get<EncodableList>(message);
+          const auto& encodable_texture_id_arg = args.at(0);
+          if (encodable_texture_id_arg.IsNull()) {
+            reply(WrapError("texture_id_arg unexpectedly null."));
+            return;
+          }
+          const int64_t texture_id_arg = encodable_texture_id_arg.LongValue();
+          const auto& encodable_offset_ms_arg = args.at(1);
+          if (encodable_offset_ms_arg.IsNull()) {
+            reply(WrapError("offset_ms_arg unexpectedly null."));
+            return;
+          }
+          const int64_t offset_ms_arg = encodable_offset_ms_arg.LongValue();
+          std::optional<FlutterError> output = api->SetAVOffset(texture_id_arg, offset_ms_arg);
+          if (output.has_value()) {
+            reply(WrapError(output.value()));
+            return;
+          }
+          EncodableList wrapped;
+          wrapped.push_back(EncodableValue());
+          reply(EncodableValue(std::move(wrapped)));
+        } catch (const std::exception& exception) {
+          reply(WrapError(exception.what()));
+        }
+      });
+    } else {
+      channel->SetMessageHandler(nullptr);
+    }
+  }
+  {
+    auto channel = std::make_unique<BasicMessageChannel<>>(binary_messenger, "dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitlesEnabled", &GetCodec());
+    if (api != nullptr) {
+      channel->SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
+        try {
+          const auto& args = std::get<EncodableList>(message);
+          const auto& encodable_texture_id_arg = args.at(0);
+          if (encodable_texture_id_arg.IsNull()) {
+            reply(WrapError("texture_id_arg unexpectedly null."));
+            return;
+          }
+          const int64_t texture_id_arg = encodable_texture_id_arg.LongValue();
+          const auto& encodable_enabled_arg = args.at(1);
+          if (encodable_enabled_arg.IsNull()) {
+            reply(WrapError("enabled_arg unexpectedly null."));
+            return;
+          }
+          const auto& enabled_arg = std::get<bool>(encodable_enabled_arg);
+          std::optional<FlutterError> output = api->SetSubtitlesEnabled(texture_id_arg, enabled_arg);
+          if (output.has_value()) {
+            reply(WrapError(output.value()));
+            return;
+          }
+          EncodableList wrapped;
+          wrapped.push_back(EncodableValue());
+          reply(EncodableValue(std::move(wrapped)));
+        } catch (const std::exception& exception) {
+          reply(WrapError(exception.what()));
+        }
+      });
+    } else {
+      channel->SetMessageHandler(nullptr);
+    }
+  }
+  {
+    auto channel = std::make_unique<BasicMessageChannel<>>(binary_messenger, "dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.getSubtitleTrackCount", &GetCodec());
+    if (api != nullptr) {
+      channel->SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
+        try {
+          const auto& args = std::get<EncodableList>(message);
+          const auto& encodable_texture_id_arg = args.at(0);
+          if (encodable_texture_id_arg.IsNull()) {
+            reply(WrapError("texture_id_arg unexpectedly null."));
+            return;
+          }
+          const int64_t texture_id_arg = encodable_texture_id_arg.LongValue();
+          ErrorOr<int64_t> output = api->GetSubtitleTrackCount(texture_id_arg);
+          if (output.has_error()) {
+            reply(WrapError(output.error()));
+            return;
+          }
+          EncodableList wrapped;
+          wrapped.push_back(EncodableValue(std::move(output).TakeValue()));
+          reply(EncodableValue(std::move(wrapped)));
+        } catch (const std::exception& exception) {
+          reply(WrapError(exception.what()));
+        }
+      });
+    } else {
+      channel->SetMessageHandler(nullptr);
+    }
+  }
+  {
+    auto channel = std::make_unique<BasicMessageChannel<>>(binary_messenger, "dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitleTrack", &GetCodec());
+    if (api != nullptr) {
+      channel->SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
+        try {
+          const auto& args = std::get<EncodableList>(message);
+          const auto& encodable_texture_id_arg = args.at(0);
+          if (encodable_texture_id_arg.IsNull()) {
+            reply(WrapError("texture_id_arg unexpectedly null."));
+            return;
+          }
+          const int64_t texture_id_arg = encodable_texture_id_arg.LongValue();
+          const auto& encodable_track_index_arg = args.at(1);
+          if (encodable_track_index_arg.IsNull()) {
+            reply(WrapError("track_index_arg unexpectedly null."));
+            return;
+          }
+          const int64_t track_index_arg = encodable_track_index_arg.LongValue();
+          std::optional<FlutterError> output = api->SetSubtitleTrack(texture_id_arg, track_index_arg);
+          if (output.has_value()) {
+            reply(WrapError(output.value()));
+            return;
+          }
+          EncodableList wrapped;
+          wrapped.push_back(EncodableValue());
+          reply(EncodableValue(std::move(wrapped)));
+        } catch (const std::exception& exception) {
+          reply(WrapError(exception.what()));
+        }
+      });
+    } else {
+      channel->SetMessageHandler(nullptr);
+    }
+  }
+  {
+    auto channel = std::make_unique<BasicMessageChannel<>>(binary_messenger, "dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitleUri", &GetCodec());
+    if (api != nullptr) {
+      channel->SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
+        try {
+          const auto& args = std::get<EncodableList>(message);
+          const auto& encodable_texture_id_arg = args.at(0);
+          if (encodable_texture_id_arg.IsNull()) {
+            reply(WrapError("texture_id_arg unexpectedly null."));
+            return;
+          }
+          const int64_t texture_id_arg = encodable_texture_id_arg.LongValue();
+          const auto& encodable_uri_arg = args.at(1);
+          if (encodable_uri_arg.IsNull()) {
+            reply(WrapError("uri_arg unexpectedly null."));
+            return;
+          }
+          const auto& uri_arg = std::get<std::string>(encodable_uri_arg);
+          std::optional<FlutterError> output = api->SetSubtitleUri(texture_id_arg, uri_arg);
+          if (output.has_value()) {
+            reply(WrapError(output.value()));
+            return;
+          }
+          EncodableList wrapped;
+          wrapped.push_back(EncodableValue());
+          reply(EncodableValue(std::move(wrapped)));
+        } catch (const std::exception& exception) {
+          reply(WrapError(exception.what()));
+        }
+      });
+    } else {
+      channel->SetMessageHandler(nullptr);
+    }
+  }
+  {
+    auto channel = std::make_unique<BasicMessageChannel<>>(binary_messenger, "dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitleFont", &GetCodec());
+    if (api != nullptr) {
+      channel->SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
+        try {
+          const auto& args = std::get<EncodableList>(message);
+          const auto& encodable_texture_id_arg = args.at(0);
+          if (encodable_texture_id_arg.IsNull()) {
+            reply(WrapError("texture_id_arg unexpectedly null."));
+            return;
+          }
+          const int64_t texture_id_arg = encodable_texture_id_arg.LongValue();
+          const auto& encodable_font_desc_arg = args.at(1);
+          if (encodable_font_desc_arg.IsNull()) {
+            reply(WrapError("font_desc_arg unexpectedly null."));
+            return;
+          }
+          const auto& font_desc_arg = std::get<std::string>(encodable_font_desc_arg);
+          std::optional<FlutterError> output = api->SetSubtitleFont(texture_id_arg, font_desc_arg);
+          if (output.has_value()) {
+            reply(WrapError(output.value()));
+            return;
+          }
+          EncodableList wrapped;
+          wrapped.push_back(EncodableValue());
+          reply(EncodableValue(std::move(wrapped)));
+        } catch (const std::exception& exception) {
+          reply(WrapError(exception.what()));
+        }
+      });
+    } else {
+      channel->SetMessageHandler(nullptr);
+    }
+  }
+  {
+    auto channel = std::make_unique<BasicMessageChannel<>>(binary_messenger, "dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setChannelMixPreset", &GetCodec());
+    if (api != nullptr) {
+      channel->SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
+        try {
+          const auto& args = std::get<EncodableList>(message);
+          const auto& encodable_texture_id_arg = args.at(0);
+          if (encodable_texture_id_arg.IsNull()) {
+            reply(WrapError("texture_id_arg unexpectedly null."));
+            return;
+          }
+          const int64_t texture_id_arg = encodable_texture_id_arg.LongValue();
+          const auto& encodable_preset_arg = args.at(1);
+          if (encodable_preset_arg.IsNull()) {
+            reply(WrapError("preset_arg unexpectedly null."));
+            return;
+          }
+          const auto& preset_arg = std::get<std::string>(encodable_preset_arg);
+          std::optional<FlutterError> output = api->SetChannelMixPreset(texture_id_arg, preset_arg);
+          if (output.has_value()) {
+            reply(WrapError(output.value()));
+            return;
+          }
+          EncodableList wrapped;
+          wrapped.push_back(EncodableValue());
+          reply(EncodableValue(std::move(wrapped)));
+        } catch (const std::exception& exception) {
+          reply(WrapError(exception.what()));
+        }
+      });
+    } else {
+      channel->SetMessageHandler(nullptr);
+    }
+  }
 }
 
 EncodableValue LinuxVideoPlayerApi::WrapError(std::string_view error_message) {

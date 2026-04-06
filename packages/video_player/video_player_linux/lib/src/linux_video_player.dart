@@ -132,6 +132,34 @@ class LinuxVideoPlayer extends VideoPlayerPlatform {
 
   Future<bool> isAudioOnly(int textureId) => _api.isAudioOnly(textureId);
 
+  // ────────────────────────────────────────────────────────────────────
+  // Phase 2 — quality & tuning
+  // ────────────────────────────────────────────────────────────────────
+
+  Future<void> setScaleMethod(int textureId, int method) =>
+      _api.setScaleMethod(textureId, method);
+
+  Future<void> setAVOffset(int textureId, int offsetMs) =>
+      _api.setAVOffset(textureId, offsetMs);
+
+  Future<void> setSubtitlesEnabled(int textureId, bool enabled) =>
+      _api.setSubtitlesEnabled(textureId, enabled);
+
+  Future<int> getSubtitleTrackCount(int textureId) =>
+      _api.getSubtitleTrackCount(textureId);
+
+  Future<void> setSubtitleTrack(int textureId, int trackIndex) =>
+      _api.setSubtitleTrack(textureId, trackIndex);
+
+  Future<void> setSubtitleUri(int textureId, String uri) =>
+      _api.setSubtitleUri(textureId, uri);
+
+  Future<void> setSubtitleFont(int textureId, String fontDesc) =>
+      _api.setSubtitleFont(textureId, fontDesc);
+
+  Future<void> setChannelMixPreset(int textureId, String preset) =>
+      _api.setChannelMixPreset(textureId, preset);
+
   @override
   Stream<VideoEvent> videoEventsFor(int textureId) {
     return _eventChannelFor(textureId)

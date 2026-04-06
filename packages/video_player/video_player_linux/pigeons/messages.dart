@@ -71,4 +71,34 @@ abstract class LinuxVideoPlayerApi {
 
   /// Returns true if the media has no video stream.
   bool isAudioOnly(int textureId);
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Phase 2 — Quality & Tuning
+  // ──────────────────────────────────────────────────────────────────────
+
+  /// Sets the video scaling algorithm (0=nearest, 1=bilinear, 4=lanczos).
+  void setScaleMethod(int textureId, int method);
+
+  /// Sets the A/V sync offset in milliseconds. Positive delays audio.
+  void setAVOffset(int textureId, int offsetMs);
+
+  /// Enables or disables subtitle rendering.
+  void setSubtitlesEnabled(int textureId, bool enabled);
+
+  /// Returns the number of subtitle tracks in the current media.
+  int getSubtitleTrackCount(int textureId);
+
+  /// Switches to the subtitle track at [trackIndex].
+  void setSubtitleTrack(int textureId, int trackIndex);
+
+  /// Sets an external subtitle file URI (.srt, .sub, .vtt). Pass an empty
+  /// string to clear.
+  void setSubtitleUri(int textureId, String uri);
+
+  /// Sets the subtitle font (Pango format, e.g., "Sans Bold 18").
+  void setSubtitleFont(int textureId, String fontDesc);
+
+  /// Sets a named channel mix preset
+  /// ("stereo" | "driver" | "night" | "rear" | "surround").
+  void setChannelMixPreset(int textureId, String preset);
 }

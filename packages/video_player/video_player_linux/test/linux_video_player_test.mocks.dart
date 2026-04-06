@@ -221,4 +221,125 @@ class MockTestHostVideoPlayerApi extends _i1.Mock
         ),
         returnValue: false,
       ) as bool);
+
+  @override
+  void setScaleMethod(
+    int? textureId,
+    int? method,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setScaleMethod,
+          [
+            textureId,
+            method,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setAVOffset(
+    int? textureId,
+    int? offsetMs,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setAVOffset,
+          [
+            textureId,
+            offsetMs,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setSubtitlesEnabled(
+    int? textureId,
+    bool? enabled,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setSubtitlesEnabled,
+          [
+            textureId,
+            enabled,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  int getSubtitleTrackCount(int? textureId) => (super.noSuchMethod(
+        Invocation.method(
+          #getSubtitleTrackCount,
+          [textureId],
+        ),
+        returnValue: 0,
+      ) as int);
+
+  @override
+  void setSubtitleTrack(
+    int? textureId,
+    int? trackIndex,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setSubtitleTrack,
+          [
+            textureId,
+            trackIndex,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setSubtitleUri(
+    int? textureId,
+    String? uri,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setSubtitleUri,
+          [
+            textureId,
+            uri,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setSubtitleFont(
+    int? textureId,
+    String? fontDesc,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setSubtitleFont,
+          [
+            textureId,
+            fontDesc,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setChannelMixPreset(
+    int? textureId,
+    String? preset,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setChannelMixPreset,
+          [
+            textureId,
+            preset,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
 }

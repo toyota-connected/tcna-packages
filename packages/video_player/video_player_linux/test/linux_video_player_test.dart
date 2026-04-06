@@ -344,6 +344,51 @@ void main() {
       verify(mockApi.isAudioOnly(7));
     });
 
+    // ──────────────────────────────────────────────────────────────────
+    // Phase 2 — quality & tuning
+    // ──────────────────────────────────────────────────────────────────
+
+    test('setScaleMethod forwards to api', () async {
+      await player.setScaleMethod(7, 4);
+      verify(mockApi.setScaleMethod(7, 4));
+    });
+
+    test('setAVOffset forwards to api', () async {
+      await player.setAVOffset(7, -50);
+      verify(mockApi.setAVOffset(7, -50));
+    });
+
+    test('setSubtitlesEnabled forwards to api', () async {
+      await player.setSubtitlesEnabled(7, true);
+      verify(mockApi.setSubtitlesEnabled(7, true));
+    });
+
+    test('getSubtitleTrackCount forwards to api', () async {
+      when(mockApi.getSubtitleTrackCount(7)).thenReturn(2);
+      expect(await player.getSubtitleTrackCount(7), 2);
+      verify(mockApi.getSubtitleTrackCount(7));
+    });
+
+    test('setSubtitleTrack forwards to api', () async {
+      await player.setSubtitleTrack(7, 1);
+      verify(mockApi.setSubtitleTrack(7, 1));
+    });
+
+    test('setSubtitleUri forwards to api', () async {
+      await player.setSubtitleUri(7, 'file:///srt');
+      verify(mockApi.setSubtitleUri(7, 'file:///srt'));
+    });
+
+    test('setSubtitleFont forwards to api', () async {
+      await player.setSubtitleFont(7, 'Sans Bold 18');
+      verify(mockApi.setSubtitleFont(7, 'Sans Bold 18'));
+    });
+
+    test('setChannelMixPreset forwards to api', () async {
+      await player.setChannelMixPreset(7, 'driver');
+      verify(mockApi.setChannelMixPreset(7, 'driver'));
+    });
+
     test('buildViewWithOptions returns SizedBox.shrink for audio-only IDs',
         () {
       final widget = player.buildViewWithOptions(

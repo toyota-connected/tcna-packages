@@ -114,6 +114,38 @@ class LinuxVideoPlayerApi {
     bool mute) = 0;
   // Returns true if the media has no video stream.
   virtual ErrorOr<bool> IsAudioOnly(int64_t texture_id) = 0;
+  // Sets the video scaling algorithm (0=nearest, 1=bilinear, 4=lanczos).
+  virtual std::optional<FlutterError> SetScaleMethod(
+    int64_t texture_id,
+    int64_t method) = 0;
+  // Sets the A/V sync offset in milliseconds. Positive delays audio.
+  virtual std::optional<FlutterError> SetAVOffset(
+    int64_t texture_id,
+    int64_t offset_ms) = 0;
+  // Enables or disables subtitle rendering.
+  virtual std::optional<FlutterError> SetSubtitlesEnabled(
+    int64_t texture_id,
+    bool enabled) = 0;
+  // Returns the number of subtitle tracks in the current media.
+  virtual ErrorOr<int64_t> GetSubtitleTrackCount(int64_t texture_id) = 0;
+  // Switches to the subtitle track at [trackIndex].
+  virtual std::optional<FlutterError> SetSubtitleTrack(
+    int64_t texture_id,
+    int64_t track_index) = 0;
+  // Sets an external subtitle file URI (.srt, .sub, .vtt). Pass an empty
+  // string to clear.
+  virtual std::optional<FlutterError> SetSubtitleUri(
+    int64_t texture_id,
+    const std::string& uri) = 0;
+  // Sets the subtitle font (Pango format, e.g., "Sans Bold 18").
+  virtual std::optional<FlutterError> SetSubtitleFont(
+    int64_t texture_id,
+    const std::string& font_desc) = 0;
+  // Sets a named channel mix preset
+  // ("stereo" | "driver" | "night" | "rear" | "surround").
+  virtual std::optional<FlutterError> SetChannelMixPreset(
+    int64_t texture_id,
+    const std::string& preset) = 0;
 
   // The codec used by LinuxVideoPlayerApi.
   static const flutter::StandardMessageCodec& GetCodec();
