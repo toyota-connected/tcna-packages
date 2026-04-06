@@ -50,10 +50,7 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
       curve: Curves.easeOutBack,
     );
 
-    _fadeAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    );
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
 
     _controller.forward();
   }
@@ -75,124 +72,126 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
       scale: _scaleAnimation,
       child: FadeTransition(
         opacity: _fadeAnimation,
-        child: Center(
-          child: Dialog(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            insetPadding: EdgeInsets.all(Responsive.scaleWithConstraints(context, 20, minSize: 10, maxSize: 40)),
-            child: GlassContainer(
-              borderRadius: Responsive.scaleWithConstraints(context, 32, minSize: 16, maxSize: 48),
-              blur: 20,
-              borderOpacity: 0.2,
-              color: isDark
-                  ? Colors.black.withValues(alpha: 0.6)
-                  : Colors.white.withValues(alpha: 0.7),
-              child: Container(
-                constraints: BoxConstraints(
-                  maxWidth: Responsive.scaleWithConstraints(context, 400, minSize: 300, maxSize: 600),
-                  maxHeight: MediaQuery.of(context).size.height * 0.85,
-                ),
-                padding: EdgeInsets.all(Responsive.scaleWithConstraints(context, 32, minSize: 16, maxSize: 48)),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                  _buildIconHeader(colorScheme, permission),
-
-                  const SizedBox(height: 28),
-
-                  Text(
-                    'Permission Required',
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      // Ensure text is readable on glass
-                      color: isDark ? Colors.white : Colors.black87,
-                      letterSpacing: -0.5,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: isDark ? Colors.white70 : Colors.black54,
-                        height: 1.5,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: _getAppDisplayName(widget.event.appId),
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white : Colors.black,
-                          ),
-                        ),
-                        const TextSpan(text: ' wants to access your '),
-                        TextSpan(
-                          text: permission.displayName.toLowerCase(),
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white : Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  _buildDescriptionCard(context, permission),
-
-                  if (widget.event.total != null && widget.event.total! > 1) ...[
-                    const SizedBox(height: 24),
-                    _buildProgressIndicator(colorScheme),
-                  ],
-
-                  const SizedBox(height: 32),
-
-                  // Action buttons
-                  _buildActionButtons(colorScheme, isDark),
-                ],
+        child: Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          insetPadding: Responsive.paddingAll(context, 20),
+          child: GlassContainer(
+            borderRadius: Responsive.scale(context, 32),
+            blur: 20,
+            borderOpacity: 0.2,
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.6)
+                : Colors.white.withValues(alpha: 0.7),
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: Responsive.dialogMaxWidth(context),
+                maxHeight: Responsive.dialogMaxHeight(context),
               ),
-             ),
+              padding: Responsive.paddingAll(context, 32),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildIconHeader(context, colorScheme, permission),
+
+                    Responsive.vGap(context, 28),
+
+                    Text(
+                      'Permission Required',
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: Responsive.fontSize(context, 24),
+                        // Ensure text is readable on glass
+                        color: isDark ? Colors.white : Colors.black87,
+                        letterSpacing: -0.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    Responsive.vGap(context, 12),
+                    RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: isDark ? Colors.white70 : Colors.black54,
+                          fontSize: Responsive.fontSize(context, 16),
+                          height: 1.5,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: _getAppDisplayName(widget.event.appId),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                          ),
+                          const TextSpan(text: ' wants to access your '),
+                          TextSpan(
+                            text: permission.displayName.toLowerCase(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    Responsive.vGap(context, 24),
+
+                    _buildDescriptionCard(context, permission),
+
+                    if (widget.event.total != null &&
+                        widget.event.total! > 1) ...[
+                      Responsive.vGap(context, 24),
+                      _buildProgressIndicator(context, colorScheme),
+                    ],
+
+                    Responsive.vGap(context, 32),
+
+                    // Action buttons
+                    _buildActionButtons(context, colorScheme, isDark),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
         ),
       ),
     );
   }
 
   Widget _buildIconHeader(
-      ColorScheme colorScheme, FlatpakPermission permission) {
+    BuildContext context,
+    ColorScheme colorScheme,
+    FlatpakPermission permission,
+  ) {
     return Stack(
       alignment: Alignment.center,
       children: [
         Container(
-          width: 80,
-          height: 80,
+          width: Responsive.scale(context, 80),
+          height: Responsive.scale(context, 80),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: colorScheme.primary.withValues(alpha: 0.2),
             boxShadow: [
               BoxShadow(
                 color: colorScheme.primary.withValues(alpha: 0.4),
-                blurRadius: 40,
+                blurRadius: Responsive.scale(context, 40),
                 spreadRadius: 0,
               ),
             ],
           ),
         ),
         GlassContainer(
-          borderRadius: 50,
+          borderRadius: Responsive.scale(context, 50),
           blur: 10,
           color: colorScheme.surface.withValues(alpha: 0.1),
           borderOpacity: 0.2,
           child: Container(
-            width: 80,
-            height: 80,
+            width: Responsive.scale(context, 80),
+            height: Responsive.scale(context, 80),
             alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
@@ -207,7 +206,7 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
             ),
             child: Icon(
               permission.icon,
-              size: 36,
+              size: Responsive.scale(context, 36),
               color: colorScheme.primary,
             ),
           ),
@@ -216,32 +215,35 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
     );
   }
 
-  Widget _buildDescriptionCard(BuildContext context, FlatpakPermission permission) {
+  Widget _buildDescriptionCard(
+    BuildContext context,
+    FlatpakPermission permission,
+  ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GlassContainer(
-      borderRadius: 16,
+      borderRadius: Responsive.scale(context, 16),
       blur: 0,
       color: isDark
           ? Colors.white.withValues(alpha: 0.05)
           : Colors.black.withValues(alpha: 0.03),
       borderOpacity: 0.1,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: Responsive.paddingAll(context, 16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(
               Icons.info_outline_rounded,
-              size: 20,
+              size: Responsive.scale(context, 20),
               color: isDark ? Colors.white70 : Colors.black54,
             ),
-            const SizedBox(width: 12),
+            Responsive.hGap(context, 12),
             Expanded(
               child: Text(
                 permission.description,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: Responsive.fontSize(context, 13),
                   color: isDark ? Colors.white70 : Colors.black54,
                   height: 1.4,
                 ),
@@ -253,7 +255,10 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
     );
   }
 
-  Widget _buildProgressIndicator(ColorScheme colorScheme) {
+  Widget _buildProgressIndicator(
+    BuildContext context,
+    ColorScheme colorScheme,
+  ) {
     final progress = widget.event.progress!;
     final total = widget.event.total!;
 
@@ -265,7 +270,7 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
             Text(
               'Permission $progress of $total',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: Responsive.fontSize(context, 12),
                 fontWeight: FontWeight.w600,
                 color: colorScheme.primary,
                 letterSpacing: 0.5,
@@ -273,11 +278,11 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        Responsive.vGap(context, 12),
         Container(
-          height: 6,
+          height: Responsive.scale(context, 6),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(Responsive.scale(context, 10)),
             color: colorScheme.onSurface.withValues(alpha: 0.1),
           ),
           child: FractionallySizedBox(
@@ -285,7 +290,9 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
             widthFactor: progress / total,
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(
+                  Responsive.scale(context, 10),
+                ),
                 gradient: LinearGradient(
                   colors: [
                     colorScheme.primary.withValues(alpha: 0.7),
@@ -295,8 +302,8 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
                 boxShadow: [
                   BoxShadow(
                     color: colorScheme.primary.withValues(alpha: 0.4),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
+                    blurRadius: Responsive.scale(context, 6),
+                    offset: Offset(0, Responsive.scale(context, 2)),
                   ),
                 ],
               ),
@@ -307,7 +314,11 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
     );
   }
 
-  Widget _buildActionButtons(ColorScheme colorScheme, bool isDark) {
+  Widget _buildActionButtons(
+    BuildContext context,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
     return Row(
       children: [
         Expanded(
@@ -325,7 +336,7 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
           ),
         ),
 
-        const SizedBox(width: 16),
+        Responsive.hGap(context, 16),
 
         Expanded(
           child: GlassButton(
@@ -352,9 +363,11 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
       final name = parts.last;
       return name
           .split('_')
-          .map((word) => word.isNotEmpty
-          ? word[0].toUpperCase() + word.substring(1)
-          : '')
+          .map(
+            (word) => word.isNotEmpty
+                ? word[0].toUpperCase() + word.substring(1)
+                : '',
+          )
           .join(' ');
     }
     return appId;

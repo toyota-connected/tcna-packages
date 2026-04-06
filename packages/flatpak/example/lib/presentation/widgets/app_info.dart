@@ -40,6 +40,7 @@ class AppInfo extends StatelessWidget {
                       "Version",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.grey[600],
+                        fontSize: Responsive.fontSize(context, 12),
                         fontWeight: FontWeight.w500,
                         fontFamily: 'general-sans',
                       ),
@@ -48,6 +49,7 @@ class AppInfo extends StatelessWidget {
                     Text(
                       version,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: Responsive.fontSize(context, 14),
                         fontWeight: FontWeight.w500,
                         fontFamily: 'general-sans',
                       ),
@@ -65,6 +67,7 @@ class AppInfo extends StatelessWidget {
                       "Installed Size",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.grey[600],
+                        fontSize: Responsive.fontSize(context, 12),
                         fontWeight: FontWeight.w500,
                         fontFamily: 'general-sans',
                       ),
@@ -73,6 +76,7 @@ class AppInfo extends StatelessWidget {
                     Text(
                       size,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: Responsive.fontSize(context, 14),
                         fontWeight: FontWeight.w500,
                         fontFamily: 'general-sans',
                       ),
@@ -90,6 +94,7 @@ class AppInfo extends StatelessWidget {
                       "Last Update",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.grey[600],
+                        fontSize: Responsive.fontSize(context, 12),
                         fontWeight: FontWeight.w500,
                         fontFamily: 'general-sans',
                       ),
@@ -98,6 +103,7 @@ class AppInfo extends StatelessWidget {
                     Text(
                       last_upadate,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: Responsive.fontSize(context, 14),
                         fontWeight: FontWeight.w500,
                         fontFamily: 'general-sans',
                       ),
@@ -128,6 +134,7 @@ class AppInfo extends StatelessWidget {
                       "License",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.grey[600],
+                        fontSize: Responsive.fontSize(context, 12),
                         fontWeight: FontWeight.w500,
                         fontFamily: 'general-sans',
                       ),
@@ -136,6 +143,7 @@ class AppInfo extends StatelessWidget {
                     Text(
                       License,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: Responsive.fontSize(context, 14),
                         fontWeight: FontWeight.w500,
                         fontFamily: 'general-sans',
                       ),
@@ -154,6 +162,7 @@ class AppInfo extends StatelessWidget {
                       "Developer",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.grey[600],
+                        fontSize: Responsive.fontSize(context, 12),
                         fontWeight: FontWeight.w500,
                         fontFamily: 'general-sans',
                       ),
@@ -165,6 +174,7 @@ class AppInfo extends StatelessWidget {
                         url,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.blue,
+                          fontSize: Responsive.fontSize(context, 14),
                           decoration: TextDecoration.underline,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'general-sans',
@@ -184,6 +194,7 @@ class AppInfo extends StatelessWidget {
                       "Content Rating",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.grey[600],
+                        fontSize: Responsive.fontSize(context, 12),
                         fontWeight: FontWeight.w500,
                         fontFamily: 'general-sans',
                       ),
@@ -192,6 +203,7 @@ class AppInfo extends StatelessWidget {
                     Text(
                       content_rating,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: Responsive.fontSize(context, 14),
                         fontWeight: FontWeight.w500,
                       ),
                       overflow: TextOverflow.ellipsis,

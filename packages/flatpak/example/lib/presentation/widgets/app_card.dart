@@ -331,16 +331,18 @@ class _AppCardState extends State<AppCard> with TickerProviderStateMixin {
                   Responsive.hGap(context, 8),
                 ],
                 Flexible(
-                  child: Text(
-                    config.text,
-                    style: TextStyle(
-                      color: config.textColor,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'general-sans',
-                      fontSize: Responsive.fontSize(context, 14),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      config.text,
+                      style: TextStyle(
+                        color: config.textColor,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'general-sans',
+                        fontSize: Responsive.fontSize(context, 14),
+                      ),
+                      maxLines: 1,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
