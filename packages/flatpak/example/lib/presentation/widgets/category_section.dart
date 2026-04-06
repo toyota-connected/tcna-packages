@@ -26,7 +26,9 @@ class CategorySection extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
+          padding: EdgeInsets.symmetric(
+            horizontal: Responsive.scaleWithConstraints(context, 32, minSize: 16, maxSize: 64)
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -54,8 +56,11 @@ class CategorySection extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 20),
-        SizedBox(height: 234, child: _buildContent(context)),
+        SizedBox(height: Responsive.scaleWithConstraints(context, 20, minSize: 10, maxSize: 30)),
+        SizedBox(
+          height: Responsive.scaleWithConstraints(context, 234, minSize: 220, maxSize: 280),
+          child: _buildContent(context),
+        ),
       ],
     );
   }

@@ -181,10 +181,8 @@ class _SplashScreenState extends State<SplashScreen>
       setState(() => _loadingMessage = 'Organizing categories...');
       await _loadAllCategories();
 
-      int totalCategoryApps = 0;
       for (final entry in categories.entries) {
         final apps = context.read<DiscoveryCubit>().getCategoryApps(entry.key);
-        totalCategoryApps += apps.length;
         debugPrint('[SplashScreen] ${entry.key}: ${apps.length} apps');
       }
       // Small delay before transition
@@ -263,8 +261,8 @@ class _SplashScreenState extends State<SplashScreen>
                                 opacity: _fadeAnimation,
                                 child: SvgPicture.asset(
                                   'assets/logos/AGL.svg',
-                                  width: 168,
-                                  height: 36,
+                                  width: Responsive.scaleWithConstraints(context, 168, minSize: 100, maxSize: 300),
+                                  height: Responsive.scaleWithConstraints(context, 36, minSize: 24, maxSize: 72),
                                 ),
                               ),
                             ),
@@ -337,7 +335,12 @@ class _SplashScreenState extends State<SplashScreen>
                           child: Column(
                             children: [
                               SizedBox(
-                                width: 200,
+                                width: Responsive.scaleWithConstraints(
+                                  context,
+                                  200,
+                                  minSize: 150,
+                                  maxSize: 400,
+                                ),
                                 child: LinearProgressIndicator(
                                   backgroundColor: Colors.grey[200],
                                   valueColor: AlwaysStoppedAnimation<Color>(

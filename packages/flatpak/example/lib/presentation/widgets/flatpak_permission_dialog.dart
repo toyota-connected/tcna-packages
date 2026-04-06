@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/permissions/permission_types.dart';
 import '../../data/models/flatpak_permission_model.dart';
+import '../../responsive.dart';
 import 'glassmorphism/glass_button.dart';
 import 'glassmorphism/glass_container.dart';
 
@@ -77,17 +78,17 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
         child: Dialog(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          insetPadding: const EdgeInsets.all(20),
+          insetPadding: EdgeInsets.all(Responsive.scaleWithConstraints(context, 20, minSize: 10, maxSize: 40)),
           child: GlassContainer(
-            borderRadius: 32,
+            borderRadius: Responsive.scaleWithConstraints(context, 32, minSize: 16, maxSize: 48),
             blur: 20,
             borderOpacity: 0.2,
             color: isDark
                 ? Colors.black.withValues(alpha: 0.6)
                 : Colors.white.withValues(alpha: 0.7),
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 400),
-              padding: const EdgeInsets.all(32),
+              constraints: BoxConstraints(maxWidth: Responsive.scaleWithConstraints(context, 400, minSize: 300, maxSize: 600)),
+              padding: EdgeInsets.all(Responsive.scaleWithConstraints(context, 32, minSize: 16, maxSize: 48)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [

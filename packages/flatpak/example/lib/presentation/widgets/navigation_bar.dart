@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../../responsive.dart';
 
 class NavigationBar extends StatefulWidget {
   final int currentIndex;
@@ -70,11 +71,15 @@ class _NavigationBarState extends State<NavigationBar>
 
   @override
   Widget build(BuildContext context) {
+    final margin = Responsive.scaleWithConstraints(context, 24, minSize: 12, maxSize: 48);
+    final navHeight = Responsive.scaleWithConstraints(context, 80, minSize: 60, maxSize: 100);
+    final borderRadius = navHeight / 2;
+
     return Container(
-      margin: const EdgeInsets.only(left: 24, right: 24, bottom: 24),
-      height: 80,
+      margin: EdgeInsets.only(left: margin, right: margin, bottom: margin),
+      height: navHeight,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(40),
+        borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -84,13 +89,13 @@ class _NavigationBarState extends State<NavigationBar>
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(40),
+        borderRadius: BorderRadius.circular(borderRadius),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(40),
+              borderRadius: BorderRadius.circular(borderRadius),
               border: Border.all(
                 color: Colors.white.withValues(alpha: 0.3),
                 width: 1.5,
@@ -101,11 +106,11 @@ class _NavigationBarState extends State<NavigationBar>
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
-                  left: _calculateIndicatorPosition(),
-                  top: 10,
+                  left: _calculateIndicatorPosition(margin, navHeight),
+                  top: (navHeight - (navHeight * 0.75)) / 2,
                   child: Container(
-                    width: 60,
-                    height: 60,
+                    width: navHeight * 0.75,
+                    height: navHeight * 0.75,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
@@ -132,7 +137,7 @@ class _NavigationBarState extends State<NavigationBar>
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(
                     widget.items.length,
-                    (index) => _buildNavItem(index),
+                    (index) => _buildNavItem(index, navHeight),
                   ),
                 ),
               ],
@@ -143,13 +148,14 @@ class _NavigationBarState extends State<NavigationBar>
     );
   }
 
-  double _calculateIndicatorPosition() {
+  double _calculateIndicatorPosition(double margin, double navHeight) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final itemWidth = (screenWidth - 48) / widget.items.length;
-    return (itemWidth * widget.currentIndex) + (itemWidth / 2) - 30;
+    final itemWidth = (screenWidth - (margin * 2)) / widget.items.length;
+    final indicatorSize = navHeight * 0.75;
+    return (itemWidth * widget.currentIndex) + (itemWidth / 2) - (indicatorSize / 2);
   }
 
-  Widget _buildNavItem(int index) {
+  Widget _buildNavItem(int index, double navHeight) {
     final item = widget.items[index];
     final isSelected = widget.currentIndex == index;
 
@@ -168,11 +174,11 @@ class _NavigationBarState extends State<NavigationBar>
               child: Opacity(
                 opacity: _opacityAnimations[index].value,
                 child: SizedBox(
-                  height: 80,
+                  height: navHeight,
                   child: Center(
                     child: Icon(
                       item.icon,
-                      size: 28,
+                      size: Responsive.scaleWithConstraints(context, 28, minSize: 20, maxSize: 40),
                       color: isSelected
                           ? Colors.black87
                           : Colors.black.withValues(alpha: 0.5),

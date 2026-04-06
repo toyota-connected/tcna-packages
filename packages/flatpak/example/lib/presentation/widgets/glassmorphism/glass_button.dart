@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../responsive.dart';
 
 class GlassButton extends StatelessWidget {
   final VoidCallback onTap;
@@ -27,7 +28,9 @@ class GlassButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: padding ?? const EdgeInsets.symmetric(horizontal: 20),
+        padding: padding ?? EdgeInsets.symmetric(
+          horizontal: Responsive.scaleWithConstraints(context, 20, minSize: 12, maxSize: 32),
+        ),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -37,7 +40,7 @@ class GlassButton extends StatelessWidget {
               glassColor.withValues(alpha: isPrimary ? 0.9 : 0.05),
             ],
           ),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(Responsive.scaleWithConstraints(context, 16, minSize: 8, maxSize: 24)),
           border: Border.all(
             color: borderColor,
             width: 1,
@@ -56,15 +59,15 @@ class GlassButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 20, color: textColor),
-              if (label.isNotEmpty) const SizedBox(width: 8),
+              Icon(icon, size: Responsive.scaleWithConstraints(context, 20, minSize: 16, maxSize: 32), color: textColor),
+              if (label.isNotEmpty) SizedBox(width: Responsive.scaleWithConstraints(context, 8, minSize: 4, maxSize: 16)),
             ],
             if (label.isNotEmpty)
               Text(
                 label,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: 16,
+                  fontSize: Responsive.scaleWithConstraints(context, 16, minSize: 12, maxSize: 24),
                   color: textColor,
                   letterSpacing: 0.3,
                 ),

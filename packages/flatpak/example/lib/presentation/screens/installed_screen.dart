@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../responsive.dart';
 import '../../business_logic/app_launch/app_launch_cubit.dart';
 import '../../business_logic/app_launch/app_launch_state.dart';
 import '../../business_logic/app_status/app_status_cubit.dart';
@@ -186,7 +187,12 @@ class _InstalledScreenState extends State<InstalledScreen>
       child: SafeArea(
         bottom: false,
         child: Container(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
+          padding: EdgeInsets.fromLTRB(
+            Responsive.scaleWithConstraints(context, 24, minSize: 16, maxSize: 40),
+            Responsive.scaleWithConstraints(context, 16, minSize: 12, maxSize: 24),
+            Responsive.scaleWithConstraints(context, 24, minSize: 16, maxSize: 40),
+            Responsive.scaleWithConstraints(context, 20, minSize: 12, maxSize: 28),
+          ),
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(

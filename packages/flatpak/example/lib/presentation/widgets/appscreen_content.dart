@@ -11,7 +11,6 @@ import '../../business_logic/app_status/app_status_state.dart';
 import '../../business_logic/installation/installation_cubit.dart';
 import '../../business_logic/installation/installation_state.dart';
 import '../../data/models/application_model.dart';
-import '../../helpers/id_utils.dart';
 import 'package:flatpak_flutter_example/responsive.dart';
 import 'package:flatpak_flutter_example/presentation/widgets/screenshot_widget.dart';
 import 'app_info.dart';
@@ -59,9 +58,9 @@ class AppscreenContent extends StatelessWidget {
                 filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 54,
-                    vertical: 15,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Responsive.scaleWithConstraints(context, 54, minSize: 20, maxSize: 80),
+                    vertical: Responsive.scaleWithConstraints(context, 15, minSize: 10, maxSize: 24),
                   ),
                   child: _buildAppHeader(context),
                 ),
@@ -740,7 +739,6 @@ class _GlassActionButton extends StatelessWidget {
     final textColor = isFilled ? Colors.white : effectiveColor;
 
     final showProgress = isLoading && progress != null && progress! > 0;
-    final showSpinner = isLoading && (progress == null || progress! == 0);
 
     return Material(
       color: Colors.transparent,

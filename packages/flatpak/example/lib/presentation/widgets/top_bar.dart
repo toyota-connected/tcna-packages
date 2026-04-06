@@ -32,7 +32,10 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 65, vertical: 33.0),
+            padding: EdgeInsets.symmetric(
+              horizontal: Responsive.scaleWithConstraints(context, 65, minSize: 16, maxSize: 100), 
+              vertical: Responsive.scaleWithConstraints(context, 33, minSize: 12, maxSize: 40)
+            ),
             child: Row(
               children: [
                 _buildLogo(context),
@@ -195,8 +198,8 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
           ///onTap: ,
           child: SvgPicture.asset(
             'assets/icons/bell.svg',
-            width: 17.05,
-            height: 19.5,
+            width: Responsive.scaleWithConstraints(context, 17.05, minSize: 12, maxSize: 24),
+            height: Responsive.scaleWithConstraints(context, 19.5, minSize: 14, maxSize: 28),
           ),
         ),
 
