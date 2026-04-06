@@ -160,6 +160,31 @@ class LinuxVideoPlayer extends VideoPlayerPlatform {
   Future<void> setChannelMixPreset(int textureId, String preset) =>
       _api.setChannelMixPreset(textureId, preset);
 
+  // ────────────────────────────────────────────────────────────────────
+  // Phase 3 — premium features
+  // ────────────────────────────────────────────────────────────────────
+
+  Future<void> setEqualizer(int textureId, List<double> bands) {
+    assert(bands.length == 10, 'Equalizer requires exactly 10 bands');
+    return _api.setEqualizer(textureId, bands);
+  }
+
+  Future<void> setVideoBalance(int textureId,
+          {required double brightness,
+          required double contrast,
+          required double saturation,
+          required double hue}) =>
+      _api.setVideoBalance(textureId, brightness, contrast, saturation, hue);
+
+  Future<void> setAudioPassthrough(int textureId, bool enabled) =>
+      _api.setAudioPassthrough(textureId, enabled);
+
+  Future<void> setChannelMixMatrix(int textureId,
+          {required int inChannels,
+          required int outChannels,
+          required List<double> matrix}) =>
+      _api.setChannelMixMatrix(textureId, inChannels, outChannels, matrix);
+
   @override
   Stream<VideoEvent> videoEventsFor(int textureId) {
     return _eventChannelFor(textureId)

@@ -101,4 +101,24 @@ abstract class LinuxVideoPlayerApi {
   /// Sets a named channel mix preset
   /// ("stereo" | "driver" | "night" | "rear" | "surround").
   void setChannelMixPreset(int textureId, String preset);
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Phase 3 — Premium Features
+  // ──────────────────────────────────────────────────────────────────────
+
+  /// Sets the 10-band equalizer. [bands] must have 10 elements,
+  /// each clamped to -24.0..+12.0 dB.
+  void setEqualizer(int textureId, List<double> bands);
+
+  /// Sets video brightness, contrast, saturation, hue (each -1.0..+1.0
+  /// except contrast/saturation which are 0..2 with 1 = identity).
+  void setVideoBalance(int textureId, double brightness, double contrast,
+      double saturation, double hue);
+
+  /// Enables/disables encoded audio passthrough (AC3/DTS over HDMI).
+  void setAudioPassthrough(int textureId, bool enabled);
+
+  /// Sets a custom downmix matrix (row-major, [outChannels] × [inChannels]).
+  void setChannelMixMatrix(int textureId, int inChannels, int outChannels,
+      List<double> matrix);
 }

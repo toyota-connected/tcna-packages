@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import 'library.dart';
 import 'mini_controller.dart';
+import 'settings_panel.dart';
 
 enum FpsWindow {
   oneSecond(Duration(seconds: 1), '1 s'),
@@ -33,6 +34,8 @@ class _PlayerScreenState extends State<PlayerScreen>
   bool _isLooping = true;
   bool _showTrackInfo = false;
   bool _showTimecode = false;
+  bool _showSettings = false;
+  SettingsTab _settingsInitialTab = SettingsTab.audio;
   double _volume = 1.0;
   double _volumeBeforeMute = 1.0;
 
@@ -321,6 +324,21 @@ class _PlayerScreenState extends State<PlayerScreen>
                 ),
               ),
 
+              // Settings panel — right slide-out drawer
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOutCubic,
+                top: 0,
+                bottom: 0,
+                right: _showSettings ? 0 : -SettingsPanel.width,
+                width: SettingsPanel.width,
+                child: SettingsPanel(
+                  controller: ctrl,
+                  initialTab: _settingsInitialTab,
+                  onClose: () => setState(() => _showSettings = false),
+                ),
+              ),
+
               // Transport tray — slides up from bottom
               Positioned(
                 left: 0,
@@ -451,6 +469,32 @@ class _PlayerScreenState extends State<PlayerScreen>
                                 cs: cs,
                                 onPressed:
                                     val.isInitialized ? _cycleFpsWindow : null,
+                              ),
+
+                              // CC (subtitles) — opens settings on subs tab
+                              IconButton(
+                                icon: const Icon(Icons.closed_caption_outlined),
+                                tooltip: 'Subtitles',
+                                onPressed: val.isInitialized && !ctrl.isAudioOnly
+                                    ? () => setState(() {
+                                          _settingsInitialTab =
+                                              SettingsTab.subtitles;
+                                          _showSettings = true;
+                                        })
+                                    : null,
+                              ),
+
+                              // Settings gear
+                              IconButton(
+                                icon: const Icon(Icons.settings_outlined),
+                                tooltip: 'Settings',
+                                onPressed: val.isInitialized
+                                    ? () => setState(() {
+                                          _settingsInitialTab =
+                                              SettingsTab.audio;
+                                          _showSettings = true;
+                                        })
+                                    : null,
                               ),
 
                               const Spacer(),

@@ -596,4 +596,98 @@ class LinuxVideoPlayerApi {
       return;
     }
   }
+
+  /// Sets the 10-band equalizer. [bands] must have 10 elements,
+  /// each clamped to -24.0..+12.0 dB.
+  Future<void> setEqualizer(int textureId, List<double?> bands) async {
+    const String __pigeon_channelName = 'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setEqualizer';
+    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+      __pigeon_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: __pigeon_binaryMessenger,
+    );
+    final List<Object?>? __pigeon_replyList =
+        await __pigeon_channel.send(<Object?>[textureId, bands]) as List<Object?>?;
+    if (__pigeon_replyList == null) {
+      throw _createConnectionError(__pigeon_channelName);
+    } else if (__pigeon_replyList.length > 1) {
+      throw PlatformException(
+        code: __pigeon_replyList[0]! as String,
+        message: __pigeon_replyList[1] as String?,
+        details: __pigeon_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  /// Sets video brightness, contrast, saturation, hue (each -1.0..+1.0
+  /// except contrast/saturation which are 0..2 with 1 = identity).
+  Future<void> setVideoBalance(int textureId, double brightness, double contrast, double saturation, double hue) async {
+    const String __pigeon_channelName = 'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setVideoBalance';
+    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+      __pigeon_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: __pigeon_binaryMessenger,
+    );
+    final List<Object?>? __pigeon_replyList =
+        await __pigeon_channel.send(<Object?>[textureId, brightness, contrast, saturation, hue]) as List<Object?>?;
+    if (__pigeon_replyList == null) {
+      throw _createConnectionError(__pigeon_channelName);
+    } else if (__pigeon_replyList.length > 1) {
+      throw PlatformException(
+        code: __pigeon_replyList[0]! as String,
+        message: __pigeon_replyList[1] as String?,
+        details: __pigeon_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  /// Enables/disables encoded audio passthrough (AC3/DTS over HDMI).
+  Future<void> setAudioPassthrough(int textureId, bool enabled) async {
+    const String __pigeon_channelName = 'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setAudioPassthrough';
+    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+      __pigeon_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: __pigeon_binaryMessenger,
+    );
+    final List<Object?>? __pigeon_replyList =
+        await __pigeon_channel.send(<Object?>[textureId, enabled]) as List<Object?>?;
+    if (__pigeon_replyList == null) {
+      throw _createConnectionError(__pigeon_channelName);
+    } else if (__pigeon_replyList.length > 1) {
+      throw PlatformException(
+        code: __pigeon_replyList[0]! as String,
+        message: __pigeon_replyList[1] as String?,
+        details: __pigeon_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  /// Sets a custom downmix matrix (row-major, [outChannels] × [inChannels]).
+  Future<void> setChannelMixMatrix(int textureId, int inChannels, int outChannels, List<double?> matrix) async {
+    const String __pigeon_channelName = 'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setChannelMixMatrix';
+    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+      __pigeon_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: __pigeon_binaryMessenger,
+    );
+    final List<Object?>? __pigeon_replyList =
+        await __pigeon_channel.send(<Object?>[textureId, inChannels, outChannels, matrix]) as List<Object?>?;
+    if (__pigeon_replyList == null) {
+      throw _createConnectionError(__pigeon_channelName);
+    } else if (__pigeon_replyList.length > 1) {
+      throw PlatformException(
+        code: __pigeon_replyList[0]! as String,
+        message: __pigeon_replyList[1] as String?,
+        details: __pigeon_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
 }

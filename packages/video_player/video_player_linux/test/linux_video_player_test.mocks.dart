@@ -342,4 +342,78 @@ class MockTestHostVideoPlayerApi extends _i1.Mock
         ),
         returnValueForMissingStub: null,
       );
+
+  @override
+  void setEqualizer(
+    int? textureId,
+    List<double?>? bands,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setEqualizer,
+          [
+            textureId,
+            bands,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setVideoBalance(
+    int? textureId,
+    double? brightness,
+    double? contrast,
+    double? saturation,
+    double? hue,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setVideoBalance,
+          [
+            textureId,
+            brightness,
+            contrast,
+            saturation,
+            hue,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setAudioPassthrough(
+    int? textureId,
+    bool? enabled,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setAudioPassthrough,
+          [
+            textureId,
+            enabled,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setChannelMixMatrix(
+    int? textureId,
+    int? inChannels,
+    int? outChannels,
+    List<double?>? matrix,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setChannelMixMatrix,
+          [
+            textureId,
+            inChannels,
+            outChannels,
+            matrix,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
 }

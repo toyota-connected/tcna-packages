@@ -389,6 +389,35 @@ void main() {
       verify(mockApi.setChannelMixPreset(7, 'driver'));
     });
 
+    // ──────────────────────────────────────────────────────────────────
+    // Phase 3 — premium features
+    // ──────────────────────────────────────────────────────────────────
+
+    test('setEqualizer forwards 10 bands', () async {
+      final bands = List<double>.generate(10, (i) => i.toDouble() - 4);
+      await player.setEqualizer(7, bands);
+      verify(mockApi.setEqualizer(7, bands));
+    });
+
+    test('setVideoBalance forwards all four params', () async {
+      await player.setVideoBalance(7,
+          brightness: 0.1, contrast: 1.2, saturation: 0.9, hue: 0.0);
+      verify(mockApi.setVideoBalance(7, 0.1, 1.2, 0.9, 0.0));
+    });
+
+    test('setAudioPassthrough forwards', () async {
+      await player.setAudioPassthrough(7, true);
+      verify(mockApi.setAudioPassthrough(7, true));
+    });
+
+    test('setChannelMixMatrix forwards dimensions and matrix', () async {
+      final matrix = <double>[1, 0, 0.707, 0.707, 0.707, 0,
+                              0, 1, 0.707, 0.707, 0, 0.707];
+      await player.setChannelMixMatrix(7,
+          inChannels: 6, outChannels: 2, matrix: matrix);
+      verify(mockApi.setChannelMixMatrix(7, 6, 2, matrix));
+    });
+
     test('buildViewWithOptions returns SizedBox.shrink for audio-only IDs',
         () {
       final widget = player.buildViewWithOptions(

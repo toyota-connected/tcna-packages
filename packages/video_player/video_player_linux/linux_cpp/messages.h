@@ -146,6 +146,29 @@ class LinuxVideoPlayerApi {
   virtual std::optional<FlutterError> SetChannelMixPreset(
     int64_t texture_id,
     const std::string& preset) = 0;
+  // Sets the 10-band equalizer. [bands] must have 10 elements,
+  // each clamped to -24.0..+12.0 dB.
+  virtual std::optional<FlutterError> SetEqualizer(
+    int64_t texture_id,
+    const flutter::EncodableList& bands) = 0;
+  // Sets video brightness, contrast, saturation, hue (each -1.0..+1.0
+  // except contrast/saturation which are 0..2 with 1 = identity).
+  virtual std::optional<FlutterError> SetVideoBalance(
+    int64_t texture_id,
+    double brightness,
+    double contrast,
+    double saturation,
+    double hue) = 0;
+  // Enables/disables encoded audio passthrough (AC3/DTS over HDMI).
+  virtual std::optional<FlutterError> SetAudioPassthrough(
+    int64_t texture_id,
+    bool enabled) = 0;
+  // Sets a custom downmix matrix (row-major, [outChannels] × [inChannels]).
+  virtual std::optional<FlutterError> SetChannelMixMatrix(
+    int64_t texture_id,
+    int64_t in_channels,
+    int64_t out_channels,
+    const flutter::EncodableList& matrix) = 0;
 
   // The codec used by LinuxVideoPlayerApi.
   static const flutter::StandardMessageCodec& GetCodec();

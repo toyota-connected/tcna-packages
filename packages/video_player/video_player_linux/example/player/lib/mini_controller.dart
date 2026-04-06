@@ -501,6 +501,78 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
     }
   }
 
+  // ────────────────────────────────────────────────────────────────────
+  // Phase 3 — premium features
+  // ────────────────────────────────────────────────────────────────────
+
+  /// 10-band equalizer state. Persisted in-controller so the settings UI can
+  /// re-render the sliders without re-querying the native side.
+  List<double> equalizerBands = List<double>.filled(10, 0.0);
+
+  Future<void> setEqualizer(List<double> bands) async {
+    assert(bands.length == 10);
+    equalizerBands = List<double>.from(bands);
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setEqualizer(_textureId, bands);
+    }
+    notifyListeners();
+  }
+
+  // Video balance state.
+  double videoBrightness = 0.0;
+  double videoContrast = 1.0;
+  double videoSaturation = 1.0;
+  double videoHue = 0.0;
+
+  Future<void> setVideoBalance({
+    double? brightness,
+    double? contrast,
+    double? saturation,
+    double? hue,
+  }) async {
+    videoBrightness = brightness ?? videoBrightness;
+    videoContrast = contrast ?? videoContrast;
+    videoSaturation = saturation ?? videoSaturation;
+    videoHue = hue ?? videoHue;
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setVideoBalance(
+        _textureId,
+        brightness: videoBrightness,
+        contrast: videoContrast,
+        saturation: videoSaturation,
+        hue: videoHue,
+      );
+    }
+    notifyListeners();
+  }
+
+  bool _passthrough = false;
+  bool get passthrough => _passthrough;
+  Future<void> setAudioPassthrough(bool enabled) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setAudioPassthrough(_textureId, enabled);
+      _passthrough = enabled;
+      notifyListeners();
+    }
+  }
+
+  Future<void> setChannelMixMatrix({
+    required int inChannels,
+    required int outChannels,
+    required List<double> matrix,
+  }) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setChannelMixMatrix(_textureId,
+          inChannels: inChannels,
+          outChannels: outChannels,
+          matrix: matrix);
+    }
+  }
+
   @override
   Future<void> dispose() async {
     _isDisposed = true;
