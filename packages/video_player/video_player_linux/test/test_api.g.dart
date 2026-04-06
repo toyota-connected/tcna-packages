@@ -14,8 +14,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:video_player_linux/src/messages.g.dart';
 
 abstract class TestHostVideoPlayerApi {
-  static TestDefaultBinaryMessengerBinding? get _testBinaryMessengerBinding => TestDefaultBinaryMessengerBinding.instance;
-  static const MessageCodec<Object?> pigeonChannelCodec = StandardMessageCodec();
+  static TestDefaultBinaryMessengerBinding? get _testBinaryMessengerBinding =>
+      TestDefaultBinaryMessengerBinding.instance;
+  static const MessageCodec<Object?> pigeonChannelCodec =
+      StandardMessageCodec();
 
   /// Initializes the video player.
   void initialize();
@@ -97,48 +99,63 @@ abstract class TestHostVideoPlayerApi {
 
   /// Sets video brightness, contrast, saturation, hue (each -1.0..+1.0
   /// except contrast/saturation which are 0..2 with 1 = identity).
-  void setVideoBalance(int textureId, double brightness, double contrast, double saturation, double hue);
+  void setVideoBalance(int textureId, double brightness, double contrast,
+      double saturation, double hue);
 
   /// Enables/disables encoded audio passthrough (AC3/DTS over HDMI).
   void setAudioPassthrough(int textureId, bool enabled);
 
   /// Sets a custom downmix matrix (row-major, [outChannels] × [inChannels]).
-  void setChannelMixMatrix(int textureId, int inChannels, int outChannels, List<double?> matrix);
+  void setChannelMixMatrix(
+      int textureId, int inChannels, int outChannels, List<double?> matrix);
 
-  static void setup(TestHostVideoPlayerApi? api, {BinaryMessenger? binaryMessenger}) {
+  static void setup(TestHostVideoPlayerApi? api,
+      {BinaryMessenger? binaryMessenger}) {
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.initialize', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.initialize',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           try {
             api.initialize();
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.create', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.create',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.create was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.create was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final String? arg_asset = (args[0] as String?);
           final String? arg_uri = (args[1] as String?);
-          final Map<String?, String?>? arg_httpHeaders = (args[2] as Map<Object?, Object?>?)?.cast<String?, String?>();
+          final Map<String?, String?>? arg_httpHeaders =
+              (args[2] as Map<Object?, Object?>?)?.cast<String?, String?>();
           assert(arg_httpHeaders != null,
               'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.create was null, expected non-null Map<String?, String?>.');
           try {
@@ -146,22 +163,28 @@ abstract class TestHostVideoPlayerApi {
             return <Object?>[output];
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.dispose', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.dispose',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.dispose was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.dispose was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -171,22 +194,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setLooping', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setLooping',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setLooping was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setLooping was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -199,22 +228,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setVolume', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setVolume',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setVolume was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setVolume was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -227,22 +262,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setPlaybackSpeed', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setPlaybackSpeed',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setPlaybackSpeed was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setPlaybackSpeed was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -255,22 +296,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.play', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+      final BasicMessageChannel<Object?> __pigeon_channel =
+          BasicMessageChannel<Object?>(
+              'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.play',
+              pigeonChannelCodec,
+              binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.play was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.play was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -280,22 +327,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.getPosition', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.getPosition',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.getPosition was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.getPosition was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -305,22 +358,28 @@ abstract class TestHostVideoPlayerApi {
             return <Object?>[output];
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.seekTo', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.seekTo',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.seekTo was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.seekTo was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -333,22 +392,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.pause', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+      final BasicMessageChannel<Object?> __pigeon_channel =
+          BasicMessageChannel<Object?>(
+              'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.pause',
+              pigeonChannelCodec,
+              binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.pause was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.pause was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -358,22 +423,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.getAudioTrackCount', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.getAudioTrackCount',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.getAudioTrackCount was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.getAudioTrackCount was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -383,22 +454,28 @@ abstract class TestHostVideoPlayerApi {
             return <Object?>[output];
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setAudioTrack', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setAudioTrack',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setAudioTrack was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setAudioTrack was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -411,22 +488,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setOutputChannels', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setOutputChannels',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setOutputChannels was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setOutputChannels was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -439,22 +522,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setMute', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setMute',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setMute was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setMute was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -467,22 +556,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.isAudioOnly', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.isAudioOnly',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.isAudioOnly was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.isAudioOnly was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -492,22 +587,28 @@ abstract class TestHostVideoPlayerApi {
             return <Object?>[output];
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setScaleMethod', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setScaleMethod',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setScaleMethod was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setScaleMethod was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -520,22 +621,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setAVOffset', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setAVOffset',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setAVOffset was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setAVOffset was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -548,22 +655,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitlesEnabled', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitlesEnabled',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitlesEnabled was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitlesEnabled was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -576,22 +689,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.getSubtitleTrackCount', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.getSubtitleTrackCount',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.getSubtitleTrackCount was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.getSubtitleTrackCount was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -601,22 +720,28 @@ abstract class TestHostVideoPlayerApi {
             return <Object?>[output];
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitleTrack', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitleTrack',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitleTrack was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitleTrack was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -629,22 +754,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitleUri', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitleUri',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitleUri was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitleUri was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -657,22 +788,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitleFont', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitleFont',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitleFont was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setSubtitleFont was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -685,22 +822,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setChannelMixPreset', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setChannelMixPreset',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setChannelMixPreset was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setChannelMixPreset was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -713,27 +856,34 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setEqualizer', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setEqualizer',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setEqualizer was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setEqualizer was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
               'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setEqualizer was null, expected non-null int.');
-          final List<double?>? arg_bands = (args[1] as List<Object?>?)?.cast<double?>();
+          final List<double?>? arg_bands =
+              (args[1] as List<Object?>?)?.cast<double?>();
           assert(arg_bands != null,
               'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setEqualizer was null, expected non-null List<double?>.');
           try {
@@ -741,22 +891,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setVideoBalance', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setVideoBalance',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setVideoBalance was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setVideoBalance was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -774,26 +930,33 @@ abstract class TestHostVideoPlayerApi {
           assert(arg_hue != null,
               'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setVideoBalance was null, expected non-null double.');
           try {
-            api.setVideoBalance(arg_textureId!, arg_brightness!, arg_contrast!, arg_saturation!, arg_hue!);
+            api.setVideoBalance(arg_textureId!, arg_brightness!, arg_contrast!,
+                arg_saturation!, arg_hue!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setAudioPassthrough', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setAudioPassthrough',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setAudioPassthrough was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setAudioPassthrough was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -806,22 +969,28 @@ abstract class TestHostVideoPlayerApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setChannelMixMatrix', pigeonChannelCodec,
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setChannelMixMatrix',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
       } else {
-        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<Object?>(__pigeon_channel,
+                (Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setChannelMixMatrix was null.');
+              'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setChannelMixMatrix was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_textureId = (args[0] as int?);
           assert(arg_textureId != null,
@@ -832,16 +1001,19 @@ abstract class TestHostVideoPlayerApi {
           final int? arg_outChannels = (args[2] as int?);
           assert(arg_outChannels != null,
               'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setChannelMixMatrix was null, expected non-null int.');
-          final List<double?>? arg_matrix = (args[3] as List<Object?>?)?.cast<double?>();
+          final List<double?>? arg_matrix =
+              (args[3] as List<Object?>?)?.cast<double?>();
           assert(arg_matrix != null,
               'Argument for dev.flutter.pigeon.video_player_linux.LinuxVideoPlayerApi.setChannelMixMatrix was null, expected non-null List<double?>.');
           try {
-            api.setChannelMixMatrix(arg_textureId!, arg_inChannels!, arg_outChannels!, arg_matrix!);
+            api.setChannelMixMatrix(
+                arg_textureId!, arg_inChannels!, arg_outChannels!, arg_matrix!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }

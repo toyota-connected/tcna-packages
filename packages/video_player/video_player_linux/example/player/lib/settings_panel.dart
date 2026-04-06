@@ -244,7 +244,8 @@ class _TabButton extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? _kAccent.withValues(alpha: 0.15) : Colors.transparent,
+          color:
+              selected ? _kAccent.withValues(alpha: 0.15) : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: selected ? _kAccent : _kBorder,
@@ -340,15 +341,11 @@ class _AudioTab extends StatelessWidget {
 
         _ToggleableSection(
           label: 'Equalizer',
-          enabled: c.equalizerBands.any((b) => b != 0),
-          onToggle: (enable) {
-            if (enable) {
-              c.setEqualizer(List<double>.filled(10, 0.0));
-            } else {
-              c.setEqualizer(List<double>.filled(10, 0.0));
-            }
-          },
-          summary: c.equalizerBands.any((b) => b != 0) ? 'Custom' : 'Flat',
+          enabled: c.equalizerEnabled,
+          onToggle: c.setEqualizerEnabled,
+          summary: c.equalizerEnabled
+              ? (c.equalizerBands.any((b) => b != 0) ? 'Custom' : 'Flat')
+              : 'Off',
           child: _Equalizer(controller: c),
         ),
         const SizedBox(height: 18),
@@ -430,8 +427,16 @@ class _Equalizer extends StatefulWidget {
 
 class _EqualizerState extends State<_Equalizer> {
   static const _labels = [
-    '29', '60', '120', '240', '470',
-    '950', '1.9k', '3.8k', '7.5k', '14k',
+    '29',
+    '60',
+    '120',
+    '240',
+    '470',
+    '950',
+    '1.9k',
+    '3.8k',
+    '7.5k',
+    '14k',
   ];
 
   void _setBand(int i, double v) {
@@ -553,7 +558,8 @@ class _AVOffsetCardState extends State<_AVOffsetCard> {
           children: [
             Row(
               children: [
-                const Text('−500', style: TextStyle(color: _kMuted, fontSize: 10)),
+                const Text('−500',
+                    style: TextStyle(color: _kMuted, fontSize: 10)),
                 Expanded(
                   child: Slider(
                     value: _ms,
@@ -565,7 +571,8 @@ class _AVOffsetCardState extends State<_AVOffsetCard> {
                         widget.controller.setAVOffset(v.toInt()),
                   ),
                 ),
-                const Text('+500', style: TextStyle(color: _kMuted, fontSize: 10)),
+                const Text('+500',
+                    style: TextStyle(color: _kMuted, fontSize: 10)),
               ],
             ),
             const SizedBox(height: 4),
@@ -602,8 +609,30 @@ class _SubtitlesTabState extends State<_SubtitlesTab> {
   @override
   void initState() {
     super.initState();
+    _refreshTrackCount();
+  }
+
+  @override
+  void didUpdateWidget(covariant _SubtitlesTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      _trackCount = 0;
+      _currentTrack = null;
+      _refreshTrackCount();
+    }
+  }
+
+  void _refreshTrackCount() {
+    // Subtitles don't apply to audio-only media. Avoid the call entirely
+    // — the player wouldn't accept it and the tab is hidden anyway.
+    if (widget.controller.isAudioOnly) return;
     widget.controller.subtitleTrackCount().then((n) {
       if (mounted) setState(() => _trackCount = n);
+    }).catchError((Object _) {
+      // Player was disposed mid-query (rapid track switching) or
+      // the platform doesn't expose subtitle tracks for this source.
+      // Either way, treat as "no tracks".
+      if (mounted) setState(() => _trackCount = 0);
     });
   }
 
@@ -623,7 +652,9 @@ class _SubtitlesTabState extends State<_SubtitlesTab> {
           label: 'Subtitles',
           enabled: _enabled,
           summary: _enabled
-              ? (_trackCount > 0 ? '$_trackCount track${_trackCount == 1 ? '' : 's'}' : 'On')
+              ? (_trackCount > 0
+                  ? '$_trackCount track${_trackCount == 1 ? '' : 's'}'
+                  : 'On')
               : 'Off',
           onToggle: (v) {
             setState(() => _enabled = v);
@@ -713,7 +744,8 @@ class _SubtitlesTabState extends State<_SubtitlesTab> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: _kSurface,
-        title: const Text('Subtitle Font', style: TextStyle(color: Colors.white)),
+        title:
+            const Text('Subtitle Font', style: TextStyle(color: Colors.white)),
         content: TextField(
           controller: _fontCtrl,
           autofocus: true,

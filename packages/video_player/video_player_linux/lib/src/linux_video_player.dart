@@ -46,6 +46,27 @@ enum LinuxMediaEventType { albumArt, metadata, audioInfo }
 class LinuxVideoPlayer extends VideoPlayerPlatform {
   final LinuxVideoPlayerApi _api = LinuxVideoPlayerApi();
 
+  /// Cache of broadcast streams per texture ID. `EventChannel` permits only
+  /// one active listener; calling `receiveBroadcastStream()` twice and
+  /// listening to both yields a "No active stream to cancel" error when
+  /// either subscription is dropped. We keep a single underlying broadcast
+  /// stream per channel and let `videoEventsFor` and `linuxEventsFor` map
+  /// from it independently.
+  final Map<int, Stream<dynamic>> _rawStreams = <int, Stream<dynamic>>{};
+
+  Stream<dynamic> _rawEventsFor(int textureId) {
+    return _rawStreams.putIfAbsent(
+      textureId,
+      () => _eventChannelFor(textureId).receiveBroadcastStream(),
+    );
+  }
+
+  @override
+  Future<void> dispose(int textureId) {
+    _rawStreams.remove(textureId);
+    return _api.dispose(textureId);
+  }
+
   /// Registers this class as the default instance of [VideoPlayerPlatform].
   static void registerWith() {
     VideoPlayerPlatform.instance = LinuxVideoPlayer();
@@ -53,9 +74,6 @@ class LinuxVideoPlayer extends VideoPlayerPlatform {
 
   @override
   Future<void> init() => _api.initialize();
-
-  @override
-  Future<void> dispose(int textureId) => _api.dispose(textureId);
 
   @override
   Future<int?> createWithOptions(VideoCreationOptions options) async {
@@ -187,9 +205,7 @@ class LinuxVideoPlayer extends VideoPlayerPlatform {
 
   @override
   Stream<VideoEvent> videoEventsFor(int textureId) {
-    return _eventChannelFor(textureId)
-        .receiveBroadcastStream()
-        .map((dynamic event) {
+    return _rawEventsFor(textureId).map((dynamic event) {
       final Map<dynamic, dynamic> map = event as Map<dynamic, dynamic>;
       switch (map['event']) {
         case 'initialized':
@@ -232,8 +248,7 @@ class LinuxVideoPlayer extends VideoPlayerPlatform {
   /// metadata, audio stream info) for [textureId]. Shares the underlying
   /// event channel with [videoEventsFor].
   Stream<LinuxMediaEvent> linuxEventsFor(int textureId) {
-    return _eventChannelFor(textureId)
-        .receiveBroadcastStream()
+    return _rawEventsFor(textureId)
         .map<LinuxMediaEvent?>((dynamic event) {
           final Map<dynamic, dynamic> map = event as Map<dynamic, dynamic>;
           switch (map['event']) {

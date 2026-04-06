@@ -281,11 +281,6 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
     }
     _creatingCompleter!.complete(null);
 
-    // Start the pipeline so the first frame renders and triggers the
-    // "initialized" event.  Without this the pipeline sits in NULL state
-    // and initialize() never completes.
-    _platform.play(_textureId);
-
     final Completer<void> initializingCompleter = Completer<void>();
 
     void eventListener(VideoEvent event) {
@@ -349,6 +344,12 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
       }
     }
 
+    // Subscribe to events BEFORE telling the native side to start the
+    // pipeline. Otherwise the 'initialized' event can fire on the very
+    // first PLAYING transition (immediately after play() returns) before
+    // we attach the listener — and broadcast streams don't replay past
+    // events. The result is initialize() hanging on the first track at
+    // app startup.
     _eventSubscription = _platform
         .videoEventsFor(_textureId)
         .listen(eventListener, onError: errorListener);
@@ -388,6 +389,26 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
         }
       });
     }
+
+    // Yield to the event loop so the EventChannel "listen" platform
+    // message has a chance to flush to native before we dispatch play().
+    // EventChannel listens and Pigeon method calls travel on different
+    // channel transports and are not strictly ordered relative to each
+    // other, so without this yield the native side can occasionally
+    // process play() first, reach PLAYING, fire the 'initialized' event
+    // while event_sink_ is still null, and lose it. The C++ stream
+    // handler does have a replay path for that case but it depends on
+    // is_initialized_ already being true when OnListen runs — which
+    // isn't guaranteed if OnListen lands between play() dispatch and the
+    // pipeline actually reaching PLAYING.
+    await Future<void>.delayed(Duration.zero);
+    if (_isDisposed) return;
+
+    // Now that the listeners are attached, kick the pipeline into PLAYING
+    // so the native side will fire the 'initialized' event we're waiting
+    // on.
+    _platform.play(_textureId);
+
     return initializingCompleter.future;
   }
 
@@ -404,11 +425,16 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
     final int slash = filePath.lastIndexOf(Platform.pathSeparator);
     final String dir = slash > 0 ? filePath.substring(0, slash) : '.';
     const List<String> names = <String>[
-      'cover.jpg', 'cover.png',
-      'folder.jpg', 'folder.png',
-      'album.jpg', 'album.png',
-      'front.jpg', 'front.png',
-      'artwork.jpg', 'artwork.png',
+      'cover.jpg',
+      'cover.png',
+      'folder.jpg',
+      'folder.png',
+      'album.jpg',
+      'album.png',
+      'front.jpg',
+      'front.png',
+      'artwork.jpg',
+      'artwork.png',
     ];
     for (final String n in names) {
       final File f = File('$dir${Platform.pathSeparator}$n');
@@ -423,12 +449,14 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
 
   Future<void> setAudioTrack(int trackIndex) async {
     final platform = _platform;
-    if (platform is LinuxVideoPlayer) await platform.setAudioTrack(_textureId, trackIndex);
+    if (platform is LinuxVideoPlayer)
+      await platform.setAudioTrack(_textureId, trackIndex);
   }
 
   Future<void> setOutputChannels(int channels) async {
     final platform = _platform;
-    if (platform is LinuxVideoPlayer) await platform.setOutputChannels(_textureId, channels);
+    if (platform is LinuxVideoPlayer)
+      await platform.setOutputChannels(_textureId, channels);
   }
 
   Future<void> setMute(bool mute) async {
@@ -506,15 +534,38 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
   // ────────────────────────────────────────────────────────────────────
 
   /// 10-band equalizer state. Persisted in-controller so the settings UI can
-  /// re-render the sliders without re-querying the native side.
+  /// re-render the sliders without re-querying the native side. The bands
+  /// are always cached; whether they're applied to the audio path depends
+  /// on [equalizerEnabled].
   List<double> equalizerBands = List<double>.filled(10, 0.0);
+  bool equalizerEnabled = false;
 
+  /// Updates the cached band values and (if EQ is enabled) pushes them to
+  /// the native pipeline.
   Future<void> setEqualizer(List<double> bands) async {
     assert(bands.length == 10);
     equalizerBands = List<double>.from(bands);
     final platform = _platform;
     if (platform is LinuxVideoPlayer) {
-      await platform.setEqualizer(_textureId, bands);
+      await platform.setEqualizer(
+        _textureId,
+        equalizerEnabled ? equalizerBands : List<double>.filled(10, 0.0),
+      );
+    }
+    notifyListeners();
+  }
+
+  /// Toggles the equalizer on or off without losing the cached band
+  /// values. When turned off, a flat (all-zero) matrix is sent to the
+  /// native side; when turned on, the cached band values are re-applied.
+  Future<void> setEqualizerEnabled(bool enabled) async {
+    equalizerEnabled = enabled;
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setEqualizer(
+        _textureId,
+        enabled ? equalizerBands : List<double>.filled(10, 0.0),
+      );
     }
     notifyListeners();
   }
@@ -567,9 +618,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
     final platform = _platform;
     if (platform is LinuxVideoPlayer) {
       await platform.setChannelMixMatrix(_textureId,
-          inChannels: inChannels,
-          outChannels: outChannels,
-          matrix: matrix);
+          inChannels: inChannels, outChannels: outChannels, matrix: matrix);
     }
   }
 

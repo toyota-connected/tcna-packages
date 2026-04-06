@@ -119,6 +119,6 @@ abstract class LinuxVideoPlayerApi {
   void setAudioPassthrough(int textureId, bool enabled);
 
   /// Sets a custom downmix matrix (row-major, [outChannels] × [inChannels]).
-  void setChannelMixMatrix(int textureId, int inChannels, int outChannels,
-      List<double> matrix);
+  void setChannelMixMatrix(
+      int textureId, int inChannels, int outChannels, List<double> matrix);
 }

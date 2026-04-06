@@ -411,15 +411,26 @@ void main() {
     });
 
     test('setChannelMixMatrix forwards dimensions and matrix', () async {
-      final matrix = <double>[1, 0, 0.707, 0.707, 0.707, 0,
-                              0, 1, 0.707, 0.707, 0, 0.707];
+      final matrix = <double>[
+        1,
+        0,
+        0.707,
+        0.707,
+        0.707,
+        0,
+        0,
+        1,
+        0.707,
+        0.707,
+        0,
+        0.707
+      ];
       await player.setChannelMixMatrix(7,
           inChannels: 6, outChannels: 2, matrix: matrix);
       verify(mockApi.setChannelMixMatrix(7, 6, 2, matrix));
     });
 
-    test('buildViewWithOptions returns SizedBox.shrink for audio-only IDs',
-        () {
+    test('buildViewWithOptions returns SizedBox.shrink for audio-only IDs', () {
       final widget = player.buildViewWithOptions(
           VideoViewOptions(playerId: kLinuxAudioOnlyIdBase + 5));
       expect(widget, isA<SizedBox>());

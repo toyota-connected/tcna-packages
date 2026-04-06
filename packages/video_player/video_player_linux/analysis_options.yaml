@@ -1,0 +1,6 @@
+analyzer:
+  exclude:
+    # The basic example is a self-contained Flutter app with its own
+    # pubspec; it must be analyzed from inside example/basic, not from the
+    # plugin root.
+    - example/basic/**

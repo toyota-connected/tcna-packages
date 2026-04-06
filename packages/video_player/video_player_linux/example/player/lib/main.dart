@@ -19,8 +19,14 @@ class PlayerApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: Colors.indigo,
         brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFC4A26E),
+          brightness: Brightness.dark,
+          primary: const Color(0xFFC4A26E),
+          surface: const Color(0xFF0A0A0C),
+        ),
+        scaffoldBackgroundColor: const Color(0xFF000000),
       ),
       home: const HomeScreen(),
     );
@@ -296,8 +302,13 @@ class _LeftPaneContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.surface,
-      width: 420,
+      width: 460,
+      decoration: const BoxDecoration(
+        color: Color(0xFF0A0A0C),
+        border: Border(
+          right: BorderSide(color: Color(0x22FFFFFF), width: 1),
+        ),
+      ),
       child: LibraryScreen(onPlay: onPlay),
     );
   }
