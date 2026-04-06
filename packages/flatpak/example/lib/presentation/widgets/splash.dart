@@ -238,171 +238,149 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: AnimatedBuilder(
-          animation: Listenable.merge([_animationController, _fadeController]),
-          builder: (context, child) {
-            return Stack(
-              children: [
-                SizedBox(
+      body: AnimatedBuilder(
+        animation: Listenable.merge([_animationController, _fadeController]),
+        builder: (context, child) {
+          return Stack(
+            children: [
+              // Background gradient (behind everything)
+              Opacity(
+                opacity: _fadeToGradientAnimation.value,
+                child: Container(
                   width: double.infinity,
                   height: double.infinity,
-                  child: Center(
-                    child: Column(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFF070E20), Color(0xFF1E3B86)],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Centered content (on top of gradient)
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            Transform.scale(
-                              scale: _scaleAnimation.value,
-                              child: FadeTransition(
-                                opacity: _fadeAnimation,
-                                child: SvgPicture.asset(
-                                  'assets/logos/AGL.svg',
-                                  width: Responsive.scaleWithConstraints(context, 168, minSize: 100, maxSize: 300),
-                                  height: Responsive.scaleWithConstraints(context, 36, minSize: 24, maxSize: 72),
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Transform.scale(
+                          scale: _scaleAnimation.value,
+                          child: FadeTransition(
+                            opacity: _fadeAnimation,
+                            child: SvgPicture.asset(
+                              'assets/logos/AGL.svg',
+                              width: Responsive.scaleWithConstraints(context, 168, minSize: 100, maxSize: 300),
+                              height: Responsive.scaleWithConstraints(context, 36, minSize: 24, maxSize: 72),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        SlideTransition(
+                          position: _slideAnimation,
+                          child: FadeTransition(
+                            opacity: _fadeAnimation,
+                            child: ShaderMask(
+                              shaderCallback: (bounds) =>
+                                  const LinearGradient(
+                                    colors: [Color(0x00000000), Color(0xFF33D17A)],
+                                    begin: Alignment.bottomRight,
+                                    end: Alignment.topLeft,
+                                  ).createShader(bounds),
+                              child: Text(
+                                'Store',
+                                style: TextStyle(
+                                  fontSize: Responsive.scaleWithConstraints(context, 40, minSize: 36, maxSize: 72),
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                  letterSpacing: -0.5,
+                                  height: 1.0,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            SlideTransition(
-                              position: _slideAnimation,
-                              child: FadeTransition(
-                                opacity: _fadeAnimation,
-                                child: ShaderMask(
-                                  shaderCallback: (bounds) =>
-                                      const LinearGradient(
-                                        colors: [
-                                          Color(0x00000000),
-                                          Color(0xFF33D17A),
-                                        ],
-                                        begin: Alignment.bottomRight,
-                                        end: Alignment.topLeft,
-                                      ).createShader(bounds),
-                                  child: Text(
-                                    'Store',
-                                    style: TextStyle(
-                                      fontSize: Responsive.scaleWithConstraints(
-                                        context,
-                                        40,
-                                        minSize: 36,
-                                        maxSize: 72,
-                                      ),
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                      letterSpacing: -0.5,
-                                      height: 1.0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Subtitle
-                        AnimatedBuilder(
-                          animation: Listenable.merge([
-                            _subtitleSlideAnimation,
-                            _subtitleFadeAnimation,
-                          ]),
-                          builder: (context, child) {
-                            return SlideTransition(
-                              position: _subtitleSlideAnimation,
-                              child: Opacity(
-                                opacity: _subtitleFadeAnimation.value,
-                                child: Text(
-                                  'AGL Store powered by Automotive Grade Linux',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black.withValues(alpha: 0.7),
-                                    fontWeight: FontWeight.w300,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-
-                        const SizedBox(height: 32),
-
-                        FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                width: Responsive.scaleWithConstraints(
-                                  context,
-                                  200,
-                                  minSize: 150,
-                                  maxSize: 400,
-                                ),
-                                child: LinearProgressIndicator(
-                                  backgroundColor: Colors.grey[200],
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    _hasError
-                                        ? Colors.red
-                                        : const Color(0xFF33D17A),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 40),
-                                child: Text(
-                                  _hasError ? _errorMessage : _loadingMessage,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: _hasError
-                                        ? Colors.red
-                                        : Colors.black.withValues(alpha: 0.5),
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              if (_hasError && _retryCount < 3)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 8),
-                                  child: Text(
-                                    'Retrying... (attempt $_retryCount/3)',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.orange.withValues(alpha: 0.7),
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  ),
-                                ),
-                            ],
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ),
+                    const SizedBox(height: 16),
 
-                Opacity(
-                  opacity: _fadeToGradientAnimation.value,
-                  child: Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0xFF070E20), Color(0xFF1E3B86)],
+                    // Subtitle
+                    AnimatedBuilder(
+                      animation: Listenable.merge([_subtitleSlideAnimation, _subtitleFadeAnimation]),
+                      builder: (context, child) {
+                        return SlideTransition(
+                          position: _subtitleSlideAnimation,
+                          child: Opacity(
+                            opacity: _subtitleFadeAnimation.value,
+                            child: Text(
+                              'AGL Store powered by Automotive Grade Linux',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black.withValues(alpha: 0.7),
+                                fontWeight: FontWeight.w300,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: Responsive.scaleWithConstraints(context, 200, minSize: 150, maxSize: 400),
+                            child: LinearProgressIndicator(
+                              backgroundColor: Colors.grey[200],
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                _hasError ? Colors.red : const Color(0xFF33D17A),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 40),
+                            child: Text(
+                              _hasError ? _errorMessage : _loadingMessage,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: _hasError ? Colors.red : Colors.black.withValues(alpha: 0.5),
+                                fontWeight: FontWeight.w300,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          if (_hasError && _retryCount < 3)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: Text(
+                                'Retrying... (attempt $_retryCount/3)',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.orange.withValues(alpha: 0.7),
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

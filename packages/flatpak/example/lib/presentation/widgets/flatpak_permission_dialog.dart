@@ -88,11 +88,15 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
                   ? Colors.black.withValues(alpha: 0.6)
                   : Colors.white.withValues(alpha: 0.7),
               child: Container(
-                constraints: BoxConstraints(maxWidth: Responsive.scaleWithConstraints(context, 400, minSize: 300, maxSize: 600)),
+                constraints: BoxConstraints(
+                  maxWidth: Responsive.scaleWithConstraints(context, 400, minSize: 300, maxSize: 600),
+                  maxHeight: MediaQuery.of(context).size.height * 0.85,
+                ),
                 padding: EdgeInsets.all(Responsive.scaleWithConstraints(context, 32, minSize: 16, maxSize: 48)),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                   _buildIconHeader(colorScheme, permission),
 
                   const SizedBox(height: 28),
@@ -152,6 +156,7 @@ class _PermissionDialogContentState extends State<_PermissionDialogContent>
                   _buildActionButtons(colorScheme, isDark),
                 ],
               ),
+             ),
             ),
           ),
         ),
