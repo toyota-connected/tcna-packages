@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -310,6 +311,129 @@ void main() {
               isPlaying: false,
             ),
           ]));
+    });
+
+    // ──────────────────────────────────────────────────────────────────
+    // Phase 1 — audio control surface
+    // ──────────────────────────────────────────────────────────────────
+
+    test('getAudioTrackCount forwards to api', () async {
+      when(mockApi.getAudioTrackCount(7)).thenReturn(3);
+      expect(await player.getAudioTrackCount(7), 3);
+      verify(mockApi.getAudioTrackCount(7));
+    });
+
+    test('setAudioTrack forwards to api', () async {
+      await player.setAudioTrack(7, 1);
+      verify(mockApi.setAudioTrack(7, 1));
+    });
+
+    test('setOutputChannels forwards to api', () async {
+      await player.setOutputChannels(7, 6);
+      verify(mockApi.setOutputChannels(7, 6));
+    });
+
+    test('setMute forwards to api', () async {
+      await player.setMute(7, true);
+      verify(mockApi.setMute(7, true));
+    });
+
+    test('isAudioOnly forwards to api', () async {
+      when(mockApi.isAudioOnly(7)).thenReturn(true);
+      expect(await player.isAudioOnly(7), isTrue);
+      verify(mockApi.isAudioOnly(7));
+    });
+
+    // ──────────────────────────────────────────────────────────────────
+    // Phase 2 — quality & tuning
+    // ──────────────────────────────────────────────────────────────────
+
+    test('setScaleMethod forwards to api', () async {
+      await player.setScaleMethod(7, 4);
+      verify(mockApi.setScaleMethod(7, 4));
+    });
+
+    test('setAVOffset forwards to api', () async {
+      await player.setAVOffset(7, -50);
+      verify(mockApi.setAVOffset(7, -50));
+    });
+
+    test('setSubtitlesEnabled forwards to api', () async {
+      await player.setSubtitlesEnabled(7, true);
+      verify(mockApi.setSubtitlesEnabled(7, true));
+    });
+
+    test('getSubtitleTrackCount forwards to api', () async {
+      when(mockApi.getSubtitleTrackCount(7)).thenReturn(2);
+      expect(await player.getSubtitleTrackCount(7), 2);
+      verify(mockApi.getSubtitleTrackCount(7));
+    });
+
+    test('setSubtitleTrack forwards to api', () async {
+      await player.setSubtitleTrack(7, 1);
+      verify(mockApi.setSubtitleTrack(7, 1));
+    });
+
+    test('setSubtitleUri forwards to api', () async {
+      await player.setSubtitleUri(7, 'file:///srt');
+      verify(mockApi.setSubtitleUri(7, 'file:///srt'));
+    });
+
+    test('setSubtitleFont forwards to api', () async {
+      await player.setSubtitleFont(7, 'Sans Bold 18');
+      verify(mockApi.setSubtitleFont(7, 'Sans Bold 18'));
+    });
+
+    test('setChannelMixPreset forwards to api', () async {
+      await player.setChannelMixPreset(7, 'driver');
+      verify(mockApi.setChannelMixPreset(7, 'driver'));
+    });
+
+    // ──────────────────────────────────────────────────────────────────
+    // Phase 3 — premium features
+    // ──────────────────────────────────────────────────────────────────
+
+    test('setEqualizer forwards 10 bands', () async {
+      final bands = List<double>.generate(10, (i) => i.toDouble() - 4);
+      await player.setEqualizer(7, bands);
+      verify(mockApi.setEqualizer(7, bands));
+    });
+
+    test('setVideoBalance forwards all four params', () async {
+      await player.setVideoBalance(7,
+          brightness: 0.1, contrast: 1.2, saturation: 0.9, hue: 0.0);
+      verify(mockApi.setVideoBalance(7, 0.1, 1.2, 0.9, 0.0));
+    });
+
+    test('setAudioPassthrough forwards', () async {
+      await player.setAudioPassthrough(7, true);
+      verify(mockApi.setAudioPassthrough(7, true));
+    });
+
+    test('setChannelMixMatrix forwards dimensions and matrix', () async {
+      final matrix = <double>[
+        1,
+        0,
+        0.707,
+        0.707,
+        0.707,
+        0,
+        0,
+        1,
+        0.707,
+        0.707,
+        0,
+        0.707
+      ];
+      await player.setChannelMixMatrix(7,
+          inChannels: 6, outChannels: 2, matrix: matrix);
+      verify(mockApi.setChannelMixMatrix(7, 6, 2, matrix));
+    });
+
+    test('buildViewWithOptions returns SizedBox.shrink for audio-only IDs', () {
+      final widget = player.buildViewWithOptions(
+          VideoViewOptions(playerId: kLinuxAudioOnlyIdBase + 5));
+      expect(widget, isA<SizedBox>());
     });
   });
 }

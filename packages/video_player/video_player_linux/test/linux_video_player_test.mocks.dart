@@ -155,4 +155,265 @@ class MockTestHostVideoPlayerApi extends _i1.Mock
         ),
         returnValueForMissingStub: null,
       );
+
+  @override
+  int getAudioTrackCount(int? textureId) => (super.noSuchMethod(
+        Invocation.method(
+          #getAudioTrackCount,
+          [textureId],
+        ),
+        returnValue: 0,
+      ) as int);
+
+  @override
+  void setAudioTrack(
+    int? textureId,
+    int? trackIndex,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setAudioTrack,
+          [
+            textureId,
+            trackIndex,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setOutputChannels(
+    int? textureId,
+    int? channels,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setOutputChannels,
+          [
+            textureId,
+            channels,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setMute(
+    int? textureId,
+    bool? mute,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setMute,
+          [
+            textureId,
+            mute,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  bool isAudioOnly(int? textureId) => (super.noSuchMethod(
+        Invocation.method(
+          #isAudioOnly,
+          [textureId],
+        ),
+        returnValue: false,
+      ) as bool);
+
+  @override
+  void setScaleMethod(
+    int? textureId,
+    int? method,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setScaleMethod,
+          [
+            textureId,
+            method,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setAVOffset(
+    int? textureId,
+    int? offsetMs,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setAVOffset,
+          [
+            textureId,
+            offsetMs,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setSubtitlesEnabled(
+    int? textureId,
+    bool? enabled,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setSubtitlesEnabled,
+          [
+            textureId,
+            enabled,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  int getSubtitleTrackCount(int? textureId) => (super.noSuchMethod(
+        Invocation.method(
+          #getSubtitleTrackCount,
+          [textureId],
+        ),
+        returnValue: 0,
+      ) as int);
+
+  @override
+  void setSubtitleTrack(
+    int? textureId,
+    int? trackIndex,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setSubtitleTrack,
+          [
+            textureId,
+            trackIndex,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setSubtitleUri(
+    int? textureId,
+    String? uri,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setSubtitleUri,
+          [
+            textureId,
+            uri,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setSubtitleFont(
+    int? textureId,
+    String? fontDesc,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setSubtitleFont,
+          [
+            textureId,
+            fontDesc,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setChannelMixPreset(
+    int? textureId,
+    String? preset,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setChannelMixPreset,
+          [
+            textureId,
+            preset,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setEqualizer(
+    int? textureId,
+    List<double?>? bands,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setEqualizer,
+          [
+            textureId,
+            bands,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setVideoBalance(
+    int? textureId,
+    double? brightness,
+    double? contrast,
+    double? saturation,
+    double? hue,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setVideoBalance,
+          [
+            textureId,
+            brightness,
+            contrast,
+            saturation,
+            hue,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setAudioPassthrough(
+    int? textureId,
+    bool? enabled,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setAudioPassthrough,
+          [
+            textureId,
+            enabled,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setChannelMixMatrix(
+    int? textureId,
+    int? inChannels,
+    int? outChannels,
+    List<double?>? matrix,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setChannelMixMatrix,
+          [
+            textureId,
+            inChannels,
+            outChannels,
+            matrix,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
 }

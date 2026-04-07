@@ -11,6 +11,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:video_player_linux/video_player_linux.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 
 VideoPlayerPlatform? _cachedPlatform;
@@ -201,6 +202,34 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
   Timer? _timer;
   Completer<void>? _creatingCompleter;
   StreamSubscription<dynamic>? _eventSubscription;
+  StreamSubscription<LinuxMediaEvent>? _linuxEventSubscription;
+
+  // Phase 1 — audio-only mode + album art / metadata state.
+  bool _isAudioOnly = false;
+  bool get isAudioOnly => _isAudioOnly;
+
+  Uint8List? _albumArt;
+  Uint8List? get albumArt => _albumArt;
+
+  String? _title;
+  String? _artist;
+  String? _album;
+  String? get title => _title;
+  String? get artist => _artist;
+  String? get album => _album;
+
+  String? _audioCodec;
+  int? _audioChannels;
+  int? _audioSampleRate;
+  String? get audioCodec => _audioCodec;
+  int? get audioChannels => _audioChannels;
+  int? get audioSampleRate => _audioSampleRate;
+
+  int _audioTrackCount = 0;
+  int get audioTrackCount => _audioTrackCount;
+
+  bool _muted = false;
+  bool get muted => _muted;
 
   /// The id of a texture that hasn't been initialized.
   @visibleForTesting
@@ -252,25 +281,40 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
     }
     _creatingCompleter!.complete(null);
 
-    // Start the pipeline so the first frame renders and triggers the
-    // "initialized" event.  Without this the pipeline sits in NULL state
-    // and initialize() never completes.
-    _platform.play(_textureId);
-
     final Completer<void> initializingCompleter = Completer<void>();
 
     void eventListener(VideoEvent event) {
       switch (event.eventType) {
         case VideoEventType.initialized:
+          // Audio-only media reports a zero-sized texture (no GL backing).
+          _isAudioOnly = event.size == Size.zero;
           value = value.copyWith(
             duration: event.duration,
             size: event.size,
             isInitialized: event.duration != null,
           );
+          notifyListeners();
           initializingCompleter.complete(null);
           _platform.setVolume(_textureId, 1.0);
           _platform.setLooping(_textureId, true);
           _applyPlayPause();
+          // Cache audio track count and try sidecar art if no embedded art
+          // arrived in the seeded mediaMetadata event.
+          final platform = _platform;
+          if (platform is LinuxVideoPlayer) {
+            platform.getAudioTrackCount(_textureId).then((int n) {
+              _audioTrackCount = n;
+              if (!_isDisposed) notifyListeners();
+            }).catchError((_) {});
+            if (_isAudioOnly && _albumArt == null) {
+              _findSidecarArt().then((Uint8List? bytes) {
+                if (bytes != null && !_isDisposed && _albumArt == null) {
+                  _albumArt = bytes;
+                  notifyListeners();
+                }
+              });
+            }
+          }
         case VideoEventType.completed:
           value = value.copyWith(
             position: value.duration,
@@ -300,10 +344,282 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
       }
     }
 
+    // Subscribe to events BEFORE telling the native side to start the
+    // pipeline. Otherwise the 'initialized' event can fire on the very
+    // first PLAYING transition (immediately after play() returns) before
+    // we attach the listener — and broadcast streams don't replay past
+    // events. The result is initialize() hanging on the first track at
+    // app startup.
     _eventSubscription = _platform
         .videoEventsFor(_textureId)
         .listen(eventListener, onError: errorListener);
+
+    // Subscribe to Linux-specific media events (album art, metadata, audio
+    // info) that aren't representable on the upstream VideoEvent enum.
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      _linuxEventSubscription =
+          platform.linuxEventsFor(_textureId).listen((LinuxMediaEvent e) {
+        switch (e.type) {
+          case LinuxMediaEventType.albumArt:
+            if (e.bytes != null && e.bytes!.isNotEmpty) {
+              _albumArt = e.bytes;
+              notifyListeners();
+            }
+          case LinuxMediaEventType.metadata:
+            final m = e.metadata!;
+            _title = (m['title'] as String?)?.isNotEmpty == true
+                ? m['title'] as String
+                : _title;
+            _artist = (m['artist'] as String?)?.isNotEmpty == true
+                ? m['artist'] as String
+                : _artist;
+            _album = (m['album'] as String?)?.isNotEmpty == true
+                ? m['album'] as String
+                : _album;
+            notifyListeners();
+          case LinuxMediaEventType.audioInfo:
+            final m = e.metadata!;
+            _audioCodec = (m['codec'] as String?)?.isNotEmpty == true
+                ? m['codec'] as String
+                : _audioCodec;
+            _audioChannels = m['channels'] as int? ?? _audioChannels;
+            _audioSampleRate = m['sampleRate'] as int? ?? _audioSampleRate;
+            notifyListeners();
+        }
+      });
+    }
+
+    // Yield to the event loop so the EventChannel "listen" platform
+    // message has a chance to flush to native before we dispatch play().
+    // EventChannel listens and Pigeon method calls travel on different
+    // channel transports and are not strictly ordered relative to each
+    // other, so without this yield the native side can occasionally
+    // process play() first, reach PLAYING, fire the 'initialized' event
+    // while event_sink_ is still null, and lose it. The C++ stream
+    // handler does have a replay path for that case but it depends on
+    // is_initialized_ already being true when OnListen runs — which
+    // isn't guaranteed if OnListen lands between play() dispatch and the
+    // pipeline actually reaching PLAYING.
+    await Future<void>.delayed(Duration.zero);
+    if (_isDisposed) return;
+
+    // Now that the listeners are attached, kick the pipeline into PLAYING
+    // so the native side will fire the 'initialized' event we're waiting
+    // on.
+    _platform.play(_textureId);
+
     return initializingCompleter.future;
+  }
+
+  /// Looks for a sidecar cover art file in the same directory as the
+  /// currently-loaded media. Only useful for `file://` sources.
+  Future<Uint8List?> _findSidecarArt() async {
+    if (dataSourceType != DataSourceType.file &&
+        dataSourceType != DataSourceType.network) {
+      return null;
+    }
+    final Uri? uri = Uri.tryParse(dataSource);
+    if (uri == null || uri.scheme != 'file') return null;
+    final String filePath = uri.toFilePath();
+    final int slash = filePath.lastIndexOf(Platform.pathSeparator);
+    final String dir = slash > 0 ? filePath.substring(0, slash) : '.';
+    const List<String> names = <String>[
+      'cover.jpg',
+      'cover.png',
+      'folder.jpg',
+      'folder.png',
+      'album.jpg',
+      'album.png',
+      'front.jpg',
+      'front.png',
+      'artwork.jpg',
+      'artwork.png',
+    ];
+    for (final String n in names) {
+      final File f = File('$dir${Platform.pathSeparator}$n');
+      if (await f.exists()) return f.readAsBytes();
+    }
+    return null;
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // Phase 1 — audio control surface
+  // ────────────────────────────────────────────────────────────────────
+
+  Future<void> setAudioTrack(int trackIndex) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer)
+      await platform.setAudioTrack(_textureId, trackIndex);
+  }
+
+  Future<void> setOutputChannels(int channels) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer)
+      await platform.setOutputChannels(_textureId, channels);
+  }
+
+  Future<void> setMute(bool mute) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setMute(_textureId, mute);
+      _muted = mute;
+      notifyListeners();
+    }
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // Phase 2 — quality & tuning
+  // ────────────────────────────────────────────────────────────────────
+
+  Future<void> setScaleMethod(int method) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setScaleMethod(_textureId, method);
+    }
+  }
+
+  Future<void> setAVOffset(int offsetMs) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setAVOffset(_textureId, offsetMs);
+    }
+  }
+
+  Future<void> setSubtitlesEnabled(bool enabled) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setSubtitlesEnabled(_textureId, enabled);
+    }
+  }
+
+  Future<int> subtitleTrackCount() async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      return platform.getSubtitleTrackCount(_textureId);
+    }
+    return 0;
+  }
+
+  Future<void> setSubtitleTrack(int index) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setSubtitleTrack(_textureId, index);
+    }
+  }
+
+  Future<void> setSubtitleUri(String uri) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setSubtitleUri(_textureId, uri);
+    }
+  }
+
+  Future<void> setSubtitleFont(String fontDesc) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setSubtitleFont(_textureId, fontDesc);
+    }
+  }
+
+  Future<void> setChannelMixPreset(String preset) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setChannelMixPreset(_textureId, preset);
+    }
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // Phase 3 — premium features
+  // ────────────────────────────────────────────────────────────────────
+
+  /// 10-band equalizer state. Persisted in-controller so the settings UI can
+  /// re-render the sliders without re-querying the native side. The bands
+  /// are always cached; whether they're applied to the audio path depends
+  /// on [equalizerEnabled].
+  List<double> equalizerBands = List<double>.filled(10, 0.0);
+  bool equalizerEnabled = false;
+
+  /// Updates the cached band values and (if EQ is enabled) pushes them to
+  /// the native pipeline.
+  Future<void> setEqualizer(List<double> bands) async {
+    assert(bands.length == 10);
+    equalizerBands = List<double>.from(bands);
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setEqualizer(
+        _textureId,
+        equalizerEnabled ? equalizerBands : List<double>.filled(10, 0.0),
+      );
+    }
+    notifyListeners();
+  }
+
+  /// Toggles the equalizer on or off without losing the cached band
+  /// values. When turned off, a flat (all-zero) matrix is sent to the
+  /// native side; when turned on, the cached band values are re-applied.
+  Future<void> setEqualizerEnabled(bool enabled) async {
+    equalizerEnabled = enabled;
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setEqualizer(
+        _textureId,
+        enabled ? equalizerBands : List<double>.filled(10, 0.0),
+      );
+    }
+    notifyListeners();
+  }
+
+  // Video balance state.
+  double videoBrightness = 0.0;
+  double videoContrast = 1.0;
+  double videoSaturation = 1.0;
+  double videoHue = 0.0;
+
+  Future<void> setVideoBalance({
+    double? brightness,
+    double? contrast,
+    double? saturation,
+    double? hue,
+  }) async {
+    videoBrightness = brightness ?? videoBrightness;
+    videoContrast = contrast ?? videoContrast;
+    videoSaturation = saturation ?? videoSaturation;
+    videoHue = hue ?? videoHue;
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setVideoBalance(
+        _textureId,
+        brightness: videoBrightness,
+        contrast: videoContrast,
+        saturation: videoSaturation,
+        hue: videoHue,
+      );
+    }
+    notifyListeners();
+  }
+
+  bool _passthrough = false;
+  bool get passthrough => _passthrough;
+  Future<void> setAudioPassthrough(bool enabled) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setAudioPassthrough(_textureId, enabled);
+      _passthrough = enabled;
+      notifyListeners();
+    }
+  }
+
+  Future<void> setChannelMixMatrix({
+    required int inChannels,
+    required int outChannels,
+    required List<double> matrix,
+  }) async {
+    final platform = _platform;
+    if (platform is LinuxVideoPlayer) {
+      await platform.setChannelMixMatrix(_textureId,
+          inChannels: inChannels, outChannels: outChannels, matrix: matrix);
+    }
   }
 
   @override
@@ -314,6 +630,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
     if (_creatingCompleter != null) {
       await _creatingCompleter!.future;
       await _eventSubscription?.cancel();
+      await _linuxEventSubscription?.cancel();
       if (_textureId != kUninitializedTextureId) {
         await _platform.dispose(_textureId);
       }
