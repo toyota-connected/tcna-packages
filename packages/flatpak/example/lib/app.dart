@@ -47,7 +47,8 @@ class FlatpakApp extends StatelessWidget {
         ),
 
         BlocProvider<SystemInfoCubit>(
-          create: (context) => sl<SystemInfoCubit>(),
+          create: (context) => sl<SystemInfoCubit>()..loadSystemInfo(),
+          lazy: false,
         ),
       ],
       child: PermissionHandlerWrapper(

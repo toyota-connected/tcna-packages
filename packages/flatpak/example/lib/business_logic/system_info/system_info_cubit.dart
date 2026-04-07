@@ -20,6 +20,7 @@ class SystemInfoCubit extends Cubit<SystemInfoState> {
         flatpakRepository.getSupportedArches(),
         flatpakRepository.getSystemInstallations(),
         flatpakRepository.getUserInstallation(),
+        flatpakRepository.getSystemStorage(),
       ]);
 
       final versionResult = results[0];
@@ -27,12 +28,14 @@ class SystemInfoCubit extends Cubit<SystemInfoState> {
       final archesResult = results[2];
       final installationsResult = results[3];
       final userInstallationResult = results[4];
+      final systemStorageResult = results[5];
 
       String version = '';
       String defaultArch = '';
       List<String> supportedArches = [];
       List<Installation> systemInstallations = [];
       Installation? userInstallation;
+      Map<String, dynamic>? systemStorage;
 
       versionResult.fold(
         (failure) => debugPrint(
@@ -69,6 +72,13 @@ class SystemInfoCubit extends Cubit<SystemInfoState> {
         (i) => userInstallation = i as Installation,
       );
 
+      systemStorageResult.fold(
+        (failure) => debugPrint(
+          '[SystemInfoCubit] Failed to get system storage: ${failure.message}',
+        ),
+        (s) => systemStorage = s as Map<String, dynamic>,
+      );
+
       emit(
         SystemInfoLoaded(
           version: version,
@@ -76,6 +86,7 @@ class SystemInfoCubit extends Cubit<SystemInfoState> {
           supportedArches: supportedArches,
           systemInstallations: systemInstallations,
           userInstallation: userInstallation,
+          systemStorage: systemStorage,
         ),
       );
 

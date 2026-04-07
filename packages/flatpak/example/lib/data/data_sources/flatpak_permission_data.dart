@@ -121,6 +121,19 @@ class FlatpakPermissionDataSource {
     }
   }
 
+  Future<Map<String, dynamic>?> getSystemStorage() async {
+    try {
+      final result = await _methodChannel.invokeMethod('getSystemStorage');
+      if (result != null && result is Map) {
+        return Map<String, dynamic>.from(result);
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[FlatpakPermissionData] Error getting system storage: $e');
+      return null;
+    }
+  }
+
   Future<bool> grantPermission({
     required String appId,
     required FlatpakPermission permission,

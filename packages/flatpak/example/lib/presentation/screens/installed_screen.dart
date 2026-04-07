@@ -13,6 +13,10 @@ import '../../business_logic/discovery/discovery_cubit.dart';
 import '../../business_logic/installation/installation_cubit.dart';
 import '../../business_logic/installation/installation_state.dart';
 import '../../business_logic/discovery/discovery_state.dart';
+import '../../business_logic/system_info/system_info_cubit.dart';
+import '../../business_logic/system_info/system_info_state.dart';
+import '../../business_logic/system_info/system_info_cubit.dart';
+import '../../business_logic/system_info/system_info_state.dart';
 import '../../data/models/application_model.dart';
 import '../../helpers/id_utils.dart';
 import '../../app_router.dart';
@@ -73,11 +77,13 @@ class _InstalledScreenState extends State<InstalledScreen>
   void _loadData() {
     widget.appStatusCubit.loadAppStatus();
     widget.discoveryCubit.loadAllApps();
+    context.read<SystemInfoCubit>().loadSystemInfo();
   }
 
   void _refreshData() {
     widget.appStatusCubit.refresh();
     widget.discoveryCubit.loadAllApps();
+    context.read<SystemInfoCubit>().refresh();
   }
 
   @override
@@ -384,127 +390,148 @@ class _InstalledScreenState extends State<InstalledScreen>
   }
 
   Widget _buildStorageSection(BuildContext context, List<Application> apps) {
-    final totalBytes = apps.fold<int>(0, (sum, app) => sum + app.installedSize);
-    final usedGB = (totalBytes / (1024 * 1024 * 1024)).toStringAsFixed(1);
-    const totalSpace = 200.0;
-    final used = double.parse(usedGB);
-    final available = totalSpace - used;
-    final percentage = ((used / totalSpace) * 100).toInt();
+    return BlocBuilder<SystemInfoCubit, SystemInfoState>(
+      builder: (context, systemInfoState) {
+        double totalSpace = 200.0;
+        double available = 0.0;
+        double used = 0.0;
+        
+        final appsTotalBytes = apps.fold<int>(0, (sum, app) => sum + app.installedSize);
+        final appsUsedGB = appsTotalBytes / (1024 * 1024 * 1024);
 
-    return GlassContainer(
-      borderRadius: 24,
-      blur: 20,
-      color: Colors.white.withValues(alpha: 0.4),
-      borderOpacity: 0.4,
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+        if (systemInfoState is SystemInfoLoaded && systemInfoState.systemStorage != null) {
+          final storage = systemInfoState.systemStorage!;
+          final totalBytesSys = storage['total'] as int? ?? 1;
+          final availableBytesSys = storage['available'] as int? ?? 0;
+          
+          totalSpace = totalBytesSys / (1024.0 * 1024.0 * 1024.0);
+          available = availableBytesSys / (1024.0 * 1024.0 * 1024.0);
+          used = totalSpace - available;
+        } else {
+          // Fallback if native system info isn't available
+          used = appsUsedGB;
+          available = totalSpace - used;
+        }
+
+        final percentage = totalSpace > 0 ? ((used / totalSpace) * 100).toInt().clamp(0, 100) : 0;
+        final usedGBStr = used.toStringAsFixed(1);
+        final availableGBStr = available.toStringAsFixed(1);
+
+        return GlassContainer(
+          borderRadius: 24,
+          blur: 20,
+          color: Colors.white.withValues(alpha: 0.4),
+          borderOpacity: 0.4,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.storage_rounded, size: 20, color: Colors.grey[700]),
-                const SizedBox(width: 8),
-                const Text(
-                  'Storage Usage',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'general-sans',
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 12,
-                        decoration: BoxDecoration(
-                            color: Colors.grey.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(6),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.white.withValues(alpha: 0.5),
-                                offset: const Offset(0, 1),
-                                blurRadius: 0,
-                                spreadRadius: 0,
-                              )
-                            ]
-                        ),
-                        child: FractionallySizedBox(
-                          alignment: Alignment.centerLeft,
-                          widthFactor: (used / totalSpace).clamp(0.0, 1.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF60A5FA), Color(0xFF2563EB)],
-                              ),
-                              borderRadius: BorderRadius.circular(6),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.blue.withValues(alpha: 0.4),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
+                Row(
+                  children: [
+                    Icon(Icons.storage_rounded, size: 20, color: Colors.grey[700]),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'System Storage',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'general-sans',
                       ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Used: $usedGB GB',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey[700],
-                              fontWeight: FontWeight.w500,
+                          Container(
+                            height: 12,
+                            decoration: BoxDecoration(
+                                color: Colors.grey.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(6),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.05),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  )
+                                ]
+                            ),
+                            child: FractionallySizedBox(
+                              alignment: Alignment.centerLeft,
+                              widthFactor: totalSpace > 0 ? (used / totalSpace).clamp(0.0, 1.0) : 0.0,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [Color(0xFF60A5FA), Color(0xFF2563EB)],
+                                  ),
+                                  borderRadius: BorderRadius.circular(6),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.blue.withValues(alpha: 0.3),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    )
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
-                          Text(
-                            'Free: ${available.toStringAsFixed(1)} GB',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey[600],
-                            ),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Used: $usedGBStr GB',
+                                style: TextStyle(
+                                  color: Colors.grey[800],
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Text(
+                                'Free: $availableGBStr GB',
+                                style: const TextStyle(
+                                  color: Color(0xFF2563EB),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 24),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.3),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
-                  ),
-                  child: Text(
-                    '$percentage%',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2563EB),
                     ),
-                  ),
+                    const SizedBox(width: 24),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withValues(alpha: 0.3),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
+                      ),
+                      child: Text(
+                        '${percentage}%',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF2563EB),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      }
     );
   }
-
   Widget _buildAppsList(BuildContext context, List<Application> apps, {required bool showUpdateButton}) {
     return Column(
       children: apps.map((app) => _buildAppItem(context, app, showUpdateButton)).toList(),

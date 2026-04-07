@@ -72,13 +72,15 @@ class InstallationCubit extends Cubit<InstallationState> {
     result.fold(
           (failure) {
         debugPrint('[InstallationCubit] Failed to start install: ${failure.message}');
-        _cleanup(shortId);
-        appStatusCubit.updateAppStatus(shortId, AppStatus.notInstalled);
-        emit(InstallationFailure(
-          appId: shortId,
-          error: failure.message,
-          operation: 'install',
-        ));
+        if (state is! InstallationInsufficientSpace) {
+            _cleanup(shortId);
+            appStatusCubit.updateAppStatus(shortId, AppStatus.notInstalled);
+            emit(InstallationFailure(
+               appId: shortId,
+               error: failure.message,
+               operation: 'install',
+            ));
+        }
       },
           (success) {
         debugPrint('[InstallationCubit] Install initiated for $shortId');
@@ -197,7 +199,8 @@ class InstallationCubit extends Cubit<InstallationState> {
   }
 
   void _handleTransactionEvent(String appId, FlatpakEventModel event) {
-    final tracker = _operationTrackers[appId];
+    final appIdUtils = AppIdUtils.extractShortId(appId); 
+    final tracker = _operationTrackers[appIdUtils];
     if (tracker == null) return;
 
     switch (event.type) {
@@ -223,10 +226,10 @@ class InstallationCubit extends Cubit<InstallationState> {
             ? AppStatus.updating
             : AppStatus.installing;
 
-        appStatusCubit.updateAppStatus(appId, appStatus, progress: progress);
+        appStatusCubit.updateAppStatus(appIdUtils, appStatus, progress: progress);
 
         emit(InstallationInProgress(
-          appId: appId,
+          appId: appIdUtils,
           status: InstallationStatus.downloading,
           progress: progress,
           message: event.message ?? 'Processing...',
@@ -238,25 +241,35 @@ class InstallationCubit extends Cubit<InstallationState> {
         break;
 
       case FlatpakEventType.installComplete:
-        appStatusCubit.markInstalled(appId);
-        _completeOperation(appId, 'install');
+        appStatusCubit.markInstalled(appIdUtils);
+        _completeOperation(appIdUtils, 'install');
         break;
 
       case FlatpakEventType.uninstallComplete:
-        appStatusCubit.markUninstalled(appId);
-        _completeOperation(appId, 'uninstall');
+        appStatusCubit.markUninstalled(appIdUtils);
+        _completeOperation(appIdUtils, 'uninstall');
         break;
 
       case FlatpakEventType.updateComplete:
-        appStatusCubit.markUpdated(appId);
-        _completeOperation(appId, 'update');
+        appStatusCubit.markUpdated(appIdUtils);
+        _completeOperation(appIdUtils, 'update');
         break;
 
       case FlatpakEventType.installFailed:
       case FlatpakEventType.uninstallFailed:
       case FlatpakEventType.updateFailed:
         final error = event.error ?? event.message ?? 'Unknown error';
-        _failOperation(appId, tracker.operationType, error);
+        _failOperation(appIdUtils, tracker.operationType, error);
+        break;
+
+      case FlatpakEventType.insufficientSpace:
+        appStatusCubit.updateAppStatus(appIdUtils, AppStatus.notInstalled);
+        emit(InstallationInsufficientSpace(
+          appId: appIdUtils,
+          requiredMb: event.requiredMb ?? 0,
+          availableMb: event.availableMb ?? 0,
+        ));
+        _cleanup(appIdUtils);
         break;
 
       default:

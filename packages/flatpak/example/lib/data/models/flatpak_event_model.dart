@@ -40,6 +40,7 @@ class FlatpakEventModel {
   final bool? success;
   final List<OperationInfo>? operations;
   final int? availableMb;
+  final int? requiredMb;
 
   FlatpakEventModel({
     required this.type,
@@ -60,6 +61,7 @@ class FlatpakEventModel {
     this.success,
     this.operations,
     this.availableMb,
+    this.requiredMb,
   });
 
   factory FlatpakEventModel.fromMap(Map<dynamic, dynamic> map) {
@@ -74,7 +76,6 @@ class FlatpakEventModel {
     final typeStr = map['type'] as String?;
     FlatpakEventType eventType = FlatpakEventType.unknown;
     
-     
     // Parse event type
     if (typeStr != null) {
       switch (typeStr) {
@@ -168,6 +169,10 @@ class FlatpakEventModel {
           eventType = FlatpakEventType.transactionReady;
           break;
 
+        case 'insufficient_space':
+          eventType = FlatpakEventType.insufficientSpace;
+          break;
+
         default:
           eventType = FlatpakEventType.unknown;
       }
@@ -206,6 +211,8 @@ class FlatpakEventModel {
       isMainApp: toBool(map['is_main_app']),
       success: toBool(map['success']),
       operations: ops,
+      availableMb: map['available_mb'] as int?,
+      requiredMb: map['required_mb'] as int?,
     );
   }
 
