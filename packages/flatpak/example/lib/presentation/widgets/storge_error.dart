@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../responsive.dart';
 
 class StorageErrorDialog extends StatelessWidget {
   final String appName;
@@ -19,45 +20,54 @@ class StorageErrorDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Responsive width limiting
-    final screenWidth = MediaQuery.of(context).size.width;
-    final dialogWidth = screenWidth > 400 ? 320.0 : screenWidth * 0.85;
+    final dialogWidth = Responsive.responsiveValue(
+      context,
+      small: Responsive.width(context) * 0.85,
+      medium: Responsive.scale(context, 320.0),
+      large: Responsive.scale(context, 400.0),
+    ).clamp(320.0, 800.0);
 
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+      insetPadding: Responsive.paddingSymmetric(context, horizontal: 16),
       child: Container(
         width: dialogWidth,
-        padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+        padding: EdgeInsets.fromLTRB(
+          Responsive.scale(context, 20), 
+          Responsive.scale(context, 24), 
+          Responsive.scale(context, 20), 
+          Responsive.scale(context, 20)
+        ),
         decoration: BoxDecoration(
           color: const Color(0xFFF2F2F7),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(Responsive.scale(context, 24)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 20,
-              spreadRadius: 5,
+              blurRadius: Responsive.scale(context, 20),
+              spreadRadius: Responsive.scale(context, 5),
             )
           ]
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'Cannot Download App',
               style: TextStyle(
-                fontSize: 17,
+                fontSize: Responsive.fontSize(context, 17),
                 fontWeight: FontWeight.w600,
                 color: Colors.black,
                 letterSpacing: -0.4,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: Responsive.scale(context, 8)),
             Text(
               'There is not enough available storage to download $appName. You can manage your storage in Settings.',
-              style: const TextStyle(
-                fontSize: 13,
+              style: TextStyle(
+                fontSize: Responsive.fontSize(context, 13),
                 fontWeight: FontWeight.w400,
                 color: Colors.black87,
                 height: 1.3,
@@ -65,7 +75,7 @@ class StorageErrorDialog extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: Responsive.scale(context, 24)),
             Row(
               children: [
                 Expanded(
@@ -76,7 +86,7 @@ class StorageErrorDialog extends StatelessWidget {
                     onTap: onDismiss,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: Responsive.scale(context, 12)),
                 Expanded(
                   child: _PillButton(
                     label: 'Storage',
@@ -101,6 +111,7 @@ class _PillButton extends StatelessWidget {
   final VoidCallback onTap;
 
   const _PillButton({
+    super.key,
     required this.label,
     required this.backgroundColor,
     required this.textColor,
@@ -111,17 +122,17 @@ class _PillButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: backgroundColor,
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(Responsive.scale(context, 24)),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(Responsive.scale(context, 24)),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          padding: EdgeInsets.symmetric(vertical: Responsive.scale(context, 14)),
           alignment: Alignment.center,
           child: Text(
             label,
             style: TextStyle(
-              fontSize: 15,
+              fontSize: Responsive.fontSize(context, 15),
               fontWeight: FontWeight.w600,
               color: textColor,
               letterSpacing: -0.2,

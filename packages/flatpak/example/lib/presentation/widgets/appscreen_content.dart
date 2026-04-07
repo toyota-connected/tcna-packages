@@ -364,10 +364,10 @@ class AppscreenContent extends StatelessWidget {
       width: double.infinity,
       height: Responsive.responsiveValue(
         context,
-        small: Responsive.height(context) * 0.3,
-        medium: Responsive.height(context) * 0.4,
-        large: Responsive.height(context) * 0.5,
-      ).clamp(300.0, 600.0),
+        small: Responsive.height(context) * 0.4,
+        medium: Responsive.height(context) * 0.5,
+        large: Responsive.height(context) * 0.7,
+      ).clamp(300.0, 900.0),
       padding: Responsive.paddingSymmetric(
         context,
         horizontal: 32.0,

@@ -22,59 +22,63 @@ class _screenshotstate extends State<Screenshot> {
     return Column(
       children: [
         Expanded(
-          child: CarouselSlider(
-            items: widget.images.map((imagePath) {
-              return Builder(
-                builder: (BuildContext context) {
-                  return Container(
-                    width: MediaQuery.of(context).size.width,
-                    margin: Responsive.paddingSymmetric(
-                      context,
-                      horizontal: 6.0,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(
-                        Responsive.scale(context, 12.0),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return CarouselSlider(
+                items: widget.images.map((imagePath) {
+                  return Builder(
+                    builder: (BuildContext context) {
+                      return Container(
+                        width: MediaQuery.of(context).size.width,
+                        margin: Responsive.paddingSymmetric(
+                          context,
+                          horizontal: 6.0,
                         ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                        Responsive.scale(context, 12.0),
-                      ),
-                      child: Image.network(
-                        imagePath,
-                        fit: BoxFit.contain,
-                        width: double.infinity,
-                        height: double.infinity,
-                        filterQuality: FilterQuality.high,
-                      ),
-                    ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(
+                            Responsive.scale(context, 12.0),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 8,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            Responsive.scale(context, 12.0),
+                          ),
+                          child: Image.network(
+                            imagePath,
+                            fit: BoxFit.contain,
+                            width: double.infinity,
+                            height: double.infinity,
+                            filterQuality: FilterQuality.high,
+                          ),
+                        ),
+                      );
+                    },
                   );
-                },
+                }).toList(),
+                carouselController: _controller,
+                options: CarouselOptions(
+                  height: constraints.maxHeight,
+                  autoPlay: true,
+                  enlargeCenterPage: true,
+                  viewportFraction: Responsive.isMobile(context) ? 0.9 : 0.8,
+                  autoPlayInterval: Duration(seconds: 4),
+                  autoPlayAnimationDuration: Duration(milliseconds: 800),
+                  autoPlayCurve: Curves.fastOutSlowIn,
+                  onPageChanged: (index, reason) {
+                    setState(() {
+                      _current = index;
+                    });
+                  },
+                ),
               );
-            }).toList(),
-            carouselController: _controller,
-            options: CarouselOptions(
-              autoPlay: true,
-              enlargeCenterPage: true,
-              aspectRatio: 16 / 9,
-              viewportFraction: Responsive.isMobile(context) ? 0.9 : 0.8,
-              autoPlayInterval: Duration(seconds: 4),
-              autoPlayAnimationDuration: Duration(milliseconds: 800),
-              autoPlayCurve: Curves.fastOutSlowIn,
-              onPageChanged: (index, reason) {
-                setState(() {
-                  _current = index;
-                });
-              },
-            ),
+            }
           ),
         ),
         if (widget.captions != null &&
