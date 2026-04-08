@@ -10,8 +10,10 @@ class AppscreenHead extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final barHeight = Responsive.scale(context, 100);
+
     return Container(
-      height: preferredSize.height,
+      height: barHeight,
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.25),
         border: Border(
@@ -32,7 +34,7 @@ class AppscreenHead extends StatelessWidget implements PreferredSizeWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 40, vertical: 25),
+            padding: Responsive.paddingSymmetric(context, horizontal: 40, vertical: 25),
             child: Row(
               children: [
                 _buildBackWidget(context),
@@ -47,22 +49,35 @@ class AppscreenHead extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(100);
+  Size get preferredSize {
+    try {
+      final view = PlatformDispatcher.instance.implicitView ?? PlatformDispatcher.instance.views.first;
+      final w = view.physicalSize.width / view.devicePixelRatio;
+      final h = view.physicalSize.height / view.devicePixelRatio;
+      
+      final wRatio = w / 1024.0;
+      final hRatio = h / 768.0;
+      final val = wRatio * hRatio;
+      double scale = val <= 0 ? 1.0 : (val < 1 ? val + (1 - val) * 0.5 : val * 0.5 + 0.5);
+      
+      if (w < 600) {
+        scale = scale.clamp(0.45, 0.85);
+      } else if (w < 1024) {
+        scale = scale.clamp(0.70, 1.10);
+      } else if (w < 1440) {
+        scale = scale.clamp(0.90, 1.40);
+      } else {
+        scale = scale.clamp(1.10, 2.00);
+      }
+      return Size.fromHeight(100.0 * scale);
+    } catch (_) {
+      return const Size.fromHeight(100.0);
+    }
+  }
 
   Widget _buildBackWidget(BuildContext context) {
-    final backW = Responsive.scaleWithConstraints(
-      context,
-      26,
-      minSize: 22,
-      maxSize: 28,
-    );
-
-    final backH = Responsive.scaleWithConstraints(
-      context,
-      26,
-      minSize: 22,
-      maxSize: 28,
-    );
+    final backW = Responsive.scale(context, 26);
+    final backH = Responsive.scale(context, 26);
 
     return GestureDetector(
       onTap: () => Navigator.pop(context),
@@ -71,18 +86,16 @@ class AppscreenHead extends StatelessWidget implements PreferredSizeWidget {
           SizedBox(
             height: backH,
             width: backW,
-            child: Icon(CupertinoIcons.back, color: Colors.black),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Icon(CupertinoIcons.back, color: Colors.black, size: Responsive.scale(context, 24)),
+            ),
           ),
-          SizedBox(width: 10),
+          Responsive.hGap(context, 10),
           Text(
             appname,
             style: TextStyle(
-              fontSize: Responsive.scaleWithConstraints(
-                context,
-                20,
-                minSize: 16,
-                maxSize: 24,
-              ),
+              fontSize: Responsive.fontSize(context, 20),
               fontWeight: FontWeight.bold,
               fontFamily: 'khand',
               color: Colors.black,
@@ -94,19 +107,8 @@ class AppscreenHead extends StatelessWidget implements PreferredSizeWidget {
   }
 
   Widget _buildEngageWidget(BuildContext context) {
-    final engageW = Responsive.scaleWithConstraints(
-      context,
-      56,
-      minSize: 48,
-      maxSize: 64,
-    );
-
-    final engageH = Responsive.scaleWithConstraints(
-      context,
-      20,
-      minSize: 16,
-      maxSize: 24,
-    );
+    final engageW = Responsive.scale(context, 56);
+    final engageH = Responsive.scale(context, 20);
 
     return Row(
       children: [
@@ -117,34 +119,14 @@ class AppscreenHead extends StatelessWidget implements PreferredSizeWidget {
             children: [
               SvgPicture.asset(
                 'assets/icons/like.svg',
-                width: Responsive.scaleWithConstraints(
-                  context,
-                  20,
-                  minSize: 16,
-                  maxSize: 24,
-                ),
-                height: Responsive.scaleWithConstraints(
-                  context,
-                  20,
-                  minSize: 16,
-                  maxSize: 24,
-                ),
+                width: Responsive.scale(context, 20),
+                height: Responsive.scale(context, 20),
               ),
-              SizedBox(width: 12),
+              Responsive.hGap(context, 12),
               SvgPicture.asset(
                 'assets/icons/share.svg',
-                width: Responsive.scaleWithConstraints(
-                  context,
-                  20,
-                  minSize: 16,
-                  maxSize: 24,
-                ),
-                height: Responsive.scaleWithConstraints(
-                  context,
-                  20,
-                  minSize: 16,
-                  maxSize: 24,
-                ),
+                width: Responsive.scale(context, 20),
+                height: Responsive.scale(context, 20),
               ),
             ],
           ),

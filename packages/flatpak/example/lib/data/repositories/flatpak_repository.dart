@@ -24,6 +24,7 @@ abstract class FlatpakRepository {
   Future<Either<Failure, List<String>>> getSupportedArches();
   Future<Either<Failure, List<Installation>>> getSystemInstallations();
   Future<Either<Failure, Installation>> getUserInstallation();
+  Future<Either<Failure, Map<String, dynamic>>> getSystemStorage();
 
   // Application Discovery
   Future<Either<Failure, List<Application>>> getApplicationsInstalled();

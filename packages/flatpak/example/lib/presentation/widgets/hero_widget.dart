@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../responsive.dart';
 import 'hero_apps_icons.dart';
 
 class HeroWidget extends StatelessWidget {
@@ -20,21 +21,29 @@ class HeroWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      height: 280,
+      margin: Responsive.paddingSymmetric(
+        context,
+        horizontal: 16.0,
+        vertical: 12.0,
+      ),
+      height: Responsive.scale(context, 280),
       child: Stack(
         children: [
           // Background image
           Positioned.fill(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(24.0),
+              borderRadius: BorderRadius.circular(
+                Responsive.scale(context, 24.0),
+              ),
               child: Image.asset(imageUrl, fit: BoxFit.cover),
             ),
           ),
           // Glass effect container with content
           Positioned.fill(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(24.0),
+              borderRadius: BorderRadius.circular(
+                Responsive.scale(context, 24.0),
+              ),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
                 child: Container(
@@ -47,7 +56,9 @@ class HeroWidget extends StatelessWidget {
                         Colors.white.withValues(alpha: 0.1),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(24.0),
+                    borderRadius: BorderRadius.circular(
+                      Responsive.scale(context, 24.0),
+                    ),
                     border: Border.all(
                       color: Colors.white.withValues(alpha: 0.3),
                       width: 1.5,
@@ -55,13 +66,13 @@ class HeroWidget extends StatelessWidget {
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+                        blurRadius: Responsive.scale(context, 20),
+                        offset: Offset(0, Responsive.scale(context, 10)),
                       ),
                     ],
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(24.0),
+                    padding: Responsive.paddingAll(context, 24.0),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -75,13 +86,13 @@ class HeroWidget extends StatelessWidget {
                               // Title
                               Text(
                                 title,
-                                style: const TextStyle(
-                                  fontSize: 32.0,
+                                style: TextStyle(
+                                  fontSize: Responsive.fontSize(context, 32),
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                   fontFamily: 'khand',
                                   height: 1.2,
-                                  shadows: [
+                                  shadows: const [
                                     Shadow(
                                       color: Colors.black26,
                                       offset: Offset(0, 2),
@@ -90,11 +101,11 @@ class HeroWidget extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 12.0),
+                              Responsive.vGap(context, 12),
                               Text(
                                 subtitle,
                                 style: TextStyle(
-                                  fontSize: 14.0,
+                                  fontSize: Responsive.fontSize(context, 14),
                                   color: Colors.white.withValues(alpha: 0.9),
                                   fontFamily: 'general-sans',
                                   height: 1.4,
@@ -107,13 +118,13 @@ class HeroWidget extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 20.0),
+                              Responsive.vGap(context, 20),
                               // Explore button with glass effect
                               _buildExploreButton(context),
                             ],
                           ),
                         ),
-                        const SizedBox(width: 24.0),
+                        Responsive.hGap(context, 24),
                         // Right side - App icons
                         const Expanded(flex: 2, child: AppsIcons()),
                       ],
@@ -135,11 +146,12 @@ class HeroWidget extends StatelessWidget {
         context.push('/discover');
       },
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(25.0),
+        borderRadius: BorderRadius.circular(Responsive.scale(context, 25)),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
-            padding: const EdgeInsets.symmetric(
+            padding: Responsive.paddingSymmetric(
+              context,
               horizontal: 28.0,
               vertical: 14.0,
             ),
@@ -150,23 +162,25 @@ class HeroWidget extends StatelessWidget {
                   Colors.green.shade600.withValues(alpha: 0.9),
                 ],
               ),
-              borderRadius: BorderRadius.circular(25.0),
+              borderRadius: BorderRadius.circular(
+                Responsive.scale(context, 25),
+              ),
               border: Border.all(
                 color: Colors.white.withValues(alpha: 0.4),
                 width: 1.5,
               ),
-              boxShadow: const [
+              boxShadow: [
                 BoxShadow(
-                  color: Color(0xFF33D17A),
-                  blurRadius: 12,
-                  offset: Offset(0, 4),
+                  color: const Color(0xFF33D17A),
+                  blurRadius: Responsive.scale(context, 12),
+                  offset: Offset(0, Responsive.scale(context, 4)),
                 ),
               ],
             ),
-            child: const Text(
+            child: Text(
               'Explore Apps',
               style: TextStyle(
-                fontSize: 16.0,
+                fontSize: Responsive.fontSize(context, 16),
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
                 fontFamily: 'general-sans',

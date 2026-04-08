@@ -49,3 +49,18 @@ class InstallationFailure extends InstallationState {
   @override
   List<Object?> get props => [appId, error, operation];
 }
+
+class InstallationInsufficientSpace extends InstallationState {
+  final String appId;
+  final int requiredMb;
+  final int availableMb;
+
+  InstallationInsufficientSpace({
+    required this.appId,
+    required this.requiredMb,
+    required this.availableMb,
+  });
+
+  @override
+  List<Object?> get props => [appId, requiredMb, availableMb];
+}

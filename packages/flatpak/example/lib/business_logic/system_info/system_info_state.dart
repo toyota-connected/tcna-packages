@@ -22,6 +22,7 @@ class SystemInfoLoaded extends SystemInfoState {
   final List<String> supportedArches;
   final List<Installation> systemInstallations;
   final Installation? userInstallation;
+  final Map<String, dynamic>? systemStorage;
 
   const SystemInfoLoaded({
     required this.version,
@@ -29,6 +30,7 @@ class SystemInfoLoaded extends SystemInfoState {
     required this.supportedArches,
     required this.systemInstallations,
     this.userInstallation,
+    this.systemStorage,
   });
 
   @override
@@ -38,6 +40,7 @@ class SystemInfoLoaded extends SystemInfoState {
     supportedArches,
     systemInstallations,
     userInstallation,
+    systemStorage,
   ];
 
   SystemInfoLoaded copyWith({
@@ -46,6 +49,7 @@ class SystemInfoLoaded extends SystemInfoState {
     List<String>? supportedArches,
     List<Installation>? systemInstallations,
     Installation? userInstallation,
+    Map<String, dynamic>? systemStorage,
   }) {
     return SystemInfoLoaded(
       version: version ?? this.version,
@@ -53,6 +57,7 @@ class SystemInfoLoaded extends SystemInfoState {
       supportedArches: supportedArches ?? this.supportedArches,
       systemInstallations: systemInstallations ?? this.systemInstallations,
       userInstallation: userInstallation ?? this.userInstallation,
+      systemStorage: systemStorage ?? this.systemStorage,
     );
   }
 }

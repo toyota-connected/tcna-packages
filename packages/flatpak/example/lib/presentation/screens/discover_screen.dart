@@ -274,7 +274,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         ),
         const SizedBox(height: 20),
         SizedBox(
-          height: 200,
+          height: Responsive.scaleWithConstraints(context, 200, minSize: 180, maxSize: 260),
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
@@ -294,7 +294,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   Widget _buildFeaturedCard(Application app) {
     return SizedBox(
-      width: 300,
+      width: Responsive.scaleWithConstraints(context, 300, minSize: 260, maxSize: 380),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: BackdropFilter(

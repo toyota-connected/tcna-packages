@@ -22,96 +22,74 @@ class _screenshotstate extends State<Screenshot> {
     return Column(
       children: [
         Expanded(
-          child: CarouselSlider(
-            items: widget.images.map((imagePath) {
-              return Builder(
-                builder: (BuildContext context) {
-                  return Container(
-                    width: MediaQuery.of(context).size.width,
-                    margin: EdgeInsets.symmetric(
-                      horizontal: Responsive.responsiveValue(
-                        context,
-                        mobile: 4.0,
-                        tablet: 6.0,
-                        desktop: 8.0,
-                      ),
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(
-                        Responsive.responsiveValue(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return CarouselSlider(
+                items: widget.images.map((imagePath) {
+                  return Builder(
+                    builder: (BuildContext context) {
+                      return Container(
+                        width: MediaQuery.of(context).size.width,
+                        margin: Responsive.paddingSymmetric(
                           context,
-                          mobile: 8.0,
-                          tablet: 12.0,
-                          desktop: 16.0,
+                          horizontal: 6.0,
                         ),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(
+                            Responsive.scale(context, 12.0),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 8,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                        Responsive.responsiveValue(
-                          context,
-                          mobile: 8.0,
-                          tablet: 12.0,
-                          desktop: 16.0,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            Responsive.scale(context, 12.0),
+                          ),
+                          child: Image.network(
+                            imagePath,
+                            fit: BoxFit.contain,
+                            width: double.infinity,
+                            height: double.infinity,
+                            filterQuality: FilterQuality.high,
+                          ),
                         ),
-                      ),
-                      child: Image.network(
-                        imagePath,
-                        fit: BoxFit.contain,
-                        width: double.infinity,
-                        height: double.infinity,
-                        filterQuality: FilterQuality.high,
-                      ),
-                    ),
+                      );
+                    },
                   );
-                },
+                }).toList(),
+                carouselController: _controller,
+                options: CarouselOptions(
+                  height: constraints.maxHeight,
+                  autoPlay: true,
+                  enlargeCenterPage: true,
+                  viewportFraction: Responsive.isMobile(context) ? 0.9 : 0.8,
+                  autoPlayInterval: Duration(seconds: 4),
+                  autoPlayAnimationDuration: Duration(milliseconds: 800),
+                  autoPlayCurve: Curves.fastOutSlowIn,
+                  onPageChanged: (index, reason) {
+                    setState(() {
+                      _current = index;
+                    });
+                  },
+                ),
               );
-            }).toList(),
-            carouselController: _controller,
-            options: CarouselOptions(
-              autoPlay: true,
-              enlargeCenterPage: true,
-              aspectRatio: 16 / 9,
-              viewportFraction: Responsive.isMobile(context) ? 0.9 : 0.8,
-              autoPlayInterval: Duration(seconds: 4),
-              autoPlayAnimationDuration: Duration(milliseconds: 800),
-              autoPlayCurve: Curves.fastOutSlowIn,
-              onPageChanged: (index, reason) {
-                setState(() {
-                  _current = index;
-                });
-              },
-            ),
+            }
           ),
         ),
         if (widget.captions != null &&
             widget.captions!.isNotEmpty &&
             _current < widget.captions!.length)
           Padding(
-            padding: EdgeInsets.all(
-              Responsive.responsiveValue(
-                context,
-                mobile: 8.0,
-                tablet: 12.0,
-                desktop: 16.0,
-              ),
-            ),
+            padding: Responsive.paddingAll(context, 12.0),
             child: Text(
               widget.captions![_current],
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: Responsive.responsiveValue(
-                  context,
-                  mobile: 14.0,
-                  tablet: 16.0,
-                  desktop: 18.0,
-                ),
+                fontSize: Responsive.fontSize(context, 16.0),
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -124,31 +102,12 @@ class _screenshotstate extends State<Screenshot> {
             return GestureDetector(
               onTap: () => _controller.animateToPage(entry.key),
               child: Container(
-                width: Responsive.responsiveValue(
+                width: Responsive.scale(context, 10.0),
+                height: Responsive.scale(context, 10.0),
+                margin: Responsive.paddingSymmetric(
                   context,
-                  mobile: 8.0,
-                  tablet: 10.0,
-                  desktop: 12.0,
-                ),
-                height: Responsive.responsiveValue(
-                  context,
-                  mobile: 8.0,
-                  tablet: 10.0,
-                  desktop: 12.0,
-                ),
-                margin: EdgeInsets.symmetric(
-                  vertical: Responsive.responsiveValue(
-                    context,
-                    mobile: 6.0,
-                    tablet: 8.0,
-                    desktop: 10.0,
-                  ),
-                  horizontal: Responsive.responsiveValue(
-                    context,
-                    mobile: 3.0,
-                    tablet: 4.0,
-                    desktop: 5.0,
-                  ),
+                  vertical: 8.0,
+                  horizontal: 4.0,
                 ),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,

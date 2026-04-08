@@ -104,6 +104,16 @@ class FlatpakRepositoryImpl implements FlatpakRepository {
   }
 
   @override
+  Future<Either<Failure, Map<String, dynamic>>> getSystemStorage() async {
+    final result = await permissionDataSource.getSystemStorage();
+    if (result != null) {
+      return Right(result);
+    } else {
+      return const Left(PlatformFailure("Failed to get storage Info"));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<Application>>> getApplicationsInstalled() async {
     try {
       final apps = await localDataSource.getApplicationsInstalled();
