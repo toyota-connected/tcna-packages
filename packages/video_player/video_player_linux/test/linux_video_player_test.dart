@@ -2,7 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter/services.dart';
+import 'dart:typed_data';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -27,10 +28,14 @@ void main() {
 
   setUp(() {
     mockApi = MockTestHostVideoPlayerApi();
-    TestHostVideoPlayerApi.setup(mockApi);
+    TestHostVideoPlayerApi.setUp(mockApi);
 
     when(mockApi.create(any, any, any)).thenReturn(3);
     when(mockApi.getPosition(any)).thenReturn(234);
+    // createWithOptions now calls isAudioOnly after create; default to false
+    // so tests that don't care about audio-only tracking aren't forced to
+    // stub it explicitly.
+    when(mockApi.isAudioOnly(any)).thenReturn(false);
   });
 
   group('$LinuxVideoPlayer', () {
@@ -53,7 +58,7 @@ void main() {
         ),
         viewType: VideoViewType.textureView,
       ));
-      verify(mockApi.create('someAsset', null, <String, String>{}));
+      verify(mockApi.create('someAsset', '', <String, String>{}));
       expect(textureId, 3);
     });
 
@@ -79,7 +84,7 @@ void main() {
         ),
         viewType: VideoViewType.textureView,
       ));
-      verify(mockApi.create(null, 'someUri', <String, String>{}));
+      verify(mockApi.create('', 'someUri', <String, String>{}));
       expect(textureId, 3);
     });
 
@@ -94,7 +99,7 @@ void main() {
         viewType: VideoViewType.textureView,
       ));
       verify(mockApi.create(
-          null, 'someUri', <String, String>{'Authorization': 'Bearer token'}));
+          '', 'someUri', <String, String>{'Authorization': 'Bearer token'}));
       expect(textureId, 3);
     });
 
@@ -107,7 +112,7 @@ void main() {
         ),
         viewType: VideoViewType.textureView,
       ));
-      verify(mockApi.create(null, 'someUri', <String, String>{}));
+      verify(mockApi.create('', 'someUri', <String, String>{}));
       expect(textureId, 3);
     });
 
@@ -122,7 +127,7 @@ void main() {
         viewType: VideoViewType.textureView,
       ));
       verify(mockApi.create(
-          null, 'someUri', <String, String>{'Authorization': 'Bearer token'}));
+          '', 'someUri', <String, String>{'Authorization': 'Bearer token'}));
       expect(textureId, 3);
     });
     test('setLooping', () async {
@@ -161,118 +166,15 @@ void main() {
       expect(position, const Duration(milliseconds: 234));
     });
 
-    test('videoEventsFor', () async {
-      const String mockChannel = 'flutter.io/videoPlayer/videoEvents123';
-      _ambiguate(TestDefaultBinaryMessengerBinding.instance)!
-          .defaultBinaryMessenger
-          .setMockMessageHandler(
-        mockChannel,
-        (ByteData? message) async {
-          final MethodCall methodCall =
-              const StandardMethodCodec().decodeMethodCall(message);
-          if (methodCall.method == 'listen') {
-            await _ambiguate(TestDefaultBinaryMessengerBinding.instance)!
-                .defaultBinaryMessenger
-                .handlePlatformMessage(
-                    mockChannel,
-                    const StandardMethodCodec()
-                        .encodeSuccessEnvelope(<String, dynamic>{
-                      'event': 'initialized',
-                      'duration': 98765,
-                      'width': 1920,
-                      'height': 1080,
-                    }),
-                    (ByteData? data) {});
-
-            await _ambiguate(TestDefaultBinaryMessengerBinding.instance)!
-                .defaultBinaryMessenger
-                .handlePlatformMessage(
-                    mockChannel,
-                    const StandardMethodCodec()
-                        .encodeSuccessEnvelope(<String, dynamic>{
-                      'event': 'initialized',
-                      'duration': 98765,
-                      'width': 1920,
-                      'height': 1080,
-                      'rotationCorrection': 180,
-                    }),
-                    (ByteData? data) {});
-
-            await _ambiguate(TestDefaultBinaryMessengerBinding.instance)!
-                .defaultBinaryMessenger
-                .handlePlatformMessage(
-                    mockChannel,
-                    const StandardMethodCodec()
-                        .encodeSuccessEnvelope(<String, dynamic>{
-                      'event': 'completed',
-                    }),
-                    (ByteData? data) {});
-
-            await _ambiguate(TestDefaultBinaryMessengerBinding.instance)!
-                .defaultBinaryMessenger
-                .handlePlatformMessage(
-                    mockChannel,
-                    const StandardMethodCodec()
-                        .encodeSuccessEnvelope(<String, dynamic>{
-                      'event': 'bufferingUpdate',
-                      'values': <List<dynamic>>[
-                        <int>[0, 1234],
-                        <int>[1235, 4000],
-                      ],
-                    }),
-                    (ByteData? data) {});
-
-            await _ambiguate(TestDefaultBinaryMessengerBinding.instance)!
-                .defaultBinaryMessenger
-                .handlePlatformMessage(
-                    mockChannel,
-                    const StandardMethodCodec()
-                        .encodeSuccessEnvelope(<String, dynamic>{
-                      'event': 'bufferingStart',
-                    }),
-                    (ByteData? data) {});
-
-            await _ambiguate(TestDefaultBinaryMessengerBinding.instance)!
-                .defaultBinaryMessenger
-                .handlePlatformMessage(
-                    mockChannel,
-                    const StandardMethodCodec()
-                        .encodeSuccessEnvelope(<String, dynamic>{
-                      'event': 'bufferingEnd',
-                    }),
-                    (ByteData? data) {});
-
-            await _ambiguate(TestDefaultBinaryMessengerBinding.instance)!
-                .defaultBinaryMessenger
-                .handlePlatformMessage(
-                    mockChannel,
-                    const StandardMethodCodec()
-                        .encodeSuccessEnvelope(<String, dynamic>{
-                      'event': 'isPlayingStateUpdate',
-                      'isPlaying': true,
-                    }),
-                    (ByteData? data) {});
-
-            await _ambiguate(TestDefaultBinaryMessengerBinding.instance)!
-                .defaultBinaryMessenger
-                .handlePlatformMessage(
-                    mockChannel,
-                    const StandardMethodCodec()
-                        .encodeSuccessEnvelope(<String, dynamic>{
-                      'event': 'isPlayingStateUpdate',
-                      'isPlaying': false,
-                    }),
-                    (ByteData? data) {});
-
-            return const StandardMethodCodec().encodeSuccessEnvelope(null);
-          } else if (methodCall.method == 'cancel') {
-            return const StandardMethodCodec().encodeSuccessEnvelope(null);
-          } else {
-            fail('Expected listen or cancel');
-          }
-        },
-      );
-      expect(
+    test('videoEventsFor decodes tagged events from the native port',
+        () async {
+      // The native side posts Dart_CObject_kArray values whose first
+      // element is an int tag (see linux_cpp/core/event_port.h and
+      // lib/src/ffi/event_decoder.dart). We feed the same shape through
+      // the internal dispatcher to verify the decoder + controller wiring
+      // without needing the plugin .so loaded.
+      player.debugEnsurePort(123);
+      final Future<void> expectations = expectLater(
           player.videoEventsFor(123),
           emitsInOrder(<dynamic>[
             VideoEvent(
@@ -311,6 +213,20 @@ void main() {
               isPlaying: false,
             ),
           ]));
+
+      // Tag values match `EventTag` in lib/src/ffi/event_decoder.dart.
+      // Array layout matches what EventPort::Send* constructs on the C++ side.
+      player
+        ..debugDispatchEvent(123, <Object?>[0, 98765, 1920, 1080, 0])
+        ..debugDispatchEvent(123, <Object?>[0, 98765, 1920, 1080, 180])
+        ..debugDispatchEvent(123, <Object?>[1])
+        ..debugDispatchEvent(
+            123, <Object?>[2, Int32List.fromList(<int>[0, 1234, 1235, 4000])])
+        ..debugDispatchEvent(123, <Object?>[3])
+        ..debugDispatchEvent(123, <Object?>[4])
+        ..debugDispatchEvent(123, <Object?>[5, true])
+        ..debugDispatchEvent(123, <Object?>[5, false]);
+      await expectations;
     });
 
     // ──────────────────────────────────────────────────────────────────
@@ -430,16 +346,52 @@ void main() {
       verify(mockApi.setChannelMixMatrix(7, 6, 2, matrix));
     });
 
-    test('buildViewWithOptions returns SizedBox.shrink for audio-only IDs', () {
+    test('buildViewWithOptions returns SizedBox.shrink for audio-only IDs',
+        () async {
+      // Audio-only status is now tracked per-id by createWithOptions
+      // (querying the native side via _api.isAudioOnly). The synthetic-id
+      // range alone is no longer an implicit signal — stock Flutter Linux
+      // assigns pointer-sized texture ids that also sit above the range.
+      when(mockApi.create('', 'someUri', <String, String>{}))
+          .thenReturn(kLinuxAudioOnlyIdBase + 5);
+      when(mockApi.isAudioOnly(kLinuxAudioOnlyIdBase + 5)).thenReturn(true);
+      final int? id = await player.createWithOptions(VideoCreationOptions(
+        dataSource: DataSource(
+          sourceType: DataSourceType.network,
+          uri: 'someUri',
+        ),
+        viewType: VideoViewType.textureView,
+      ));
+      expect(id, kLinuxAudioOnlyIdBase + 5);
+      // The isAudioOnly resolution is now deferred (see
+      // createWithOptions) so the mock response lands on a microtask.
+      // Drain the event loop before asserting the widget shape.
+      await Future<void>.delayed(Duration.zero);
       final widget = player.buildViewWithOptions(
           VideoViewOptions(playerId: kLinuxAudioOnlyIdBase + 5));
       expect(widget, isA<SizedBox>());
     });
+
+    test(
+        'buildViewWithOptions returns Texture widget for large video texture ids',
+        () async {
+      // Regression guard: pointer-sized texture ids (as produced by stock
+      // Flutter Linux) must still render through a Texture widget when the
+      // native side reports isAudioOnly=false.
+      const int largeId = 139825217039520;
+      when(mockApi.create('', 'video', <String, String>{}))
+          .thenReturn(largeId);
+      when(mockApi.isAudioOnly(largeId)).thenReturn(false);
+      final int? id = await player.createWithOptions(VideoCreationOptions(
+        dataSource:
+            DataSource(sourceType: DataSourceType.network, uri: 'video'),
+        viewType: VideoViewType.textureView,
+      ));
+      expect(id, largeId);
+      final widget =
+          player.buildViewWithOptions(VideoViewOptions(playerId: largeId));
+      expect(widget, isA<Texture>());
+    });
   });
 }
 
-/// This allows a value of type T or T? to be treated as a value of type T?.
-///
-/// We use this so that APIs that have become non-nullable can still be used
-/// with `!` and `?` on the stable branch.
-T? _ambiguate<T>(T? value) => value;

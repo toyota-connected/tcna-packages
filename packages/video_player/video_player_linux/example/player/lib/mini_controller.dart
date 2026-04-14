@@ -390,25 +390,14 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
       });
     }
 
-    // Yield to the event loop so the EventChannel "listen" platform
-    // message has a chance to flush to native before we dispatch play().
-    // EventChannel listens and Pigeon method calls travel on different
-    // channel transports and are not strictly ordered relative to each
-    // other, so without this yield the native side can occasionally
-    // process play() first, reach PLAYING, fire the 'initialized' event
-    // while event_sink_ is still null, and lose it. The C++ stream
-    // handler does have a replay path for that case but it depends on
-    // is_initialized_ already being true when OnListen runs — which
-    // isn't guaranteed if OnListen lands between play() dispatch and the
-    // pipeline actually reaching PLAYING.
-    await Future<void>.delayed(Duration.zero);
-    if (_isDisposed) return;
-
-    // Now that the listeners are attached, kick the pipeline into PLAYING
-    // so the native side will fire the 'initialized' event we're waiting
-    // on.
-    _platform.play(_textureId);
-
+    // Wait for the `initialized` event. The native side now fires this
+    // from the PAUSED-state transition (pre-roll completion), so no
+    // pre-play kick is necessary — the previous code called
+    // `_platform.play(_textureId)` here to force PLAYING and coerce the
+    // old EventChannel path to emit `initialized`, which also raced
+    // the async-create worker (player_not_found). With the zero-copy
+    // native-port pathway and the PAUSED-transition init event, just
+    // wait for the completer to fire.
     return initializingCompleter.future;
   }
 

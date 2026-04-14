@@ -20,7 +20,7 @@ class _App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         key: const ValueKey<String>('home_page'),
         appBar: AppBar(
@@ -28,11 +28,9 @@ class _App extends StatelessWidget {
           bottom: const TabBar(
             isScrollable: true,
             tabs: <Widget>[
-              Tab(
-                icon: Icon(Icons.cloud),
-                text: 'Remote',
-              ),
+              Tab(icon: Icon(Icons.cloud), text: 'Remote'),
               Tab(icon: Icon(Icons.insert_drive_file), text: 'Asset'),
+              Tab(icon: Icon(Icons.list), text: 'List example'),
             ],
           ),
         ),
@@ -40,6 +38,7 @@ class _App extends StatelessWidget {
           children: <Widget>[
             _BumbleBeeRemoteVideo(),
             _ButterFlyAssetVideo(),
+            _ButterFlyAssetVideoInList(),
           ],
         ),
       ),
@@ -63,6 +62,10 @@ class _ButterFlyAssetVideoState extends State<_ButterFlyAssetVideo> {
     _controller.addListener(() {
       setState(() {});
     });
+    // Mirror flutter/packages video_player/example: set looping + initial
+    // volume explicitly before initialize(), then autoplay on completion.
+    _controller.setLooping(true);
+    _controller.setVolume(1.0);
     _controller.initialize().then((_) {
       setState(() {});
       _controller.play();
@@ -122,6 +125,11 @@ class _BumbleBeeRemoteVideoState extends State<_BumbleBeeRemoteVideo> {
     _controller.addListener(() {
       setState(() {});
     });
+    // Mirror flutter/packages video_player/example: explicit setLooping +
+    // setVolume before initialize, but do NOT autoplay — the user clicks
+    // the overlay play button. Matches upstream's _BumbleBeeRemoteVideo.
+    _controller.setLooping(true);
+    _controller.setVolume(1.0);
     _controller.initialize();
   }
 
@@ -195,10 +203,20 @@ class _ControlsOverlay extends StatelessWidget {
                   ),
                 ),
         ),
-        GestureDetector(
-          onTap: () {
-            controller.value.isPlaying ? controller.pause() : controller.play();
-          },
+        // Full-bleed tap target so the user can tap anywhere on the video
+        // to toggle play/pause. `HitTestBehavior.opaque` + explicit sizing
+        // via `Positioned.fill` makes the detector cover the whole stack;
+        // without them a childless GestureDetector collapses to zero size
+        // and swallows no taps.
+        Positioned.fill(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              controller.value.isPlaying
+                  ? controller.pause()
+                  : controller.play();
+            },
+          ),
         ),
         Align(
           alignment: Alignment.topRight,
@@ -230,6 +248,93 @@ class _ControlsOverlay extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ButterFlyAssetVideoInList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: <Widget>[
+        const _ExampleCard(title: 'Item a'),
+        const _ExampleCard(title: 'Item b'),
+        const _ExampleCard(title: 'Item c'),
+        const _ExampleCard(title: 'Item d'),
+        const _ExampleCard(title: 'Item e'),
+        const _ExampleCard(title: 'Item f'),
+        const _ExampleCard(title: 'Item g'),
+        Card(
+          child: Column(
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  const ListTile(
+                    leading: Icon(Icons.cake),
+                    title: Text('Video video'),
+                  ),
+                  Stack(
+                    alignment: FractionalOffset.bottomRight +
+                        const FractionalOffset(-0.1, -0.1),
+                    children: <Widget>[
+                      _ButterFlyAssetVideo(),
+                      Image.asset('assets/flutter-mark-square-64.png'),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const _ExampleCard(title: 'Item h'),
+        const _ExampleCard(title: 'Item i'),
+        const _ExampleCard(title: 'Item j'),
+        const _ExampleCard(title: 'Item k'),
+        const _ExampleCard(title: 'Item l'),
+      ],
+    );
+  }
+}
+
+/// A filler card to show the video in a list of scrolling contents.
+class _ExampleCard extends StatelessWidget {
+  const _ExampleCard({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ListTile(
+            leading: const Icon(Icons.airline_seat_flat_angled),
+            title: Text(title),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: OverflowBar(
+              alignment: MainAxisAlignment.end,
+              spacing: 8.0,
+              children: <Widget>[
+                TextButton(
+                  child: const Text('BUY TICKETS'),
+                  onPressed: () {
+                    /* ... */
+                  },
+                ),
+                TextButton(
+                  child: const Text('SELL TICKETS'),
+                  onPressed: () {
+                    /* ... */
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

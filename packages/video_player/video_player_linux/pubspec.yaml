@@ -5,7 +5,7 @@ issue_tracker: https://github.com/flutter/flutter/issues?q=is%3Aissue+is%3Aopen+
 version: 2.5.0
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ^3.10.0
   flutter: ">=3.10.0"
 
 flutter:
@@ -14,19 +14,24 @@ flutter:
     platforms:
       linux:
         dartPluginClass: LinuxVideoPlayer
-        pluginClass: VideoPlayerLinux
+        pluginClass: VideoPlayerLinuxPlugin
 
 dependencies:
   flutter:
     sdk: flutter
   video_player_platform_interface: ">=6.1.0 <7.0.0"
+  # Native-assets build hook deps — drive CMake at `dart pub get` time
+  # so the zero-copy FFI surface (vp_init_api_dl, vp_register_port, …)
+  # is available for @Native / DynamicLibrary.process() lookups.
+  code_assets: ^1.0.0
+  hooks: ^1.0.2
 
 dev_dependencies:
   build_runner: ^2.3.0
   flutter_test:
     sdk: flutter
   mockito: 5.4.4
-  pigeon: ^16.0.3
+  pigeon: ^22.0.0
 
 topics:
   - video

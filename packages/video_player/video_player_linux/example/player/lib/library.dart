@@ -443,7 +443,7 @@ class _MediaCardState extends State<_MediaCard> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.play_arrow_rounded,
+                      Icons.play_arrow,
                       size: 16,
                       color: disabled
                           ? _kFaint

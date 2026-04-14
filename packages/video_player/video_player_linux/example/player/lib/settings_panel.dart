@@ -14,15 +14,18 @@
 //   • Tabs that don't apply to the current media (Subtitles, Video for
 //     audio-only sources) are hidden entirely.
 
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
 import 'mini_controller.dart';
 
 const Color _kAccent = Color(0xFFC4A26E);
-const Color _kSurface = Color(0xEE0E0E12);
-const Color _kSurfaceCard = Color(0xCC1A1A20);
+// Semi-transparent so video shows through the drawer. 0xB2 ≈ 70% opacity
+// on the main surface still keeps text/controls legible over most frames;
+// cards are a bit more opaque (0x99 ≈ 60%) so their contents stand out
+// against the main surface.
+const Color _kSurface = Color(0xB20E0E12);
+const Color _kSurfaceCard = Color(0x991A1A20);
 const Color _kBorder = Color(0x22FFFFFF);
 const Color _kMuted = Color(0x99FFFFFF);
 
@@ -96,34 +99,37 @@ class _SettingsPanelState extends State<SettingsPanel> {
     final tabs = _availableTabs();
     if (!tabs.contains(_tab)) _tab = tabs.first;
 
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-        child: AnimatedBuilder(
-          animation: widget.controller,
-          builder: (context, _) => Container(
-            width: SettingsPanel.width,
-            color: _kSurface,
-            child: Theme(
-              data: _panelTheme(context),
-              child: Column(
-                children: [
-                  _buildHeader(context, tabs),
-                  const Divider(height: 1, color: _kBorder),
-                  Expanded(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
-                      child: SingleChildScrollView(
-                        key: ValueKey(_tab),
-                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-                        child: _buildTab(context),
-                      ),
-                    ),
-                  ),
-                ],
+    // This panel doesn't read any live value from the controller (only
+    // calls setters like setChannelMixPreset / setEqualizer etc. and
+    // reads stable fields like equalizerBands / isAudioOnly). Wrapping
+    // it in `AnimatedBuilder(animation: widget.controller)` previously
+    // made it rebuild on every `notifyListeners()` — and the controller
+    // fires notifyListeners every 500 ms from its position poll during
+    // playback. That rebuild cadence is what the user observed as
+    // flickering borders and text on the settings pages. Pausing the
+    // video stops the polls, stops the rebuilds, stops the flicker —
+    // which is exactly the signal that led here. Internal setState
+    // calls (user toggles) continue to rebuild this widget directly.
+    return Container(
+      width: SettingsPanel.width,
+      color: _kSurface,
+      child: Theme(
+        data: _panelTheme(context),
+        child: Column(
+          children: [
+            _buildHeader(context, tabs),
+            const Divider(height: 1, color: _kBorder),
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: SingleChildScrollView(
+                  key: ValueKey(_tab),
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+                  child: _buildTab(context),
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );

@@ -7,11 +7,14 @@ import 'package:pigeon/pigeon.dart';
 @ConfigurePigeon(PigeonOptions(
   dartOut: 'lib/src/messages.g.dart',
   dartTestOut: 'test/test_api.g.dart',
-  cppHeaderOut: 'linux_cpp/messages.h',
-  cppSourceOut: 'linux_cpp/messages.cpp',
-  cppOptions: CppOptions(
-    namespace: 'video_player_linux',
-  ),
+  // C++ output → ivi-homescreen glue (flutter::BinaryMessenger wrapper).
+  cppHeaderOut: 'linux_cpp/embedder_ivi/messages.g.h',
+  cppSourceOut: 'linux_cpp/embedder_ivi/messages.g.cc',
+  cppOptions: CppOptions(namespace: 'video_player_linux'),
+  // GObject output → stock Flutter Linux (GTK) glue (FlBinaryMessenger).
+  gobjectHeaderOut: 'linux_cpp/embedder_fl/messages.g.h',
+  gobjectSourceOut: 'linux_cpp/embedder_fl/messages.g.cc',
+  gobjectOptions: GObjectOptions(module: 'video_player_linux'),
   copyrightHeader: 'pigeons/copyright.txt',
 ))
 @HostApi(dartHostTestHandler: 'TestHostVideoPlayerApi')
@@ -25,7 +28,15 @@ abstract class LinuxVideoPlayerApi {
 
   /// Creates a new instance of the video player.
   /// Returns the textureId of the created player.
-  int create(String? asset, String? uri, Map<String?, String?> httpHeaders);
+  ///
+  /// Exactly one of [asset] and [uri] is expected to be non-empty; an empty
+  /// string means "not provided". We use empty-string semantics rather than
+  /// nullable `String?` because pigeon v22's GObject generator emits
+  /// `fl_value_get_string()` on nullable params without a null-check, which
+  /// raises a GLib CRITICAL assertion when Dart sends null (see
+  /// https://github.com/flutter/flutter/issues — pigeon gobject nullable
+  /// strings).
+  int create(String asset, String uri, Map<String, String> httpHeaders);
 
   /// Disposes the video player with the given textureId.
   void dispose(int textureId);

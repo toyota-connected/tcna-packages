@@ -36,7 +36,9 @@ class VideoPlayerValue {
     this.buffered = const <DurationRange>[],
     this.isInitialized = false,
     this.isPlaying = false,
+    this.isLooping = false,
     this.isBuffering = false,
+    this.volume = 1.0,
     this.playbackSpeed = 1.0,
     this.errorDescription,
   });
@@ -66,8 +68,14 @@ class VideoPlayerValue {
   /// True if the video is playing. False if it's paused.
   final bool isPlaying;
 
+  /// True if the video is looping.
+  final bool isLooping;
+
   /// True if the video is currently buffering.
   final bool isBuffering;
+
+  /// The current volume of the playback (0.0 .. 1.0).
+  final double volume;
 
   /// The current speed of the playback.
   final double playbackSpeed;
@@ -113,7 +121,9 @@ class VideoPlayerValue {
     List<DurationRange>? buffered,
     bool? isInitialized,
     bool? isPlaying,
+    bool? isLooping,
     bool? isBuffering,
+    double? volume,
     double? playbackSpeed,
     String? errorDescription,
   }) {
@@ -124,7 +134,9 @@ class VideoPlayerValue {
       buffered: buffered ?? this.buffered,
       isInitialized: isInitialized ?? this.isInitialized,
       isPlaying: isPlaying ?? this.isPlaying,
+      isLooping: isLooping ?? this.isLooping,
       isBuffering: isBuffering ?? this.isBuffering,
+      volume: volume ?? this.volume,
       playbackSpeed: playbackSpeed ?? this.playbackSpeed,
       errorDescription: errorDescription ?? this.errorDescription,
     );
@@ -256,8 +268,13 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
             isInitialized: event.duration != null,
           );
           initializingCompleter.complete(null);
-          _platform.setVolume(_textureId, 1.0);
-          _platform.setLooping(_textureId, true);
+          // Flush any looping/volume/play-pause state set by the caller
+          // before initialize() returned — mirrors upstream
+          // VideoPlayerController which does the same in its initialized
+          // handler. Without this, calls like `controller.setLooping(true)`
+          // made before `initialize()` would be dropped.
+          _applyLooping();
+          _applyVolume();
           _applyPlayPause();
         case VideoEventType.completed:
           pause().then((void pauseResult) => seekTo(value.duration));
@@ -315,6 +332,7 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
   }
 
   Future<void> _applyPlayPause() async {
+    if (_isDisposedOrNotInitialized) return;
     _timer?.cancel();
     if (value.isPlaying) {
       await _platform.play(_textureId);
@@ -362,6 +380,33 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
     }
     await _platform.seekTo(_textureId, position);
     _updatePosition(position);
+  }
+
+  /// Sets whether the video should loop. Safe to call before
+  /// [initialize] completes — the state is queued onto [value] and
+  /// pushed to the platform once the underlying player exists.
+  Future<void> setLooping(bool looping) async {
+    value = value.copyWith(isLooping: looping);
+    await _applyLooping();
+  }
+
+  /// Sets the audio volume of the video player (0.0 .. 1.0). Safe to call
+  /// before [initialize] completes; see [setLooping].
+  Future<void> setVolume(double volume) async {
+    value = value.copyWith(volume: volume);
+    await _applyVolume();
+  }
+
+  bool get _isDisposedOrNotInitialized => _isDisposed || !value.isInitialized;
+
+  Future<void> _applyLooping() async {
+    if (_isDisposedOrNotInitialized) return;
+    await _platform.setLooping(_textureId, value.isLooping);
+  }
+
+  Future<void> _applyVolume() async {
+    if (_isDisposedOrNotInitialized) return;
+    await _platform.setVolume(_textureId, value.volume);
   }
 
   /// Sets the playback speed.

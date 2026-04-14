@@ -280,154 +280,173 @@ class _PlayerScreenState extends State<PlayerScreen>
 
     final ctrl = _controller!;
 
+    // The settings drawer is structurally independent of the video's
+    // per-frame state (it only reads stable fields and calls setters).
+    // Keeping it INSIDE the ValueListenableBuilder's subtree means it
+    // got reconstructed on every 500 ms position-poll `notifyListeners`,
+    // which was the visible flicker on its buttons/borders. Hoisting it
+    // to a sibling of the ValueListenableBuilder in the outer Stack
+    // limits its rebuilds to `setState` from this State (toggle
+    // show/hide, tab change) — exactly the reactive scope it needs.
     return Focus(
       autofocus: true,
       onKeyEvent: _handleKey,
       child: MouseRegion(
         onHover: (_) => _pokeChrome(),
-        child: ValueListenableBuilder<VideoPlayerValue>(
-          valueListenable: ctrl,
-          builder: (context, val, _) {
-            return Stack(
-              fit: StackFit.expand,
-              children: [
-                // Canvas
-                const ColoredBox(color: _kCanvas),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ValueListenableBuilder<VideoPlayerValue>(
+              valueListenable: ctrl,
+              builder: (context, val, _) {
+                return Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // Canvas
+                    const ColoredBox(color: _kCanvas),
 
-                // Video / audio surface
-                Center(
-                  child: val.isInitialized
-                      ? (ctrl.isAudioOnly
-                          ? _AudioPlayerView(
-                              controller: ctrl,
-                              item: widget.item!,
-                            )
-                          : AspectRatio(
-                              aspectRatio: val.aspectRatio,
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: () =>
-                                    val.isPlaying ? ctrl.pause() : ctrl.play(),
-                                child: VideoPlayer(ctrl),
-                              ),
-                            ))
-                      : val.hasError
-                          ? _ErrorDisplay(message: val.errorDescription!)
-                          : const _LoadingSpinner(),
-                ),
+                    // Video / audio surface
+                    Center(
+                      child: val.isInitialized
+                          ? (ctrl.isAudioOnly
+                              ? _AudioPlayerView(
+                                  controller: ctrl,
+                                  item: widget.item!,
+                                )
+                              : AspectRatio(
+                                  aspectRatio: val.aspectRatio,
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () => val.isPlaying
+                                        ? ctrl.pause()
+                                        : ctrl.play(),
+                                    child: VideoPlayer(ctrl),
+                                  ),
+                                ))
+                          : val.hasError
+                              ? _ErrorDisplay(message: val.errorDescription!)
+                              : const _LoadingSpinner(),
+                    ),
 
-                // Buffering indicator (centered)
-                if (val.isInitialized && val.isBuffering)
-                  const Center(child: _LoadingSpinner()),
+                    // Buffering indicator (centered)
+                    if (val.isInitialized && val.isBuffering)
+                      const Center(child: _LoadingSpinner()),
 
-                // Center play indicator when paused (video only)
-                if (val.isInitialized && !val.isPlaying && !ctrl.isAudioOnly)
-                  IgnorePointer(
-                    child: Center(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.55),
-                          shape: BoxShape.circle,
+                    // Center play indicator when paused (video only)
+                    if (val.isInitialized &&
+                        !val.isPlaying &&
+                        !ctrl.isAudioOnly)
+                      IgnorePointer(
+                        child: Center(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.55),
+                              shape: BoxShape.circle,
+                            ),
+                            padding: const EdgeInsets.all(20),
+                            child: const Icon(
+                              Icons.play_arrow,
+                              color: Colors.white,
+                              size: 60,
+                            ),
+                          ),
                         ),
-                        padding: const EdgeInsets.all(20),
-                        child: const Icon(
-                          Icons.play_arrow_rounded,
-                          color: Colors.white,
-                          size: 60,
+                      ),
+
+                    // Debug overlays — both are video-only concepts.
+                    if (_showTimecode && !ctrl.isAudioOnly)
+                      _TimecodeOverlay(position: val.position),
+                    if (_fpsWindow != null && !ctrl.isAudioOnly)
+                      _FpsOverlay(fps: _currentFps, window: _fpsWindow!),
+
+                    // Top bar
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: _ChromeFader(
+                        animation: _chromeAnim,
+                        child: _TopBar(
+                          item: widget.item!,
+                          controller: ctrl,
+                          fpsWindow: _fpsWindow,
+                          // FPS is a video-only concept — hide for audio.
+                          onCycleFps:
+                              ctrl.isAudioOnly ? null : _cycleFpsWindow,
                         ),
                       ),
                     ),
-                  ),
 
-                // Debug overlays — both are video-only concepts.
-                if (_showTimecode && !ctrl.isAudioOnly)
-                  _TimecodeOverlay(position: val.position),
-                if (_fpsWindow != null && !ctrl.isAudioOnly)
-                  _FpsOverlay(fps: _currentFps, window: _fpsWindow!),
-
-                // Top bar
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: _ChromeFader(
-                    animation: _chromeAnim,
-                    child: _TopBar(
-                      item: widget.item!,
-                      controller: ctrl,
-                      fpsWindow: _fpsWindow,
-                      // FPS is a video-only concept — hide for audio.
-                      onCycleFps: ctrl.isAudioOnly ? null : _cycleFpsWindow,
+                    // Bottom bar
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: _ChromeFader(
+                        animation: _chromeAnim,
+                        fromTop: false,
+                        child: _BottomBar(
+                          controller: ctrl,
+                          isLooping: _isLooping,
+                          volume: _volume,
+                          onPokeChrome: _pokeChrome,
+                          onToggleLoop: () {
+                            setState(() => _isLooping = !_isLooping);
+                            ctrl.setLooping(_isLooping);
+                          },
+                          onToggleMute: () {
+                            if (_volume > 0) {
+                              _volumeBeforeMute = _volume;
+                              setState(() => _volume = 0);
+                            } else {
+                              setState(() => _volume = _volumeBeforeMute);
+                            }
+                            ctrl.setVolume(_volume);
+                          },
+                          onVolume: (v) {
+                            setState(() => _volume = v);
+                            ctrl.setVolume(v);
+                          },
+                          onCC: ctrl.isAudioOnly
+                              ? null
+                              : () => setState(() {
+                                    _settingsInitialTab = SettingsTab.subtitles;
+                                    _showSettings = true;
+                                    _showChrome();
+                                  }),
+                          onSettings: () => setState(() {
+                            _settingsInitialTab = SettingsTab.audio;
+                            _showSettings = true;
+                            _showChrome();
+                          }),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
+                  ],
+                );
+              },
+            ),
 
-                // Bottom bar
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: _ChromeFader(
-                    animation: _chromeAnim,
-                    fromTop: false,
-                    child: _BottomBar(
-                      controller: ctrl,
-                      isLooping: _isLooping,
-                      volume: _volume,
-                      onPokeChrome: _pokeChrome,
-                      onToggleLoop: () {
-                        setState(() => _isLooping = !_isLooping);
-                        ctrl.setLooping(_isLooping);
-                      },
-                      onToggleMute: () {
-                        if (_volume > 0) {
-                          _volumeBeforeMute = _volume;
-                          setState(() => _volume = 0);
-                        } else {
-                          setState(() => _volume = _volumeBeforeMute);
-                        }
-                        ctrl.setVolume(_volume);
-                      },
-                      onVolume: (v) {
-                        setState(() => _volume = v);
-                        ctrl.setVolume(v);
-                      },
-                      onCC: ctrl.isAudioOnly
-                          ? null
-                          : () => setState(() {
-                                _settingsInitialTab = SettingsTab.subtitles;
-                                _showSettings = true;
-                                _showChrome();
-                              }),
-                      onSettings: () => setState(() {
-                        _settingsInitialTab = SettingsTab.audio;
-                        _showSettings = true;
-                        _showChrome();
-                      }),
-                    ),
-                  ),
-                ),
-
-                // Settings drawer
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 280),
-                  curve: Curves.easeOutCubic,
-                  top: 0,
-                  bottom: 0,
-                  right: _showSettings ? 0 : -SettingsPanel.width,
-                  width: SettingsPanel.width,
-                  child: SettingsPanel(
-                    controller: ctrl,
-                    initialTab: _settingsInitialTab,
-                    onClose: () {
-                      setState(() => _showSettings = false);
-                      _restartChromeTimer();
-                    },
-                  ),
-                ),
-              ],
-            );
-          },
+            // Settings drawer — sibling of the ValueListenableBuilder,
+            // NOT a descendant. Rebuilds only when this State calls
+            // setState (user toggles panel / initial tab).
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 280),
+              curve: Curves.easeOutCubic,
+              top: 0,
+              bottom: 0,
+              right: _showSettings ? 0 : -SettingsPanel.width,
+              width: SettingsPanel.width,
+              child: SettingsPanel(
+                controller: ctrl,
+                initialTab: _settingsInitialTab,
+                onClose: () {
+                  setState(() => _showSettings = false);
+                  _restartChromeTimer();
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -611,78 +630,89 @@ class _BottomBar extends StatelessWidget {
             // Progress bar
             _CinemaProgressBar(controller: controller),
             const SizedBox(height: 8),
-            // Time + transport + right cluster
-            Row(
-              children: [
-                // Time
-                SizedBox(
-                  width: 110,
-                  child: Text(
-                    '${_PlayerScreenState._formatDuration(val.position)}  /  ${_PlayerScreenState._formatDuration(val.duration)}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontFamily: 'monospace',
-                      fontFeatures: [FontFeature.tabularFigures()],
-                      letterSpacing: 0.4,
-                    ),
+            // Time + right cluster + transport.
+            // Transport is center-positioned in a Stack so narrow windows
+            // that overflow the right cluster can't horizontally shift
+            // the transport cluster frame-to-frame (visible flicker).
+            SizedBox(
+              height: 56,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Row(
+                    children: [
+                      // Time
+                      SizedBox(
+                        width: 110,
+                        child: Text(
+                          '${_PlayerScreenState._formatDuration(val.position)}  /  ${_PlayerScreenState._formatDuration(val.duration)}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontFamily: 'monospace',
+                            fontFeatures: [FontFeature.tabularFigures()],
+                            letterSpacing: 0.4,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      // Right cluster
+                      _IconButton(
+                        icon: Icons.replay_circle_filled_outlined,
+                        tooltip: isLooping ? 'Loop on' : 'Loop off',
+                        active: isLooping,
+                        onTap: onToggleLoop,
+                      ),
+                      _IconButton(
+                        icon: volume == 0
+                            ? Icons.volume_off_rounded
+                            : volume < 0.5
+                                ? Icons.volume_down_rounded
+                                : Icons.volume_up_rounded,
+                        tooltip: volume == 0 ? 'Unmute' : 'Mute',
+                        onTap: onToggleMute,
+                      ),
+                      SizedBox(
+                        width: 90,
+                        child: SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            trackHeight: 2,
+                            activeTrackColor: Colors.white70,
+                            inactiveTrackColor: _kFaint,
+                            thumbColor: Colors.white,
+                            overlayColor: Colors.white24,
+                            thumbShape: const RoundSliderThumbShape(
+                                enabledThumbRadius: 5),
+                          ),
+                          child: Slider(value: volume, onChanged: onVolume),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      if (!controller.isAudioOnly &&
+                          val.duration > Duration.zero)
+                        _SpeedChip(
+                          speed: val.playbackSpeed,
+                          onChanged: (s) => controller.setPlaybackSpeed(s),
+                        ),
+                      const SizedBox(width: 4),
+                      _IconButton(
+                        icon: Icons.closed_caption_outlined,
+                        tooltip: 'Subtitles',
+                        onTap: onCC,
+                      ),
+                      _IconButton(
+                        icon: Icons.tune_rounded,
+                        tooltip: 'Settings',
+                        onTap: onSettings,
+                      ),
+                    ],
                   ),
-                ),
-                const Spacer(),
-                _TransportCluster(controller: controller),
-                const Spacer(),
-                // Right cluster
-                _IconButton(
-                  icon: Icons.replay_circle_filled_outlined,
-                  tooltip: isLooping ? 'Loop on' : 'Loop off',
-                  active: isLooping,
-                  onTap: onToggleLoop,
-                ),
-                _IconButton(
-                  icon: volume == 0
-                      ? Icons.volume_off_rounded
-                      : volume < 0.5
-                          ? Icons.volume_down_rounded
-                          : Icons.volume_up_rounded,
-                  tooltip: volume == 0 ? 'Unmute' : 'Mute',
-                  onTap: onToggleMute,
-                ),
-                SizedBox(
-                  width: 90,
-                  child: SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      trackHeight: 2,
-                      activeTrackColor: Colors.white70,
-                      inactiveTrackColor: _kFaint,
-                      thumbColor: Colors.white,
-                      overlayColor: Colors.white24,
-                      thumbShape:
-                          const RoundSliderThumbShape(enabledThumbRadius: 5),
-                    ),
-                    child: Slider(value: volume, onChanged: onVolume),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                // Speed only applies to seekable video — hidden for audio
-                // tracks (rate-stretching audio is rarely useful here) and
-                // for live streams (unknown duration).
-                if (!controller.isAudioOnly && val.duration > Duration.zero)
-                  _SpeedChip(
-                    speed: val.playbackSpeed,
-                    onChanged: (s) => controller.setPlaybackSpeed(s),
-                  ),
-                const SizedBox(width: 4),
-                _IconButton(
-                  icon: Icons.closed_caption_outlined,
-                  tooltip: 'Subtitles',
-                  onTap: onCC,
-                ),
-                _IconButton(
-                  icon: Icons.tune_rounded,
-                  tooltip: 'Settings',
-                  onTap: onSettings,
-                ),
-              ],
+                  // Transport cluster — absolutely centered, rendered on
+                  // top of the Row so it stays put regardless of left/right
+                  // cluster widths.
+                  _TransportCluster(controller: controller),
+                ],
+              ),
             ),
           ],
         ),
@@ -691,30 +721,83 @@ class _BottomBar extends StatelessWidget {
   }
 }
 
-class _TransportCluster extends StatelessWidget {
+class _TransportCluster extends StatefulWidget {
   const _TransportCluster({required this.controller});
   final MiniController controller;
 
   @override
+  State<_TransportCluster> createState() => _TransportClusterState();
+}
+
+class _TransportClusterState extends State<_TransportCluster> {
+  // _TransportCluster's appearance only depends on these two flags.
+  // Subscribing to the controller directly and only calling setState
+  // when THESE values change means the cluster (and its pause-button
+  // BoxShadow halo) doesn't re-rasterise on every 500ms position tick.
+  // The parent `ValueListenableBuilder` still rebuilds on position
+  // ticks but it recreates this StatefulWidget's outer Widget instance,
+  // not this State — and our `didUpdateWidget` ignores that churn.
+  late bool _isInitialized = widget.controller.value.isInitialized;
+  late bool _isPlaying = widget.controller.value.isPlaying;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onControllerTick);
+  }
+
+  @override
+  void didUpdateWidget(_TransportCluster oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.controller, widget.controller)) {
+      oldWidget.controller.removeListener(_onControllerTick);
+      widget.controller.addListener(_onControllerTick);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onControllerTick);
+    super.dispose();
+  }
+
+  void _onControllerTick() {
+    final v = widget.controller.value;
+    if (v.isInitialized != _isInitialized || v.isPlaying != _isPlaying) {
+      setState(() {
+        _isInitialized = v.isInitialized;
+        _isPlaying = v.isPlaying;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final val = controller.value;
+    final controller = widget.controller;
+    // `val` only used for {isInitialized, isPlaying}; the seek closures
+    // read controller.value.position lazily at call time so this build
+    // isn't bound to position.
+    final isInitialized = _isInitialized;
+    final isPlaying = _isPlaying;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         _IconButton(
-          icon: Icons.replay_10_rounded,
+          icon: Icons.replay_10,
           tooltip: 'Back 10s',
           size: 26,
-          onTap: val.isInitialized
-              ? () =>
-                  controller.seekTo(val.position - const Duration(seconds: 10))
+          onTap: isInitialized
+              ? () => controller.seekTo(
+                  controller.value.position - const Duration(seconds: 10))
               : null,
         ),
         const SizedBox(width: 8),
         InkWell(
           customBorder: const CircleBorder(),
-          onTap: val.isInitialized
-              ? () => val.isPlaying ? controller.pause() : controller.play()
+          onTap: isInitialized
+              ? () => controller.value.isPlaying
+                  ? controller.pause()
+                  : controller.play()
               : null,
           child: Container(
             width: 56,
@@ -731,7 +814,7 @@ class _TransportCluster extends StatelessWidget {
               ],
             ),
             child: Icon(
-              val.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+              isPlaying ? Icons.pause : Icons.play_arrow,
               color: Colors.black,
               size: 32,
             ),
@@ -739,12 +822,12 @@ class _TransportCluster extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         _IconButton(
-          icon: Icons.forward_10_rounded,
+          icon: Icons.forward_10,
           tooltip: 'Forward 10s',
           size: 26,
-          onTap: val.isInitialized
-              ? () =>
-                  controller.seekTo(val.position + const Duration(seconds: 10))
+          onTap: isInitialized
+              ? () => controller.seekTo(
+                  controller.value.position + const Duration(seconds: 10))
               : null,
         ),
       ],
